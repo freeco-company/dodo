@@ -1,0 +1,17 @@
+{
+  "appId": "com.jerosse.doudou",
+  "appName": "FP 豆豆",
+  "webDir": "public",
+  "server": {
+    "cleartext": false,
+    "allowNavigation": [
+      "pandora.js-store.com.tw",
+      "*.pandora.js-store.com.tw"
+    ]
+  },
+  "ios": {
+    "contentInset": "automatic",
+    "scrollEnabled": true,
+    "backgroundColor": "#FFF5F5"
+  }
+}

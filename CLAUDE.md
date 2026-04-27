@@ -35,10 +35,12 @@ dodo/
 ├── CLAUDE.md          ← 你正在看的這個
 ├── MIGRATION_LOG.md   ← Node→Laravel 遷移進度
 ├── backend/           ← Laravel 13 主棧（本 repo 主體）
-└── frontend/          ← 規劃中（RN App / Capacitor）
+└── frontend/          ← Capacitor + 純 web bundle（2026-04-28 從 ai-game/ 複製）
 ```
 
 **舊 Node 版本** 並列保留在 [`../ai-game/`](../ai-game/) 至 Phase G 上架成功 + 1 個月後再評估刪除。
+
+**前端狀態**：`frontend/public/` + `frontend/ios/` 是從 `../ai-game/` **複製**過來的，API 呼叫還寫死指向舊 Fastify。下個 session 必須先把 endpoint 對接 dodo/backend 才能 cap sync 出新 iOS build。詳見 [`frontend/README.md`](frontend/README.md) 與根層 [`../HANDOFF.md`](../HANDOFF.md)。
 
 ---
 

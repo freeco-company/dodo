@@ -1,0 +1,57 @@
+# robots.txt — Doudou 豆豆 減脂夥伴
+# Based on patterns from sister project pandora.js-store.
+# Goal: allow quality crawlers (Google / AI search engines), block system paths.
+
+User-agent: *
+Allow: /
+
+# System / auth / admin paths shouldn't be indexed
+Disallow: /api/
+Disallow: /admin
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /characters/
+Disallow: /_next/
+Disallow: /cdn-cgi/
+
+# AI search engines — explicit allow so they can surface us in AI answers.
+# GEO (Generative Engine Optimization): these bots feed ChatGPT / Claude /
+# Perplexity / Google SGE / Apple Intelligence search. If you want to rank in
+# AI answers ("what減脂 app 好用?"), you need to let them in.
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+Sitemap: https://doudou.freeco.tw/sitemap.xml

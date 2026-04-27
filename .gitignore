@@ -36,8 +36,18 @@
 /backend/database/database.sqlite
 /backend/auth.json
 
-# Future frontend / RN App
+# Frontend (Capacitor + web bundle)
 /frontend/node_modules/
 /frontend/.next/
 /frontend/dist/
 /frontend/build/
+/frontend/package-lock.json
+# iOS Capacitor / Xcode generated artifacts
+/frontend/ios/App/Pods/
+/frontend/ios/App/build/
+/frontend/ios/App/DerivedData/
+/frontend/ios/App/App.xcworkspace/xcuserdata/
+/frontend/ios/App/App.xcodeproj/xcuserdata/
+/frontend/ios/App/App.xcodeproj/project.xcworkspace/xcuserdata/
+/frontend/ios/capacitor-cordova-ios-plugins/Pods/
+**/*.xcuserstate

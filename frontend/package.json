@@ -1,0 +1,21 @@
+{
+  "name": "dodo-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "朵朵 Dodo 前端 — Capacitor + iOS shell + 純 web bundle (從 ai-game/ 複製過來，等遷移完成後從 ai-game/ 刪除)",
+  "scripts": {
+    "cap:sync:ios": "npx cap sync ios",
+    "cap:open:ios": "npx cap open ios",
+    "cap:run:ios": "npx cap run ios",
+    "ios:setup": "npx cap sync ios && npx cap open ios",
+    "serve": "npx http-server public -p 5173 -c-1"
+  },
+  "dependencies": {
+    "@capacitor/core": "^6.2.1",
+    "@capacitor/ios": "^6.2.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.1",
+    "http-server": "^14.1.1"
+  }
+}

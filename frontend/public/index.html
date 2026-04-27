@@ -1,0 +1,1266 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+
+<!-- Primary SEO -->
+<title>豆豆 Doudou · 減脂夥伴 — 遊戲化陪你每天做一件小事</title>
+<meta name="description" content="豆豆是結合遊戲化養成、AI 陪跑對話與拍照食物辨識的減脂 App，專為想好好吃飯的你而做。養成習慣，不用再靠意志力 🫶" />
+<meta name="keywords" content="減脂, 減肥 App, 拍照熱量, 食物辨識, 習慣養成, AI 減脂, 台灣減脂 App, Doudou, 豆豆" />
+<meta name="author" content="Fairy Pandora" />
+<meta name="robots" content="index, follow, max-image-preview:large" />
+<link rel="canonical" href="https://doudou.freeco.tw/" />
+
+<!-- Open Graph (Facebook / LINE / Threads) -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="豆豆 Doudou" />
+<meta property="og:title" content="豆豆 Doudou · 減脂夥伴" />
+<meta property="og:description" content="遊戲化 + AI 陪跑 + 拍照食物辨識，專為想好好吃飯的人做的減脂 App。" />
+<meta property="og:url" content="https://doudou.freeco.tw/" />
+<meta property="og:image" content="https://doudou.freeco.tw/og.png" />
+<meta property="og:locale" content="zh_TW" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="豆豆 Doudou · 減脂夥伴" />
+<meta name="twitter:description" content="遊戲化 + AI 陪跑 + 拍照食物辨識。" />
+<meta name="twitter:image" content="https://doudou.freeco.tw/og.png" />
+
+<!-- Theme / iOS -->
+<meta name="theme-color" content="#F4C5A3" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="豆豆" />
+
+<!-- JSON-LD: MobileApplication + Organization, helps AI search engines describe us accurately -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "MobileApplication",
+      "name": "豆豆 Doudou",
+      "alternateName": "Doudou",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "iOS, Android",
+      "description": "結合遊戲化養成、AI 陪跑對話與拍照食物辨識的減脂 App，專為 25-40 歲台灣女性設計。",
+      "inLanguage": "zh-Hant",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "TWD",
+        "description": "免費下載，訂閱方案 NT$290 / 月起"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "1",
+        "bestRating": "5"
+      }
+    },
+    {
+      "@type": "Organization",
+      "name": "Fairy Pandora",
+      "url": "https://doudou.freeco.tw/",
+      "logo": "https://doudou.freeco.tw/icon.png",
+      "sameAs": ["https://pandora.js-store.com.tw/"]
+    }
+  ]
+}
+</script>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=Kosugi+Maru&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Shippori+Mincho+B1:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Zen+Maru+Gothic:wght@400;500;700;900&family=Yusei+Magic&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css?v=35" />
+</head>
+<body>
+<div id="app" class="max-w-md mx-auto">
+
+  <!-- === Welcome / Register === -->
+  <section id="screen-welcome" class="p-6 pt-8">
+    <div class="brand-head">Fairy Pandora</div>
+    <h1 class="welcome-title">潘朵拉的盒子<br/>為你開啟</h1>
+    <p class="welcome-sub">從盒中走出的 9 位精靈，每一位都能陪你走一段減脂旅程。<br/>選一位，遇見你命定的那位夥伴。</p>
+
+    <div class="character-stage mb-3" id="welcome-char"></div>
+    <div id="welcome-spirit-label" class="spirit-label"></div>
+
+    <form id="reg-form" class="card p-5 space-y-4" novalidate>
+      <div>
+        <label class="label">先挑一位夥伴 🐾</label>
+        <div class="species-picker" id="species-picker">
+          <button type="button" data-animal="cat"     class="sp-btn active"><div class="sp-char" data-mini="cat"></div><div class="sp-name">貓貓</div></button>
+          <button type="button" data-animal="rabbit"  class="sp-btn"><div class="sp-char" data-mini="rabbit"></div><div class="sp-name">兔兔</div></button>
+          <button type="button" data-animal="bear"    class="sp-btn"><div class="sp-char" data-mini="bear"></div><div class="sp-name">熊熊</div></button>
+          <button type="button" data-animal="hamster" class="sp-btn"><div class="sp-char" data-mini="hamster"></div><div class="sp-name">倉鼠</div></button>
+          <button type="button" data-animal="fox"     class="sp-btn"><div class="sp-char" data-mini="fox"></div><div class="sp-name">狐狸</div></button>
+          <button type="button" data-animal="shiba"    class="sp-btn"><div class="sp-char" data-mini="shiba"></div><div class="sp-name">柴犬</div></button>
+          <button type="button" data-animal="dinosaur" class="sp-btn"><div class="sp-char" data-mini="dinosaur"></div><div class="sp-name">恐龍</div></button>
+          <button type="button" data-animal="penguin"  class="sp-btn"><div class="sp-char" data-mini="penguin"></div><div class="sp-name">企鵝</div></button>
+          <button type="button" data-animal="tuxedo"   class="sp-btn"><div class="sp-char" data-mini="tuxedo"></div><div class="sp-name">賓士貓</div></button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">名字</label>
+        <input name="name" class="input" placeholder="Amy（2-20 字）" maxlength="20" value="Chris"/>
+        <div class="field-err" data-for="name"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="field">
+          <label class="label">身高 (cm)</label>
+          <input name="height_cm" type="number" inputmode="decimal" class="input" placeholder="162" min="100" max="250" value="173"/>
+          <div class="field-err" data-for="height_cm"></div>
+        </div>
+        <div class="field">
+          <label class="label">體重 (kg)</label>
+          <input name="current_weight_kg" type="number" inputmode="decimal" step="0.1" class="input" placeholder="62" min="30" max="250" value="71.5"/>
+          <div class="field-err" data-for="current_weight_kg"></div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="field">
+          <label class="label">目標 (kg)</label>
+          <input name="target_weight_kg" type="number" inputmode="decimal" step="0.1" class="input" placeholder="57（選填）" min="30" max="250" value="65"/>
+          <div class="field-err" data-for="target_weight_kg"></div>
+        </div>
+        <div>
+          <label class="label">活動量</label>
+          <select name="activity_level" class="input">
+            <option value="sedentary">久坐</option>
+            <option value="light" selected>輕量</option>
+            <option value="moderate">中等</option>
+            <option value="active">高度</option>
+          </select>
+        </div>
+      </div>
+      <input type="hidden" name="gender" value="male"/>
+      <input type="hidden" name="avatar_animal" value="cat"/>
+      <div class="field">
+        <label class="label">FP 會員代碼（選填）</label>
+        <input name="fp_ref_code" class="input" placeholder="FP-xxx（加盟）/ JR-xxx（零售）" maxlength="40" autocomplete="off"/>
+        <div class="text-[11px] text-muted mt-1">有婕樂纖會員代碼填這裡，可解鎖專屬內容</div>
+      </div>
+      <button type="submit" class="btn-primary w-full">開始旅程 ✨</button>
+
+    </form>
+  </section>
+
+  <!-- === Box opening ceremony (Pandora's box reveal) === -->
+  <section id="screen-ceremony" class="hidden ceremony-screen">
+    <div class="ceremony-bg"></div>
+    <div class="ceremony-starfield"></div>
+    <div class="ceremony-wrap">
+      <div class="brand-head" style="color:#fff;opacity:.7;">Fairy Pandora</div>
+      <div class="ceremony-box" id="ceremony-box">
+        <svg viewBox="0 0 240 240" class="box-svg" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="boxGold" x1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FFE0A8"/>
+              <stop offset="50%" stop-color="#F4D78A"/>
+              <stop offset="100%" stop-color="#C9A961"/>
+            </linearGradient>
+            <linearGradient id="boxSide" x1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#C9A961"/>
+              <stop offset="100%" stop-color="#8A6820"/>
+            </linearGradient>
+            <radialGradient id="boxGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#FFF9CC" stop-opacity="1"/>
+              <stop offset="40%" stop-color="#FFD56E" stop-opacity=".85"/>
+              <stop offset="100%" stop-color="#FFD56E" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+
+          <!-- Inner glow (behind everything, revealed when lids open) -->
+          <circle cx="120" cy="150" r="80" fill="url(#boxGlow)" class="box-glow" id="box-glow"/>
+
+          <!-- Light rays burst -->
+          <g class="box-rays" id="box-rays">
+            <path d="M 120 150 L 30 70"  stroke="#FFF9CC" stroke-width="2.5" stroke-linecap="round" opacity=".85"/>
+            <path d="M 120 150 L 70 20"  stroke="#FFEBD5" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+            <path d="M 120 150 L 120 0"  stroke="#FFF9CC" stroke-width="3" stroke-linecap="round" opacity=".95"/>
+            <path d="M 120 150 L 170 20" stroke="#FFEBD5" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+            <path d="M 120 150 L 210 70" stroke="#FFF9CC" stroke-width="2.5" stroke-linecap="round" opacity=".85"/>
+            <path d="M 120 150 L 60 40"  stroke="#FFE0A8" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
+            <path d="M 120 150 L 180 40" stroke="#FFE0A8" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
+          </g>
+
+          <!-- Box body (stays still) -->
+          <g class="box-body">
+            <!-- back panel (slight perspective) -->
+            <path d="M 56 140 L 184 140 L 200 152 L 40 152 Z" fill="url(#boxSide)" opacity=".6"/>
+            <!-- main front -->
+            <rect x="40" y="150" width="160" height="80" rx="6" fill="url(#boxGold)" stroke="#8A6820" stroke-width="2"/>
+            <!-- front shadow -->
+            <rect x="40" y="150" width="160" height="14" fill="url(#boxSide)" opacity=".35"/>
+            <!-- keyhole -->
+            <circle cx="120" cy="188" r="5" fill="#8A6820"/>
+            <rect x="118" y="186" width="4" height="14" fill="#8A6820" rx="1"/>
+            <!-- decorative corners -->
+            <circle cx="52" cy="162" r="2" fill="#8A6820" opacity=".7"/>
+            <circle cx="188" cy="162" r="2" fill="#8A6820" opacity=".7"/>
+            <circle cx="52" cy="218" r="2" fill="#8A6820" opacity=".7"/>
+            <circle cx="188" cy="218" r="2" fill="#8A6820" opacity=".7"/>
+          </g>
+
+          <!-- Left lid half (hinged at its LEFT edge = x=40,y=150) -->
+          <g class="box-lid-left" id="box-lid-left">
+            <rect x="40" y="126" width="80" height="28" rx="4" fill="url(#boxGold)" stroke="#8A6820" stroke-width="2"/>
+            <rect x="40" y="126" width="80" height="8" fill="url(#boxSide)" opacity=".3"/>
+            <circle cx="110" cy="140" r="3" fill="#E89F7A"/>
+          </g>
+
+          <!-- Right lid half (hinged at its RIGHT edge = x=200,y=150) -->
+          <g class="box-lid-right" id="box-lid-right">
+            <rect x="120" y="126" width="80" height="28" rx="4" fill="url(#boxGold)" stroke="#8A6820" stroke-width="2"/>
+            <rect x="120" y="126" width="80" height="8" fill="url(#boxSide)" opacity=".3"/>
+            <circle cx="130" cy="140" r="3" fill="#E89F7A"/>
+          </g>
+
+          <!-- Inner particle sparkles (SVG-level, accompany the big dom particles) -->
+          <g class="box-sparkles" id="box-sparkles">
+            <circle class="spk" cx="120" cy="140" r="2" fill="#FFF9CC" style="--dx:-40px;--dy:-60px;--dly:0s"/>
+            <circle class="spk" cx="120" cy="140" r="1.5" fill="#F4D78A" style="--dx:50px;--dy:-70px;--dly:.1s"/>
+            <circle class="spk" cx="120" cy="140" r="2.5" fill="#FFEBD5" style="--dx:-60px;--dy:-30px;--dly:.2s"/>
+            <circle class="spk" cx="120" cy="140" r="1.5" fill="#FFD56E" style="--dx:30px;--dy:-90px;--dly:.15s"/>
+            <circle class="spk" cx="120" cy="140" r="2" fill="#FFF9CC" style="--dx:70px;--dy:-50px;--dly:.25s"/>
+            <circle class="spk" cx="120" cy="140" r="1.5" fill="#F4D78A" style="--dx:-20px;--dy:-100px;--dly:.3s"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- DOM-level floating particles (CSS animated, scatter around the box) -->
+      <div class="box-particles" id="box-particles"></div>
+      <div id="ceremony-spirit" class="ceremony-spirit"></div>
+      <div id="ceremony-text" class="ceremony-text"></div>
+      <button id="ceremony-continue" class="btn-primary ceremony-btn hidden">與牠開始旅程</button>
+    </div>
+  </section>
+
+  <!-- === Main Screen === -->
+  <section id="main" class="hidden pb-28">
+
+    <!-- Top Header with character -->
+    <header class="top-header relative pt-4 pb-3 px-5">
+      <div class="flex items-center justify-between mb-1">
+        <div class="flex items-center gap-2">
+          <span class="level-pill">LV.<span id="m-level" class="num">1</span></span>
+          <span class="text-xs font-semibold" id="m-level-name">種子期</span>
+        </div>
+        <button id="gift-btn" class="gift-btn" title="每日潘朵拉驚喜">
+          <svg class="gift-box-icon" viewBox="0 0 40 40" width="28" height="28">
+            <defs>
+              <linearGradient id="gbGold" x1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#FFE0A8"/>
+                <stop offset="60%" stop-color="#F4D78A"/>
+                <stop offset="100%" stop-color="#C9A961"/>
+              </linearGradient>
+            </defs>
+            <!-- lid -->
+            <rect x="6" y="14" width="28" height="8" rx="2" fill="url(#gbGold)" stroke="#8A6820" stroke-width="1.5"/>
+            <!-- body -->
+            <rect x="8" y="22" width="24" height="14" rx="2" fill="url(#gbGold)" stroke="#8A6820" stroke-width="1.5"/>
+            <!-- keyhole -->
+            <circle cx="20" cy="29" r="1.3" fill="#8A6820"/>
+            <rect x="19.3" y="28" width="1.4" height="4" fill="#8A6820" rx="0.5"/>
+            <!-- ribbon -->
+            <rect x="18.5" y="14" width="3" height="22" fill="#E88BA0"/>
+            <path d="M 20 14 C 14 10, 12 4, 20 10 C 28 4, 26 10, 20 14 Z" fill="#E88BA0"/>
+          </svg>
+          <span class="gift-badge" id="gift-badge">!</span>
+          <span class="gift-countdown hidden" id="gift-countdown">—</span>
+        </button>
+      </div>
+
+      <div class="character-stage" id="char-stage"></div>
+      <div class="character-speech" id="char-speech">你好呀～</div>
+
+      <div class="mt-3 mx-5">
+        <div class="flex justify-between text-[11px] text-muted mb-1">
+          <span><span id="m-xp-label" class="num-pop">0</span> XP</span>
+          <span>還差 <span id="m-xp-next" class="num">50</span></span>
+        </div>
+        <div class="xp-bar"><div id="m-xp-fill" class="xp-fill" style="width:0%"></div></div>
+        <div class="evolution-hint" id="m-evolution-hint"></div>
+      </div>
+
+      <!-- Tamagotchi care row — tap to care for your pet, get live reactions -->
+      <div class="care-row">
+        <button class="care-btn" type="button" data-care="water" data-amount="250">
+          <div class="care-emoji" id="care-icon-water1"></div>
+          <div class="care-label">+250</div>
+        </button>
+        <button class="care-btn" type="button" data-care="water" data-amount="500">
+          <div class="care-emoji" id="care-icon-water2"></div>
+          <div class="care-label">+500</div>
+        </button>
+        <button class="care-btn" type="button" data-care="exercise" data-amount="15">
+          <div class="care-emoji" id="care-icon-exercise"></div>
+          <div class="care-label">+15分</div>
+        </button>
+        <button class="care-btn" type="button" data-care="weight">
+          <div class="care-emoji" id="care-icon-scale"></div>
+          <div class="care-label">體重</div>
+        </button>
+      </div>
+
+      <!-- Daily goal progress bars (tappable — opens edit modal) -->
+      <div class="care-goals">
+        <button class="care-goal" id="care-goal-water" type="button">
+          <div class="care-goal-head">
+            <span class="care-goal-icon" id="goal-icon-water"></span>
+            <span class="care-goal-text"><b id="care-stat-water">0</b> / <span id="care-target-water">3000</span> ml</span>
+            <span class="care-goal-pct" id="care-pct-water">0%</span>
+          </div>
+          <div class="care-goal-bar"><div class="care-goal-fill water-fill" id="care-fill-water" style="width:0%"></div></div>
+        </button>
+        <button class="care-goal" id="care-goal-exercise" type="button">
+          <div class="care-goal-head">
+            <span class="care-goal-icon" id="goal-icon-exercise"></span>
+            <span class="care-goal-text"><b id="care-stat-exercise">0</b> / <span id="care-target-exercise">30</span> 分</span>
+            <span class="care-goal-pct" id="care-pct-exercise">0%</span>
+          </div>
+          <div class="care-goal-bar"><div class="care-goal-fill exercise-fill" id="care-fill-exercise" style="width:0%"></div></div>
+        </button>
+        <div class="care-streak-chip">
+          <span class="care-stat-icon" id="care-icon-streak"></span>
+          <span id="care-stat-streak">0</span> 天
+        </div>
+      </div>
+    </header>
+
+    <!-- Bottom nav: 5 primary tabs (鎖在底部) -->
+    <nav class="tabs">
+      <button class="tab active" data-tab="home"><span class="tab-ico" data-icon="tab_home"></span><span class="tab-label">首頁</span></button>
+      <button class="tab" data-tab="island"><span class="tab-ico" data-icon="tab_island"></span><span class="tab-label">島嶼</span></button>
+      <button class="tab tab-cta" data-tab="scan"><span class="tab-ico" data-icon="tab_scan"></span></button>
+      <button class="tab tab-cards" id="nav-cards" type="button"><span class="tab-ico" data-icon="tab_cards"></span><span class="tab-label">卡牌</span><span class="cards-stamina-dot hidden" id="nav-cards-dot"></span></button>
+      <button class="tab" data-tab="me"><span class="tab-ico" data-icon="tab_me"></span><span class="tab-label">我的</span></button>
+    </nav>
+
+    <!-- ===== Home tab ===== -->
+    <div id="tab-home" class="px-5 space-y-4">
+
+      <!-- Calorie ring — most important info, pinned to top -->
+      <div class="card p-5">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <div class="text-xs text-muted">剩餘卡路里</div>
+            <div class="num-pop text-2xl" id="m-remaining">—</div>
+            <div class="text-[11px] text-muted">目標 <span id="m-target" class="num">1800</span> 卡</div>
+          </div>
+          <div class="calorie-ring">
+            <svg viewBox="0 0 100 100" width="96" height="96">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="#EDE3D0" stroke-width="8"/>
+              <circle id="ring-fill" cx="50" cy="50" r="42" fill="none" stroke="url(#ringGrad)" stroke-width="8"
+                      stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264"
+                      transform="rotate(-90 50 50)"/>
+              <defs>
+                <linearGradient id="ringGrad" x1="0" x2="1">
+                  <stop offset="0%" stop-color="#F4C5A3"/>
+                  <stop offset="100%" stop-color="#E89F7A"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="calorie-ring-center">
+              <div class="num-pop text-lg" id="m-calories">0</div>
+              <div class="text-[10px] text-muted">已吃</div>
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-2 text-[11px]">
+          <span class="macro-chip"><b class="num" id="m-protein">0</b>g 蛋白</span>
+          <span class="macro-chip"><b class="num" id="m-carbs">0</b>g 碳水</span>
+          <span class="macro-chip"><b class="num" id="m-fat">0</b>g 脂肪</span>
+        </div>
+      </div>
+
+      <!-- Event card banner (shown when user has a pending event offer) -->
+      <div class="event-banner-wrap hidden" id="event-banner-wrap">
+        <button class="event-banner" id="event-banner" type="button">
+          <div class="event-banner-bolt" data-icon="bolt"></div>
+          <div class="event-banner-inner">
+            <div class="event-banner-eyebrow">突發事件 · 限時</div>
+            <div class="event-banner-title" id="event-banner-title">豆豆遇到狀況了！</div>
+            <div class="event-banner-sub">
+              剩餘時間 <span id="event-banner-ttl">—</span> · 點我看看 →
+            </div>
+          </div>
+          <div class="event-banner-sparkle"></div>
+        </button>
+        <button class="event-banner-close" id="event-banner-close" type="button" aria-label="跳過這次">×</button>
+      </div>
+
+      <!-- 🗺️ 21-day habit journey — hero of the home page -->
+      <div class="journey-card" id="journey-card">
+        <div class="journey-head">
+          <div class="journey-title">
+            <span class="journey-icon">🗺️</span>
+            <span>21 天習慣養成</span>
+            <span class="journey-cycle" id="journey-cycle">第 1 輪</span>
+          </div>
+          <div class="journey-day-pill">第 <b id="journey-day">1</b> 天</div>
+        </div>
+        <div class="journey-subtitle" id="journey-subtitle">每天完成一件小事 · 角色往前走一格</div>
+
+        <!-- Linear board (21 cells) -->
+        <div class="journey-board" id="journey-board"></div>
+
+        <!-- Next milestone preview -->
+        <div class="journey-next" id="journey-next"></div>
+
+        <div class="journey-today-hint" id="journey-today-hint"></div>
+      </div>
+
+      <!-- 🎯 Daily quests — 3 per day, completion advances journey -->
+      <div class="quest-card" id="quest-card">
+        <div class="quest-head">
+          <div class="quest-title"><span>🎯</span> 今日任務</div>
+          <div class="quest-progress-label" id="quest-progress-label">0 / 3 完成</div>
+        </div>
+        <div class="quest-list" id="quest-list"></div>
+      </div>
+
+      <!-- Smart action card — context-aware "do this next" prompt -->
+      <button class="smart-action" id="smart-action" type="button">
+        <div class="smart-action-inner">
+          <div class="smart-action-emoji" id="smart-action-emoji">☀️</div>
+          <div class="smart-action-body">
+            <div class="smart-action-title" id="smart-action-title">載入中...</div>
+            <div class="smart-action-sub" id="smart-action-sub"></div>
+          </div>
+          <div class="smart-action-arrow">›</div>
+        </div>
+      </button>
+
+      <!-- 3 big entry tiles: 卡片 / 島嶼 / 記一餐 -->
+      <div class="home-tiles">
+        <button class="home-tile home-tile-cards" id="home-tile-cards" type="button">
+          <div class="home-tile-emoji" id="tile-icon-cards"></div>
+          <div class="home-tile-label">知識卡</div>
+          <div class="home-tile-badge" id="home-tile-cards-badge">3</div>
+        </button>
+        <button class="home-tile home-tile-island" id="home-tile-island" type="button">
+          <div class="home-tile-emoji" id="tile-icon-island"></div>
+          <div class="home-tile-label">逛島嶼</div>
+          <div class="home-tile-badge" id="home-tile-island-badge">3</div>
+        </button>
+        <button class="home-tile home-tile-scan" id="home-tile-scan" type="button">
+          <div class="home-tile-emoji" id="tile-icon-scan"></div>
+          <div class="home-tile-label">記一餐</div>
+        </button>
+      </div>
+
+      <!-- Streak + shields + score -->
+      <div class="grid grid-cols-3 gap-3">
+        <div class="card p-3 text-center">
+          <div class="text-xl">🔥</div>
+          <div class="num-pop text-lg" id="m-streak">0</div>
+          <div class="text-[10px] text-muted">連續天數</div>
+        </div>
+        <div class="card p-3 text-center">
+          <div class="text-xl" id="m-score-emoji">⭐</div>
+          <div class="num-pop text-lg" id="m-today-score">0</div>
+          <div class="text-[10px] text-muted">今日分數</div>
+        </div>
+        <div class="card p-3 text-center">
+          <div class="text-xl">🛡️</div>
+          <div class="num-pop text-lg" id="m-shields">1</div>
+          <div class="text-[10px] text-muted">護盾</div>
+        </div>
+      </div>
+
+      <!-- Old 快速紀錄 removed — now integrated into the Tamagotchi care-row in the header -->
+
+      <!-- Today tasks -->
+      <div class="card p-4">
+        <div class="text-sm font-bold mb-2">今日任務 🎯</div>
+        <div id="m-tasks" class="space-y-2 text-sm"></div>
+      </div>
+
+      <!-- Today meals timeline -->
+      <div class="card p-4">
+        <div class="flex items-baseline justify-between mb-1">
+          <div class="text-sm font-bold">今天吃了什麼 🍱</div>
+          <div class="text-[11px] text-muted">點一下可修正</div>
+        </div>
+        <div class="text-[11px] text-muted mb-2">每餐會自動評分 · 長期記錄幫你找出進步空間</div>
+        <div id="m-meals-list" class="space-y-3 text-sm text-muted">還沒紀錄～上面點 🍱 記餐開始</div>
+      </div>
+
+      <!-- Friendship + achievements -->
+      <div class="card p-4">
+        <div class="flex justify-between items-center mb-2">
+          <div class="text-sm font-bold">💝 好感度</div>
+          <div class="text-xs text-muted num" id="m-friendship-num">0</div>
+        </div>
+        <div class="xp-bar mb-3"><div id="m-friendship-fill" class="xp-fill" style="width:0%;background:linear-gradient(90deg,#F4C5A3,#D4A5A5)"></div></div>
+        <div class="text-sm font-bold mb-2">🏅 徽章</div>
+        <div id="m-achievements" class="flex flex-wrap gap-2 text-xs">還沒有徽章～加油！</div>
+      </div>
+    </div>
+
+    <!-- Placeholder keeps the tab routing intact; real UI is fullscreen overlay below. -->
+    <div id="tab-island" class="hidden"></div>
+
+    <!-- ===== Scan tab ===== -->
+    <div id="tab-scan" class="hidden px-5 space-y-4">
+      <div class="card p-5 text-center">
+        <div class="text-lg font-bold mb-2">📷 拍照辨識</div>
+        <div class="value-row">
+          <span class="value-chip">辨識食物</span>
+          <span class="value-chip">算卡路里</span>
+          <span class="value-chip">打分數</span>
+          <span class="value-chip">收集圖鑑</span>
+        </div>
+        <p class="text-xs text-muted mt-3 mb-3" id="scan-hint">對著食物拍一張，夥伴幫你打分數跟算卡路里</p>
+        <div id="camera-wrap" class="camera-wrap hidden">
+          <video id="camera-video" autoplay playsinline></video>
+          <canvas id="camera-canvas" style="display:none"></canvas>
+        </div>
+        <div id="preview-wrap" class="camera-wrap hidden">
+          <img id="preview-img" alt="拍攝的食物"/>
+        </div>
+        <div class="flex gap-2 justify-center mt-3">
+          <button id="btn-start-cam" class="btn-primary">📷 開啟相機</button>
+          <button id="btn-capture" class="btn-primary hidden">拍一張！</button>
+          <button id="btn-retake" class="btn-secondary hidden">重拍</button>
+          <label class="btn-secondary cursor-pointer">
+            📁 從相簿
+            <input id="file-input" type="file" accept="image/*" class="hidden"/>
+          </label>
+        </div>
+        <div class="mt-3 text-[11px] text-muted">
+          提示：或在下面搜尋直接選擇
+        </div>
+        <div class="mt-3 relative">
+          <input id="food-search" class="input" placeholder="搜尋食物（珍奶、雞腿便當...）"/>
+          <div id="food-results" class="food-results mt-2"></div>
+        </div>
+
+        <div class="mt-3">
+          <label class="label">餐別</label>
+          <select id="log-meal-type" class="input">
+            <option value="breakfast">早餐</option>
+            <option value="lunch" selected>午餐</option>
+            <option value="dinner">晚餐</option>
+            <option value="snack">點心</option>
+          </select>
+        </div>
+        <button id="btn-log-meal" class="btn-primary w-full mt-3" disabled>請先拍照或選擇食物</button>
+      </div>
+
+      <div id="scan-result" class="hidden card p-5"></div>
+    </div>
+
+    <!-- ===== Chat tab ===== -->
+    <div id="tab-chat" class="hidden">
+      <div class="px-5">
+        <!-- Differentiation panel: what doudou sees that ChatGPT can't -->
+        <div id="sees-you-panel" class="sees-you-card mb-3 hidden">
+          <div class="sees-header">
+            <span class="sees-badge" id="sees-badge">只有夥伴知道</span>
+            <button class="sees-close" aria-label="關閉">×</button>
+          </div>
+          <div id="sees-facts" class="sees-facts"></div>
+          <ul id="sees-diffs" class="sees-diffs"></ul>
+        </div>
+
+        <div class="card flex flex-col" style="height:calc(100vh - 260px); min-height: 420px;">
+          <div id="chat-messages" class="flex-1 overflow-auto p-4 space-y-3 text-sm"></div>
+          <div id="chat-starters" class="px-3 pb-2 flex flex-wrap gap-2"></div>
+          <div class="p-2 border-t flex gap-2">
+            <input id="chat-input" class="flex-1 input" placeholder="跟夥伴說說今天..."/>
+            <button id="chat-send" class="btn-primary px-4">送</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Calendar / Habit tab ===== -->
+    <div id="tab-calendar" class="hidden px-5">
+      <div class="card p-4">
+        <div class="flex items-baseline justify-between mb-3">
+          <div class="text-sm font-bold">打卡日曆 📅</div>
+          <div class="text-xs text-muted">連 <span class="num-pop" id="cal-streak">0</span> 天 · 完美 <span class="num-pop" id="cal-perfect">0</span></div>
+        </div>
+        <div id="calendar-grid" class="cal-grid"></div>
+        <div class="cal-legend">
+          <span class="cal-cell cal-t0"></span><span>未紀錄</span>
+          <span class="cal-cell cal-t1"></span><span>一般</span>
+          <span class="cal-cell cal-t2"></span><span>不錯</span>
+          <span class="cal-cell cal-t3"></span><span>很棒</span>
+          <span class="cal-cell cal-t4"></span><span>完美</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Wardrobe / Outfits tab ===== -->
+    <div id="tab-wardrobe" class="hidden px-5">
+      <div class="card p-4">
+        <div class="text-sm font-bold mb-1">衣櫃 👗</div>
+        <p class="text-xs text-muted mb-3">點一下換裝！鎖住的要升等或解成就才能穿 ✨</p>
+        <div id="wardrobe-list" class="wardrobe-grid"></div>
+      </div>
+    </div>
+
+    <!-- ===== Achievements tab ===== -->
+    <div id="tab-achievements" class="hidden px-5">
+      <div class="card p-4">
+        <div class="flex items-baseline justify-between mb-3">
+          <div class="text-sm font-bold">成就徽章 🏅</div>
+          <div class="text-xs text-muted"><span class="num-pop" id="ach-done">0</span> / <span class="num" id="ach-total">0</span></div>
+        </div>
+        <div id="ach-list" class="space-y-2"></div>
+      </div>
+    </div>
+
+    <!-- ===== Cards Codex tab (知識卡圖鑑) ===== -->
+    <div id="tab-cards-codex" class="hidden px-5 space-y-3 pb-6">
+      <div class="card p-4">
+        <div class="flex items-baseline justify-between mb-1">
+          <div class="text-sm font-bold">卡牌圖鑑 🎴</div>
+          <div class="text-xs text-muted">
+            已收集 <span class="num-pop" id="codex-collected">0</span> / <span class="num" id="codex-total">0</span>
+          </div>
+        </div>
+        <div class="codex-progress">
+          <div id="codex-progress-fill" class="codex-progress-fill" style="width:0%"></div>
+        </div>
+        <div class="codex-stats">
+          <span class="codex-stat-chip">普通 <b id="codex-common">0/0</b></span>
+          <span class="codex-stat-chip codex-rare">稀有 <b id="codex-rare">0/0</b></span>
+          <span class="codex-stat-chip codex-leg">傳說 <b id="codex-legendary">0/0</b></span>
+          <span class="codex-stat-chip codex-event hidden" id="codex-event-chip">事件 <b id="codex-event">0/0</b></span>
+        </div>
+      </div>
+
+      <div class="codex-filters">
+        <button class="codex-filter active" data-filter="all">全部</button>
+        <button class="codex-filter" data-filter="knowledge">知識</button>
+        <button class="codex-filter" data-filter="scenario">情境</button>
+        <button class="codex-filter" data-filter="event">事件</button>
+      </div>
+
+      <div id="codex-grid" class="codex-grid"></div>
+
+      <div class="codex-empty hidden" id="codex-empty">
+        <div class="text-4xl mb-2">🎴</div>
+        <div class="text-sm text-muted">還沒收集任何卡片～<br/>去抽一張試試吧！</div>
+      </div>
+    </div>
+
+    <!-- ===== Pokedex tab ===== -->
+    <div id="tab-pokedex" class="hidden px-5">
+      <div class="card p-4">
+        <div class="flex justify-between items-baseline mb-2">
+          <div class="text-sm font-bold">食物圖鑑 📖</div>
+          <div class="text-xs text-muted">共 <span class="num" id="pokedex-total">0</span> · 閃光 <span class="num" id="pokedex-shiny">0</span> 🌟</div>
+        </div>
+        <div id="pokedex-list" class="grid grid-cols-3 gap-2"></div>
+      </div>
+    </div>
+
+    <!-- ===== Report tab ===== -->
+    <div id="tab-report" class="hidden px-5 space-y-4 pb-8">
+      <div class="report-hero">
+        <div class="rh-label">本週成績單</div>
+        <div class="rh-dates" id="rh-dates">—</div>
+        <div class="rh-main">
+          <div class="rh-metric">
+            <div class="rh-metric-num num" id="rh-avg">—</div>
+            <div class="rh-metric-label">平均分</div>
+          </div>
+          <div class="rh-divider"></div>
+          <div class="rh-metric">
+            <div class="rh-metric-num num" id="rh-perfect">—</div>
+            <div class="rh-metric-label">完美日 ✨</div>
+          </div>
+          <div class="rh-divider"></div>
+          <div class="rh-metric">
+            <div class="rh-metric-num num" id="rh-weight">—</div>
+            <div class="rh-metric-label">體重變化</div>
+          </div>
+        </div>
+        <div id="rh-trend" class="rh-trend"></div>
+      </div>
+
+      <div class="card p-4">
+        <div class="text-sm font-bold mb-2">7 天分數走勢 📈</div>
+        <div id="report-chart" class="report-chart"></div>
+      </div>
+
+      <div class="card p-4" id="report-top-foods">
+        <div class="text-sm font-bold mb-2">本週常吃 🍱</div>
+        <div id="report-foods-list" class="report-foods-list"></div>
+      </div>
+
+      <div class="card p-4" id="report-unlocks-wrap">
+        <div class="text-sm font-bold mb-2">本週解鎖 🏅</div>
+        <div id="report-unlocks" class="space-y-2"></div>
+      </div>
+
+      <div class="card p-5 report-letter" id="report-letter-card">
+        <div class="letter-header">
+          <span class="letter-stamp">💌</span>
+          <div class="text-sm font-bold" id="letter-header">夥伴給你的信</div>
+        </div>
+        <div id="report-letter-body" class="letter-body">—</div>
+      </div>
+
+      <div id="report-empty" class="empty-state hidden">
+        <div class="es-emoji">📮</div>
+        <div class="es-title">資料還不夠寫一封信</div>
+        <div class="es-hint" id="letter-empty-hint">至少 3 天有紀錄才能寫有內容的週報<br/>先回首頁記錄幾餐吧～</div>
+      </div>
+    </div>
+
+    <!-- ===== Me / 我的 tab — entry to secondary sections ===== -->
+    <div id="tab-me" class="hidden px-5 space-y-3">
+      <div class="me-header card p-4 text-center">
+        <div class="text-base font-bold mb-1" id="me-universe-title">夥伴的家 ✨</div>
+        <div class="text-xs text-muted">收藏、養成、紀錄全部都在這</div>
+        <div class="tier-badge" id="tier-badge"></div>
+      </div>
+
+      <!-- Membership / subscribe status card -->
+      <div class="card p-4" id="tier-status-card">
+        <div class="text-sm font-bold mb-1">💎 會員權益</div>
+        <div id="tier-status-summary" class="text-xs text-muted mb-2">載入中...</div>
+        <div class="flex flex-col gap-2" id="tier-actions-wrap">
+          <!-- Dynamically filled -->
+        </div>
+      </div>
+
+      <!-- Invite friends -->
+      <button class="me-entry card" id="me-referral" type="button">
+        <div class="me-entry-emoji">🎁</div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">邀請朋友 — 雙方各得 7 天試用</div>
+          <div class="me-entry-sub">分享你的邀請碼，朋友註冊就解鎖</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+
+      <!-- Upgrade / paywall entry (only shown when not subscribed) -->
+      <button class="me-entry card" id="me-upgrade" type="button" style="background:linear-gradient(135deg,#FFF8F2,#FFE5D0);border:2px solid #E89F7A;">
+        <div class="me-entry-emoji">✨</div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">升級訂閱</div>
+          <div class="me-entry-sub" id="me-upgrade-sub">解鎖每日 30 張拍照辨識、所有店家、無限對話</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+
+      <!-- Daily goals editor -->
+      <div class="card p-4" id="goals-settings-card">
+        <div class="text-sm font-bold mb-2">🎯 每日目標</div>
+        <label class="block text-xs text-muted mb-1">喝水目標（ml）</label>
+        <div class="flex gap-2 items-center">
+          <input id="settings-water-target" type="number" min="500" max="6000" step="250" class="input flex-1" value="3000"/>
+          <button id="settings-water-save" class="btn-primary" type="button">儲存</button>
+        </div>
+        <div class="text-[11px] text-muted mt-1">建議 2000–4000 ml；預設 3000 ml</div>
+      </div>
+
+      <!-- Redeem code entry -->
+      <div class="card p-4" id="tier-redeem-card">
+        <div class="text-sm font-bold mb-1">🎟️ 會員代碼</div>
+        <p class="text-xs text-muted mb-2">輸入 FP / 訂閱代碼</p>
+        <div class="flex gap-2">
+          <input id="tier-redeem-input" class="input flex-1" placeholder="FP-xxx 或 APP-xxx" maxlength="40"/>
+          <button id="tier-redeem-btn" class="btn-primary">兌換</button>
+        </div>
+      </div>
+      <button class="me-entry card" data-go="calendar">
+        <div class="me-entry-emoji">📅</div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">打卡日曆</div>
+          <div class="me-entry-sub">看看這週連了幾天、完成幾個完美日</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+
+      <button class="me-entry card" data-go="wardrobe">
+        <div class="me-entry-emoji">👗</div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">衣櫃</div>
+          <div class="me-entry-sub" id="wardrobe-sub">解鎖更多裝扮，幫夥伴換上你最愛的造型</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+      <button class="me-entry card" data-go="pokedex">
+        <div class="me-entry-emoji">📖</div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">食物圖鑑</div>
+          <div class="me-entry-sub">每記一種新食物就多一頁，閃光餐特別珍貴</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+
+      <button class="me-entry card" data-go="cards-codex">
+        <div class="me-entry-emoji">🎴</div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">卡牌圖鑑</div>
+          <div class="me-entry-sub">收集過的知識卡與情境卡，隨時回來複習 ✨</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+      <button class="me-entry card" data-go="achievements">
+        <div class="me-entry-emoji">🏅</div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">成就徽章</div>
+          <div class="me-entry-sub">完成挑戰，留下屬於你的旅程記號</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+      <!-- Legal / disclaimer footer — tiny but always accessible -->
+      <div class="me-disclaimer-footer">
+        <p><b>本服務非醫療建議</b>。豆豆提供一般性健康資訊，不能取代醫師 / 營養師 / 心理師的專業判斷。</p>
+        <p>有任何不適、治療中的疾病、或飲食情緒困擾，請先諮詢你的醫療團隊。</p>
+        <button type="button" id="me-show-disclaimer" class="me-disclaimer-link">再看一次完整聲明</button>
+      </div>
+
+      <!-- Account deletion entry (Apple App Store 5.1.1(v) compliance) -->
+      <button class="me-entry card" id="me-delete-account" type="button" style="opacity:0.6;">
+        <div class="me-entry-emoji">🗑️</div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">刪除帳號</div>
+          <div class="me-entry-sub">7 天後永久清除所有資料</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+
+      <button class="me-entry card" data-go="report">
+        <div class="me-entry-emoji">📮</div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">本週週報</div>
+          <div class="me-entry-sub" id="report-sub">每週一封信，給這週的你</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+    </div>
+  </section>
+</div>
+
+<div id="confetti-root"></div>
+<div id="toast-root"></div>
+
+<!-- Global sound toggle (floating) -->
+<button id="sfx-global-toggle" class="sfx-global-toggle" aria-label="音效開關">🔊</button>
+
+<!-- ===== Reward Modal (reusable for daily gift / level up / outfit / achievement) ===== -->
+<div id="reward-modal" class="reward-modal hidden" role="dialog" aria-hidden="true">
+  <div class="reward-backdrop"></div>
+  <div class="reward-content">
+    <div class="reward-starfield"></div>
+    <div class="reward-box" id="reward-box">
+      <svg viewBox="0 0 240 240" class="box-svg">
+        <defs>
+          <linearGradient id="rwGold" x1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#FFE0A8"/>
+            <stop offset="50%" stop-color="#F4D78A"/>
+            <stop offset="100%" stop-color="#C9A961"/>
+          </linearGradient>
+          <linearGradient id="rwSide" x1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#C9A961"/>
+            <stop offset="100%" stop-color="#8A6820"/>
+          </linearGradient>
+          <radialGradient id="rwGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#FFF9CC" stop-opacity="1"/>
+            <stop offset="40%" stop-color="#FFD56E" stop-opacity=".85"/>
+            <stop offset="100%" stop-color="#FFD56E" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="120" cy="150" r="80" fill="url(#rwGlow)" class="box-glow" id="rw-glow"/>
+        <g class="box-rays" id="rw-rays">
+          <path d="M 120 150 L 30 70"  stroke="#FFF9CC" stroke-width="2.5" stroke-linecap="round" opacity=".85"/>
+          <path d="M 120 150 L 70 20"  stroke="#FFEBD5" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+          <path d="M 120 150 L 120 0"  stroke="#FFF9CC" stroke-width="3" stroke-linecap="round" opacity=".95"/>
+          <path d="M 120 150 L 170 20" stroke="#FFEBD5" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+          <path d="M 120 150 L 210 70" stroke="#FFF9CC" stroke-width="2.5" stroke-linecap="round" opacity=".85"/>
+        </g>
+        <g class="box-body">
+          <path d="M 56 140 L 184 140 L 200 152 L 40 152 Z" fill="url(#rwSide)" opacity=".6"/>
+          <rect x="40" y="150" width="160" height="80" rx="6" fill="url(#rwGold)" stroke="#8A6820" stroke-width="2"/>
+          <rect x="40" y="150" width="160" height="14" fill="url(#rwSide)" opacity=".35"/>
+          <circle cx="120" cy="188" r="5" fill="#8A6820"/>
+          <rect x="118" y="186" width="4" height="14" fill="#8A6820" rx="1"/>
+        </g>
+        <g class="box-lid-left" id="rw-lid-left">
+          <rect x="40" y="126" width="80" height="28" rx="4" fill="url(#rwGold)" stroke="#8A6820" stroke-width="2"/>
+          <rect x="40" y="126" width="80" height="8" fill="url(#rwSide)" opacity=".3"/>
+        </g>
+        <g class="box-lid-right" id="rw-lid-right">
+          <rect x="120" y="126" width="80" height="28" rx="4" fill="url(#rwGold)" stroke="#8A6820" stroke-width="2"/>
+          <rect x="120" y="126" width="80" height="8" fill="url(#rwSide)" opacity=".3"/>
+        </g>
+      </svg>
+      <div class="box-particles" id="rw-particles"></div>
+    </div>
+    <div class="reward-reveal" id="reward-reveal">
+      <div class="rw-emoji" id="rw-emoji"></div>
+      <div class="rw-title" id="rw-title"></div>
+      <div class="rw-subtitle" id="rw-subtitle"></div>
+    </div>
+    <button id="reward-close" class="btn-primary reward-close-btn">收下</button>
+  </div>
+</div>
+
+<!-- Gift countdown modal (shown when already claimed) -->
+<div id="countdown-modal" class="reward-modal hidden" role="dialog">
+  <div class="reward-backdrop"></div>
+  <div class="reward-content">
+    <div class="cd-icon">🎁</div>
+    <div class="cd-title">今天的盒子已經打開過了</div>
+    <div class="cd-sub">下一個潘朵拉盒子</div>
+    <div class="cd-timer num-pop" id="cd-timer">—</div>
+    <button id="countdown-close" class="btn-primary">知道了</button>
+  </div>
+</div>
+
+<!-- ===== Paywall Modal (shown when island visits exhausted) ===== -->
+<div id="paywall-modal" class="paywall-modal hidden" role="dialog" aria-hidden="true">
+  <div class="paywall-backdrop"></div>
+  <div class="paywall-sheet">
+    <button class="paywall-close" id="paywall-close" aria-label="關閉">×</button>
+
+    <div class="paywall-hero">
+      <div class="paywall-hero-emoji" data-icon="crown"></div>
+      <div class="paywall-hero-title" id="paywall-hero-title">本月島嶼試用結束</div>
+      <div class="paywall-hero-sub" id="paywall-hero-sub">下個月 1 號自動重置 3 次 · 或直接解鎖</div>
+    </div>
+
+    <!-- Option A: FP web signup (preferred path — free app unlock) -->
+    <div class="paywall-option paywall-option-fp">
+      <div class="paywall-option-ribbon">✨ 最划算</div>
+      <div class="paywall-option-title">👑 加入 FP 婕樂纖會員</div>
+      <div class="paywall-option-price">買產品 = 永久解鎖</div>
+      <ul class="paywall-option-perks">
+        <li>🏝️ 無限島嶼探險（每家店 × 每個 intent）</li>
+        <li>🎴 FP 專屬卡片（產品搭配、加盟心法）</li>
+        <li>👗 FP 限定時裝（皇冠 / 廚師帽 / 星空袍）</li>
+        <li>🏅 FP 獨家成就（FP 達人、養豆大師）</li>
+        <li>⚡ 全站 XP 加成 1.5×</li>
+        <li>🎁 購買 FP 產品還有實體回饋 + 點數</li>
+      </ul>
+      <button class="paywall-cta paywall-cta-fp" id="paywall-go-fp">
+        到 FP 網站加入 →
+      </button>
+    </div>
+
+    <div class="paywall-or">或</div>
+
+    <!-- Option B: in-app subscription -->
+    <div class="paywall-option paywall-option-app">
+      <div class="paywall-option-title">📱 訂閱 App</div>
+      <div class="paywall-option-perks-row">
+        <button class="paywall-cta paywall-cta-sub" id="paywall-sub-monthly">
+          <div class="sub-label">月訂</div>
+          <div class="sub-price">NT$99</div>
+          <div class="sub-note">每月</div>
+        </button>
+        <button class="paywall-cta paywall-cta-sub paywall-cta-best" id="paywall-sub-yearly">
+          <div class="sub-badge">省 33%</div>
+          <div class="sub-label">年訂</div>
+          <div class="sub-price">NT$790</div>
+          <div class="sub-note">≈ NT$66/月</div>
+        </button>
+      </div>
+      <div class="paywall-option-sub">僅解鎖島嶼無限探險</div>
+    </div>
+
+    <!-- Redeem code entry -->
+    <div class="paywall-redeem">
+      <div class="paywall-redeem-label">已有會員代碼？</div>
+      <div class="paywall-redeem-row">
+        <input id="paywall-code-input" class="input" placeholder="FP-xxx / APP-xxx" maxlength="40"/>
+        <button id="paywall-code-btn" class="btn-secondary">兌換</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== JRPG-style Dialog Overlay — dual portraits + RPG frame ===== -->
+<div id="dialog-overlay" class="dialog-overlay hidden" role="dialog" aria-hidden="true">
+  <!-- Scene backdrop behind portraits (inherits from the store scene's CSS class) -->
+  <div class="dialog-backdrop" id="dialog-scene-backdrop"></div>
+  <div class="dialog-dimmer"></div>
+
+  <!-- Stage: NPC on left, mascot on right -->
+  <div class="dialog-stage">
+    <div class="dialog-char dialog-char-npc" id="dialog-char-npc">
+      <div class="dialog-char-frame">
+        <div class="dialog-char-emoji" id="dialog-char-npc-emoji">🧑</div>
+      </div>
+      <div class="dialog-char-name" id="dialog-char-npc-name">店員</div>
+    </div>
+    <div class="dialog-char dialog-char-mascot" id="dialog-char-mascot">
+      <div class="dialog-char-frame">
+        <div class="dialog-char-svg" id="dialog-char-mascot-svg"></div>
+      </div>
+      <div class="dialog-char-name" id="dialog-char-mascot-name">企鵝</div>
+    </div>
+  </div>
+
+  <!-- Bottom RPG dialog box -->
+  <div class="dialog-rpg-box">
+    <div class="dialog-rpg-speaker" id="dialog-rpg-speaker">店員</div>
+    <div class="dialog-rpg-text" id="dialog-text"></div>
+    <div class="dialog-rpg-next" id="dialog-next">▼</div>
+  </div>
+</div>
+
+<!-- ===== Fullscreen Knowledge Island ===== -->
+<div id="island-fullscreen" class="island-fs hidden" role="dialog" aria-label="知識之島">
+
+  <!-- Sky + clouds layer -->
+  <div class="island-sky"></div>
+  <div class="island-clouds">
+    <div class="island-cloud island-cloud-1">☁️</div>
+    <div class="island-cloud island-cloud-2">☁️</div>
+    <div class="island-cloud island-cloud-3">☁️</div>
+  </div>
+
+  <!-- Sun -->
+  <div class="island-sun">☀️</div>
+
+  <!-- Top header (tier/quota badge + close) -->
+  <div class="island-top">
+    <div class="island-top-left">
+      <div class="island-tier-badge" id="island-tier-display">公開會員</div>
+      <div class="island-quota-badge" id="island-quota-display"></div>
+    </div>
+    <button class="island-close" id="island-close" aria-label="離開島嶼">←</button>
+  </div>
+
+  <!-- MAP VIEW — list of store pins, character on ground -->
+  <div class="island-view island-view-map" id="island-view-map">
+    <div class="island-title-plate">
+      <div class="island-title">🏝️ 知識之島</div>
+      <div class="island-subtitle" id="island-subtitle">選個地方走走，一起學點東西 ✨</div>
+    </div>
+
+    <!-- Weekly quest tracker (surprise addition) -->
+    <div class="island-quest" id="island-quest">
+      <div class="island-quest-head">
+        <span class="island-quest-icon">🗺️</span>
+        <span class="island-quest-text">本週任務：拜訪 <b id="quest-target">3</b> 間不同店家</span>
+      </div>
+      <div class="island-quest-bar">
+        <div class="island-quest-fill" id="quest-fill" style="width:0%"></div>
+      </div>
+      <div class="island-quest-progress" id="quest-progress">0 / 3 · 完成拿 30 XP</div>
+    </div>
+
+    <!-- 2D pannable game map — drag anywhere to explore -->
+    <div class="island-world-viewport" id="island-world-viewport">
+      <div class="island-world" id="island-world">
+        <!-- Decorative terrain tiles -->
+        <div class="island-world-bg"></div>
+        <!-- Winding dirt paths connecting buildings -->
+        <svg class="island-paths" viewBox="0 0 1300 950" preserveAspectRatio="none">
+          <defs>
+            <pattern id="dirt" width="10" height="10" patternUnits="userSpaceOnUse">
+              <rect width="10" height="10" fill="#D4B078"/>
+              <circle cx="3" cy="3" r="1" fill="#B88858" opacity=".5"/>
+              <circle cx="7" cy="7" r="1" fill="#B88858" opacity=".5"/>
+            </pattern>
+          </defs>
+          <!-- Main street weaving through buildings -->
+          <path d="M 200 430 Q 310 460 420 500 T 650 570 T 890 450 T 1030 560"
+            stroke="url(#dirt)" stroke-width="32" fill="none" stroke-linecap="round"/>
+          <path d="M 420 500 Q 370 600 320 680 Q 440 730 570 780 Q 850 790 1100 780"
+            stroke="url(#dirt)" stroke-width="30" fill="none" stroke-linecap="round"/>
+          <path d="M 220 220 Q 340 250 470 190 Q 660 200 850 250"
+            stroke="url(#dirt)" stroke-width="26" fill="none" stroke-linecap="round"/>
+          <path d="M 470 190 Q 770 170 1080 140"
+            stroke="url(#dirt)" stroke-width="24" fill="none" stroke-linecap="round"/>
+          <!-- Path edges (lighter) -->
+          <path d="M 200 430 Q 310 460 420 500 T 650 570 T 890 450 T 1030 560"
+            stroke="#EDD5A0" stroke-width="36" fill="none" stroke-linecap="round" opacity=".4"/>
+        </svg>
+        <div class="island-deco island-deco-tree" style="left:40px;top:70px">🌴</div>
+        <div class="island-deco island-deco-tree" style="left:1100px;top:100px">🌳</div>
+        <div class="island-deco island-deco-tree" style="left:80px;top:600px">🌲</div>
+        <div class="island-deco island-deco-tree" style="left:1150px;top:650px">🌴</div>
+        <div class="island-deco island-deco-flower" style="left:250px;top:180px">🌺</div>
+        <div class="island-deco island-deco-flower" style="left:720px;top:150px">🌸</div>
+        <div class="island-deco island-deco-flower" style="left:450px;top:780px">🌼</div>
+        <div class="island-deco island-deco-flower" style="left:1000px;top:830px">🌺</div>
+        <div class="island-deco island-deco-rock" style="left:580px;top:120px">🪨</div>
+        <div class="island-deco island-deco-bird" style="left:300px;top:90px">🦅</div>
+        <!-- Pond -->
+        <div class="island-pond" style="left:540px;top:370px"></div>
+        <!-- Buildings get injected here by JS -->
+        <div id="island-stores"></div>
+        <!-- Hint text -->
+        <div class="island-map-hint">👆 用手指拖動探索地圖</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STORE VIEW — inside a store, character + intent buttons or recs -->
+  <div class="island-view island-view-store hidden" id="island-view-store">
+    <div class="store-interior" id="store-interior">
+      <div class="store-ceiling"></div>
+      <div class="store-shelves"></div>
+      <div class="store-floor"></div>
+    </div>
+
+    <div class="store-content">
+      <div class="store-header">
+        <button class="store-back" id="store-back" aria-label="回島嶼">← 回島嶼</button>
+        <div class="store-name-plate"><span id="store-emoji">🏪</span> <span id="store-name">—</span></div>
+      </div>
+
+      <!-- Character standing in store + speech -->
+      <div class="store-character-row">
+        <div class="store-character" id="store-character"></div>
+        <div class="store-speech" id="store-speech">你今天想…</div>
+      </div>
+
+      <!-- User budget info -->
+      <div class="store-budget" id="store-budget"></div>
+
+      <!-- Stage 1: intent buttons -->
+      <div class="store-intents" id="store-intents"></div>
+
+      <!-- Stage 2: recommendations -->
+      <div class="store-recs hidden" id="store-recs">
+        <button class="store-recs-back" id="store-recs-back">← 換個問題</button>
+        <div class="store-recs-prompt" id="store-recs-prompt"></div>
+        <div class="store-recs-list" id="store-recs-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Card Game Modal (Hearthstone-style 3-choice) ===== -->
+<div id="card-modal" class="card-modal hidden" role="dialog" aria-hidden="true">
+  <div class="card-modal-backdrop"></div>
+  <div class="card-modal-content">
+
+    <!-- Top: stamina + sound toggle + close -->
+    <div class="card-modal-header">
+      <div class="card-stamina" id="card-stamina-display">
+        <span class="card-stamina-icon">⚡</span>
+        <span id="card-stamina-text">— / —</span>
+      </div>
+      <div class="card-modal-header-right">
+        <button class="card-sfx-toggle" id="sfx-toggle-btn" aria-label="音效開關">🔊</button>
+        <button class="card-modal-close" id="card-modal-close" aria-label="關閉">×</button>
+      </div>
+    </div>
+
+    <!-- Stage 1: draw animation area -->
+    <div class="card-stage" id="card-stage">
+
+      <!-- Card back flying in, flipping to reveal -->
+      <div class="card-flipper" id="card-flipper">
+        <div class="card-face card-back">
+          <div class="card-back-inner">
+            <div class="card-back-logo">🎴</div>
+            <div class="card-back-text">豆豆知識卡</div>
+            <div class="card-back-shine"></div>
+          </div>
+        </div>
+        <div class="card-face card-front" id="card-front">
+          <div class="card-rarity-badge" id="card-rarity-badge"></div>
+          <div class="card-emoji" id="card-emoji">🍚</div>
+          <div class="card-category" id="card-category"></div>
+          <div class="card-question" id="card-question">載入中...</div>
+          <div class="card-hint" id="card-hint"></div>
+          <div class="card-new-badge hidden" id="card-new-badge">NEW ✨</div>
+        </div>
+      </div>
+
+      <!-- Three choice cards (Hearthstone fan layout) -->
+      <div class="choice-fan" id="choice-fan">
+        <button class="choice-card" data-idx="0">
+          <div class="choice-number">A</div>
+          <div class="choice-text"></div>
+          <div class="choice-feedback-badge"></div>
+        </button>
+        <button class="choice-card" data-idx="1">
+          <div class="choice-number">B</div>
+          <div class="choice-text"></div>
+          <div class="choice-feedback-badge"></div>
+        </button>
+        <button class="choice-card" data-idx="2">
+          <div class="choice-number">C</div>
+          <div class="choice-text"></div>
+          <div class="choice-feedback-badge"></div>
+        </button>
+      </div>
+
+      <!-- Particle / burst overlay for correct answer -->
+      <div class="card-burst" id="card-burst"></div>
+      <!-- Combo display -->
+      <div class="card-combo hidden" id="card-combo">
+        <div class="card-combo-label">COMBO</div>
+        <div class="card-combo-num" id="card-combo-num">×2</div>
+      </div>
+    </div>
+
+    <!-- Stage 2: reveal panel (feedback + explain + XP) -->
+    <div class="card-reveal hidden" id="card-reveal">
+      <div class="card-reveal-head">
+        <div class="card-reveal-result" id="card-reveal-result">答對了！</div>
+        <div class="card-reveal-feedback" id="card-reveal-feedback"></div>
+      </div>
+      <div class="card-reveal-explain" id="card-reveal-explain"></div>
+      <div class="card-reveal-xp" id="card-reveal-xp">
+        <div class="xp-burst-num" id="xp-burst-num">+12 XP</div>
+        <div class="xp-breakdown" id="xp-breakdown"></div>
+      </div>
+      <div class="card-reveal-codex-hint" id="card-reveal-codex-hint">
+        這張卡已收進圖鑑 · <a href="#" id="card-reveal-go-codex">去圖鑑看看 →</a>
+      </div>
+      <div class="card-reveal-actions">
+        <button class="btn-secondary" id="card-draw-again">再來一張 🎴</button>
+        <button class="btn-primary" id="card-reveal-close">收下</button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="card-loading hidden" id="card-loading">
+      <div class="card-spinner"></div>
+      <div>洗牌中...</div>
+    </div>
+
+    <!-- No stamina panel -->
+    <div class="card-no-stamina hidden" id="card-no-stamina">
+      <div class="text-5xl mb-3">⚡</div>
+      <div class="text-lg font-bold mb-2">今天的抽卡體力用光了</div>
+      <div class="text-sm text-muted mb-4">記一餐 +1 體力 · 明天 <span id="card-reset-time">0:00</span> 重置</div>
+      <button class="btn-secondary" id="card-nostamina-close">知道了</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Card Review Modal (from codex) ===== -->
+<div id="card-review-modal" class="card-review-modal hidden" role="dialog" aria-hidden="true">
+  <div class="card-review-backdrop"></div>
+  <div class="card-review-sheet">
+    <button class="card-review-close" id="card-review-close" aria-label="關閉">×</button>
+    <div class="card-review-rarity" id="review-rarity-badge"></div>
+    <div class="card-review-emoji" id="review-emoji">🎴</div>
+    <div class="card-review-category" id="review-category"></div>
+    <div class="card-review-question" id="review-question"></div>
+    <div class="card-review-choices" id="review-choices"></div>
+    <div class="card-review-explain">
+      <span class="card-review-explain-label" id="review-explain-label">📚 筆記</span>
+      <span id="review-explain"></span>
+    </div>
+    <div class="card-review-meta" id="review-meta"></div>
+  </div>
+</div>
+
+<script src="/config.js?v=1"></script>
+<script src="/icons.js?v=2"></script>
+<script src="/sound.js?v=4"></script>
+<script src="/character.js?v=8"></script>
+<script src="/app.js?v=34"></script>
+</body>
+</html>

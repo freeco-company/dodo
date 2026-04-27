@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<!-- Primary SEO — hand-tuned for the landing page; app_config.seo lets
+     admin override headline / description / canonical without a redeploy. -->
+<title>豆豆 Doudou · 減脂夥伴 — 遊戲化 × AI 陪跑 × 拍照辨識</title>
+<meta name="description" content="豆豆 Doudou 是專為想好好吃飯的你設計的減脂 App。遊戲化養成、AI 陪跑對話、拍照食物辨識，每天只做一件小事，連續 21 天習慣就養成。免費下載，訂閱 NT$290/月起。" />
+<meta name="keywords" content="減脂 App, 減肥 App 推薦, 拍照熱量, 食物辨識, 熱量計算, 習慣養成 App, 台灣減脂, AI 減脂, Doudou, 豆豆, Fairy Pandora" />
+<meta name="robots" content="index, follow, max-image-preview:large" />
+<link rel="canonical" href="https://doudou.freeco.tw/landing" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="豆豆 Doudou" />
+<meta property="og:title" content="豆豆 Doudou · 減脂夥伴" />
+<meta property="og:description" content="遊戲化 + AI 陪跑 + 拍照辨識的減脂 App。每天一件小事，21 天養成。" />
+<meta property="og:url" content="https://doudou.freeco.tw/landing" />
+<meta property="og:image" content="https://doudou.freeco.tw/og.png" />
+<meta property="og:locale" content="zh_TW" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="豆豆 Doudou · 減脂夥伴" />
+<meta name="twitter:description" content="遊戲化陪伴你減脂，每天只做一件小事。" />
+<meta name="twitter:image" content="https://doudou.freeco.tw/og.png" />
+
+<!-- JSON-LD: MobileApplication + FAQPage + Organization (for AI answer engines) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "MobileApplication",
+      "name": "豆豆 Doudou",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "iOS, Android",
+      "description": "結合遊戲化養成、AI 陪跑對話與拍照食物辨識的減脂 App。為 25-40 歲台灣使用者設計，每天做到一件小事就能推進 21 天習慣養成。",
+      "inLanguage": "zh-Hant",
+      "offers": [
+        { "@type": "Offer", "name": "免費方案", "price": "0",   "priceCurrency": "TWD" },
+        { "@type": "Offer", "name": "月訂閱",   "price": "290", "priceCurrency": "TWD", "description": "每月 NT$290" },
+        { "@type": "Offer", "name": "年訂閱",   "price": "2890","priceCurrency": "TWD", "description": "每年 NT$2890（等同每月 NT$241）" }
+      ],
+      "screenshot": [
+        "https://doudou.freeco.tw/screenshots/island.png",
+        "https://doudou.freeco.tw/screenshots/meal-scan.png",
+        "https://doudou.freeco.tw/screenshots/journey.png"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "豆豆是醫療服務嗎？會取代營養師嗎？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "不會。豆豆提供的是一般性健康資訊，不是醫療建議。若你正在治療中、懷孕哺乳、或有飲食情緒困擾，請先諮詢你的醫療團隊。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "拍照食物辨識準不準？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "辨識率目標維持在 85% 以上。辨識有誤時可以手動修正，系統會學習。免費用戶每日 3 張、訂閱用戶每日 30 張。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "為什麼是 21 天習慣養成？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "研究顯示 21 天是習慣形成的平均起點。豆豆把減脂拆成每天一件小事（記一餐、喝夠水、走一走），連續做到就能推進，養成再啟動下一輪。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "可以在 LINE 上用嗎？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "可以。除了 iOS / Android 原生 App，豆豆也支援 LINE Bot 入口，方便習慣用 LINE 的使用者快速記餐。"
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "訂閱可以隨時取消嗎？",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "可以。在 App Store / Google Play 或設定頁直接取消，到期前仍可使用訂閱功能，取消不會扣款。"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "Organization",
+      "name": "Fairy Pandora",
+      "url": "https://doudou.freeco.tw/",
+      "logo": "https://doudou.freeco.tw/icon.png",
+      "sameAs": ["https://pandora.js-store.com.tw/"]
+    }
+  ]
+}
+</script>
+
+<link rel="canonical" href="https://doudou.freeco.tw/landing" />
+<style>
+/* Landing page styles — intentionally self-contained. Doesn't depend on the
+   app's style.css because landing needs to load fast (no big CSS bundle). */
+:root {
+  --peach: #F4C5A3; --peach-deep: #E89F7A;
+  --sage: #B8C9A0;  --sage-deep: #84987A;
+  --ink: #3A2A2A;   --ink-soft: #6B5248;
+  --cream: #FFF8F2;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang TC', 'Noto Sans TC', sans-serif;
+  color: var(--ink);
+  background: var(--cream);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--peach-deep); text-decoration: none; }
+img { max-width: 100%; height: auto; display: block; }
+
+/* Nav */
+.nav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(255,248,242,.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(58,42,42,.08);
+  padding: 14px 24px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-brand { font-size: 18px; font-weight: 900; letter-spacing: 1px; }
+.nav-cta {
+  background: linear-gradient(135deg, var(--peach), var(--peach-deep));
+  color: #fff; padding: 10px 20px; border-radius: 999px;
+  font-weight: 800; font-size: 14px;
+  box-shadow: 0 4px 12px rgba(232,147,131,.3);
+}
+
+/* Hero */
+.hero {
+  padding: 80px 24px 60px;
+  text-align: center;
+  max-width: 720px; margin: 0 auto;
+}
+.hero-eyebrow {
+  display: inline-block;
+  background: rgba(232,147,131,.12);
+  color: var(--peach-deep);
+  font-size: 13px; font-weight: 800;
+  padding: 6px 14px; border-radius: 999px;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+}
+.hero h1 {
+  font-size: clamp(32px, 6vw, 52px);
+  font-weight: 900;
+  line-height: 1.25;
+  margin-bottom: 20px;
+}
+.hero h1 span { color: var(--peach-deep); }
+.hero p { font-size: 18px; color: var(--ink-soft); margin-bottom: 32px; }
+.hero-cta {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, var(--peach), var(--peach-deep));
+  color: #fff; padding: 16px 34px; border-radius: 999px;
+  font-weight: 800; font-size: 17px;
+  box-shadow: 0 10px 30px rgba(232,147,131,.4);
+}
+.hero-secondary {
+  display: inline-block; margin-left: 16px;
+  color: var(--ink-soft); font-size: 14px;
+}
+.hero-stats {
+  display: flex; justify-content: center; gap: 36px;
+  margin-top: 40px; flex-wrap: wrap;
+}
+.hero-stat b { display: block; font-size: 26px; color: var(--ink); }
+.hero-stat span { font-size: 12px; color: var(--ink-soft); }
+
+/* Sections */
+section { padding: 60px 24px; }
+.section-title { text-align: center; margin-bottom: 40px; }
+.section-title h2 { font-size: 30px; font-weight: 900; margin-bottom: 8px; }
+.section-title p { color: var(--ink-soft); }
+
+/* Features grid */
+.features {
+  max-width: 1000px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+.feature-card {
+  background: #fff;
+  padding: 28px 22px;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(58,42,42,.06);
+  border: 1px solid rgba(58,42,42,.04);
+}
+.feature-card h3 { font-size: 18px; font-weight: 900; margin: 14px 0 8px; }
+.feature-card p { font-size: 14px; color: var(--ink-soft); }
+.feature-emoji { font-size: 40px; }
+
+/* How */
+.how { max-width: 720px; margin: 0 auto; }
+.how-step {
+  display: flex; gap: 20px; align-items: flex-start;
+  background: #fff;
+  padding: 24px;
+  border-radius: 18px;
+  margin-bottom: 14px;
+  box-shadow: 0 3px 12px rgba(58,42,42,.05);
+}
+.how-num {
+  background: var(--peach-deep); color: #fff;
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; flex-shrink: 0;
+}
+.how-body h3 { font-size: 17px; font-weight: 800; margin-bottom: 6px; }
+.how-body p { font-size: 14px; color: var(--ink-soft); }
+
+/* Pricing */
+.pricing { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.price-card {
+  background: #fff; padding: 28px 22px; border-radius: 20px;
+  border: 2px solid rgba(58,42,42,.05);
+  text-align: center;
+}
+.price-card.featured { border-color: var(--peach-deep); transform: scale(1.02); box-shadow: 0 10px 30px rgba(232,147,131,.2); }
+.price-tier { font-size: 13px; font-weight: 800; letter-spacing: 2px; color: var(--peach-deep); }
+.price-amount { font-size: 36px; font-weight: 900; margin: 10px 0; }
+.price-amount small { font-size: 14px; color: var(--ink-soft); font-weight: 500; }
+.price-card ul { list-style: none; margin: 16px 0; text-align: left; }
+.price-card li { padding: 6px 0; font-size: 14px; color: var(--ink-soft); }
+.price-card li::before { content: '✓ '; color: var(--sage-deep); font-weight: 800; }
+
+/* FAQ */
+.faq { max-width: 720px; margin: 0 auto; }
+.faq details {
+  background: #fff; margin-bottom: 10px;
+  border-radius: 14px; padding: 18px 22px;
+  box-shadow: 0 2px 8px rgba(58,42,42,.04);
+}
+.faq summary { font-weight: 800; font-size: 15px; cursor: pointer; list-style: none; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: '+'; float: right; font-size: 22px; color: var(--peach-deep); }
+.faq details[open] summary::after { content: '−'; }
+.faq details p { margin-top: 12px; font-size: 14px; color: var(--ink-soft); }
+
+/* Footer */
+.footer {
+  background: #2C1F1F; color: #fff;
+  padding: 48px 24px 32px;
+  margin-top: 60px;
+}
+.footer-inner { max-width: 900px; margin: 0 auto; text-align: center; }
+.footer-brand { font-size: 20px; font-weight: 900; margin-bottom: 12px; }
+.footer-nav { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 20px 0; font-size: 13px; }
+.footer-nav a { color: rgba(255,255,255,.7); }
+.footer-disclaimer {
+  font-size: 11px; color: rgba(255,255,255,.5);
+  border-top: 1px solid rgba(255,255,255,.1);
+  padding-top: 20px; margin-top: 20px;
+  line-height: 1.7;
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">🫶 豆豆</div>
+  <a href="/" class="nav-cta">試用網頁版 →</a>
+</nav>
+
+<!-- Hero -->
+<header class="hero">
+  <span class="hero-eyebrow">減脂不靠意志力</span>
+  <h1>
+    每天只做<span>一件小事</span><br/>
+    豆豆陪你 21 天養成習慣
+  </h1>
+  <p>結合遊戲化養成、AI 陪跑對話、拍照食物辨識。<br/>專為想好好吃飯的台灣人設計。</p>
+  <a href="/" class="hero-cta">立即免費試用 →</a>
+  <span class="hero-secondary">無需信用卡</span>
+  <div class="hero-stats">
+    <div class="hero-stat"><b>9 位</b><span>可愛夥伴任你選</span></div>
+    <div class="hero-stat"><b>12 家</b><span>真實店家推薦</span></div>
+    <div class="hero-stat"><b>85%+</b><span>食物辨識準確率</span></div>
+  </div>
+</header>
+
+<!-- Features -->
+<section id="features">
+  <div class="section-title">
+    <h2>為什麼選豆豆？</h2>
+    <p>不是另一個熱量計算機 — 是一個陪你走完 21 天的夥伴</p>
+  </div>
+  <div class="features">
+    <div class="feature-card">
+      <div class="feature-emoji">🏝️</div>
+      <h3>知識之島</h3>
+      <p>走進真實店家（全家、星巴克、麥當勞…），店員會依你狀態推薦該買什麼。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-emoji">📸</div>
+      <h3>拍照辨識食物</h3>
+      <p>餐盤拍一張，熱量、蛋白質、碳水自動帶入。辨識不到也能手動補。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-emoji">🎮</div>
+      <h3>遊戲化養成</h3>
+      <p>養動物、升等級、解任務、收集圖鑑。把減脂變成你會打開的 App。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-emoji">🗺️</div>
+      <h3>21 天習慣旅程</h3>
+      <p>每日 3 個小任務，完成就前進一格。21 天走完一輪，習慣真的能養成。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-emoji">💬</div>
+      <h3>AI 陪跑對話</h3>
+      <p>情緒低落、吃不下、想放棄時，豆豆都聽得懂。同理你，不說教。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-emoji">🫶</div>
+      <h3>不羞辱、不節食</h3>
+      <p>禁止 1200 卡以下、禁止斷食引導、禁止身材比較。我們只想陪你走遠。</p>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section id="how" style="background: rgba(184,201,160,.08);">
+  <div class="section-title">
+    <h2>三步驟開始</h2>
+    <p>從下載到習慣養成，每天只要 3 分鐘</p>
+  </div>
+  <div class="how">
+    <div class="how-step">
+      <div class="how-num">1</div>
+      <div class="how-body">
+        <h3>選一位夥伴</h3>
+        <p>貓、兔、熊、企鵝等 9 位動物夥伴，陪你走完整段減脂旅程。</p>
+      </div>
+    </div>
+    <div class="how-step">
+      <div class="how-num">2</div>
+      <div class="how-body">
+        <h3>每天做一件小事</h3>
+        <p>記一餐、喝夠水、走走路。3 個小任務，任選 2 個完成就推進一格。</p>
+      </div>
+    </div>
+    <div class="how-step">
+      <div class="how-num">3</div>
+      <div class="how-body">
+        <h3>21 天後看見自己</h3>
+        <p>不是減多少公斤，而是習慣開始自動運轉。然後再來一輪，越走越穩。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section id="pricing">
+  <div class="section-title">
+    <h2>選你的節奏</h2>
+    <p>免費試試，覺得合拍再升級。隨時取消，不綁約</p>
+  </div>
+  <div class="pricing">
+    <div class="price-card">
+      <div class="price-tier">免費</div>
+      <div class="price-amount">NT$0<small>/月</small></div>
+      <ul>
+        <li>選 1 位動物夥伴</li>
+        <li>每日 3 張拍照辨識</li>
+        <li>基礎任務與島嶼</li>
+        <li>每週 1 封週報</li>
+      </ul>
+    </div>
+    <div class="price-card featured">
+      <div class="price-tier">月訂閱</div>
+      <div class="price-amount">NT$290<small>/月</small></div>
+      <ul>
+        <li>每日 30 張拍照辨識</li>
+        <li>所有店家 + 進階任務</li>
+        <li>無限 AI 陪跑對話</li>
+        <li>衣櫃 / 圖鑑全解鎖</li>
+        <li>支援 iOS / Android / LINE</li>
+      </ul>
+    </div>
+    <div class="price-card">
+      <div class="price-tier">年訂閱</div>
+      <div class="price-amount">NT$2890<small>/年</small></div>
+      <ul>
+        <li>月訂閱全部功能</li>
+        <li>省 NT$588（約 17% off）</li>
+        <li>專屬年度徽章</li>
+        <li>新功能優先體驗</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="background: rgba(184,201,160,.08);">
+  <div class="section-title">
+    <h2>常見問題</h2>
+  </div>
+  <div class="faq">
+    <details>
+      <summary>豆豆是醫療服務嗎？會取代營養師嗎？</summary>
+      <p>不會。豆豆提供的是一般性健康資訊，不是醫療建議。若你正在治療中、懷孕哺乳、或有飲食情緒困擾，請先諮詢你的醫療團隊。</p>
+    </details>
+    <details>
+      <summary>拍照食物辨識準不準？</summary>
+      <p>辨識率目標維持在 85% 以上。辨識有誤時可以手動修正，系統會學習。免費用戶每日 3 張、訂閱用戶每日 30 張。</p>
+    </details>
+    <details>
+      <summary>為什麼是 21 天習慣養成？</summary>
+      <p>研究顯示 21 天是習慣形成的平均起點。豆豆把減脂拆成每天一件小事（記一餐、喝夠水、走一走），連續做到就能推進，養成再啟動下一輪。</p>
+    </details>
+    <details>
+      <summary>可以在 LINE 上用嗎？</summary>
+      <p>可以。除了 iOS / Android 原生 App，豆豆也支援 LINE Bot 入口，方便習慣用 LINE 的使用者快速記餐。</p>
+    </details>
+    <details>
+      <summary>訂閱可以隨時取消嗎？</summary>
+      <p>可以。在 App Store / Google Play 或設定頁直接取消，到期前仍可使用訂閱功能，取消不會扣款。</p>
+    </details>
+    <details>
+      <summary>會鼓勵極低熱量飲食或斷食嗎？</summary>
+      <p>不會。我們的內部 guard rail 明文禁止 &lt;1200 卡的建議、禁止長時間斷食話術、禁止身材比較語言。系統中的 NPC 對話與任務都會經過安全掃描。</p>
+    </details>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section style="text-align:center; padding: 80px 24px;">
+  <h2 style="font-size: 28px; font-weight: 900; margin-bottom: 16px;">準備好遇見你的夥伴了嗎？</h2>
+  <p style="color: var(--ink-soft); margin-bottom: 28px;">免費開始，21 天後告訴我們感想</p>
+  <a href="/" class="hero-cta">開啟豆豆 →</a>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">🫶 豆豆 Doudou</div>
+    <p style="font-size: 13px; color: rgba(255,255,255,.6);">by Fairy Pandora · 陪你好好吃飯</p>
+    <nav class="footer-nav">
+      <a href="/">開始使用</a>
+      <a href="/about">關於豆豆</a>
+      <a href="/privacy">隱私權政策</a>
+      <a href="/terms">服務條款</a>
+      <a href="mailto:hello@freeco.tw">聯絡我們</a>
+    </nav>
+    <div class="footer-disclaimer">
+      <b>本服務非醫療建議</b>。豆豆提供一般性健康資訊，不能取代醫師、營養師、心理師的專業判斷。若你正在治療中、懷孕哺乳、或有飲食 / 情緒困擾，請先諮詢你的醫療團隊。<br/>
+      © 2026 Fairy Pandora. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
