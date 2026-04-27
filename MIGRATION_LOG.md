@@ -129,13 +129,62 @@
 
 ---
 
-## Phase A · Week 2 · 待做
+## Phase A · Week 2 · Day 2（2026-04-28）✅ — 一口氣補完 endpoint + seeders + CI
 
-- [ ] 剩餘 ~80 條 endpoint：chat / cards / journey / quests / pokedex / shield / outfits / referrals / subscriptions / trial / paywall / notifications / share-card / analytics
-- [ ] 把 `../ai-game/src/services/*.ts`（50 檔）移植進 `app/Services/`
-- [ ] 把 `../ai-game/data/*.json` × 7 包進 Seeder
-- [ ] Filament Resource 美化（form schema 從預設轉成業務友善版本）
-- [ ] CI workflow（GitHub Actions）— migrate test + Pest
+3 個 commit 一次到位（未 push，等人審）：
+- `55736b6` feat: gamification endpoints + seeders (Batch A+B)
+- `95d4fcf` feat: misc endpoints + tier + AI stubs (Batch C+D+E)
+- `508ec21` chore: backend CI workflow + frontend API base URL config
+
+### 已完成 — endpoints（從 12 → 56 條 API routes）
+
+| 區塊 | 條數 | TS source |
+|---|---|---|
+| 遊戲化 checkin / journey / interact / shield / cards / quests / meta / lore | 21 | checkin/journey/interact/shield/cards/quests/scoring/game/lore.ts |
+| referrals / paywall / account / rating-prompt / analytics / push / bootstrap / seo / client-errors / sitemap | 16 | referrals/paywall/account_deletion/rating_prompt/analytics/notifications/push/seo/app_config.ts |
+| tier / admin/tier / webhooks/ecommerce/order / subscribe/mock | 4 | tier/trial/entitlements.ts（webhook signature 待補）|
+| AI stubs（meals/scan, meals/text, chat/message → 503；chat/starters 真實）| 4 | chat_starters.ts（其餘等 Phase B Python service）|
+
+### 已完成 — Service 層（共 22 支）
+新增：GameXp、ScoringService、JourneyService、CheckinService、ShieldService、InteractService、CardService、QuestService、TrialService、ReferralService、AccountDeletionService、PaywallService、RatingPromptService、AnalyticsService、PushService、AppConfigService、EntitlementsService、TierService、SeoService、ChatStarterService、AiServiceClient（+ Exception）、AdminTokenAuth middleware
+
+### 已完成 — Seeders
+- 8 份 JSON（chat_intents / island_scenes / journey_story / knowledge_decks / mascot_voices / npc_dialogs / question_decks / store_intents）→ `database/seed/` → `app_config` 表
+- `AppConfigSeeder` 通用 loader，runtime-editable
+- `CardEventOfferSeeder` 刻意 no-op（內含 ADR docblock：解釋為何不展平卡牌到 `card_event_offers`）
+- CardService `draw()` 真的能從 seeded `app_config.question_decks` 抽牌（已測）
+- QuestService 改讀 `app_config.quest_definitions`，fallback inline pool
+
+### 已完成 — Migrations（+ 9 支）
+analytics_events / push_tokens / referrals / app_config / seo_metas / client_errors / rating_prompt_events / paywall_events / users 加 deletion + referral_code + push_enabled + trial_* 欄位
+
+### 已完成 — CI
+- `.github/workflows/backend-ci.yml`：PHP 8.3 + sqlite in-memory + composer + migrate:fresh --seed + `php artisan test`
+- mariadb service template 保留註解，schema diverge 時切換
+
+### 已完成 — 前端 base URL
+- `frontend/public/config.js` 改用 `window.DODO_API_BASE`，dev 預設 `http://localhost:8765/api`
+- `frontend/MIGRATION_NOTES.md` 列出 endpoint 對照、4 個 TODO、OAuth 等 Pandora Core
+
+### 測試 — 106 passed (334 assertions) ✅
+- 36 既有（Day 1）+ 70 新增（gamification 26 + misc 42 + seeders 2）
+
+---
+
+## Phase A · 卡點（無法在後端內解）
+
+- [ ] **Phase B Python AI service**：`AiServiceClient` 永遠 throw，等 ADR-002 §3 framework 拍板（推薦 FastAPI）+ infra
+- [ ] **PostHog forwarding**：AnalyticsService::flush no-op，等 `POSTHOG_API_KEY`
+- [ ] **FCM HTTP v1 push send**：PushService 只管 token 表，等 `FCM_SERVICE_ACCOUNT_JSON`
+- [ ] **Webhook HMAC 簽章**：`POST /api/webhooks/ecommerce/order` 公開無驗證；**production 上線前必須補**
+- [ ] **Apple IAP / ECPay callback**：`subscribe/mock` 為 dev 用；真實金流要金鑰
+- [ ] **Pandora Core JWT**：朵朵目前 sanctum；ADR-001 上線後重 wire（朵朵 Phase C 設計成可降級）
+- [ ] **Cards parity**：簡化版（combo bonus、rarity、FP recipe gating、scenario xp_mod 未做）— cards.ts 866 行只搬主幹
+- [ ] **iOS build**：cd frontend && npm install && npx cap sync ios → Xcode 開（人類介入）
+- [ ] **後端推進的 endpoint**：cards/event-draw、cards/event-skip、cards/event-offer/{id}、cards/scene-draw、foods/search（schema 已就緒、controller 缺 wiring）
+
+### Filament Resource 美化（之後再做）
+- [ ] form schema 從預設轉成業務友善版本
 
 ---
 
