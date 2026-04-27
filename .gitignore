@@ -1,0 +1,43 @@
+# Root-level secrets + OS junk
+.DS_Store
+*.log
+.env
+.env.local
+.env.production
+.vscode/
+.idea/
+
+# Claude Code local notes
+.claude/
+
+# Backend (Laravel)
+/backend/vendor/
+/backend/node_modules/
+/backend/public/hot
+/backend/public/storage
+/backend/public/build/
+/backend/storage/*.key
+/backend/storage/app/public/*
+!/backend/storage/app/public/.gitkeep
+/backend/storage/framework/cache/*
+!/backend/storage/framework/cache/.gitkeep
+/backend/storage/framework/sessions/*
+!/backend/storage/framework/sessions/.gitkeep
+/backend/storage/framework/views/*
+!/backend/storage/framework/views/.gitkeep
+/backend/storage/logs/*
+!/backend/storage/logs/.gitkeep
+/backend/.env
+/backend/.env.backup
+/backend/.env.production
+/backend/.phpunit.result.cache
+/backend/Homestead.json
+/backend/Homestead.yaml
+/backend/database/database.sqlite
+/backend/auth.json
+
+# Future frontend / RN App
+/frontend/node_modules/
+/frontend/.next/
+/frontend/dist/
+/frontend/build/
