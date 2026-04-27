@@ -90,14 +90,51 @@
 
 ---
 
-## Phase A · Week 2（待做）
+## Phase A · Week 2 · Day 1（2026-04-28 凌晨）✅
 
-- [ ] **API 層**：第一條 Fastify route 翻 Laravel — 建議從 `daily_logs` GET/POST 起
-- [ ] Sanctum 發 token 的 endpoint
-- [ ] 對齊既有 RN App endpoint 契約
-- [ ] 翻 `../ai-game/src/services/` 中的 business logic 進 `app/Services/`
+### 已完成 — API 層 12 條 endpoint
+
+| Method | Path | Auth | 來源 |
+|--------|------|------|------|
+| GET | /api/health | — | /api/health |
+| POST | /api/auth/register | — | /api/auth/register |
+| POST | /api/auth/login | — | (新) |
+| POST | /api/auth/logout | sanctum | (新) |
+| GET | /api/me | sanctum | /api/auth/me |
+| GET | /api/daily-logs | sanctum | /api/daily-logs |
+| POST | /api/daily-logs | sanctum | upsert by date |
+| GET | /api/daily-logs/{date} | sanctum | /api/daily-logs/:date |
+| GET | /api/meals | sanctum | /api/meals |
+| POST | /api/meals | sanctum | /api/meals |
+| GET | /api/meals/{id} | sanctum | (新) |
+| DELETE | /api/meals/{id} | sanctum | (新) |
+
+### 已完成 — Sanctum API 認證
+- `php artisan install:api`
+- `bootstrap/app.php` 加 `api: routes/api.php`
+- `User` 已 `use HasApiTokens`
+
+### 已完成 — JSON Resources
+- `UserResource`、`DailyLogResource`、`MealResource`
+- 按 `docs/ai-context/api-format.md` 巢狀分組
+
+### 已完成 — Service 層
+- `App\Services\TargetCalculator` — 翻自 `ai-game/src/services/targets.ts`
+- Mifflin-St Jeor BMR × activity factor × (1 - 減重赤字 0.15)
+
+### 測試 — 36 passed (132 assertions) ✅
+- 15 個 schema/admin（Day 1）
+- 1 個 Health、7 個 Auth、6 個 DailyLog、7 個 Meal
+- 多租戶隔離驗證（A 看不到 B 的 meals / daily_logs）
+
+---
+
+## Phase A · Week 2 · 待做
+
+- [ ] 剩餘 ~80 條 endpoint：chat / cards / journey / quests / pokedex / shield / outfits / referrals / subscriptions / trial / paywall / notifications / share-card / analytics
+- [ ] 把 `../ai-game/src/services/*.ts`（50 檔）移植進 `app/Services/`
 - [ ] 把 `../ai-game/data/*.json` × 7 包進 Seeder
-- [ ] Filament Resource 美化
+- [ ] Filament Resource 美化（form schema 從預設轉成業務友善版本）
 - [ ] CI workflow（GitHub Actions）— migrate test + Pest
 
 ---
