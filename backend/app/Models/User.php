@@ -31,6 +31,8 @@ use Laravel\Sanctum\HasApiTokens;
     'island_visits_used', 'island_visits_reset_at',
     'journey_cycle', 'journey_day', 'journey_last_advance_date', 'journey_started_at',
     'api_token', 'daily_water_goal_ml', 'onboarded_at', 'disclaimer_ack_at',
+    'referral_code', 'deletion_requested_at', 'hard_delete_after', 'push_enabled',
+    'trial_started_at', 'trial_expires_at',
 ])]
 #[Hidden(['password', 'remember_token', 'api_token'])]
 class User extends Authenticatable implements FilamentUser
@@ -74,6 +76,11 @@ class User extends Authenticatable implements FilamentUser
             'journey_started_at' => 'datetime',
             'onboarded_at' => 'datetime',
             'disclaimer_ack_at' => 'datetime',
+            'deletion_requested_at' => 'datetime',
+            'hard_delete_after' => 'datetime',
+            'trial_started_at' => 'datetime',
+            'trial_expires_at' => 'datetime',
+            'push_enabled' => 'boolean',
 
             'height_cm' => 'float',
             'current_weight_kg' => 'float',
