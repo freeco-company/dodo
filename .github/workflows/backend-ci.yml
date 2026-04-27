@@ -1,0 +1,87 @@
+name: Backend CI
+
+on:
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    # NOTE: We use sqlite in-memory for CI (already configured in
+    # backend/phpunit.xml).  Rationale:
+    #   - All migrations + 106 tests already pass on sqlite locally.
+    #   - No mariadb-only SQL syntax in the schema.
+    #   - sqlite skips the ~30s mariadb service warm-up per job.
+    # If we ever introduce raw MariaDB-specific SQL (CTE quirks, JSON_TABLE,
+    # generated columns) flip back to a `services: mariadb` block — see
+    # commented template at the bottom of this file.
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, pdo, pdo_sqlite, sqlite3, xml, bcmath, zip, gd
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: backend/vendor
+          key: ${{ runner.os }}-php83-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php83-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache
+
+      - name: Run migrations + seeders (smoke test)
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+        run: php artisan migrate:fresh --seed --env=testing --force
+
+      - name: Run test suite
+        run: php artisan test --parallel=false
+
+# ─────────────────────────────────────────────────────────────────────────
+# Future MariaDB job template — uncomment when production schema diverges
+# from sqlite-compatible SQL.
+#
+# services:
+#   mariadb:
+#     image: mariadb:11
+#     env:
+#       MARIADB_ROOT_PASSWORD: root
+#       MARIADB_DATABASE: dodo_test
+#     ports: ['3306:3306']
+#     options: >-
+#       --health-cmd "mariadb-admin ping -h localhost -uroot -proot"
+#       --health-interval 10s --health-timeout 5s --health-retries 5
+# env:
+#   DB_CONNECTION: mysql
+#   DB_HOST: 127.0.0.1
+#   DB_PORT: 3306
+#   DB_DATABASE: dodo_test
+#   DB_USERNAME: root
+#   DB_PASSWORD: root

@@ -1,6 +1,8 @@
 // Doudou web app — cat/rabbit/bear/hamster/fox + camera + calorie ring + stickiness.
 
-const API = window.DOUDOU_API_BASE || '/api';
+// Prefer the new DODO_API_BASE (set by config.js 2026-04-28); fall back to
+// the legacy DOUDOU_API_BASE for any environment that still injects it.
+const API = window.DODO_API_BASE || window.DOUDOU_API_BASE || '/api';
 const state = {
   userId: localStorage.getItem('doudou_user') || null,
   token: localStorage.getItem('doudou_token') || null,

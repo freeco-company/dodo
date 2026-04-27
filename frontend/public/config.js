@@ -1,15 +1,19 @@
 // Runtime config — resolves the API base URL.
 //
-// When served from the backend itself (dev: localhost, prod: same-origin web),
-// use relative '/api'. When running inside a Capacitor iOS/Android shell the
-// origin is capacitor://localhost so we MUST point at a deployed backend.
+// Resolution order (first non-empty wins):
+//   1. window.DODO_API_BASE   (preferred, project-renamed 2026-04-28)
+//   2. window.DOUDOU_API_BASE (legacy, kept for backward-compat with old index.html overrides)
+//   3. Auto-pick based on host:
+//      - Capacitor / file:// shell  → PROD_API constant below (prod backend)
+//      - localhost / 127.0.0.1      → http://localhost:8765/api (Laravel `php artisan serve`)
+//      - other web origin           → /api (assumes backend served same-origin)
 //
-// To deploy: set window.DOUDOU_API_BASE below (before loading app.js) or
-// replace the default at build time.
+// All call sites read window.DODO_API_BASE — app.js falls back to DOUDOU_API_BASE
+// for now, both names point at the same value.
 
 // Crisp customer-support widget — set CRISP_WEBSITE_ID in window or via build.
 // Loads ONLY when an ID is provided; otherwise no extra script is fetched.
-window.CRISP_WEBSITE_ID = window.CRISP_WEBSITE_ID || ''; // paste your Crisp ID here when ready
+window.CRISP_WEBSITE_ID = window.CRISP_WEBSITE_ID || '';
 (function loadCrisp() {
   if (!window.CRISP_WEBSITE_ID) return;
   window.$crisp = [];
@@ -24,19 +28,29 @@ window.CRISP_WEBSITE_ID = window.CRISP_WEBSITE_ID || ''; // paste your Crisp ID 
     window.Capacitor !== undefined ||
     location.protocol === 'capacitor:' ||
     location.protocol === 'file:';
-  const isLocalHost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  const isLocalHost =
+    location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
   // PRODUCTION API URL — update this when backend is deployed.
-  // Example: https://doudou-api.fly.dev/api
+  // Example: https://dodo-api.fly.dev/api
   const PROD_API = 'https://REPLACE-ME.fly.dev/api';
 
-  if (window.DOUDOU_API_BASE) {
-    // Already set (e.g. by index.html for testing)
-  } else if (isCapacitor) {
-    window.DOUDOU_API_BASE = PROD_API;
-  } else if (isLocalHost) {
-    window.DOUDOU_API_BASE = '/api';
-  } else {
-    window.DOUDOU_API_BASE = '/api'; // same-origin web
+  // Prefer the new DODO_ prefix, fall back to the legacy DOUDOU_ override.
+  let base = window.DODO_API_BASE || window.DOUDOU_API_BASE || '';
+
+  if (!base) {
+    if (isCapacitor) {
+      base = PROD_API;
+    } else if (isLocalHost) {
+      // Default Laravel `php artisan serve --port=8765` from dodo/backend.
+      base = 'http://localhost:8765/api';
+    } else {
+      base = '/api'; // same-origin web
+    }
   }
+
+  // Mirror onto both globals so any caller (old DOUDOU_API_BASE refs in
+  // app.js or new DODO_API_BASE refs) sees the same value.
+  window.DODO_API_BASE = base;
+  window.DOUDOU_API_BASE = base;
 })();
