@@ -1,0 +1,114 @@
+{
+  "version": 1,
+  "note": "Per-animal personality phrases — mascot reacts in character. Pulled via getMascotVoice() in JS.",
+  "voices": {
+    "cat": {
+      "personality": "慵懶、傲嬌、挑剔",
+      "greet": "喵～想幹嘛",
+      "enter_store": "這家店...本喵勉強看看",
+      "thinking": "嗯，讓本喵想想",
+      "agree": "算你有眼光喵 ✨",
+      "disagree": "哼，才不要",
+      "happy": "本喵今天心情不錯",
+      "tired": "喵嗚～想睡覺",
+      "goodbye": "本喵走了，不要跟",
+      "milestone": "本喵竟然撐這麼久？不錯嘛～"
+    },
+    "rabbit": {
+      "personality": "活潑、天真、正能量",
+      "greet": "你好你好！",
+      "enter_store": "哇哇哇是新地方！",
+      "thinking": "要吃什麼好呢～",
+      "agree": "超棒的啦！✨",
+      "disagree": "嗚嗚這個不要啦",
+      "happy": "好開心好開心！",
+      "tired": "跳不動了...",
+      "goodbye": "蹦蹦走囉～",
+      "milestone": "我做到了！！！🎉"
+    },
+    "bear": {
+      "personality": "樸實、溫暖、沉穩",
+      "greet": "嗨～",
+      "enter_store": "來這家店走走",
+      "thinking": "...讓我想想",
+      "agree": "嗯，可以",
+      "disagree": "嗯...不太行",
+      "happy": "今天不錯～",
+      "tired": "有點累了",
+      "goodbye": "下次見",
+      "milestone": "原來我可以做到，謝謝你陪我"
+    },
+    "hamster": {
+      "personality": "貪吃、緊張、可愛",
+      "greet": "吱吱！",
+      "enter_store": "好多吃的！我可以全部試試嗎？",
+      "thinking": "吱吱...選哪個",
+      "agree": "好耶好耶吱吱！",
+      "disagree": "不要不要（縮）",
+      "happy": "今天有吃的超棒！",
+      "tired": "肚子餓了...",
+      "goodbye": "吱吱再見！",
+      "milestone": "我真的堅持下來了吱吱！"
+    },
+    "fox": {
+      "personality": "機靈、有點壞壞、愛調侃",
+      "greet": "哦～是你",
+      "enter_store": "這家店...有趣",
+      "thinking": "呵，讓狐爺想想",
+      "agree": "不錯嘛～眼光夠準",
+      "disagree": "嘖嘖，這個就算了吧",
+      "happy": "本大爺今天心情好",
+      "tired": "懶得動",
+      "goodbye": "走了走了",
+      "milestone": "嘖，沒想到你真的撐下來了"
+    },
+    "shiba": {
+      "personality": "熱血、忠誠、單純",
+      "greet": "汪！主人！",
+      "enter_store": "走！一起去冒險！",
+      "thinking": "汪汪...認真想",
+      "agree": "就決定是這個！汪！",
+      "disagree": "汪汪！（搖頭）",
+      "happy": "汪汪汪！超開心！",
+      "tired": "呼呼...累了",
+      "goodbye": "下次再一起跑步！汪！",
+      "milestone": "我們一起做到了！汪汪汪！"
+    },
+    "dinosaur": {
+      "personality": "大氣、古樸、偶爾呆萌",
+      "greet": "吼～",
+      "enter_store": "這個洞穴很有趣",
+      "thinking": "吼吼...思考中",
+      "agree": "嗯！可行！",
+      "disagree": "吼...不要",
+      "happy": "今天好日子！",
+      "tired": "吼嗚...",
+      "goodbye": "下次再戰",
+      "milestone": "遠古之力與你同在"
+    },
+    "penguin": {
+      "personality": "冷靜、理性、紳士",
+      "greet": "早安",
+      "enter_store": "這家店看起來不錯。",
+      "thinking": "讓我評估一下",
+      "agree": "理性上來說，這選擇正確",
+      "disagree": "恐怕不行",
+      "happy": "今天狀態很好",
+      "tired": "需要休息了",
+      "goodbye": "再會",
+      "milestone": "數據很漂亮。你做得很好。"
+    },
+    "tuxedo": {
+      "personality": "優雅、高冷、貴族腔",
+      "greet": "您好",
+      "enter_store": "讓本貴族看看這家店",
+      "thinking": "嗯...讓我思考",
+      "agree": "有品味。不錯",
+      "disagree": "這太粗糙了",
+      "happy": "今日心情尚佳",
+      "tired": "需要小憩",
+      "goodbye": "後會有期",
+      "milestone": "本貴族肯定你的努力。繼續保持。"
+    }
+  }
+}

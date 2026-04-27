@@ -1,0 +1,770 @@
+{
+  "version": 1,
+  "note": "NPC dialog per store, keyed by familiarity tier. JRPG-style line-by-line. Use {mascot} token for user's animal name.",
+  "stores": {
+    "familymart": {
+      "first": [
+        {
+          "speaker": "npc",
+          "text": "歡迎光臨全家～是新面孔呢！"
+        },
+        {
+          "speaker": "npc",
+          "text": "這是我第一次看到你跟{mascot}來呢，慢慢看慢慢挑。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{enter_store}"
+        },
+        {
+          "speaker": "npc",
+          "text": "哈哈好可愛。今天想解決什麼？"
+        }
+      ],
+      "new": [
+        {
+          "speaker": "npc",
+          "text": "嗨～又見面了！"
+        },
+        {
+          "speaker": "npc",
+          "text": "今天{mascot}看起來很有精神喔。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ],
+      "regular": [
+        {
+          "speaker": "npc",
+          "text": "熟面孔！老樣子嗎？"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{thinking}"
+        },
+        {
+          "speaker": "npc",
+          "text": "不急不急，慢慢想。"
+        }
+      ],
+      "frequent": [
+        {
+          "speaker": "npc",
+          "text": "哎呀～老客人！"
+        },
+        {
+          "speaker": "npc",
+          "text": "跟你說，我看你這陣子狀態真的不一樣了。堅持下來真的有差。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ],
+      "mascot": [
+        {
+          "speaker": "npc",
+          "text": "店寵駕到！今天幫我顧店嗎 😆"
+        },
+        {
+          "speaker": "npc",
+          "text": "認識你這麼久，你的口味我都摸透囉。直接幫你挑？"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{agree}"
+        }
+      ]
+    },
+    "seven_eleven": {
+      "first": [
+        {
+          "speaker": "npc",
+          "text": "歡～迎～光～臨～（打呵欠）"
+        },
+        {
+          "speaker": "npc",
+          "text": "新客人？半夜進來這間店你很有勇氣。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{enter_store}"
+        },
+        {
+          "speaker": "npc",
+          "text": "本店消夜區在這邊，不健康的我也不勸你，但還是要吃對。"
+        }
+      ],
+      "new": [
+        {
+          "speaker": "npc",
+          "text": "又是你～"
+        },
+        {
+          "speaker": "npc",
+          "text": "我這邊茶葉蛋剛煮好，你試試？"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ],
+      "regular": [
+        {
+          "speaker": "npc",
+          "text": "熟了熟了，你來我都知道你要關東煮。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{thinking}"
+        }
+      ],
+      "frequent": [
+        {
+          "speaker": "npc",
+          "text": "老鐵！今天我店長不在，放心挑 😎"
+        },
+        {
+          "speaker": "npc",
+          "text": "說真的我看你減脂的樣子很用心啦。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ],
+      "mascot": [
+        {
+          "speaker": "npc",
+          "text": "店寵來了！來來我有私房推薦。"
+        },
+        {
+          "speaker": "npc",
+          "text": "跟你說個秘密：深夜的新鮮度其實比白天好，進貨時間早上 5 點。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ]
+    },
+    "pxmart": {
+      "first": [
+        {
+          "speaker": "npc",
+          "text": "來採購嗎？今天特價品在 5 號走道。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{enter_store}"
+        },
+        {
+          "speaker": "npc",
+          "text": "要一次買一週份的話，我建議蛋白質先看舒肥雞胸區。"
+        }
+      ],
+      "new": [
+        {
+          "speaker": "npc",
+          "text": "哎你又來啦～"
+        },
+        {
+          "speaker": "npc",
+          "text": "這次要買什麼煮什麼？"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ],
+      "regular": [
+        {
+          "speaker": "npc",
+          "text": "老客戶！我幫你留了幾包優格。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{agree}"
+        }
+      ],
+      "frequent": [
+        {
+          "speaker": "npc",
+          "text": "親愛的老客人～"
+        },
+        {
+          "speaker": "npc",
+          "text": "看你越來越會選食材了，那個看標示的習慣真的很重要。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{agree}"
+        }
+      ],
+      "mascot": [
+        {
+          "speaker": "npc",
+          "text": "店寵！下週有一批新進的希臘優格，你要不要預訂？"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ]
+    },
+    "mcdonalds": {
+      "first": [
+        {
+          "speaker": "npc",
+          "text": "歡迎光臨麥當勞～"
+        },
+        {
+          "speaker": "npc",
+          "text": "第一次看到你 — 要我推薦嗎？我其實很懂減脂挑法。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{enter_store}"
+        }
+      ],
+      "new": [
+        {
+          "speaker": "npc",
+          "text": "又來啦，今天不點大薯了對吧？😆"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{thinking}"
+        }
+      ],
+      "regular": [
+        {
+          "speaker": "npc",
+          "text": "你是那種會改點無糖可樂的聰明客人。"
+        },
+        {
+          "speaker": "npc",
+          "text": "烤雞沙拉今天新鮮，要試試嗎？"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{thinking}"
+        }
+      ],
+      "frequent": [
+        {
+          "speaker": "npc",
+          "text": "嘿！我們這麼熟了，偷偷跟你說 —"
+        },
+        {
+          "speaker": "npc",
+          "text": "其實咔啦雞腿堡去皮的話熱量少 150 卡，店員教你 👍"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{agree}"
+        }
+      ],
+      "mascot": [
+        {
+          "speaker": "npc",
+          "text": "店寵！員工價給你一份 😏"
+        },
+        {
+          "speaker": "npc",
+          "text": "跟你說個業內秘密：新鮮度最好是早上 10 點前做的。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ]
+    },
+    "kfc": {
+      "first": [
+        {
+          "speaker": "npc",
+          "text": "新客人啊！歡迎到炸雞殿堂。"
+        },
+        {
+          "speaker": "npc",
+          "text": "雖然我們是炸的，但聰明吃一樣能減脂，來我教你。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{enter_store}"
+        }
+      ],
+      "new": [
+        {
+          "speaker": "npc",
+          "text": "你又來啦～今天不爆雷吧？"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ],
+      "regular": [
+        {
+          "speaker": "npc",
+          "text": "熟客！紙包烤雞是你最常點的對吧？"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{agree}"
+        }
+      ],
+      "frequent": [
+        {
+          "speaker": "npc",
+          "text": "老朋友！"
+        },
+        {
+          "speaker": "npc",
+          "text": "說實話，看你這陣子瘦下來了，我都有成就感 🍗"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{agree}"
+        }
+      ],
+      "mascot": [
+        {
+          "speaker": "npc",
+          "text": "店寵！後廚剛出爐一份紙包烤雞，給你 😎"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ]
+    },
+    "starbucks": {
+      "first": [
+        {
+          "speaker": "npc",
+          "text": "Hey, welcome. 第一次見到你耶。"
+        },
+        {
+          "speaker": "npc",
+          "text": "這裡地雷很多，美式最安全、焦糖瑪奇朵別踩。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{enter_store}"
+        }
+      ],
+      "new": [
+        {
+          "speaker": "npc",
+          "text": "又來啦 ☕ 要老樣子嗎？"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ],
+      "regular": [
+        {
+          "speaker": "npc",
+          "text": "熟客！你點的那杯低脂拿鐵我都背起來了。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{thinking}"
+        }
+      ],
+      "frequent": [
+        {
+          "speaker": "npc",
+          "text": "親愛的～"
+        },
+        {
+          "speaker": "npc",
+          "text": "你知道嗎，我很喜歡看你帶{mascot}來。你們兩個好有默契。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{agree}"
+        }
+      ],
+      "mascot": [
+        {
+          "speaker": "npc",
+          "text": "店寵！員工折扣給你 ☕"
+        },
+        {
+          "speaker": "npc",
+          "text": "Pro tip: 燕麥奶拿鐵熱量比全脂少 30%，風味更香。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ]
+    },
+    "night_market": {
+      "first": [
+        {
+          "speaker": "npc",
+          "text": "少年仔！第一次來夜市啊？"
+        },
+        {
+          "speaker": "npc",
+          "text": "阿伯跟你講，夜市會胖的不是肉，是炸粉跟加工品。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{enter_store}"
+        }
+      ],
+      "new": [
+        {
+          "speaker": "npc",
+          "text": "欸你這麼快又來了？"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ],
+      "regular": [
+        {
+          "speaker": "npc",
+          "text": "熟人！滷味幫你留了雞胸跟豆干。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{agree}"
+        }
+      ],
+      "frequent": [
+        {
+          "speaker": "npc",
+          "text": "哎呀老朋友！"
+        },
+        {
+          "speaker": "npc",
+          "text": "看你挑得越來越精了，阿伯以你為榮 🏮"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{agree}"
+        }
+      ],
+      "mascot": [
+        {
+          "speaker": "npc",
+          "text": "店寵！今天鹹酥雞攤的老闆送你一份烤雞腿（去皮版）"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ]
+    },
+    "bubble_tea": {
+      "first": [
+        {
+          "speaker": "npc",
+          "text": "歡迎光臨手搖王國！"
+        },
+        {
+          "speaker": "npc",
+          "text": "我們有很多減糖選項～說真的全糖真的不要啦。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{enter_store}"
+        }
+      ],
+      "new": [
+        {
+          "speaker": "npc",
+          "text": "又來啦！要老樣子還是換一換？"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ],
+      "regular": [
+        {
+          "speaker": "npc",
+          "text": "熟客耶！你的無糖烏龍我已經先備好。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{agree}"
+        }
+      ],
+      "frequent": [
+        {
+          "speaker": "npc",
+          "text": "親愛的，說真的你改喝無糖我蠻佩服你耶。"
+        },
+        {
+          "speaker": "npc",
+          "text": "很多人一開始都改不掉，你做得到 👍"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{agree}"
+        }
+      ],
+      "mascot": [
+        {
+          "speaker": "npc",
+          "text": "店寵！免費升級大杯給你 🧋"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ]
+    },
+    "sushi_box": {
+      "first": [
+        {
+          "speaker": "npc",
+          "text": "いらっしゃい～歡迎光臨。"
+        },
+        {
+          "speaker": "npc",
+          "text": "第一次來？我們的鮭魚握壽司今天特別新鮮。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{enter_store}"
+        }
+      ],
+      "new": [
+        {
+          "speaker": "npc",
+          "text": "再訪的客人！感謝。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ],
+      "regular": [
+        {
+          "speaker": "npc",
+          "text": "熟客。今天的生魚片是早上進的，品質一流。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{thinking}"
+        }
+      ],
+      "frequent": [
+        {
+          "speaker": "npc",
+          "text": "老朋友～"
+        },
+        {
+          "speaker": "npc",
+          "text": "你的口味我都記在心裡。這次要不要試試我們的隱藏菜單？"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{agree}"
+        }
+      ],
+      "mascot": [
+        {
+          "speaker": "npc",
+          "text": "店寵！板前專屬服務，來 👨‍🍳"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{agree}"
+        }
+      ]
+    },
+    "healthy_box": {
+      "first": [
+        {
+          "speaker": "npc",
+          "text": "歡迎～我是這家店的營養師。"
+        },
+        {
+          "speaker": "npc",
+          "text": "別看到『健康』兩字就放心，很多店是偽健康，我教你怎麼看。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{enter_store}"
+        }
+      ],
+      "new": [
+        {
+          "speaker": "npc",
+          "text": "你回來了！上次推薦的還可以嗎？"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ],
+      "regular": [
+        {
+          "speaker": "npc",
+          "text": "熟客！我看你體組成進步蠻多耶。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{thinking}"
+        }
+      ],
+      "frequent": [
+        {
+          "speaker": "npc",
+          "text": "親愛的，說實話你是我看過最自律的客人之一。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ],
+      "mascot": [
+        {
+          "speaker": "npc",
+          "text": "店寵！我特別幫你設計了一份客製餐盒 📋"
+        },
+        {
+          "speaker": "npc",
+          "text": "你這陣子的進度我都看著，真的很了不起。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ]
+    },
+    "fp_shop": {
+      "first": [
+        {
+          "speaker": "npc",
+          "text": "歡迎加入 FP 婕樂纖家族 ✨"
+        },
+        {
+          "speaker": "npc",
+          "text": "我是店長。這裡的產品不只是代餐，是你減脂路上的夥伴。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{enter_store}"
+        }
+      ],
+      "new": [
+        {
+          "speaker": "npc",
+          "text": "FP 會員再訪～有需要什麼搭配建議嗎？"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ],
+      "regular": [
+        {
+          "speaker": "npc",
+          "text": "親愛的家人！你的連續使用讓我很感動。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{thinking}"
+        }
+      ],
+      "frequent": [
+        {
+          "speaker": "npc",
+          "text": "老家人～我幫你留了新品試吃。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ],
+      "mascot": [
+        {
+          "speaker": "npc",
+          "text": "FP 店寵級貴賓！"
+        },
+        {
+          "speaker": "npc",
+          "text": "你有考慮加盟嗎？以你的理解深度可以當 FP 講師了 🌿"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ]
+    },
+    "fp_base": {
+      "first": [
+        {
+          "speaker": "npc",
+          "text": "歡迎來到加盟基地，這裡是 FP 菁英的訓練場。"
+        },
+        {
+          "speaker": "npc",
+          "text": "我是加盟主任。你已經是永久會員了，接下來教你怎麼幫助更多人。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{enter_store}"
+        }
+      ],
+      "new": [
+        {
+          "speaker": "npc",
+          "text": "來複習嗎？上次的話術還記得嗎？"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ],
+      "regular": [
+        {
+          "speaker": "npc",
+          "text": "練習得不錯！今天進階組合要看嗎？"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{thinking}"
+        }
+      ],
+      "frequent": [
+        {
+          "speaker": "npc",
+          "text": "夥伴！你真的在這一行找到自己的節奏了。"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{agree}"
+        }
+      ],
+      "mascot": [
+        {
+          "speaker": "npc",
+          "text": "菁英中的菁英！"
+        },
+        {
+          "speaker": "npc",
+          "text": "我看你已經可以開始帶新夥伴了。有興趣當教練嗎？👑"
+        },
+        {
+          "speaker": "mascot",
+          "text": "{happy}"
+        }
+      ]
+    }
+  }
+}

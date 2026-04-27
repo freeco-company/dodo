@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "note": "Story moments triggered at journey milestones. Keyed by day number.",
+  "milestones": {
+    "3": [
+      {"speaker": "mascot", "text": "{happy}"},
+      {"speaker": "narrator", "text": "你已經走了三天。"},
+      {"speaker": "narrator", "text": "別小看這三天 — 大多數人連第二天都撐不過。"},
+      {"speaker": "mascot", "text": "我們繼續走吧？"}
+    ],
+    "7": [
+      {"speaker": "mascot", "text": "整整一週了！"},
+      {"speaker": "narrator", "text": "研究說：連續七天做同一件事，大腦開始把它當習慣。"},
+      {"speaker": "narrator", "text": "你現在就在那個門檻上。"},
+      {"speaker": "mascot", "text": "{milestone}"},
+      {"speaker": "narrator", "text": "解鎖稱號：「一週有你」✨"}
+    ],
+    "14": [
+      {"speaker": "narrator", "text": "兩週了。"},
+      {"speaker": "mascot", "text": "欸，你知道嗎？"},
+      {"speaker": "mascot", "text": "大部分人在這裡會卡住 — 因為體重可能還沒動太多。"},
+      {"speaker": "narrator", "text": "但你的行為已經改變了。這才是真的進步。"},
+      {"speaker": "mascot", "text": "{agree}"},
+      {"speaker": "narrator", "text": "獲得稀有卡：「雙週達人」💎"}
+    ],
+    "21": [
+      {"speaker": "narrator", "text": "第 21 天。"},
+      {"speaker": "narrator", "text": "你完成了被稱為『習慣養成』的經典門檻。"},
+      {"speaker": "mascot", "text": "..."},
+      {"speaker": "mascot", "text": "{milestone}"},
+      {"speaker": "narrator", "text": "獲得限定時裝：「三週里程」👑"},
+      {"speaker": "narrator", "text": "從明天開始，是第二輪 — 獎勵更大、旅程延續。"},
+      {"speaker": "mascot", "text": "我們一起繼續走吧。"}
+    ]
+  }
+}

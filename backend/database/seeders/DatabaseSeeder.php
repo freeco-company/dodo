@@ -13,6 +13,13 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
+        // Content seeds (JSON → app_config) must run first so any user-facing
+        // bootstrap call after seeding has runtime content available.
+        $this->call([
+            AppConfigSeeder::class,
+            CardEventOfferSeeder::class,
+        ]);
+
         User::firstOrCreate(
             ['email' => 'admin@dodo.local'],
             [
