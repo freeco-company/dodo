@@ -5,12 +5,17 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MealResource;
 use App\Models\Meal;
+use App\Services\Gamification\GamificationPublisher;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MealController extends Controller
 {
+    public function __construct(
+        private readonly GamificationPublisher $gamification,
+    ) {}
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $request->validate([
@@ -47,9 +52,40 @@ class MealController extends Controller
             'sugar_g' => ['nullable', 'numeric', 'min:0', 'max:300'],
         ]);
 
-        $meal = $request->user()->meals()->create($data + [
+        $user = $request->user();
+        $meal = $user->meals()->create($data + [
             'matched_food_ids' => [],
         ]);
+
+        // ADR-009 §3 / catalog §3.1 — fire gamification events for this meal.
+        $uuid = is_string($user->pandora_user_uuid) ? $user->pandora_user_uuid : '';
+        if ($uuid !== '') {
+            // dodo.meal_logged — fires every meal; daily cap (30 XP / 6 meals)
+            // and diminishing returns (4th meal onwards = 2 XP) live server-side
+            // in catalog.EVENT_CATALOG so caller doesn't need to think about it.
+            $this->gamification->publish(
+                $uuid,
+                'dodo.meal_logged',
+                "dodo.meal_logged.{$meal->id}",
+                ['meal_id' => $meal->id, 'meal_type' => $meal->meal_type],
+            );
+
+            // dodo.first_meal_of_day — only when this is the first meal logged
+            // for the meal's date. Catalog daily_cap_xp=5 enforces the once-a-day
+            // cap on the server even if our detection is imperfect.
+            $mealsToday = $user->meals()
+                ->whereDate('date', $meal->date)
+                ->where('id', '!=', $meal->id)
+                ->count();
+            if ($mealsToday === 0) {
+                $this->gamification->publish(
+                    $uuid,
+                    'dodo.first_meal_of_day',
+                    "dodo.first_meal_of_day.{$uuid}.".$meal->date->toDateString(),
+                    ['meal_id' => $meal->id],
+                );
+            }
+        }
 
         return new MealResource($meal);
     }
