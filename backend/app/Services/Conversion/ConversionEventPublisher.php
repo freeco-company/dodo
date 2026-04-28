@@ -37,10 +37,30 @@ use Illuminate\Support\Facades\Log;
 class ConversionEventPublisher
 {
     /**
+     * Events whose firing may cause py-service to evaluate a lifecycle stage transition.
+     * After dispatching such an event we forget the per-user lifecycle cache so the next
+     * `LifecycleClient::getStatus()` re-fetches the (potentially upgraded) stage.
+     *
+     * Why this set: `engagement.deep` is the on-ramp from registered → engaged, and
+     * `franchise.cta_click` is the on-ramp from loyalist → applicant. Other events
+     * (app.opened, cta_view) are observation-only and would just thrash the cache.
+     *
+     * @var list<string>
+     */
+    private const LIFECYCLE_TRIGGERING_EVENTS = [
+        'engagement.deep',
+        'franchise.cta_click',
+    ];
+
+    public function __construct(
+        private readonly LifecycleClient $lifecycle,
+    ) {}
+
+    /**
      * Publish a conversion event for a given pandora_user_uuid.
      *
-     * @param string $eventType  ADR-003 §2.3 標準事件名（app.opened / engagement.deep / franchise.cta_view / franchise.cta_click 等）
-     * @param array<string, mixed> $payload  Event-specific extra data
+     * @param  string  $eventType  ADR-003 §2.3 標準事件名（app.opened / engagement.deep / franchise.cta_view / franchise.cta_click 等）
+     * @param  array<string, mixed>  $payload  Event-specific extra data
      */
     public function publish(
         string $pandoraUserUuid,
@@ -82,12 +102,20 @@ class ConversionEventPublisher
         // successful one. py-service is also idempotent enough to absorb the
         // occasional duplicate.
         PublishConversionEventJob::dispatch($body);
+
+        // Cache-bust lifecycle for events that may trigger a stage transition on
+        // py-service. We don't know exactly when py-service will evaluate the
+        // rule, but the next bootstrap call will re-fetch instead of serving a
+        // stale 1h-cached value. See LifecycleClient::forget() docblock.
+        if (in_array($eventType, self::LIFECYCLE_TRIGGERING_EVENTS, true)) {
+            $this->lifecycle->forget($pandoraUserUuid);
+        }
     }
 
     /**
      * Synchronous send used by the queue job. Not called from request path.
      *
-     * @param array<string, mixed> $body
+     * @param  array<string, mixed>  $body
      */
     public function send(array $body): void
     {
