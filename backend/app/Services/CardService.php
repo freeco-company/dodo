@@ -270,4 +270,243 @@ class CardService
             ])->all(),
         ];
     }
+
+    // ------------------------------------------------------------------
+    // Event card offers (translated from ai-game/src/services/cards.ts
+    // — drawEventCard / skipEventOffer / offerEventCard@get-by-id slice).
+    //
+    // Parity notes vs Node:
+    // - The Node version keyed offers by UUID strings; here offer_id is the
+    //   Laravel auto-increment int (the schema bumped legacy_id → id).
+    // - status enum still uses 'pending' | 'answered' | 'missed' | 'skipped'
+    //   per the create_card_event_offers migration column comment.
+    // - We do NOT yet implement the candidate-rolling logic from
+    //   offerEventCard(); event offers are pushed in by NPC interactions
+    //   (see InteractService) and this slice only consumes them.
+    // ------------------------------------------------------------------
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function eventOfferShow(User $user, int $offerId): array
+    {
+        $offer = $this->loadOwnedOffer($user, $offerId);
+
+        return $this->offerPayload($offer);
+    }
+
+    /**
+     * Draw the card for a pending offer. Does NOT consume stamina (parity
+     * with legacy drawEventCard).
+     *
+     * @return array<string,mixed>
+     */
+    public function eventDraw(User $user, int $offerId): array
+    {
+        $offer = $this->loadOwnedOffer($user, $offerId);
+        if ($offer->status !== 'pending') {
+            abort(409, 'OFFER_NOT_PENDING');
+        }
+        $expiresAt = $offer->expires_at !== null ? Carbon::parse((string) $offer->expires_at) : null;
+        if ($expiresAt !== null && $expiresAt->isPast()) {
+            // Sweep stale rows so the next poll does not see them.
+            $offer->status = 'missed';
+            $offer->save();
+            abort(409, 'OFFER_EXPIRED');
+        }
+
+        $card = $this->findCardById((string) $offer->card_id);
+        if (! $card) {
+            abort(404, 'CARD_NOT_FOUND');
+        }
+
+        $play = CardPlay::create([
+            'user_id' => $user->id,
+            'pandora_user_uuid' => $user->pandora_user_uuid,
+            'date' => Carbon::today()->toDateString(),
+            'card_id' => $offer->card_id,
+            'card_type' => (string) ($card['type'] ?? 'event'),
+            'rarity' => (string) ($card['rarity'] ?? 'common'),
+        ]);
+        $offer->play_id = $play->id;
+        $offer->save();
+
+        $payload = $this->cardPayload($play->id, $card, isNew: true, user: $user);
+        $payload['offer_id'] = $offer->id;
+
+        return $payload;
+    }
+
+    /**
+     * Mark a pending offer as skipped so it stops surfacing today.
+     *
+     * @return array<string,mixed>
+     */
+    public function eventSkip(User $user, int $offerId): array
+    {
+        $offer = $this->loadOwnedOffer($user, $offerId);
+        if ($offer->status === 'pending') {
+            $offer->status = 'skipped';
+            $offer->save();
+        }
+
+        return ['skipped' => true, 'offer_id' => $offer->id];
+    }
+
+    /**
+     * Draw a specific island-scene card by its hotspot card_id.
+     * Costs stamina, respects tier gating and once-per-day-per-card rule.
+     *
+     * @return array<string,mixed>
+     */
+    public function sceneDraw(User $user, string $cardId): array
+    {
+        $card = $this->findCardById($cardId);
+        if (! $card) {
+            abort(404, 'CARD_NOT_FOUND');
+        }
+
+        if (! $this->tierSatisfies((string) $user->membership_tier, $card['tier_required'] ?? null)) {
+            abort(403, 'TIER_LOCKED');
+        }
+
+        // Optional level gating: when the seed flags a min_level for the
+        // hotspot's parent scene, honour it.  Falling back to the card's own
+        // min_level when present (some scenario cards carry it directly).
+        $minLevel = $this->minLevelForHotspot($cardId)
+            ?? (isset($card['min_level']) ? (int) $card['min_level'] : null);
+        if ($minLevel !== null && (int) $user->level < $minLevel) {
+            abort(403, 'LEVEL_LOCKED');
+        }
+
+        $stamina = $this->getStamina($user);
+        if ($stamina['remaining'] <= 0) {
+            abort(409, 'NO_STAMINA');
+        }
+
+        // No re-draws of the same card within the same day.
+        $already = CardPlay::where('pandora_user_uuid', $user->pandora_user_uuid)
+            ->where('card_id', $cardId)
+            ->whereDate('date', Carbon::today())
+            ->whereNotNull('answered_at')
+            ->exists();
+        if ($already) {
+            abort(409, 'ALREADY_ANSWERED_TODAY');
+        }
+
+        $play = CardPlay::create([
+            'user_id' => $user->id,
+            'pandora_user_uuid' => $user->pandora_user_uuid,
+            'date' => Carbon::today()->toDateString(),
+            'card_id' => $cardId,
+            'card_type' => (string) ($card['type'] ?? 'scenario'),
+            'rarity' => (string) ($card['rarity'] ?? 'common'),
+        ]);
+
+        $seenBefore = CardPlay::where('pandora_user_uuid', $user->pandora_user_uuid)
+            ->where('card_id', $cardId)
+            ->where('id', '!=', $play->id)
+            ->exists();
+
+        return $this->cardPayload($play->id, $card, isNew: ! $seenBefore, user: $user);
+    }
+
+    /**
+     * Tenant-safe loader. Throws 404 when the offer does not belong to the
+     * current user — same external behaviour as “not found” keeps tenant
+     * existence opaque.
+     */
+    private function loadOwnedOffer(User $user, int $offerId): CardEventOffer
+    {
+        $offer = CardEventOffer::where('id', $offerId)
+            ->where('pandora_user_uuid', $user->pandora_user_uuid)
+            ->first();
+        if (! $offer) {
+            abort(404, 'OFFER_NOT_FOUND');
+        }
+
+        return $offer;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    private function offerPayload(CardEventOffer $offer): array
+    {
+        $card = $this->findCardById((string) $offer->card_id);
+
+        return [
+            'id' => $offer->id,
+            'card_id' => $offer->card_id,
+            'status' => $offer->status,
+            'event_group' => $offer->event_group,
+            'play_id' => $offer->play_id,
+            'offered_at' => $this->toIso($offer->offered_at),
+            'expires_at' => $this->toIso($offer->expires_at),
+            // Card metadata is hydrated for the UI banner; choices stay
+            // hidden until the user actually draws (so the answer key is
+            // not leaked to skip/poll callers).
+            'card' => $card === null ? null : [
+                'id' => $card['id'] ?? null,
+                'type' => $card['type'] ?? null,
+                'rarity' => $card['rarity'] ?? null,
+                'emoji' => $card['emoji'] ?? null,
+                'question' => $card['question'] ?? null,
+                'hint' => $card['hint'] ?? null,
+            ],
+        ];
+    }
+
+    /**
+     * Walk the seeded island_scenes config for a hotspot whose card_id
+     * matches and return its parent scene's min_level (or null).
+     */
+    private function minLevelForHotspot(string $cardId): ?int
+    {
+        $cfg = $this->config()->get('island_scenes') ?? [];
+        $scenes = is_array($cfg['scenes'] ?? null) ? $cfg['scenes'] : [];
+        foreach ($scenes as $scene) {
+            foreach ((array) ($scene['hotspots'] ?? []) as $h) {
+                if (($h['card_id'] ?? null) === $cardId) {
+                    return isset($scene['min_level']) ? (int) $scene['min_level'] : null;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Eloquent's datetime cast already inflates to Carbon at runtime, but
+     * Larastan annotations type these columns as string|null. Normalising
+     * through Carbon::parse keeps the API contract stable AND silences the
+     * "instanceof Carbon will always evaluate to false" PHPDoc inference.
+     */
+    private function toIso(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return Carbon::parse((string) $value)->toIso8601String();
+    }
+
+    /**
+     * Tier gating mirrors legacy tierSatisfies(): null requirement = open
+     * to all; otherwise the user must hold the requested membership tier
+     * (or any “lifetime” tier counts as satisfying lower tiers).
+     */
+    private function tierSatisfies(string $userTier, ?string $required): bool
+    {
+        if ($required === null || $required === '' || $required === 'public') {
+            return true;
+        }
+        if ($userTier === $required) {
+            return true;
+        }
+        // Loose hierarchy: fp_lifetime / vip cover lower paid tiers.
+        $rank = ['public' => 0, 'monthly' => 1, 'yearly' => 2, 'vip' => 3, 'fp_lifetime' => 4];
+
+        return ($rank[$userTier] ?? 0) >= ($rank[$required] ?? 0);
+    }
 }

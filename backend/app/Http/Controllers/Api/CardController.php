@@ -22,6 +22,7 @@ class CardController extends Controller
             'play_id' => ['required', 'integer'],
             'choice_idx' => ['required', 'integer', 'min:0', 'max:10'],
         ]);
+
         return response()->json($this->service->answer(
             $request->user(),
             (int) $data['play_id'],
@@ -37,5 +38,48 @@ class CardController extends Controller
     public function collection(Request $request): JsonResponse
     {
         return response()->json($this->service->collection($request->user()));
+    }
+
+    public function eventOffer(Request $request, int $offerId): JsonResponse
+    {
+        return response()->json([
+            'data' => $this->service->eventOfferShow($request->user(), $offerId),
+        ]);
+    }
+
+    public function eventDraw(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'offer_id' => ['required', 'integer'],
+        ]);
+
+        return response()->json($this->service->eventDraw(
+            $request->user(),
+            (int) $data['offer_id'],
+        ));
+    }
+
+    public function eventSkip(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'offer_id' => ['required', 'integer'],
+        ]);
+
+        return response()->json($this->service->eventSkip(
+            $request->user(),
+            (int) $data['offer_id'],
+        ));
+    }
+
+    public function sceneDraw(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'card_id' => ['required', 'string', 'max:64'],
+        ]);
+
+        return response()->json($this->service->sceneDraw(
+            $request->user(),
+            (string) $data['card_id'],
+        ));
     }
 }

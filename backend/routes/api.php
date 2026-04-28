@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\CheckinController;
 use App\Http\Controllers\Api\ClientErrorController;
 use App\Http\Controllers\Api\DailyLogController;
 use App\Http\Controllers\Api\EcpayCallbackController;
+use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\FranchiseController;
 use App\Http\Controllers\Api\GooglePubSubController;
 use App\Http\Controllers\Api\HealthController;
@@ -113,7 +114,19 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/answer', [CardController::class, 'answer']);
         Route::get('/stamina', [CardController::class, 'stamina']);
         Route::get('/collection', [CardController::class, 'collection']);
+
+        // Event card offers (NPC-pushed, time-limited)
+        Route::get('/event-offer/{offer_id}', [CardController::class, 'eventOffer'])
+            ->where('offer_id', '\d+');
+        Route::post('/event-draw', [CardController::class, 'eventDraw']);
+        Route::post('/event-skip', [CardController::class, 'eventSkip']);
+
+        // Scene cards (island hotspot, location-based)
+        Route::post('/scene-draw', [CardController::class, 'sceneDraw']);
     });
+
+    // Food database lookup (typeahead in meal logging UI)
+    Route::get('/foods/search', [FoodController::class, 'search']);
 
     Route::get('/quests/today', [QuestController::class, 'today']);
 
