@@ -1,0 +1,21 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/pestphp/pest/extension.neon
+    - phpstan-baseline.neon
+
+parameters:
+    level: 5
+
+    paths:
+        - app
+        - database
+        - tests
+
+    excludePaths:
+        - vendor
+        - bootstrap/cache
+        - storage
+
+    # Bootstrap so Larastan can resolve the Laravel container at analysis time.
+    bootstrapFiles:
+        - vendor/autoload.php
