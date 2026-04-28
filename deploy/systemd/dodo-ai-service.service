@@ -1,0 +1,46 @@
+# Dodo AI service (FastAPI / uvicorn) — food vision + chat SSE.
+# Runs as dedicated `dodo` user. Listens on 127.0.0.1:8002 by default
+# (no public bind — backend reaches it via loopback).
+#
+# Prereq:
+#   useradd -r -m -d /var/lib/dodo -s /usr/sbin/nologin dodo
+#   mkdir -p /var/log/dodo && chown dodo:dodo /var/log/dodo
+#   sudo -u dodo bash -c 'cd /var/www/dodo/ai-service && uv sync --frozen'
+#
+# Install:
+#   cp deploy/systemd/dodo-ai-service.service /etc/systemd/system/
+#   systemctl daemon-reload
+#   systemctl enable --now dodo-ai-service.service
+
+[Unit]
+Description=Dodo AI service (FastAPI / uvicorn)
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=dodo
+Group=dodo
+WorkingDirectory=/var/www/dodo/ai-service
+EnvironmentFile=/var/www/dodo/ai-service/.env
+# uv-managed venv. Adjust if you're not using uv (e.g. /var/www/dodo/ai-service/.venv/bin/uvicorn).
+ExecStart=/var/www/dodo/ai-service/.venv/bin/uvicorn app.main:app \
+    --host 127.0.0.1 \
+    --port 8002 \
+    --workers 2 \
+    --proxy-headers \
+    --no-access-log
+# On a 4GB Linode shared with mothership + platform + WP, --workers 2 is the
+# upper bound. Drop to 1 if RAM pressure shows up.
+Restart=always
+RestartSec=5
+StandardOutput=append:/var/log/dodo/ai-service.log
+StandardError=append:/var/log/dodo/ai-service.log
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
