@@ -511,6 +511,12 @@ parameters:
 			path: tests/Feature/Conversion/FireHooksTest.php
 
 		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 7
+			path: tests/Feature/Gamification/CheckinStreakHooksTest.php
+
+		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$pandora_user_uuid\.$#'
 			identifier: property.notFound
 			count: 1

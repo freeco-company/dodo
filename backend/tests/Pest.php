@@ -48,3 +48,20 @@ function something()
 {
     // ..
 }
+
+/**
+ * Seed `count` consecutive past `DailyLog` rows for `$user`, ending
+ * `$startBackDays` ago (default 1 = yesterday). Used by gamification + streak
+ * hook tests. Lives here so file-level helpers don't disturb Pest's `$this`
+ * binding inside `it(...)` closures.
+ */
+function seedStreakDays(\App\Models\User $user, int $count, int $startBackDays = 1): void
+{
+    for ($i = 0; $i < $count; $i++) {
+        \App\Models\DailyLog::create([
+            'user_id' => $user->id,
+            'pandora_user_uuid' => $user->pandora_user_uuid,
+            'date' => \Carbon\Carbon::today()->subDays($startBackDays + $i)->toDateString(),
+        ]);
+    }
+}
