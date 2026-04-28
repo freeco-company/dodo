@@ -71,7 +71,7 @@ ADR-002 §4 Phase A 進行中（Week 1）：
 
 1. **集團一致性優先於朵朵獨特性**：技術選型遇到分歧時，先看母艦怎麼做（同 stack 才能享受共用 packages 的乘數效應）
 2. **AI 互動走 Python 微服務**：Laravel 不直接 call Anthropic API，而是 HTTP proxy 給 Python service（ADR-002 §3）
-3. **Pandora Core Identity 還沒做**：朵朵 Phase C 設計成「可降級為自有 Identity」，現階段先用本 repo `users` 表
+3. **Pandora Core Identity 與朵朵同期建置（ADR-007）**：3 週遷移計畫的 W3 朵朵會接 `IdentityClient` SDK。本 repo `users` 表將改為 **minimal mirror（只 uuid + display_name + avatar + subscription_tier）**，**禁止存 email / phone / password_hash / OAuth tokens**（ADR-007 §2.3）。需要 PII 時即時呼叫 `GET /v1/internal/users/{uuid}`（10s cache）。Phase A 期間先寫好 migration 結構但欄位留空，W3 接入時填上 group_user_id mapping。
 4. **「諮詢加盟」入口要埋設**：依集團原則，所有 App 必須有把使用者導向婕樂纖加盟漏斗的設計（Premium 升級頁、學院 banner 等）
 
 ---
