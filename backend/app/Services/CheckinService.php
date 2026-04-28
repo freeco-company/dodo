@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\DailyLog;
 use App\Models\User;
+use App\Services\Conversion\ConversionEventPublisher;
 use Carbon\Carbon;
 
 /**
@@ -20,7 +21,17 @@ class CheckinService
 
     public const DAILY_EXERCISE_GOAL_MIN = 30;
 
-    public function __construct(private readonly JourneyService $journey) {}
+    /**
+     * ADR-003 §2.3 — engagement.deep is fired exactly once when the user
+     * first reaches a 7-day consecutive checkin streak (any DailyLog entry
+     * counts as a checkin). Tracked via Cache flag to prevent double-fire.
+     */
+    public const ENGAGEMENT_STREAK_DAYS = 7;
+
+    public function __construct(
+        private readonly JourneyService $journey,
+        private readonly ConversionEventPublisher $conversion,
+    ) {}
 
     private function getOrCreateDailyLog(User $user, ?string $date = null): DailyLog
     {
@@ -33,11 +44,74 @@ class CheckinService
             return $existing;
         }
 
-        return DailyLog::create([
+        $log = DailyLog::create([
             'user_id' => $user->id,
             'pandora_user_uuid' => $user->pandora_user_uuid,
             'date' => $date,
         ]);
+
+        // ADR-003 §2.3 — fire engagement.deep when this new daily log brings
+        // the user to a 7-day consecutive streak (first time only, idempotent
+        // via Cache flag on pandora_user_uuid).
+        $this->maybeFireEngagementDeep($user);
+
+        return $log;
+    }
+
+    /**
+     * Compute the user's current consecutive-day checkin streak from DailyLog
+     * and fire engagement.deep exactly once when it reaches the threshold.
+     *
+     * Streak = count of consecutive past days (including today) that have a
+     * DailyLog row. We only need to check the last N days (cheap).
+     */
+    private function maybeFireEngagementDeep(User $user): void
+    {
+        $uuid = $user->pandora_user_uuid;
+        if (! is_string($uuid) || $uuid === '') {
+            return;
+        }
+
+        $cacheKey = "conversion:engagement_deep_fired:{$uuid}";
+        if (\Illuminate\Support\Facades\Cache::has($cacheKey)) {
+            return;
+        }
+
+        // Pull last ENGAGEMENT_STREAK_DAYS dates with logs and check contiguity.
+        $today = Carbon::today();
+        $since = $today->copy()->subDays(self::ENGAGEMENT_STREAK_DAYS - 1);
+        // Use whereDate to side-step DATE-vs-DATETIME storage quirks
+        // (SQLite stores as TEXT 'YYYY-MM-DD HH:MM:SS' so a plain BETWEEN
+        // string compare can drop today's row).
+        $dates = DailyLog::where('pandora_user_uuid', $uuid)
+            ->whereDate('date', '>=', $since->toDateString())
+            ->whereDate('date', '<=', $today->toDateString())
+            ->pluck('date')
+            ->map(fn ($d) => Carbon::parse($d)->toDateString())
+            ->unique()
+            ->sort()
+            ->values();
+
+        if ($dates->count() < self::ENGAGEMENT_STREAK_DAYS) {
+            return;
+        }
+
+        // Verify no gaps
+        $expected = $since->copy();
+        foreach ($dates as $date) {
+            if ($date !== $expected->toDateString()) {
+                return;
+            }
+            $expected->addDay();
+        }
+
+        $this->conversion->publish($uuid, 'engagement.deep', [
+            'streak_days' => self::ENGAGEMENT_STREAK_DAYS,
+            'reason' => 'consecutive_checkin',
+        ]);
+        // Mark fired for 30 days (re-eligible after a break — conservative
+        // not to spam py-service if a user maintains a long streak).
+        \Illuminate\Support\Facades\Cache::put($cacheKey, true, now()->addDays(30));
     }
 
     private function recalcScore(User $user, DailyLog $log): array
