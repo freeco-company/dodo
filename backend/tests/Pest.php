@@ -65,3 +65,25 @@ function seedStreakDays(\App\Models\User $user, int $count, int $startBackDays =
         ]);
     }
 }
+
+/**
+ * Look up the correct-choice index for a seeded question card. Returns null if
+ * the card or a correct choice can't be found in the seeded `question_decks`
+ * config. Used by gamification card-answer hook tests.
+ */
+function correctChoiceIdxForCard(string $cardId): ?int
+{
+    $config = app(\App\Services\AppConfigService::class);
+    $decks = $config->get('question_decks') ?? [];
+    foreach ($decks['cards'] ?? [] as $card) {
+        if (($card['id'] ?? null) === $cardId) {
+            foreach ($card['choices'] ?? [] as $idx => $choice) {
+                if (! empty($choice['correct'])) {
+                    return $idx;
+                }
+            }
+        }
+    }
+
+    return null;
+}
