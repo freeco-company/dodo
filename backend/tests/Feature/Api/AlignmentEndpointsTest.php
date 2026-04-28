@@ -195,12 +195,19 @@ it('returns island scenes', function () {
         ->assertJsonStructure(['tier', 'scenes']);
 });
 
-it('returns island store for known scene', function () {
+it('returns island store for known scene with frontend flat shape', function () {
     $user = User::factory()->create();
     $this->actingAs($user, 'sanctum')
         ->getJson('/api/island/store/7eleven')
         ->assertOk()
-        ->assertJsonStructure(['scene', 'unlocked', 'visit_count', 'entitlements']);
+        ->assertJsonStructure([
+            'key', 'name', 'emoji', 'backdrop', 'description',
+            'npc' => ['emoji', 'name'],
+            'dialog', 'intents',
+            'user_state' => ['remaining_calories', 'protein_needed_g'],
+            'unlocked', 'lock_reason', 'visit_count', 'entitlements',
+            'scene',
+        ]);
 });
 
 it('returns 404 for unknown island scene', function () {
