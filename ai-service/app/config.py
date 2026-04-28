@@ -32,9 +32,15 @@ class Settings(BaseSettings):
     pandora_core_public_key_ttl: int = 3600
     pandora_core_allowed_products: str = "doudou"
 
-    # Laravel internal callback
+    # Laravel internal callback (for ai-service -> Laravel direction)
     laravel_internal_base_url: str = "http://localhost:8000"
     laravel_internal_shared_secret: str = "change-me-in-prod"
+
+    # Inbound internal-service auth (for Laravel -> ai-service direction).
+    # Used by `app.auth.internal` to gate the X-Internal-Secret header path
+    # (Phase B fallback for endpoints that would normally require a real
+    # Pandora Core JWT). Empty => internal path disabled.
+    internal_shared_secret: str = ""
 
     # Cost guard
     default_daily_token_budget: int = Field(default=200_000)
