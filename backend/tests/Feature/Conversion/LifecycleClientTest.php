@@ -14,15 +14,15 @@ it('forget() clears the cached stage so the next call hits HTTP', function () {
     $uuid = 'uuid-forget-1';
     Http::fake([
         '*/api/v1/users/*/lifecycle' => Http::sequence()
-            ->push(['stage' => 'engaged'], 200)
+            ->push(['stage' => 'visitor'], 200)
             ->push(['stage' => 'loyalist'], 200),
     ]);
 
     $client = app(LifecycleClient::class);
 
-    expect($client->getStatus($uuid))->toBe('engaged');
-    // Second call without forget → cached, still 'engaged' (only 1 HTTP call).
-    expect($client->getStatus($uuid))->toBe('engaged');
+    expect($client->getStatus($uuid))->toBe('visitor');
+    // Second call without forget → cached, still 'visitor' (only 1 HTTP call).
+    expect($client->getStatus($uuid))->toBe('visitor');
 
     $client->forget($uuid);
 
@@ -40,7 +40,7 @@ it('forget() with empty uuid is a no-op (no exception)', function () {
 it('getStatus(bypassCache: true) ignores cache and overwrites it', function () {
     $uuid = 'uuid-bypass-1';
     $client = app(LifecycleClient::class);
-    Cache::put($client->cacheKey($uuid), 'engaged', 3600);
+    Cache::put($client->cacheKey($uuid), 'visitor', 3600);
 
     Http::fake([
         '*/api/v1/users/*/lifecycle' => Http::response(['stage' => 'loyalist'], 200),

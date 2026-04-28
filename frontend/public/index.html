@@ -753,18 +753,21 @@
       </button>
 
       <!--
-        ADR-003 section 2.3 — Franchise consultation CTA.
-        Visibility controlled by server (lifecycle.show_franchise_cta); starts hidden.
-        Copy compliance: only neutral commercial terms (cooperation / consultation).
-        See dodo CLAUDE.md and ADR-003 section 6 for the prohibited-terms allowlist.
+        ADR-008 section 2.1 / 4 — 自用回本 CTA banner（取代 ADR-003 「合作夥伴」文案）.
+        Visibility & copy 由 lifecycle stage 決定（loyalist / applicant / franchisee_self_use 三檔差異化文案）；
+        渲染由 frontend/public/app.js renderFranchiseCta() 負責，後端只送 stage + url。
+        Copy compliance（公平交易法 §21 / ADR-008 §7）：
+          鼓勵詞：自用回本 / 親友合購 / 省錢 / 省 N%
+          禁字：下線 / 分潤 / 推薦獎金 / 招募 / 金字塔 / 老鼠會 / 合作夥伴 / 升級加盟方案
+        See dodo CLAUDE.md and tests/Feature/Api/BootstrapLifecycleTest.php for the lint.
       -->
-      <div id="franchise-cta" class="franchise-cta hidden" role="region" aria-label="集團合作夥伴諮詢">
-        <div class="franchise-cta-icon" aria-hidden="true">⭐</div>
+      <div id="franchise-cta" class="franchise-cta hidden" role="region" aria-label="加盟自用回本">
+        <div class="franchise-cta-icon" aria-hidden="true">💰</div>
         <div class="franchise-cta-body">
-          <div class="franchise-cta-title">準備好成為集團合作夥伴？</div>
-          <div class="franchise-cta-sub">了解婕樂纖加盟方案，與我們一起經營</div>
+          <div class="franchise-cta-title">加盟自用更省錢</div>
+          <div class="franchise-cta-sub">自用客也能加盟省錢，看看回本試算</div>
         </div>
-        <a class="cta-link" href="#" target="_blank" rel="noopener" data-track="franchise.cta_click">諮詢方案 →</a>
+        <a class="cta-link" href="#" target="_blank" rel="noopener" data-track="franchise.cta_click">看回本試算 →</a>
       </div>
 
       <!-- Daily goals editor -->

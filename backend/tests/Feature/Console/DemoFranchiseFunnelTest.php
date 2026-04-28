@@ -28,7 +28,7 @@ it('runs the happy path with --force-loyalist (everything mocked)', function () 
         '*/api/v1/internal/events' => Http::response(['accepted' => true, 'id' => 1], 201),
         // force-transition admin route
         '*/api/v1/users/*/lifecycle/transition' => Http::response([
-            'id' => 99, 'from_status' => 'engaged', 'to_status' => 'loyalist',
+            'id' => 99, 'from_status' => 'visitor', 'to_status' => 'loyalist',
         ], 201),
         // lifecycle GET — return loyalist after we forced it
         '*/api/v1/users/*/lifecycle' => Http::response(['stage' => 'loyalist'], 200),
@@ -43,8 +43,8 @@ it('runs the happy path with --force-loyalist (everything mocked)', function () 
     expect($user)->not->toBeNull();
     expect($user->pandora_user_uuid)->not->toBeEmpty();
 
-    // 7 daily_logs were seeded
-    expect(DailyLog::where('pandora_user_uuid', $user->pandora_user_uuid)->count())->toBe(7);
+    // ADR-008 §2.1: loyalist 門檻 14 天 — demo seeder 對齊
+    expect(DailyLog::where('pandora_user_uuid', $user->pandora_user_uuid)->count())->toBe(14);
 
     // lifecycle transition was invoked
     Http::assertSent(function ($request) {
@@ -54,7 +54,51 @@ it('runs the happy path with --force-loyalist (everything mocked)', function () 
     });
 })->group('demo');
 
-it('warns but still succeeds when --force-loyalist is missing (visitor end-state)', function () {
+it('--force-self-use POSTs to_status=franchisee_self_use to admin endpoint (ADR-008)', function () {
+    Http::fake([
+        '*/api/v1/internal/events' => Http::response(['accepted' => true], 201),
+        '*/api/v1/users/*/lifecycle/transition' => Http::response([
+            'to_status' => 'franchisee_self_use',
+        ], 201),
+        '*/api/v1/users/*/lifecycle' => Http::response(['stage' => 'franchisee_self_use'], 200),
+    ]);
+
+    $exit = Artisan::call('demo:franchise-funnel', ['--force-self-use' => true]);
+    expect($exit)->toBe(0);
+    expect(Artisan::output())->toContain('franchisee_self_use');
+    // 「想擴大經營？」CTA 文案 preview 應該印出來
+    expect(Artisan::output())->toContain('想擴大經營');
+
+    Http::assertSent(function ($request) {
+        return str_contains($request->url(), '/lifecycle/transition')
+            && $request['to_status'] === 'franchisee_self_use';
+    });
+})->group('demo');
+
+it('--force-active POSTs to_status=franchisee_active and shows operator portal expectation', function () {
+    Http::fake([
+        '*/api/v1/internal/events' => Http::response(['accepted' => true], 201),
+        '*/api/v1/users/*/lifecycle/transition' => Http::response([
+            'to_status' => 'franchisee_active',
+        ], 201),
+        '*/api/v1/users/*/lifecycle' => Http::response(['stage' => 'franchisee_active'], 200),
+    ]);
+
+    $exit = Artisan::call('demo:franchise-funnel', ['--force-active' => true]);
+    expect($exit)->toBe(0);
+    $output = Artisan::output();
+    expect($output)->toContain('franchisee_active');
+    // active 不顯示 banner — 改顯示 operator portal 鉤子
+    expect($output)->toContain('show_operator_portal = true');
+    expect($output)->toContain('show_franchise_cta = false');
+
+    Http::assertSent(function ($request) {
+        return str_contains($request->url(), '/lifecycle/transition')
+            && $request['to_status'] === 'franchisee_active';
+    });
+})->group('demo');
+
+it('warns but still succeeds when no --force-* is passed (visitor end-state)', function () {
     Http::fake([
         '*/api/v1/internal/events' => Http::response(['accepted' => true], 201),
         // no transition — natural lifecycle stays at visitor in this stub
@@ -63,7 +107,7 @@ it('warns but still succeeds when --force-loyalist is missing (visitor end-state
 
     $exit = Artisan::call('demo:franchise-funnel');
     expect($exit)->toBe(0);
-    expect(Artisan::output())->toContain('expected loyalist');
+    expect(Artisan::output())->toContain('Without a --force-*');
 
     // No transition POST should have happened.
     Http::assertNotSent(function ($request) {
@@ -108,11 +152,12 @@ it('--clean removes existing demo user and its daily_logs', function () {
     expect($fresh->pandora_user_uuid)->not->toBe('99999999-9999-9999-9999-999999999999');
 })->group('demo');
 
-it('reports force-loyalist failure but does not crash the demo run', function () {
+it('reports force failure but does not crash the demo run', function () {
     Http::fake([
         '*/api/v1/internal/events' => Http::response(['accepted' => true], 201),
         '*/api/v1/users/*/lifecycle/transition' => Http::response(['detail' => 'forbidden'], 403),
-        '*/api/v1/users/*/lifecycle' => Http::response(['stage' => 'engaged'], 200),
+        // ADR-008: stay at visitor when transition rejected
+        '*/api/v1/users/*/lifecycle' => Http::response(['stage' => 'visitor'], 200),
     ]);
 
     $exit = Artisan::call('demo:franchise-funnel', ['--force-loyalist' => true]);

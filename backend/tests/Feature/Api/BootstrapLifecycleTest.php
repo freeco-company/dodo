@@ -9,13 +9,14 @@ use Illuminate\Support\Facades\Http;
 uses(RefreshDatabase::class);
 
 /**
- * ADR-003 §2.3 — `/api/bootstrap` lifecycle block 行為驗證。
+ * ADR-008 §2.1 §2.3 — `/api/bootstrap` lifecycle block 行為驗證（取代 ADR-003 v1）。
  *
  * 規格：
- *   - lifecycle.status ∈ {visitor, registered, engaged, loyalist, applicant, franchisee}
- *   - show_franchise_cta = true  iff status ∈ {loyalist, applicant}
- *   - py-service 5xx / 連不到 → fallback visitor / cta=false
- *   - 公平交易法紅線：response body 全文不可含「下線 / 分潤 / 推薦獎金 / 招募 / 金字塔」
+ *   - lifecycle.status ∈ {visitor, loyalist, applicant, franchisee_self_use, franchisee_active}
+ *   - show_franchise_cta = true  iff status ∈ {loyalist, applicant, franchisee_self_use}
+ *   - show_operator_portal = true iff status === 'franchisee_active'
+ *   - py-service 5xx / 連不到 → fallback visitor / cta=false / portal=false
+ *   - 公平交易法紅線（ADR-008 §7）：response body 全文不可含禁字
  */
 beforeEach(function () {
     config()->set('services.pandora_conversion.base_url', 'http://py-service.test');
@@ -46,21 +47,23 @@ it('returns lifecycle block with default visitor for anonymous bootstrap', funct
         ->assertOk()
         ->assertJsonPath('lifecycle.status', 'visitor')
         ->assertJsonPath('lifecycle.show_franchise_cta', false)
+        ->assertJsonPath('lifecycle.show_operator_portal', false)
         ->assertJsonPath('lifecycle.franchise_url', 'https://js-store.com.tw/franchise/consult');
 });
 
-it('hides franchise CTA for visitor / registered / engaged stages', function (string $stage) {
-    mockLifecycleResponse($stage);
-    $user = makeUserWithUuid('uuid-'.$stage);
+it('hides franchise CTA + operator portal for visitor stage', function () {
+    mockLifecycleResponse('visitor');
+    $user = makeUserWithUuid('uuid-visitor');
 
     $this->actingAs($user, 'sanctum')
         ->getJson('/api/bootstrap')
         ->assertOk()
-        ->assertJsonPath('lifecycle.status', $stage)
-        ->assertJsonPath('lifecycle.show_franchise_cta', false);
-})->with(['visitor', 'registered', 'engaged']);
+        ->assertJsonPath('lifecycle.status', 'visitor')
+        ->assertJsonPath('lifecycle.show_franchise_cta', false)
+        ->assertJsonPath('lifecycle.show_operator_portal', false);
+});
 
-it('shows franchise CTA for loyalist / applicant stages', function (string $stage) {
+it('shows franchise CTA for loyalist / applicant / franchisee_self_use stages (ADR-008 §4)', function (string $stage) {
     mockLifecycleResponse($stage);
     $user = makeUserWithUuid('uuid-'.$stage);
 
@@ -69,18 +72,22 @@ it('shows franchise CTA for loyalist / applicant stages', function (string $stag
         ->assertOk()
         ->assertJsonPath('lifecycle.status', $stage)
         ->assertJsonPath('lifecycle.show_franchise_cta', true)
+        ->assertJsonPath('lifecycle.show_operator_portal', false)
         ->assertJsonPath('lifecycle.franchise_url', 'https://js-store.com.tw/franchise/consult');
-})->with(['loyalist', 'applicant']);
+})->with(['loyalist', 'applicant', 'franchisee_self_use']);
 
-it('hides franchise CTA for franchisee (already converted, no need to push)', function () {
-    mockLifecycleResponse('franchisee');
-    $user = makeUserWithUuid('uuid-franchisee');
+it('shows operator portal hook (and HIDES CTA banner) for franchisee_active', function () {
+    mockLifecycleResponse('franchisee_active');
+    $user = makeUserWithUuid('uuid-active');
 
     $this->actingAs($user, 'sanctum')
         ->getJson('/api/bootstrap')
         ->assertOk()
-        ->assertJsonPath('lifecycle.status', 'franchisee')
-        ->assertJsonPath('lifecycle.show_franchise_cta', false);
+        ->assertJsonPath('lifecycle.status', 'franchisee_active')
+        // active operators 已經是進階經營者 — 不再露 CTA banner
+        ->assertJsonPath('lifecycle.show_franchise_cta', false)
+        // 改露段 2 「想擴大經營」入口
+        ->assertJsonPath('lifecycle.show_operator_portal', true);
 });
 
 it('falls back to visitor when py-service returns 5xx', function () {
@@ -94,7 +101,8 @@ it('falls back to visitor when py-service returns 5xx', function () {
         ->getJson('/api/bootstrap')
         ->assertOk()
         ->assertJsonPath('lifecycle.status', 'visitor')
-        ->assertJsonPath('lifecycle.show_franchise_cta', false);
+        ->assertJsonPath('lifecycle.show_franchise_cta', false)
+        ->assertJsonPath('lifecycle.show_operator_portal', false);
 });
 
 it('falls back to visitor when py-service base_url is not configured', function () {
@@ -106,18 +114,19 @@ it('falls back to visitor when py-service base_url is not configured', function 
         ->getJson('/api/bootstrap')
         ->assertOk()
         ->assertJsonPath('lifecycle.status', 'visitor')
-        ->assertJsonPath('lifecycle.show_franchise_cta', false);
+        ->assertJsonPath('lifecycle.show_franchise_cta', false)
+        ->assertJsonPath('lifecycle.show_operator_portal', false);
 });
 
-it('falls back to visitor when py-service returns unknown stage', function () {
-    mockLifecycleResponse('platinum_unicorn');
-    $user = makeUserWithUuid('uuid-unknown');
+it('falls back to visitor when py-service returns unknown stage (e.g. legacy registered/engaged/franchisee)', function (string $legacy) {
+    mockLifecycleResponse($legacy);
+    $user = makeUserWithUuid('uuid-legacy-'.$legacy);
 
     $this->actingAs($user, 'sanctum')
         ->getJson('/api/bootstrap')
         ->assertOk()
         ->assertJsonPath('lifecycle.status', 'visitor');
-});
+})->with(['platinum_unicorn', 'registered', 'engaged', 'franchisee']);
 
 it('caches lifecycle status to avoid hammering py-service', function () {
     mockLifecycleResponse('loyalist');
@@ -143,16 +152,30 @@ it('caches lifecycle status to avoid hammering py-service', function () {
     expect($cached)->toBe('loyalist');
 });
 
-it('lifecycle response body must not contain MLM-flavored words (公平交易法 §21 紅線)', function () {
+it('lifecycle response body must not contain MLM-flavored or vague-CTA words (公平交易法 §21 紅線, ADR-008 §7)', function () {
     mockLifecycleResponse('loyalist');
     $user = makeUserWithUuid('uuid-banwords');
 
     $response = $this->actingAs($user, 'sanctum')->getJson('/api/bootstrap')->assertOk();
     $body = $response->getContent();
 
-    // ADR-003 §6 / dodo CLAUDE.md 禁字。後端不該回吐這些詞，文案在前端 hardcode 中性詞。
-    $banned = ['下線', '分潤', '推薦獎金', '招募', '金字塔', '老鼠會'];
+    // ADR-003 §7 + ADR-008 §7 禁字。後端絕不該回吐這些詞 — 文案在前端 hardcode 中性詞。
+    // ADR-008 新增禁字：「合作夥伴」「升級加盟方案」（CEO 認為過於曖昧，要改成「自用回本/省錢」）
+    $banned = [
+        '下線', '分潤', '推薦獎金', '招募', '金字塔', '老鼠會',
+        '合作夥伴', '升級加盟方案',
+    ];
     foreach ($banned as $word) {
         expect($body)->not->toContain($word, "response body 不可含禁字「{$word}」");
     }
+});
+
+it('LifecycleClient::stages() returns the canonical 5-stage ADR-008 list', function () {
+    expect(LifecycleClient::stages())->toBe([
+        'visitor',
+        'loyalist',
+        'applicant',
+        'franchisee_self_use',
+        'franchisee_active',
+    ]);
 });

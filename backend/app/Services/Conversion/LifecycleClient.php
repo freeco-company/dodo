@@ -8,12 +8,13 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * 朵朵 → py-service `GET /api/v1/users/{uuid}/lifecycle` 客戶端（ADR-003 §2.2 / §2.3）。
+ * 朵朵 → py-service `GET /api/v1/users/{uuid}/lifecycle` 客戶端（ADR-008 §2.2 / §2.3）。
  *
- * 取單一 user 的 lifecycle stage，給 BootstrapController 決定是否秀「諮詢加盟」CTA。
+ * 取單一 user 的 lifecycle stage，給 BootstrapController 決定是否秀「自用回本」CTA
+ * 或段 2「想擴大經營」入口（show_operator_portal）。
  *
- * Lifecycle stages（與 FunnelMetricsClient::STAGES 對齊）：
- *   visitor → registered → engaged → loyalist → applicant → franchisee
+ * Lifecycle stages（ADR-008 兩段漏斗，5 stages，與 FunnelMetricsClient::STAGES 對齊）：
+ *   visitor → loyalist → applicant → franchisee_self_use → franchisee_active
  *
  * 設計決策：
  *
@@ -39,6 +40,17 @@ class LifecycleClient
     public const DEFAULT_STAGE = 'visitor';
 
     private const CACHE_TTL_SECONDS = 3600;
+
+    /**
+     * Canonical ADR-008 lifecycle stages (mirror of FunnelMetricsClient::STAGES).
+     * Provided as a method for callers that prefer not to import another class.
+     *
+     * @return list<string>
+     */
+    public static function stages(): array
+    {
+        return FunnelMetricsClient::STAGES;
+    }
 
     /**
      * 取單一 user 的 lifecycle stage。失敗一律回 'visitor'。
