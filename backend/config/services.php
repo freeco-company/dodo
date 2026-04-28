@@ -58,6 +58,21 @@ return [
     | py-service 加盟轉換漏斗。沒設 base_url / shared_secret 時 publisher 進入
     | noop 模式（dev / Phase A 環境 fallback）。
     */
+    /*
+    |--------------------------------------------------------------------------
+    | Dodo AI Service (ADR-002 §3 — Laravel ↔ Python)
+    |--------------------------------------------------------------------------
+    | ai-service/ FastAPI 端的位置 + 共用 secret。沒設 base_url / shared_secret
+    | 時 AiServiceClient 維持 503（AI_SERVICE_DOWN）行為，與 Phase A 一致。
+    | shared_secret 對應 ai-service 端的 INTERNAL_SHARED_SECRET（X-Internal-Secret
+    | header）；Phase F 切真 JWT 後此 path 移除。
+    */
+    'dodo_ai_service' => [
+        'base_url' => env('DODO_AI_SERVICE_BASE_URL'),
+        'shared_secret' => env('DODO_AI_SERVICE_SHARED_SECRET'),
+        'timeout' => (int) env('DODO_AI_SERVICE_TIMEOUT', 30),
+    ],
+
     'pandora_conversion' => [
         'base_url' => env('PANDORA_CONVERSION_BASE_URL'),
         'shared_secret' => env('PANDORA_CONVERSION_SHARED_SECRET'),

@@ -4,41 +4,256 @@ namespace App\Services;
 
 use App\Exceptions\AiServiceUnavailableException;
 use App\Models\User;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * Abstract client for the Python FastAPI AI microservice (per ADR-002).
+ * HTTP client for the Dodo Python AI microservice (ADR-002 §3).
  *
- * Currently always throws AiServiceUnavailableException — the service is not
- * wired yet. Once the Python service is up, swap the stubs to real HTTP calls
- * (e.g. via Http::baseUrl(env('AI_SERVICE_URL'))->...) without changing any
- * controller code.
+ * Auth model (Phase B):
+ *   - dodo backend doesn't yet hold a per-user Pandora Core JWT (ADR-007 Phase 5
+ *     not done), so we use the same internal-secret pattern as
+ *     ConversionEventPublisher: ``X-Internal-Secret`` header + per-request
+ *     ``X-Pandora-User-Uuid`` to attribute usage and cost.
+ *   - Phase F switches to real Bearer JWT pass-through; this client only needs
+ *     to swap the header at that point.
+ *
+ * Failure model:
+ *   - ``base_url`` / ``shared_secret`` not set => throw AiServiceUnavailableException
+ *     (controllers convert to 503). Lets dev / Phase A run without the service up.
+ *   - 5xx / connect / timeout => single retry, then throw AiServiceUnavailableException.
+ *   - 4xx (validation / safety / 429) => throw AiServiceUnavailableException with
+ *     a descriptive errorCode so controllers can keep the 503 surface uniform.
  */
 class AiServiceClient
 {
     /**
-     * Scan a meal photo. Will return identified food + nutrition.
-     * @param array<string,mixed> $context
+     * Scan a meal photo. Returns the recognition response from
+     * POST /v1/vision/recognize as a decoded array.
+     *
+     * Note on contract: the existing controller passes ``$imageUrl`` (string).
+     * The Python service expects a multipart upload. We download the image
+     * bytes here so the controller surface stays unchanged.
+     *
+     * @param  array<string, mixed>  $context  reserved for future per-meal hints (meal_type etc.)
+     * @return array<string, mixed>
      */
     public function scanMeal(User $user, string $imageUrl, array $context = []): array
     {
-        throw new AiServiceUnavailableException();
+        $this->ensureEnabled();
+
+        // Download image — short timeout, separate from the AI call budget.
+        try {
+            $imageResponse = Http::timeout(10)->retry(1, 200, throw: false)->get($imageUrl);
+        } catch (ConnectionException $e) {
+            throw new AiServiceUnavailableException('IMAGE_FETCH_FAILED', $e->getMessage());
+        }
+        if (! $imageResponse->successful()) {
+            throw new AiServiceUnavailableException('IMAGE_FETCH_FAILED', 'image url returned '.$imageResponse->status());
+        }
+        $bytes = (string) $imageResponse->body();
+        $contentType = (string) ($imageResponse->header('Content-Type') ?: 'image/jpeg');
+
+        $mealType = is_string($context['meal_type'] ?? null) ? $context['meal_type'] : 'lunch';
+
+        try {
+            $response = $this->baseRequest($user)
+                ->attach('image', $bytes, 'meal.jpg', ['Content-Type' => $contentType])
+                ->post($this->url('/v1/vision/recognize'), ['meal_type' => $mealType]);
+        } catch (ConnectionException $e) {
+            throw new AiServiceUnavailableException('AI_SERVICE_TIMEOUT', $e->getMessage());
+        }
+
+        return $this->jsonOrThrow($response, 'vision/recognize');
     }
 
     /**
      * Estimate nutrition from text description.
-     * @param array<string,mixed> $context
+     *
+     * The current ai-service exposes only /v1/vision/recognize and
+     * /v1/chat/stream — there is no text-only nutrition endpoint yet. Until
+     * that ships we keep the signature but emit AI_SERVICE_DOWN so the
+     * controller keeps its 503 contract. TODO(ADR-002 §3 Phase B+):
+     * implement /v1/vision/recognize-text on Python side.
+     *
+     * @param  array<string, mixed>  $context
+     * @return array<string, mixed>
      */
     public function describeMeal(User $user, string $description, array $context = []): array
     {
-        throw new AiServiceUnavailableException();
+        $this->ensureEnabled();
+
+        // Endpoint not yet implemented on Python side — explicit fallback.
+        Log::info('[AiServiceClient] describeMeal called but text endpoint not yet implemented; returning AI_SERVICE_DOWN', [
+            'user_id' => $user->id,
+            'desc_len' => strlen($description),
+        ]);
+
+        throw new AiServiceUnavailableException('AI_TEXT_ENDPOINT_PENDING', 'recognize-text endpoint not implemented yet');
     }
 
     /**
-     * Send a chat message + history, get assistant reply.
-     * @param array<int, array{role:string, content:string}> $history
+     * Streaming chat — proxies SSE from POST /v1/chat/stream.
+     *
+     * Returns a Symfony StreamedResponse the controller can return directly.
+     * On disconnect (Laravel's connection_aborted()) we stop pulling from the
+     * upstream stream so the Python side can free resources.
+     *
+     * @param  array<int, array{role: string, content: string}>  $history
      */
-    public function chat(User $user, string $message, array $history = [], ?string $scenario = null): array
+    public function chatStream(
+        User $user,
+        string $message,
+        string $sessionId,
+        array $history = [],
+        ?string $scenario = null,
+    ): StreamedResponse {
+        $this->ensureEnabled();
+
+        $body = [
+            'session_id' => $sessionId,
+            'message' => $message,
+            'history' => array_values($history),
+        ];
+        if ($scenario !== null) {
+            $body['scenario'] = $scenario;
+        }
+
+        $base = $this->base();
+        $secret = (string) config('services.dodo_ai_service.shared_secret');
+        $timeout = $this->timeout();
+        $userUuid = (string) ($user->pandora_user_uuid ?? '');
+
+        return new StreamedResponse(function () use ($base, $secret, $timeout, $userUuid, $body) {
+            // We use Laravel's underlying Guzzle client via Http facade with
+            // sink-as-callable so chunks can be forwarded as they arrive.
+            $client = Http::withHeaders([
+                'X-Internal-Secret' => $secret,
+                'X-Pandora-User-Uuid' => $userUuid,
+                'Accept' => 'text/event-stream',
+            ])
+                ->timeout($timeout)
+                ->withOptions([
+                    'stream' => true,
+                ]);
+
+            try {
+                $response = $client->post($base.'/v1/chat/stream', $body);
+            } catch (ConnectionException $e) {
+                $this->emitErrorFrame('AI_SERVICE_TIMEOUT', $e->getMessage());
+
+                return;
+            }
+
+            if (! $response->successful()) {
+                $this->emitErrorFrame(
+                    'AI_SERVICE_ERROR',
+                    'upstream status '.$response->status(),
+                );
+
+                return;
+            }
+
+            // Pump bytes from Guzzle stream to the client. Stop early if the
+            // browser disconnects so we don't keep generating tokens.
+            $stream = $response->toPsrResponse()->getBody();
+            while (! $stream->eof()) {
+                if (connection_aborted()) {
+                    break;
+                }
+                $chunk = $stream->read(4096);
+                if ($chunk === '') {
+                    continue;
+                }
+                echo $chunk;
+                @ob_flush();
+                flush();
+            }
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'X-Accel-Buffering' => 'no',
+        ]);
+    }
+
+    public function isEnabled(): bool
     {
-        throw new AiServiceUnavailableException();
+        return $this->base() !== '' && (string) config('services.dodo_ai_service.shared_secret') !== '';
+    }
+
+    private function ensureEnabled(): void
+    {
+        if (! $this->isEnabled()) {
+            throw new AiServiceUnavailableException;
+        }
+    }
+
+    private function baseRequest(User $user): PendingRequest
+    {
+        return Http::withHeaders([
+            'X-Internal-Secret' => (string) config('services.dodo_ai_service.shared_secret'),
+            'X-Pandora-User-Uuid' => (string) ($user->pandora_user_uuid ?? ''),
+            'Accept' => 'application/json',
+        ])
+            ->timeout($this->timeout())
+            ->retry(1, 250, throw: false);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function jsonOrThrow(Response $response, string $endpoint): array
+    {
+        if (! $response->successful()) {
+            $code = $response->status() >= 500 ? 'AI_SERVICE_ERROR' : 'AI_SERVICE_REJECTED';
+            Log::warning('[AiServiceClient] non-success from ai-service', [
+                'endpoint' => $endpoint,
+                'status' => $response->status(),
+                'body' => substr((string) $response->body(), 0, 500),
+            ]);
+            throw new AiServiceUnavailableException($code, 'ai-service returned '.$response->status());
+        }
+
+        try {
+            $json = $response->json();
+        } catch (RequestException $e) {
+            throw new AiServiceUnavailableException('AI_SERVICE_BAD_JSON', $e->getMessage());
+        }
+        if (! is_array($json)) {
+            throw new AiServiceUnavailableException('AI_SERVICE_BAD_JSON', 'response was not a JSON object');
+        }
+
+        return $json;
+    }
+
+    private function base(): string
+    {
+        return rtrim((string) config('services.dodo_ai_service.base_url'), '/');
+    }
+
+    private function url(string $path): string
+    {
+        return $this->base().$path;
+    }
+
+    private function timeout(): int
+    {
+        return (int) config('services.dodo_ai_service.timeout', 30);
+    }
+
+    private function emitErrorFrame(string $code, string $detail): void
+    {
+        // SSE-shaped error so the existing client SSE parser can surface it
+        // without a special transport-error path.
+        $payload = json_encode(['error_code' => $code, 'detail' => $detail], JSON_UNESCAPED_UNICODE);
+        echo "event: error\ndata: ".$payload."\n\n";
+        echo "event: done\ndata: {}\n\n";
+        @ob_flush();
+        flush();
     }
 }

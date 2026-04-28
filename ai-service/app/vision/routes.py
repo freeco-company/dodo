@@ -8,7 +8,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
 from app.auth.jwt_verifier import VerifiedClaims
-from app.auth.middleware import require_jwt
+from app.auth.middleware import require_jwt_or_internal
 from app.callback.client import LaravelCallbackClient, LaravelCallbackError
 from app.config import Settings
 from app.cost.tracker import CostTracker, UsageRecord
@@ -33,7 +33,7 @@ _MAX_BYTES = 8 * 1024 * 1024  # 8 MB
 async def vision_recognize(
     image: Annotated[UploadFile, File(description="Food photo")],
     meal_type: Annotated[VisionMealType, Form()] = "lunch",
-    claims: VerifiedClaims = Depends(require_jwt),
+    claims: VerifiedClaims = Depends(require_jwt_or_internal),
     vision_client: AnthropicVisionClient = Depends(get_vision_client),
     cost_tracker: CostTracker = Depends(get_cost_tracker),
     callback: LaravelCallbackClient = Depends(get_callback_client),

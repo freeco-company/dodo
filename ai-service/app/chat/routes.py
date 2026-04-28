@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 
 from app.auth.jwt_verifier import VerifiedClaims
-from app.auth.middleware import require_jwt
+from app.auth.middleware import require_jwt_or_internal
 from app.callback.client import LaravelCallbackClient, LaravelCallbackError
 from app.chat.anthropic_client import AnthropicChatClient
 from app.chat.schemas import ChatStreamRequest
@@ -40,7 +40,7 @@ def _sse_event(event: str, data: dict[str, object]) -> str:
 @router.post("/v1/chat/stream")
 async def chat_stream(
     request: ChatStreamRequest,
-    claims: VerifiedClaims = Depends(require_jwt),
+    claims: VerifiedClaims = Depends(require_jwt_or_internal),
     chat_client: AnthropicChatClient = Depends(get_chat_client),
     cost_tracker: CostTracker = Depends(get_cost_tracker),
     callback: LaravelCallbackClient = Depends(get_callback_client),
