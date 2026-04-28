@@ -101,6 +101,11 @@ return [
         'base_url' => env('PANDORA_GAMIFICATION_BASE_URL', env('PANDORA_CONVERSION_BASE_URL')),
         'shared_secret' => env('PANDORA_GAMIFICATION_SHARED_SECRET', env('PANDORA_CONVERSION_SHARED_SECRET')),
         'timeout' => (int) env('PANDORA_GAMIFICATION_TIMEOUT', 5),
+        // ADR-009 Phase B.2 — receive-side webhook from py-service.
+        // Independent secret (different direction); set on prod when py-service
+        // is configured with GAMIFICATION_CONSUMER_DODO_SECRET pointing here.
+        'webhook_secret' => env('PANDORA_GAMIFICATION_WEBHOOK_SECRET'),
+        'webhook_window_seconds' => (int) env('PANDORA_GAMIFICATION_WEBHOOK_WINDOW_SECONDS', 300),
     ],
 
     /*

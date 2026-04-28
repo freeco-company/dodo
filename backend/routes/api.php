@@ -218,3 +218,8 @@ Route::middleware('auth:sanctum')->group(function () {
 // ADR-007 Phase 4 — platform → 朵朵 identity webhook（HMAC + nonce 由 middleware 驗）
 Route::post('/internal/identity/webhook', IdentityWebhookController::class)
     ->middleware('identity.webhook');
+
+// ADR-009 Phase B.2 — py-service → 朵朵 gamification webhook
+// (HMAC + event_id idempotency 由 middleware 驗)
+Route::post('/internal/gamification/webhook', [\App\Http\Controllers\Api\GamificationWebhookController::class, 'handle'])
+    ->middleware('gamification.webhook');
