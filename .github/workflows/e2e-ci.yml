@@ -1,0 +1,140 @@
+name: E2E CI
+
+# Note: this workflow is committed but not yet validated in CI runtime.
+# Local run is the source of truth for now (see e2e/README.md).
+# First green run will gate enabling pull_request triggers.
+
+on:
+  workflow_dispatch:
+  # pull_request:
+  #   paths:
+  #     - 'backend/**'
+  #     - 'frontend/**'
+  #     - 'e2e/**'
+  #     - '.github/workflows/e2e-ci.yml'
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ----- Backend -----
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, pdo, pdo_sqlite, sqlite3, xml, bcmath, zip, gd
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache composer
+        uses: actions/cache@v4
+        with:
+          path: backend/vendor
+          key: ${{ runner.os }}-php83-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php83-
+
+      - name: Backend install
+        working-directory: backend
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Backend env + key
+        working-directory: backend
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache database
+          touch database/dodo-e2e.sqlite
+          # Override DB to local sqlite file so php artisan serve persists.
+          {
+            echo "DB_CONNECTION=sqlite"
+            echo "DB_DATABASE=$PWD/database/dodo-e2e.sqlite"
+            echo "SESSION_DRIVER=file"
+            echo "QUEUE_CONNECTION=sync"
+            echo "CACHE_STORE=array"
+          } >> .env
+
+      - name: Backend migrate + seed
+        working-directory: backend
+        run: php artisan migrate:fresh --force --seed
+
+      - name: Start backend (port 8000)
+        working-directory: backend
+        run: |
+          nohup php artisan serve --host=127.0.0.1 --port=8000 \
+            > /tmp/dodo-laravel.log 2>&1 &
+          echo "laravel pid: $!"
+          # Wait for /api/health
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:8000/api/health > /dev/null; then
+              echo "backend up"
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8000/api/health || (echo "backend failed to boot"; tail -100 /tmp/dodo-laravel.log; exit 1)
+
+      # ----- Frontend (static, no build) -----
+      - name: Start frontend (port 5173)
+        working-directory: frontend/public
+        run: |
+          nohup python3 -m http.server 5173 --bind 127.0.0.1 \
+            > /tmp/dodo-frontend.log 2>&1 &
+          for i in {1..15}; do
+            if curl -fsS http://127.0.0.1:5173/index.html > /dev/null; then
+              echo "frontend up"
+              break
+            fi
+            sleep 1
+          done
+
+      # ----- E2E -----
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: E2E install
+        working-directory: e2e
+        run: npm ci || npm install --no-audit --no-fund
+
+      - name: Install Playwright browsers
+        working-directory: e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke.sh
+        working-directory: e2e
+        env:
+          DODO_BASE_URL: http://127.0.0.1:8000
+        run: bash scripts/smoke.sh
+
+      - name: Run Playwright
+        working-directory: e2e
+        env:
+          DODO_BASE_URL: http://127.0.0.1:8000
+          DODO_FRONTEND_URL: http://127.0.0.1:5173
+        run: npx playwright test
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            e2e/playwright-report
+            e2e/test-results
+          retention-days: 7
+
+      - name: Upload server logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-logs
+          path: |
+            /tmp/dodo-laravel.log
+            /tmp/dodo-frontend.log
+          retention-days: 7
