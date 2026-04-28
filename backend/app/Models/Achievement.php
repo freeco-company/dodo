@@ -6,7 +6,13 @@ use App\Models\Concerns\HasPandoraUserUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property string $achievement_key
+ * @property string $achievement_name
+ * @property ?Carbon $unlocked_at
+ */
 class Achievement extends Model
 {
     use HasFactory, HasPandoraUserUuid;

@@ -1,17 +1,20 @@
 <?php
 
 use App\Http\Controllers\Api\AccountController;
+use App\Http\Controllers\Api\AchievementController;
 use App\Http\Controllers\Api\AiMealController;
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AppleNotificationController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BootstrapController;
+use App\Http\Controllers\Api\CalendarController;
 use App\Http\Controllers\Api\CardController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\CheckinController;
 use App\Http\Controllers\Api\ClientErrorController;
 use App\Http\Controllers\Api\DailyLogController;
 use App\Http\Controllers\Api\EcpayCallbackController;
+use App\Http\Controllers\Api\EntitlementsController;
 use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\FranchiseController;
 use App\Http\Controllers\Api\GooglePubSubController;
@@ -19,17 +22,23 @@ use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\IapController;
 use App\Http\Controllers\Api\IdentityWebhookController;
 use App\Http\Controllers\Api\InteractController;
+use App\Http\Controllers\Api\IslandController;
 use App\Http\Controllers\Api\JourneyController;
+use App\Http\Controllers\Api\MeController;
 use App\Http\Controllers\Api\MealController;
 use App\Http\Controllers\Api\MePreferencesController;
 use App\Http\Controllers\Api\MetaController;
+use App\Http\Controllers\Api\OutfitController;
 use App\Http\Controllers\Api\PaywallController;
+use App\Http\Controllers\Api\PokedexController;
 use App\Http\Controllers\Api\PushController;
 use App\Http\Controllers\Api\QuestController;
 use App\Http\Controllers\Api\RatingPromptController;
 use App\Http\Controllers\Api\ReferralController;
+use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\SeoController;
 use App\Http\Controllers\Api\ShieldController;
+use App\Http\Controllers\Api\SuggestController;
 use App\Http\Controllers\Api\TierController;
 use App\Http\Controllers\Api\WebhookController;
 use Illuminate\Support\Facades\Route;
@@ -84,7 +93,44 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/meals', [MealController::class, 'index']);
     Route::post('/meals', [MealController::class, 'store']);
     Route::get('/meals/{meal}', [MealController::class, 'show']);
+    Route::put('/meals/{meal}/correct', [MealController::class, 'correct']);
     Route::delete('/meals/{meal}', [MealController::class, 'destroy']);
+
+    // ----- ADR-008 alignment: current-user-scoped (no uid in path) -----
+    Route::get('/me/dashboard', [MeController::class, 'dashboard']);
+    Route::get('/me/settings', [MeController::class, 'getSettings']);
+    Route::patch('/me/settings', [MeController::class, 'patchSettings']);
+
+    Route::get('/paywall', [PaywallController::class, 'view']);
+    Route::get('/rating-prompt', [RatingPromptController::class, 'view']);
+
+    Route::get('/pokedex', [PokedexController::class, 'index']);
+    Route::get('/achievements', [AchievementController::class, 'index']);
+    Route::get('/entitlements', [EntitlementsController::class, 'show']);
+
+    Route::get('/calendar', [CalendarController::class, 'index']);
+    Route::get('/reports/weekly/{date}', [ReportController::class, 'weekly'])
+        ->where('date', '\d{4}-\d{2}-\d{2}');
+    Route::get('/suggest/next-meal', [SuggestController::class, 'nextMeal']);
+
+    Route::get('/outfits', [OutfitController::class, 'index']);
+    Route::post('/outfits/equip', [OutfitController::class, 'equip']);
+
+    Route::prefix('island')->group(function () {
+        Route::get('/scenes', [IslandController::class, 'scenes']);
+        Route::get('/store/{scene}', [IslandController::class, 'store'])
+            ->where('scene', '[a-z0-9_-]+');
+        Route::post('/consume-visit', [IslandController::class, 'consumeVisit']);
+    });
+
+    Route::get('/journey/milestone/{day}', [JourneyController::class, 'milestone'])
+        ->where('day', '\d+');
+
+    // /cards/event-offer/next must be declared BEFORE /cards/event-offer/{offer_id}
+    // because the existing eventOffer route uses {offer_id:\d+} and `next` is
+    // not numeric — so route order/regex naturally disambiguates. Still, keep
+    // an explicit declaration in case the regex changes.
+    Route::get('/cards/event-offer/next', [CardController::class, 'eventOfferNext']);
 
     // ----- Batch A: gamification -----
     Route::prefix('checkin')->group(function () {

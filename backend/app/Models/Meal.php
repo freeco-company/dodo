@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property ?array $correction_data
+ * @property ?array $food_components
+ * @property ?array $matched_food_ids
+ */
 class Meal extends Model
 {
     use HasFactory, HasPandoraUserUuid;

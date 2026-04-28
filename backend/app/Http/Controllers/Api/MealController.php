@@ -73,4 +73,54 @@ class MealController extends Controller
 
         return response()->json(null, 204);
     }
+
+    /**
+     * PUT /api/meals/{meal}/correct — user-supplied correction to AI's
+     * meal-recognition result (rename, adjust serving, etc).
+     *
+     * Marks the meal `user_corrected = true` and persists the supplied
+     * fields. Down-weighting AI confidence happens here as a deterministic
+     * signal; the Python service consumes this back-channel later.
+     */
+    public function correct(Request $request, Meal $meal): MealResource
+    {
+        if ($meal->user_id !== $request->user()->id) {
+            throw new AuthorizationException('not your meal');
+        }
+
+        $data = $request->validate([
+            'food_name' => ['nullable', 'string', 'max:120'],
+            'serving_weight_g' => ['nullable', 'numeric', 'min:0', 'max:5000'],
+            'calories' => ['nullable', 'integer', 'min:0', 'max:5000'],
+            'protein_g' => ['nullable', 'numeric', 'min:0', 'max:500'],
+            'carbs_g' => ['nullable', 'numeric', 'min:0', 'max:1000'],
+            'fat_g' => ['nullable', 'numeric', 'min:0', 'max:500'],
+            'meal_type' => ['nullable', 'in:breakfast,lunch,dinner,snack'],
+        ]);
+
+        if (empty($data)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'body' => ['at least one corrected field required'],
+            ]);
+        }
+
+        $original = $meal->only(array_keys($data));
+        foreach ($data as $k => $v) {
+            $meal->{$k} = $v;
+        }
+        $meal->user_corrected = true;
+        // correction_data is cast to 'array' on the Meal model — but PHPStan
+        // sees the raw column type (string|null), so coerce defensively.
+        /** @var array<int,array<string,mixed>> $existing */
+        $existing = (array) ($meal->correction_data ?? []);
+        $existing[] = [
+            'corrected_at' => now()->toIso8601String(),
+            'before' => $original,
+            'after' => $data,
+        ];
+        $meal->correction_data = $existing;
+        $meal->save();
+
+        return new MealResource($meal->fresh());
+    }
 }

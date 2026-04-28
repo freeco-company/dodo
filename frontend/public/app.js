@@ -282,24 +282,48 @@ function _escape(s) {
 }
 
 async function api(method, path, body) {
+  // ADR-008 alignment: backend (Laravel) returns natural envelopes
+  //   - 2xx: { data: <resource>, token?, meta?, ...top-level fields }
+  //   - 2xx: bare object/array (when no envelope is needed)
+  //   - 204: empty body
+  //   - 4xx/5xx: { message, errors? } (Laravel default)
+  // We flatten `data` + non-meta top-level keys into one object so the
+  // caller sees one merged shape (e.g. { ...UserResource, token }).
   const headers = { 'content-type': 'application/json', 'accept': 'application/json' };
   if (state.token) headers['authorization'] = `Bearer ${state.token}`;
   const res = await fetch(API + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
-  // 401 → clear stale token; let the calling flow surface the error and
-  // re-prompt login / register on the next render. We do NOT hard redirect
-  // because the SPA has its own home/onboarding screens.
   if (res.status === 401) {
     localStorage.removeItem('doudou_user');
     localStorage.removeItem('doudou_token');
     state.userId = null;
     state.token = null;
   }
+  if (res.status === 204) return null;
   let json;
-  try { json = await res.json(); } catch (_e) {
+  try {
+    json = await res.json();
+  } catch (_e) {
+    if (res.status >= 200 && res.status < 300) return null;
     throw new Error(`HTTP ${res.status} ${res.statusText} (no JSON body)`);
   }
-  if (!json.ok) throw new Error(json.error?.message || `request failed (HTTP ${res.status})`);
-  return json.data;
+  if (res.status >= 200 && res.status < 300) {
+    // Laravel envelope: data is an object → flatten + merge sibling keys
+    if (json && typeof json === 'object' && !Array.isArray(json) && json.data !== undefined) {
+      if (json.data && typeof json.data === 'object' && !Array.isArray(json.data)) {
+        const out = Object.assign({}, json.data);
+        for (const k of Object.keys(json)) {
+          if (k !== 'data' && k !== 'meta' && !(k in out)) out[k] = json[k];
+        }
+        return out;
+      }
+      // data is a primitive / array — just unwrap
+      return json.data;
+    }
+    return json;
+  }
+  // 4xx / 5xx
+  const msg = (json && (json.message || (json.error && json.error.message))) || `HTTP ${res.status}`;
+  throw new Error(msg);
 }
 
 // Number tween (count-up animation) for key stats
@@ -390,9 +414,11 @@ function paintMainCharacter(level, mood, animal, outfit) {
 
 // === Auth / init ===
 async function afterRegister(data) {
-  state.userId = data.user.id;
-  state.token = data.user.api_token;
-  state.animal = data.user.avatar_animal || 'cat';
+  // After helper flattening: data = { ...UserResource, token }
+  // UserResource shape: { id, name, avatar:{animal,...}, profile, targets:{daily_calorie_target,...}, ... }
+  state.userId = data.id;
+  state.token = data.token;
+  state.animal = (data.avatar && data.avatar.animal) || 'cat';
   localStorage.setItem('doudou_user', state.userId);
   localStorage.setItem('doudou_token', state.token);
   localStorage.setItem('doudou_animal', state.animal);
@@ -401,7 +427,8 @@ async function afterRegister(data) {
   $('#screen-welcome').classList.add('hidden');
   $('#screen-ceremony').classList.add('hidden');
   $('#main').classList.remove('hidden');
-  toast(`TDEE ${data.targets.tdee} 卡 · 目標 ${data.targets.daily_calorie_target} 卡`, { emoji: '✨' });
+  const cal = (data.targets && data.targets.daily_calorie_target) || 0;
+  toast(`目標 ${cal} 卡 ✨`, { emoji: '✨' });
   confetti();
   await loadDashboard();
   await hydrateBootstrap();
@@ -557,7 +584,7 @@ async function openPaywall(trigger) {
   if (!state.userId) return;
   let view = paywallCache;
   try {
-    view = await api('GET', `/paywall/${state.userId}?trigger=${encodeURIComponent(trigger || 'manual_open')}`);
+    view = await api('GET', `/paywall?trigger=${encodeURIComponent(trigger || 'manual_open')}`);
     paywallCache = view;
   } catch (e) {
     console.warn('[paywall] fetch failed:', e.message);
@@ -647,7 +674,7 @@ window.apiWithPaywall = async function(method, path, body) {
 async function maybeShowRatingPrompt(trigger) {
   if (!state.userId) return;
   try {
-    const r = await api('GET', `/rating-prompt/${state.userId}?trigger=${encodeURIComponent(trigger || 'app_open')}`);
+    const r = await api('GET', `/rating-prompt?trigger=${encodeURIComponent(trigger || 'app_open')}`);
     if (!r.should_show) return;
     api('POST', '/rating-prompt/event', { user_id: state.userId, action: 'shown' }).catch(() => {});
     trackEvent('rating_prompt_shown', { trigger });
@@ -697,7 +724,7 @@ window.maybeShowRatingPrompt = maybeShowRatingPrompt;
 async function openReferralPanel() {
   if (!state.userId) return;
   let stats;
-  try { stats = await api('GET', `/referrals/${state.userId}`); }
+  try { stats = await api('GET', `/referrals/me`); }
   catch (e) { toast('載入失敗：' + e.message); return; }
   trackEvent('referral_panel_opened');
   const overlay = document.createElement('div');
@@ -795,7 +822,8 @@ window.registerDevicePushToken = async function(platform, token, deviceInfo) {
 // re-hydrate on next app resume.
 const BOOTSTRAP_CACHE_KEY = 'doudou.bootstrap.v1';
 async function hydrateBootstrap() {
-  const path = state.userId ? `/bootstrap/${state.userId}` : '/bootstrap';
+  // Bootstrap auth-derives user from sanctum token; no uid in path.
+  const path = '/bootstrap';
   try {
     const data = await api('GET', path);
     state.bootstrap = data;
@@ -992,7 +1020,7 @@ const SETTINGS_CACHE_KEY = 'doudou.settings';
 async function syncSettingsFromServer() {
   if (!state.userId) return null;
   try {
-    const s = await api('GET', `/user/${state.userId}/settings`);
+    const s = await api('GET', `/me/settings`);
     state.settings = s;
     localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(s));
     // Hydrate water target cache used by legacy code path
@@ -1012,7 +1040,7 @@ async function syncSettingsFromServer() {
 async function patchSettings(patch) {
   if (!state.userId) return;
   try {
-    const s = await api('PATCH', `/user/${state.userId}/settings`, patch);
+    const s = await api('PATCH', `/me/settings`, patch);
     state.settings = { ...(state.settings || {}), ...(s || {}) };
     localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(state.settings));
     return s;
@@ -1096,7 +1124,7 @@ function paintMascotChrome() {
 }
 
 async function loadDashboard() {
-  const d = await api('GET', `/user/${state.userId}/dashboard`);
+  const d = await api('GET', `/me/dashboard`);
   paintMascotChrome();
   paintCustomIcons();
   refreshEventBanner();
@@ -1254,8 +1282,8 @@ async function paintJourneyAndQuests() {
   if (!state.userId) return;
   try {
     const [journey, quests] = await Promise.all([
-      api('GET', `/journey/${state.userId}`),
-      api('GET', `/quests/today/${state.userId}`),
+      api('GET', `/journey`),
+      api('GET', `/quests/today`),
     ]);
     // Detect advance since last paint → celebrate with animation/toast/sound
     const advanced = _lastKnownJourneyDay != null && journey.day > _lastKnownJourneyDay;
@@ -1904,7 +1932,7 @@ function elementEmoji(e) {
 }
 
 async function loadPokedex() {
-  const list = await api('GET', `/pokedex/${state.userId}`);
+  const list = await api('GET', `/pokedex`);
   const totalDb = 120; // 食物資料庫規模（seed）
   const shinyCount = list.filter((d) => d.is_shiny).length;
   $('#pokedex-total').textContent = `${list.length} / ${totalDb}`;
@@ -1951,7 +1979,7 @@ async function loadSuggestions() {
   const minDelay = new Promise((r) => setTimeout(r, 600));
   try {
     const [r] = await Promise.all([
-      api('GET', `/suggest/next-meal/${state.userId}`),
+      api('GET', `/suggest/next-meal`),
       minDelay,
     ]);
     const k = r.knowledge;
@@ -2018,7 +2046,7 @@ async function loadSuggestions() {
 // === Report ===
 async function loadWeekly() {
   const today = new Date().toISOString().slice(0, 10);
-  const r = await api('GET', `/reports/weekly/${state.userId}/${today}`);
+  const r = await api('GET', `/reports/weekly/${today}`);
 
   // Hero
   $('#rh-dates').textContent = `${r.week_start.slice(5)} – ${r.week_end.slice(5)}`;
@@ -2093,7 +2121,7 @@ async function loadChatStarters() {
   if (chatStartersLoaded) return;
   chatStartersLoaded = true;
   try {
-    const s = await api('GET', `/chat/starters/${state.userId}`);
+    const s = await api('GET', `/chat/starters`);
     if ($('#chat-messages').children.length === 0) {
       appendBubble('bot', s.welcome);
     }
@@ -2132,7 +2160,7 @@ function renderStarters(list) {
 
 // === Calendar ===
 async function loadCalendar() {
-  const data = await api('GET', `/calendar/${state.userId}?days=35`);
+  const data = await api('GET', `/calendar?days=35`);
   $('#cal-streak').textContent = data.stats.current_streak;
   $('#cal-perfect').textContent = data.stats.perfect_days;
   $('#calendar-grid').innerHTML = data.cells.map((c) => {
@@ -2168,7 +2196,7 @@ function openCalDayModal(d) {
 // === Wardrobe ===
 let wardrobeEquippedKey = 'none'; // track real equipped to revert preview
 async function loadWardrobe() {
-  const data = await api('GET', `/outfits/${state.userId}`);
+  const data = await api('GET', `/outfits`);
   wardrobeEquippedKey = data.equipped;
   $('#wardrobe-list').innerHTML = data.outfits.map((o) => `
     <button class="wardrobe-item ${o.unlocked ? '' : 'locked'} ${o.equipped ? 'equipped' : ''}" data-key="${o.key}" data-unlocked="${o.unlocked ? '1' : '0'}">
@@ -2190,7 +2218,7 @@ async function loadWardrobe() {
       return;
     }
     try {
-      await api('POST', `/outfits/${state.userId}/equip`, { outfit_key: key });
+      await api('POST', `/outfits/equip`, { outfit_key: key });
       toast('換裝成功！', { emoji: '👗' });
       await loadWardrobe();
       await loadDashboard();
@@ -2223,7 +2251,7 @@ const ACH_ICON = {
   weight_goal_5kg:   '🎯',
 };
 async function loadAchievements() {
-  const data = await api('GET', `/achievements/${state.userId}/all`);
+  const data = await api('GET', `/achievements`);
   $('#ach-done').textContent = data.unlocked;
   $('#ach-total').textContent = data.total;
   const el = $('#ach-list');
@@ -2290,7 +2318,7 @@ function startGiftCountdown(targetMs) {
 }
 async function refreshGiftState() {
   try {
-    const s = await api('GET', `/interact/gift/${state.userId}/status`);
+    const s = await api('GET', `/interact/gift/status`);
     const btn = $('#gift-btn');
     const cd = $('#gift-countdown');
     if (s.can_open) {
@@ -2712,9 +2740,9 @@ async function demoRegister(persona) {
   if (persona === 'franchise') body.fp_ref_code = 'FP-DEMO-' + Date.now().toString(36).toUpperCase();
   try {
     const r = await api('POST', '/auth/register', body);
-    state.userId = r.user.id;
-    state.token = r.user.api_token;
-    state.animal = r.user.avatar_animal;
+    state.userId = r.id;
+    state.token = r.token;
+    state.animal = (r.avatar && r.avatar.animal) || 'cat';
     localStorage.setItem('doudou_user', state.userId);
     localStorage.setItem('doudou_token', state.token);
     localStorage.setItem('doudou_animal', state.animal);
@@ -2737,7 +2765,7 @@ const cardState = {
 async function refreshCardStaminaDot() {
   if (!state.userId) return;
   try {
-    const s = await api('GET', `/cards/stamina/${state.userId}`);
+    const s = await api('GET', `/cards/stamina`);
     const dot = $('#nav-cards-dot');
     if (dot) dot.classList.toggle('hidden', !(s.remaining > 0));
   } catch (e) { /* ignore */ }
@@ -2748,7 +2776,7 @@ const eventBannerState = { offer: null, card: null, countdownTimer: null };
 async function refreshEventBanner() {
   if (!state.userId) return;
   try {
-    const r = await api('GET', `/cards/event-offer/${state.userId}`);
+    const r = await api('GET', `/cards/event-offer/next`);
     const wrap = $('#event-banner-wrap');
     if (!wrap) return;
     if (r.has_offer && r.card) {
@@ -2853,8 +2881,8 @@ async function refreshHomeCardsCta() {
   if (!state.userId) return;
   try {
     const [stamina, ent] = await Promise.all([
-      api('GET', `/cards/stamina/${state.userId}`),
-      api('GET', `/entitlements/${state.userId}`).catch(() => null),
+      api('GET', `/cards/stamina`),
+      api('GET', `/entitlements`).catch(() => null),
     ]);
     // Card tile badge = remaining stamina
     const cardsBadge = $('#home-tile-cards-badge');
@@ -3114,7 +3142,7 @@ function showNoStamina() {
   $('#card-no-stamina').classList.remove('hidden');
   // set reset time
   try {
-    api('GET', `/cards/stamina/${state.userId}`).then((s) => {
+    api('GET', `/cards/stamina`).then((s) => {
       const d = new Date(s.resets_at);
       const h = String(d.getHours()).padStart(2, '0');
       const m = String(d.getMinutes()).padStart(2, '0');
@@ -3333,7 +3361,7 @@ const codexState = { data: null, filter: 'all' };
 async function loadCardsCodex() {
   if (!state.userId) return;
   try {
-    const data = await api('GET', `/cards/collection/${state.userId}`);
+    const data = await api('GET', `/cards/collection`);
     codexState.data = data;
     renderCodex();
   } catch (e) {
@@ -3768,7 +3796,7 @@ async function handleSubscribe(type) {
     // Refresh entitlements so island works again
     if ($('#island-fullscreen') && !$('#island-fullscreen').classList.contains('hidden')) {
       try {
-        islandState.entitlements = await api('GET', `/entitlements/${state.userId}`);
+        islandState.entitlements = await api('GET', `/entitlements`);
         renderIslandMap();
       } catch {}
     }
@@ -3788,7 +3816,7 @@ async function handlePaywallRedeem() {
     toast('升級成功！✨');
     input.value = '';
     closePaywall();
-    islandState.entitlements = await api('GET', `/entitlements/${state.userId}`);
+    islandState.entitlements = await api('GET', `/entitlements`);
     renderIslandMap();
     loadTierInfo();
   } catch (e) {
@@ -3800,8 +3828,8 @@ async function openIsland() {
   if (!state.userId) return;
   try {
     const [scenes, ent] = await Promise.all([
-      api('GET', `/island/scenes/${state.userId}`),
-      api('GET', `/entitlements/${state.userId}`),
+      api('GET', `/island/scenes`),
+      api('GET', `/entitlements`),
     ]);
     islandState.data = scenes;
     islandState.entitlements = ent;
@@ -4090,7 +4118,7 @@ async function enterStore(scene) {
   islandState.currentStore = scene;
   let storeData;
   try {
-    storeData = await api('GET', `/island/store/${scene.key}/${state.userId}`);
+    storeData = await api('GET', `/island/store/${scene.key}`);
     islandState.currentStoreData = storeData;
   } catch (e) {
     const msg = String(e.message || '');
@@ -4103,7 +4131,7 @@ async function enterStore(scene) {
   }
   // Refresh entitlements (quota was consumed) for the badge
   try {
-    islandState.entitlements = await api('GET', `/entitlements/${state.userId}`);
+    islandState.entitlements = await api('GET', `/entitlements`);
     renderIslandMap();
   } catch {}
 
@@ -4168,7 +4196,7 @@ async function maybePlayMilestoneStory(journey) {
   const cur = journey.milestones.find((m) => m.day === journey.day && m.achieved_this_cycle);
   if (!cur) return;
   try {
-    const story = await api('GET', `/journey/${state.userId}/milestone/${journey.day}`);
+    const story = await api('GET', `/journey/milestone/${journey.day}`);
     if (story && story.lines && story.lines.length > 0) {
       await playDialog(story.lines, { npc: { emoji: '🗺️', name: '旅程精靈' } });
     }
@@ -4286,7 +4314,7 @@ async function logRecMeal(rec) {
     // Refresh budget inline without leaving store
     if (islandState.currentStore) {
       try {
-        const fresh = await api('GET', `/island/store/${islandState.currentStore.key}/${state.userId}`);
+        const fresh = await api('GET', `/island/store/${islandState.currentStore.key}`);
         islandState.currentStoreData = fresh;
         const us = fresh.user_state;
         const budgetEl = $('#store-budget');
@@ -4389,7 +4417,7 @@ function tierBadge(tier) {
 async function loadTierInfo() {
   if (!state.userId) return;
   try {
-    const ent = await api('GET', `/entitlements/${state.userId}`);
+    const ent = await api('GET', `/entitlements`);
     const badge = $('#tier-badge');
     if (badge) {
       badge.className = `tier-badge tier-${ent.tier}`;
