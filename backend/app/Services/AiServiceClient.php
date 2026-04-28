@@ -73,28 +73,37 @@ class AiServiceClient
     }
 
     /**
-     * Estimate nutrition from text description.
+     * Estimate nutrition from a free-form text description (口述/打字食物紀錄).
      *
-     * The current ai-service exposes only /v1/vision/recognize and
-     * /v1/chat/stream — there is no text-only nutrition endpoint yet. Until
-     * that ships we keep the signature but emit AI_SERVICE_DOWN so the
-     * controller keeps its 503 contract. TODO(ADR-002 §3 Phase B+):
-     * implement /v1/vision/recognize-text on Python side.
+     * Calls POST /v1/vision/recognize-text on the Python service. Same auth
+     * model as scanMeal — X-Internal-Secret + X-Pandora-User-Uuid until Phase F
+     * swaps to JWT pass-through.
      *
-     * @param  array<string, mixed>  $context
-     * @return array<string, mixed>
+     * @param  array<string, mixed>  $context  optional `{hint?: string}`
+     * @return array<string, mixed> envelope: foods / total_calories / confidence /
+     *                              manual_input_required / ai_feedback / ...
      */
     public function describeMeal(User $user, string $description, array $context = []): array
     {
         $this->ensureEnabled();
 
-        // Endpoint not yet implemented on Python side — explicit fallback.
-        Log::info('[AiServiceClient] describeMeal called but text endpoint not yet implemented; returning AI_SERVICE_DOWN', [
-            'user_id' => $user->id,
-            'desc_len' => strlen($description),
-        ]);
+        $payload = [
+            'user_uuid' => (string) ($user->pandora_user_uuid ?? ''),
+            'description' => $description,
+        ];
+        if (isset($context['hint']) && is_string($context['hint']) && $context['hint'] !== '') {
+            $payload['hint'] = $context['hint'];
+        }
 
-        throw new AiServiceUnavailableException('AI_TEXT_ENDPOINT_PENDING', 'recognize-text endpoint not implemented yet');
+        try {
+            $response = $this->baseRequest($user)
+                ->asJson()
+                ->post($this->url('/v1/vision/recognize-text'), $payload);
+        } catch (ConnectionException $e) {
+            throw new AiServiceUnavailableException('AI_SERVICE_TIMEOUT', $e->getMessage());
+        }
+
+        return $this->jsonOrThrow($response, 'vision/recognize-text');
     }
 
     /**
