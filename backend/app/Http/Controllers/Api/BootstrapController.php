@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\AppConfigService;
+use App\Services\Conversion\ConversionEventPublisher;
 use App\Services\EntitlementsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,12 +19,23 @@ class BootstrapController extends Controller
     public function __construct(
         private readonly AppConfigService $config,
         private readonly EntitlementsService $entitlements,
+        private readonly ConversionEventPublisher $conversion,
     ) {}
 
     public function __invoke(Request $request): JsonResponse
     {
         // Sanctum-optional: try to resolve user from bearer token, but never error.
         $user = $request->user('sanctum') ?? $request->user();
+
+        // ADR-003 §2.3: fire app.opened on every bootstrap call for an
+        // authenticated user (anon callers don't have a uuid → skipped).
+        $uuid = $user?->pandora_user_uuid;
+        if (is_string($uuid) && $uuid !== '') {
+            $this->conversion->publish($uuid, 'app.opened', [
+                'source' => 'bootstrap',
+            ]);
+        }
+
         return response()->json([
             'app_config' => [
                 'paywall' => $this->config->get('paywall'),

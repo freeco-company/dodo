@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\CheckinController;
 use App\Http\Controllers\Api\ClientErrorController;
 use App\Http\Controllers\Api\DailyLogController;
+use App\Http\Controllers\Api\FranchiseController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\IdentityWebhookController;
 use App\Http\Controllers\Api\InteractController;
@@ -111,6 +112,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/lore/spirits', [MetaController::class, 'spirits']);
 
     // ----- Batch C: misc -----
+    // ADR-003 §2.3 加盟漏斗 CTA 事件
+    Route::post('/franchise/cta-view', [FranchiseController::class, 'ctaView']);
+    Route::post('/franchise/cta-click', [FranchiseController::class, 'ctaClick']);
+
     Route::post('/referrals/redeem', [ReferralController::class, 'redeem']);
     Route::get('/referrals/me', [ReferralController::class, 'me']);
     Route::post('/paywall/event', [PaywallController::class, 'event']);

@@ -51,4 +51,18 @@ return [
         'webhook_window_seconds' => (int) env('PANDORA_CORE_WEBHOOK_WINDOW_SECONDS', 300),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Pandora Core Conversion Service (ADR-003)
+    |--------------------------------------------------------------------------
+    | py-service 加盟轉換漏斗。沒設 base_url / shared_secret 時 publisher 進入
+    | noop 模式（dev / Phase A 環境 fallback）。
+    */
+    'pandora_conversion' => [
+        'base_url' => env('PANDORA_CONVERSION_BASE_URL'),
+        'shared_secret' => env('PANDORA_CONVERSION_SHARED_SECRET'),
+        'app_id' => env('PANDORA_CONVERSION_APP_ID', 'doudou'),
+        'timeout' => (int) env('PANDORA_CONVERSION_TIMEOUT', 5),
+    ],
+
 ];
