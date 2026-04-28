@@ -1,0 +1,493 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Cannot call method toDateString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Resources/DailyLogResource.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type string\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Resources/DailyLogResource.php
+
+		-
+			message: '#^Cannot call method toDateString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Http/Resources/MealResource.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type string\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Http/Resources/MealResource.php
+
+		-
+			message: '#^Cannot call method toDateString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Http/Resources/UserResource.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Http/Resources/UserResource.php
+
+		-
+			message: '#^Cannot call method isPast\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/AccountDeletionService.php
+
+		-
+			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
+			identifier: larastan.noEnvCallsOutsideOfConfig
+			count: 1
+			path: app/Services/AnalyticsService.php
+
+		-
+			message: '#^Property App\\Services\\CardService\:\:\$journey is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: app/Services/CardService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>meals_logged" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/ChatStarterService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>total_calories" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/ChatStarterService.php
+
+		-
+			message: '#^Cannot call method isFuture\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/EntitlementsService.php
+
+		-
+			message: '#^Cannot call method toDateString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/EntitlementsService.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/EntitlementsService.php
+
+		-
+			message: '#^Call to static method fromUTC\(\) on an unknown class Lcobucci\\Clock\\SystemClock\.$#'
+			identifier: class.notFound
+			count: 1
+			path: app/Services/Identity/PlatformJwtVerifier.php
+
+		-
+			message: '#^Offset ''activity_level'' on array\{weight_kg\: float, height_cm\: float, age\: int, gender\: string, activity_level\: string, goal_weight_kg\?\: float\|null\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/TargetCalculator.php
+
+		-
+			message: '#^Offset ''gender'' on array\{weight_kg\: float, height_cm\: float, age\: int, gender\: string, activity_level\: string, goal_weight_kg\?\: float\|null\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: app/Services/TargetCalculator.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/TierService.php
+
+		-
+			message: '#^Cannot call method copy\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/TrialService.php
+
+		-
+			message: '#^Cannot call method gt\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/TrialService.php
+
+		-
+			message: '#^Cannot call method isFuture\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: app/Services/TrialService.php
+
+		-
+			message: '#^Cannot call method toIso8601String\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: app/Services/TrialService.php
+
+		-
+			message: '#^Using nullsafe method call on non\-nullable type Illuminate\\Console\\Command\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 4
+			path: database/seeders/AppConfigSeeder.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/AdminPanelTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/AdminPanelTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Feature/Api/AccountDeletionTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/Api/AccountDeletionTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: tests/Feature/Api/AiStubTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/AnalyticsTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/Api/AnalyticsTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/AuthTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/AuthTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Feature/Api/AuthTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:withHeader\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/AuthTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/BootstrapTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/BootstrapTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Feature/Api/CardTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 8
+			path: tests/Feature/Api/CheckinTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/Api/CheckinTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/Api/ClientErrorsTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 6
+			path: tests/Feature/Api/DailyLogTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/DailyLogTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/HealthTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Feature/Api/InteractTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Feature/Api/JourneyTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 7
+			path: tests/Feature/Api/MealTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Feature/Api/MetaTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/Api/PaywallTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/PaywallTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Feature/Api/PushTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Feature/Api/PushTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/Api/QuestTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/Api/RatingPromptTest.php
+
+		-
+			message: '#^Access to an undefined property Pest\\Mixins\\Expectation\<mixed\>\:\:\$not\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Api/ReferralTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Feature/Api/ReferralTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/Api/ReferralTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:get\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/SeoTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/Api/SeoTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:putJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/SeoTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Feature/Api/ShieldTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Feature/Api/TierTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/TierTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Feature/Api/WebhookTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\DailyLog\:\:\$pandora_user_uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Identity/BackfillMirrorCommandTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Meal\:\:\$pandora_user_uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Identity/BackfillMirrorCommandTest.php
+
+		-
+			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$pandora_user_uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Identity/EnsureMirrorTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Achievement\:\:\$pandora_user_uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Identity/HasPandoraUserUuidTraitTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\CardEventOffer\:\:\$pandora_user_uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Identity/HasPandoraUserUuidTraitTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\CardPlay\:\:\$pandora_user_uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Identity/HasPandoraUserUuidTraitTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Conversation\:\:\$pandora_user_uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Identity/HasPandoraUserUuidTraitTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\DailyLog\:\:\$pandora_user_uuid\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/Identity/HasPandoraUserUuidTraitTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\DailyQuest\:\:\$pandora_user_uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Identity/HasPandoraUserUuidTraitTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\FoodDiscovery\:\:\$pandora_user_uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Identity/HasPandoraUserUuidTraitTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\JourneyAdvance\:\:\$pandora_user_uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Identity/HasPandoraUserUuidTraitTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\Meal\:\:\$pandora_user_uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Identity/HasPandoraUserUuidTraitTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\StoreVisit\:\:\$pandora_user_uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Identity/HasPandoraUserUuidTraitTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\UsageLog\:\:\$pandora_user_uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Identity/HasPandoraUserUuidTraitTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\UserSummary\:\:\$pandora_user_uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Identity/HasPandoraUserUuidTraitTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\WeeklyReport\:\:\$pandora_user_uuid\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Identity/HasPandoraUserUuidTraitTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Feature/Identity/HasPandoraUserUuidTraitTest.php
+
+		-
+			message: '#^Offset ''nullable'' on array\{name\: string, type\: string, type_name\: string, nullable\: bool, default\: mixed, auto_increment\: bool, comment\: string\|null, generation\: array\{type\: string, expression\: string\|null\}\|null\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/Feature/Identity/ReferenceTablesDualColumnTest.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 1
+			path: tests/Unit/ExampleTest.php

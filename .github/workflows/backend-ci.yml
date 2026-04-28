@@ -55,6 +55,9 @@ jobs:
           php artisan key:generate
           mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache
 
+      - name: PHPStan static analysis
+        run: ./vendor/bin/phpstan analyse --no-progress --memory-limit=2G
+
       - name: Run migrations + seeders (smoke test)
         env:
           DB_CONNECTION: sqlite
