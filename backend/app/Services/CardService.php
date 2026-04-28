@@ -30,6 +30,7 @@ class CardService
 
     public function __construct(
         private readonly JourneyService $journey,
+        private readonly \App\Services\Gamification\GamificationPublisher $gamification,
         private readonly ?AppConfigService $config = null,
     ) {}
 
@@ -239,6 +240,27 @@ class CardService
         $user->xp = (int) $user->xp + $play->xp_gained;
         $user->level = GameXp::levelForXp((int) $user->xp);
         $user->save();
+
+        // ADR-009 §3 / catalog §3.1 — gamification events on card answer.
+        $uuid = is_string($user->pandora_user_uuid) ? $user->pandora_user_uuid : '';
+        if ($uuid !== '' && $correct === true) {
+            // dodo.card_correct — every correct answer (server daily_cap_xp=40 / 5 cards)
+            $this->gamification->publish(
+                $uuid,
+                'dodo.card_correct',
+                "dodo.card_correct.{$play->id}",
+                ['card_id' => $play->card_id, 'card_type' => $play->card_type],
+            );
+
+            // dodo.card_first_solve — once per card (server lifetime_unique enforces).
+            // Use card_id in idempotency_key so each new card the user solves bumps once.
+            $this->gamification->publish(
+                $uuid,
+                'dodo.card_first_solve',
+                "dodo.card_first_solve.{$uuid}.{$play->card_id}",
+                ['card_id' => $play->card_id],
+            );
+        }
 
         return [
             'card_id' => $play->card_id,
