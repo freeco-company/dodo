@@ -304,6 +304,22 @@ class CheckinService
         $user->current_weight_kg = $weight;
         $user->save();
 
+        // ADR-009 §3 / catalog §3.1 — fire dodo.weight_logged once per day
+        // (server daily_cap_xp=5 also enforces; we additionally gate locally
+        // on `wasLogged` to keep idempotency_key clean per-day).
+        $uuid = is_string($user->pandora_user_uuid) ? $user->pandora_user_uuid : '';
+        if ($uuid !== '' && ! $wasLogged) {
+            $today = $log->date instanceof \Carbon\CarbonInterface
+                ? $log->date->toDateString()
+                : Carbon::parse((string) $log->date)->toDateString();
+            $this->gamification->publish(
+                $uuid,
+                'dodo.weight_logged',
+                "dodo.weight_logged.{$uuid}.{$today}",
+                ['weight_kg' => $weight],
+            );
+        }
+
         return ['weight_kg' => $weight, 'xp_gained' => $xp];
     }
 }
