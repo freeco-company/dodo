@@ -7,8 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Conversation;
 use App\Services\AiServiceClient;
 use App\Services\ChatStarterService;
+use App\Services\Gamification\GamificationPublisher;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Symfony\Component\HttpFoundation\Response;
 
 class ChatController extends Controller
@@ -16,6 +18,7 @@ class ChatController extends Controller
     public function __construct(
         private readonly AiServiceClient $ai,
         private readonly ChatStarterService $starters,
+        private readonly GamificationPublisher $gamification,
     ) {}
 
     /**
@@ -46,6 +49,20 @@ class ChatController extends Controller
         ]);
 
         $sessionId = (string) ($data['session_id'] ?? ('conv-'.$userMsg->id));
+
+        // ADR-009 §3 / catalog §3.1 — fire dodo.chat_daily once per day. Server
+        // daily_cap_xp=3 caps it to one credit/day even if the local-side guard
+        // is bypassed by parallel writes; we use uuid+date in idempotency_key.
+        $uuid = is_string($user->pandora_user_uuid) ? $user->pandora_user_uuid : '';
+        if ($uuid !== '') {
+            $today = Carbon::today()->toDateString();
+            $this->gamification->publish(
+                $uuid,
+                'dodo.chat_daily',
+                "dodo.chat_daily.{$uuid}.{$today}",
+                ['scenario' => $data['scenario'] ?? null],
+            );
+        }
 
         try {
             return $this->ai->chatStream(

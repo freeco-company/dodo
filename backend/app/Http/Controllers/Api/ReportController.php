@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DailyLog;
 use App\Models\Meal;
 use App\Models\WeeklyReport;
+use App\Services\Gamification\GamificationPublisher;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,6 +24,10 @@ use Illuminate\Http\Request;
  */
 class ReportController extends Controller
 {
+    public function __construct(
+        private readonly GamificationPublisher $gamification,
+    ) {}
+
     public function weekly(Request $request, string $date): JsonResponse
     {
         $user = $request->user();
@@ -43,7 +48,11 @@ class ReportController extends Controller
             ->orderBy('date')
             ->get(['date', 'total_score', 'meals_logged']);
 
-        $byDate = $logs->keyBy(fn ($r) => (string) $r->date);
+        // `date` column is cast to Carbon — coerce to YYYY-MM-DD for stable
+        // keying against $weekStart->addDays($i)->toDateString() below.
+        $byDate = $logs->keyBy(fn ($r) => $r->date instanceof \Carbon\CarbonInterface
+            ? $r->date->toDateString()
+            : Carbon::parse((string) $r->date)->toDateString());
         $dailyScores = [];
         $dailyHasLog = [];
         $perfect = 0;
@@ -78,6 +87,19 @@ class ReportController extends Controller
         $mealsTotal = Meal::where('pandora_user_uuid', $user->pandora_user_uuid)
             ->whereBetween('date', [$weekStart->toDateString(), $weekEnd->toDateString()])
             ->count();
+
+        // ADR-009 §3 / catalog §3.1 — fire dodo.weekly_review_read once per
+        // (user, week) when the user has enough data for a meaningful review
+        // (avoid crediting empty weeks). Server idempotency_key uses week_start.
+        $uuid = is_string($user->pandora_user_uuid) ? $user->pandora_user_uuid : '';
+        if ($uuid !== '' && $loggedDays >= 3) {
+            $this->gamification->publish(
+                $uuid,
+                'dodo.weekly_review_read',
+                "dodo.weekly_review_read.{$uuid}.".$weekStart->toDateString(),
+                ['week_start' => $weekStart->toDateString()],
+            );
+        }
 
         return response()->json([
             'week_start' => $weekStart->toDateString(),

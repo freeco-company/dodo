@@ -19,6 +19,12 @@ parameters:
 			path: app/Http/Controllers/Api/MealController.php
 
 		-
+			message: '#^Instanceof between string and Carbon\\CarbonInterface will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 1
+			path: app/Http/Controllers/Api/ReportController.php
+
+		-
 			message: '#^Cannot call method toDateString\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 1
@@ -77,6 +83,12 @@ parameters:
 			identifier: nullsafe.neverNull
 			count: 1
 			path: app/Services/ChatStarterService.php
+
+		-
+			message: '#^Instanceof between string and Carbon\\CarbonInterface will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 1
+			path: app/Services/CheckinService.php
 
 		-
 			message: '#^Cannot call method isFuture\(\) on string\.$#'
@@ -545,6 +557,12 @@ parameters:
 			identifier: method.notFound
 			count: 6
 			path: tests/Feature/Gamification/MealEventHooksTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 11
+			path: tests/Feature/Gamification/RemainingEventHooksTest.php
 
 		-
 			message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model\:\:\$pandora_user_uuid\.$#'
