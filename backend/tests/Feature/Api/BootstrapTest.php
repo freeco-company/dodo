@@ -8,7 +8,12 @@ uses(RefreshDatabase::class);
 it('returns app_config without auth (anonymous bootstrap)', function () {
     $this->getJson('/api/bootstrap')
         ->assertOk()
-        ->assertJsonStructure(['app_config', 'entitlements', 'user']);
+        ->assertJsonStructure([
+            'app_config',
+            'entitlements',
+            'user',
+            'lifecycle' => ['status', 'show_franchise_cta', 'franchise_url'],
+        ]);
 });
 
 it('returns user entitlements when authenticated', function () {

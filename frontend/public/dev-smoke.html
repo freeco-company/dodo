@@ -155,6 +155,10 @@
       ['Telemetry', 'POST', '/analytics/track', { event: 'smoke', properties: {} }],
       ['Telemetry', 'POST', '/client-errors', { message: 'smoke', stack: '' }],
 
+      // Franchise CTA (ADR-003 §2.3) — bootstrap.lifecycle 控制顯示，事件由前端發
+      ['Franchise', 'POST', '/franchise/cta-view', { source: 'smoke' }],
+      ['Franchise', 'POST', '/franchise/cta-click', { source: 'smoke' }],
+
       // Account
       ['Account', 'POST', '/account/delete-request'],
       ['Account', 'POST', '/account/restore'],
