@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AdminTokenAuth;
 use App\Http\Middleware\PandoraJwtAuth;
+use App\Http\Middleware\SanctumOrPandoraJwt;
 use App\Http\Middleware\VerifyIdentityWebhookSignature;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -19,6 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.token' => AdminTokenAuth::class,
             // ADR-007 Phase 4 — Pandora Core JWT auth (與既有 sanctum 並行；Phase 5+ 才陸續切換)
             'pandora.jwt' => PandoraJwtAuth::class,
+            // ADR-007 Phase F prep — 接受 sanctum or platform JWT（route 不動，逐條切換用）
+            'auth.dual' => SanctumOrPandoraJwt::class,
             // platform → 朵朵 webhook 簽章驗證
             'identity.webhook' => VerifyIdentityWebhookSignature::class,
         ]);

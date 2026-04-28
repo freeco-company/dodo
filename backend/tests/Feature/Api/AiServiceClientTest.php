@@ -93,13 +93,62 @@ it('scanMeal raises IMAGE_FETCH_FAILED when image url returns 4xx', function () 
         ->toThrow(AiServiceUnavailableException::class, 'image url returned 404');
 });
 
-it('describeMeal explicitly throws AI_TEXT_ENDPOINT_PENDING (endpoint not built yet)', function () {
+it('describeMeal POSTs JSON to /v1/vision/recognize-text with internal headers', function () {
+    Http::fake([
+        'ai.test/v1/vision/recognize-text' => Http::response([
+            'foods' => [
+                ['name' => '雞腿便當', 'estimated_kcal' => 720, 'confidence' => 0.91],
+            ],
+            'total_calories' => 720,
+            'confidence' => 0.91,
+            'manual_input_required' => false,
+            'ai_feedback' => '看起來營養均衡',
+            'model' => 'claude-3-5-haiku-latest',
+            'cost_usd' => 0.0008,
+            'safety_flags' => [],
+            'stub' => false,
+        ], 200),
+    ]);
+
+    $user = User::factory()->create(['pandora_user_uuid' => '00000000-0000-0000-0000-bbbbbbbbbbbb']);
+
+    $result = app(AiServiceClient::class)->describeMeal(
+        $user,
+        '中午吃了一個雞腿便當',
+        ['hint' => '加了滷蛋'],
+    );
+
+    expect($result['total_calories'])->toBe(720);
+    expect($result['foods'][0]['name'])->toBe('雞腿便當');
+
+    Http::assertSent(function ($request) {
+        if ($request->url() !== 'https://ai.test/v1/vision/recognize-text') {
+            return false;
+        }
+        $body = $request->data();
+
+        return $request->hasHeader('X-Internal-Secret', 'test-shared-secret')
+            && $request->hasHeader('X-Pandora-User-Uuid', '00000000-0000-0000-0000-bbbbbbbbbbbb')
+            && $body['description'] === '中午吃了一個雞腿便當'
+            && $body['hint'] === '加了滷蛋';
+    });
+});
+
+it('describeMeal raises AI_SERVICE_ERROR when ai-service returns 5xx', function () {
+    Http::fake([
+        'ai.test/v1/vision/recognize-text' => Http::response(['detail' => 'boom'], 500),
+    ]);
+
     $user = User::factory()->create(['pandora_user_uuid' => 'uuid-1']);
 
-    try {
-        app(AiServiceClient::class)->describeMeal($user, '一個雞腿便當');
-        expect(false)->toBeTrue('expected exception');
-    } catch (AiServiceUnavailableException $e) {
-        expect($e->errorCode)->toBe('AI_TEXT_ENDPOINT_PENDING');
-    }
+    expect(fn () => app(AiServiceClient::class)->describeMeal($user, '吃了便當'))
+        ->toThrow(AiServiceUnavailableException::class);
+});
+
+it('describeMeal still throws when base_url not configured', function () {
+    config()->set('services.dodo_ai_service.base_url', '');
+    $user = User::factory()->create(['pandora_user_uuid' => 'uuid-1']);
+
+    expect(fn () => app(AiServiceClient::class)->describeMeal($user, '吃了便當'))
+        ->toThrow(AiServiceUnavailableException::class);
 });

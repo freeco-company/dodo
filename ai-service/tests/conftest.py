@@ -23,6 +23,7 @@ from app.deps import (
     get_callback_client,
     get_chat_client,
     get_cost_tracker,
+    get_text_recognizer,
     get_vision_client,
 )
 
@@ -149,6 +150,7 @@ def client(
     # Reset the singleton chat/vision clients so they pick up fresh settings.
     get_chat_client.cache_clear()
     get_vision_client.cache_clear()
+    get_text_recognizer.cache_clear()
 
     with TestClient(app) as c:
         yield c
