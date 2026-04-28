@@ -16,6 +16,11 @@ it('returns initial journey state', function () {
     $this->actingAs($user, 'sanctum')
         ->getJson('/api/journey')
         ->assertOk()
+        ->assertJsonStructure([
+            'cycle', 'day', 'total_days', 'advanced_today',
+            'next_milestone', 'days_to_next_milestone',
+            'milestones',
+        ])
         ->assertJsonPath('cycle', 1)
         ->assertJsonPath('day', 0)
         ->assertJsonPath('total_days', 21)

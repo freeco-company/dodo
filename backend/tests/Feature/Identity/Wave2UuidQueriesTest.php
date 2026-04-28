@@ -106,10 +106,10 @@ class Wave2UuidQueriesTest extends TestCase
         $aliceCollection = $service->collection($alice);
         $bobCollection = $service->collection($bob);
 
-        $this->assertSame(1, $aliceCollection['total']);
+        $this->assertSame(1, $aliceCollection['collected']);
         $this->assertSame('card-a', $aliceCollection['cards'][0]['card_id']);
 
-        $this->assertSame(1, $bobCollection['total']);
+        $this->assertSame(1, $bobCollection['collected']);
         $this->assertSame('card-b', $bobCollection['cards'][0]['card_id']);
     }
 

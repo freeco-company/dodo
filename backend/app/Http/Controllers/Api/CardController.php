@@ -65,11 +65,23 @@ class CardController extends Controller
             ->first();
 
         if (! $offer) {
-            return response()->json(null, 204);
+            return response()->json(['has_offer' => false]);
         }
 
+        $payload = $this->service->eventOfferShow($user, (int) $offer->id);
+
         return response()->json([
-            'data' => $this->service->eventOfferShow($user, (int) $offer->id),
+            'has_offer' => true,
+            'card' => $payload['card'],
+            'offer' => [
+                'id' => $payload['id'],
+                'card_id' => $payload['card_id'],
+                'status' => $payload['status'],
+                'event_group' => $payload['event_group'],
+                'expires_at' => $payload['expires_at'],
+                'offered_at' => $payload['offered_at'],
+            ],
+            'data' => $payload,
         ]);
     }
 

@@ -14,6 +14,7 @@ it('pets the character and gains friendship', function () {
     $this->actingAs($user, 'sanctum')
         ->postJson('/api/interact/pet')
         ->assertOk()
+        ->assertJsonStructure(['friendship', 'pet_count', 'capped', 'message'])
         ->assertJsonPath('friendship', 2)
         ->assertJsonPath('pet_count', 1)
         ->assertJsonPath('capped', false);
@@ -40,13 +41,20 @@ it('claims daily gift first time', function () {
     $this->actingAs($user, 'sanctum')
         ->postJson('/api/interact/gift')
         ->assertOk()
+        ->assertJsonStructure([
+            'claimed',
+            'reward' => ['kind', 'title', 'subtitle', 'emoji'],
+            'next_available_in_ms',
+            'next_available_at',
+        ])
         ->assertJsonPath('claimed', true);
 });
 
-it('returns gift status', function () {
+it('returns gift status with frontend contract', function () {
     $user = User::factory()->create(['last_gift_date' => null]);
     $this->actingAs($user, 'sanctum')
         ->getJson('/api/interact/gift/status')
         ->assertOk()
+        ->assertJsonStructure(['can_open', 'next_available_in_ms', 'next_available_at'])
         ->assertJsonPath('can_open', true);
 });
