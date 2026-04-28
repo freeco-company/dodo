@@ -282,11 +282,23 @@ function _escape(s) {
 }
 
 async function api(method, path, body) {
-  const headers = { 'content-type': 'application/json' };
+  const headers = { 'content-type': 'application/json', 'accept': 'application/json' };
   if (state.token) headers['authorization'] = `Bearer ${state.token}`;
   const res = await fetch(API + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
-  const json = await res.json();
-  if (!json.ok) throw new Error(json.error?.message || 'request failed');
+  // 401 → clear stale token; let the calling flow surface the error and
+  // re-prompt login / register on the next render. We do NOT hard redirect
+  // because the SPA has its own home/onboarding screens.
+  if (res.status === 401) {
+    localStorage.removeItem('doudou_user');
+    localStorage.removeItem('doudou_token');
+    state.userId = null;
+    state.token = null;
+  }
+  let json;
+  try { json = await res.json(); } catch (_e) {
+    throw new Error(`HTTP ${res.status} ${res.statusText} (no JSON body)`);
+  }
+  if (!json.ok) throw new Error(json.error?.message || `request failed (HTTP ${res.status})`);
   return json.data;
 }
 

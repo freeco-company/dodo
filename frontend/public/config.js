@@ -35,6 +35,16 @@ window.CRISP_WEBSITE_ID = window.CRISP_WEBSITE_ID || '';
   // Example: https://dodo-api.fly.dev/api
   const PROD_API = 'https://REPLACE-ME.fly.dev/api';
 
+  // Allow ?api=http://host:port/api in the URL to override at runtime.
+  // Persisted in sessionStorage so SPA reloads keep the override.
+  try {
+    const qs = new URLSearchParams(location.search);
+    const qsApi = qs.get('api') || qs.get('DODO_API_BASE');
+    if (qsApi) sessionStorage.setItem('DODO_API_BASE', qsApi);
+    const stored = sessionStorage.getItem('DODO_API_BASE');
+    if (stored && !window.DODO_API_BASE) window.DODO_API_BASE = stored;
+  } catch (_e) { /* sessionStorage may be unavailable in file:// shells */ }
+
   // Prefer the new DODO_ prefix, fall back to the legacy DOUDOU_ override.
   let base = window.DODO_API_BASE || window.DOUDOU_API_BASE || '';
 

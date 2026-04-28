@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>朵朵 API smoke test</title>
+  <style>
+    body { font-family: -apple-system, "PingFang TC", sans-serif; max-width: 1100px; margin: 24px auto; padding: 0 16px; color: #222; }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    .sub { color: #666; font-size: 13px; margin-bottom: 18px; }
+    .bar { display: flex; gap: 8px; align-items: center; margin: 12px 0; flex-wrap: wrap; }
+    input[type=text], input[type=password] { padding: 6px 8px; border: 1px solid #ccc; border-radius: 6px; font: inherit; }
+    input.api { width: 360px; }
+    button { padding: 6px 10px; border-radius: 6px; border: 1px solid #888; background: #fafafa; cursor: pointer; font: inherit; }
+    button.primary { background: #2563eb; color: #fff; border-color: #2563eb; }
+    button:hover { background: #eee; }
+    button.primary:hover { background: #1d4ed8; }
+    table { border-collapse: collapse; width: 100%; font-size: 13px; margin-top: 12px; }
+    th, td { border: 1px solid #ddd; padding: 6px 8px; text-align: left; vertical-align: top; }
+    th { background: #f4f4f4; }
+    td.path { font-family: ui-monospace, Menlo, monospace; white-space: nowrap; }
+    td.method { font-weight: 600; width: 60px; }
+    td.status { width: 80px; font-family: ui-monospace, Menlo, monospace; }
+    td.body { max-width: 600px; }
+    pre { margin: 0; background: #0b1020; color: #cde; padding: 6px 8px; border-radius: 4px; max-height: 200px; overflow: auto; font-size: 12px; }
+    .ok { color: #0a7d33; }
+    .fail { color: #b80024; }
+    .pending { color: #888; }
+    section { border: 1px solid #eee; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; background: #fcfcfc; }
+    section h2 { font-size: 15px; margin: 0 0 8px; }
+  </style>
+</head>
+<body>
+  <h1>朵朵 dev smoke test</h1>
+  <p class="sub">每行一個 endpoint，按按鈕打一發 fetch 看 response。token 用 localStorage <code>doudou_token</code>，跟正式 app 共用。</p>
+
+  <section>
+    <h2>環境</h2>
+    <div class="bar">
+      <label>API base：</label>
+      <input id="apiBase" class="api" type="text" />
+      <button id="saveApi">套用</button>
+      <button id="clearApi">清掉 override</button>
+    </div>
+    <div class="bar">
+      <label>Token：</label>
+      <input id="token" class="api" type="text" placeholder="(空)" />
+      <button id="saveTok">儲存</button>
+      <button id="clearTok">登出</button>
+      <span id="who" class="sub"></span>
+    </div>
+    <div class="bar">
+      <label>快速登入：</label>
+      <input id="email" type="text" placeholder="email" />
+      <input id="password" type="password" placeholder="password" />
+      <button id="login" class="primary">login</button>
+      <button id="register">register</button>
+      <button id="runAll">跑全部 (僅 GET)</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Endpoint 清單</h2>
+    <table id="grid">
+      <thead>
+        <tr><th>Group</th><th>Method</th><th>Path</th><th>動作</th><th>HTTP</th><th>Body 摘要</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <script src="/config.js?v=smoke"></script>
+  <script>
+    // ---------- helpers ----------
+    const $ = (sel) => document.querySelector(sel);
+    function getToken() { return localStorage.getItem('doudou_token') || ''; }
+    function setToken(t) {
+      if (t) localStorage.setItem('doudou_token', t);
+      else localStorage.removeItem('doudou_token');
+      $('#token').value = t || '';
+      $('#who').textContent = t ? '已登入 (token 長度 ' + t.length + ')' : '未登入';
+    }
+    function setApi(base) {
+      if (base) sessionStorage.setItem('DODO_API_BASE', base);
+      else sessionStorage.removeItem('DODO_API_BASE');
+      window.DODO_API_BASE = base || '';
+      $('#apiBase').value = base || window.DODO_API_BASE || '';
+    }
+
+    async function call(method, path, body) {
+      const headers = { 'content-type': 'application/json', 'accept': 'application/json' };
+      const tok = getToken();
+      if (tok) headers['authorization'] = 'Bearer ' + tok;
+      const url = (window.DODO_API_BASE || '') + path;
+      const res = await fetch(url, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      let payload;
+      try { payload = await res.json(); } catch (_e) { payload = await res.text().catch(() => ''); }
+      return { status: res.status, ok: res.ok, payload };
+    }
+
+    // ---------- endpoint catalog ----------
+    // Source: dodo/backend/routes/api.php (56 routes) + frontend MIGRATION_NOTES.md
+    const ROUTES = [
+      // Bootstrap / meta
+      ['Bootstrap', 'GET',  '/bootstrap'],
+      ['Bootstrap', 'GET',  '/meta/limits'],
+      ['Bootstrap', 'GET',  '/meta/outfits'],
+      ['Bootstrap', 'GET',  '/lore/spirits'],
+      ['Bootstrap', 'GET',  '/me'],
+
+      // Auth
+      ['Auth', 'POST', '/auth/register', { email: 'smoke+'+Date.now()+'@test.dev', password: 'password123', display_name: 'Smoke' }],
+      ['Auth', 'POST', '/auth/login', () => ({ email: $('#email').value, password: $('#password').value })],
+      ['Auth', 'POST', '/auth/logout'],
+
+      // Meals
+      ['Meals', 'GET',  '/meals'],
+      ['Meals', 'POST', '/meals/text', { text: '一碗白飯' }],
+      ['Meals', 'POST', '/meals/scan', { image_base64: '' }],
+      ['Meals', 'GET',  '/foods/search?q=rice'],
+
+      // Cards
+      ['Cards', 'GET',  '/cards/stamina'],
+      ['Cards', 'POST', '/cards/draw', {}],
+      ['Cards', 'GET',  '/cards/collection'],
+
+      // Checkin
+      ['Checkin', 'POST', '/checkin/water', { delta_ml: 250 }],
+      ['Checkin', 'POST', '/checkin/exercise', { minutes: 10 }],
+      ['Checkin', 'POST', '/checkin/weight', { weight_kg: 60 }],
+      ['Checkin', 'GET',  '/checkin/goals'],
+
+      // Quests / journey
+      ['Quests', 'GET',  '/quests/today'],
+      ['Quests', 'GET',  '/journey'],
+
+      // Interaction
+      ['Interaction', 'POST', '/interact/pet', {}],
+      ['Interaction', 'GET',  '/interact/gift/status'],
+      ['Interaction', 'POST', '/chat/message', { message: 'hi' }],
+      ['Interaction', 'GET',  '/chat/starters'],
+
+      // Tier / paywall
+      ['Tier',     'POST', '/subscribe/mock', { tier: 'monthly' }],
+      ['Tier',     'POST', '/paywall/event', { trigger: 'smoke' }],
+      ['Referral', 'GET',  '/referrals/me'],
+      ['Push',     'POST', '/push/register', { token: 'fake', platform: 'web' }],
+      ['Rating',   'POST', '/rating-prompt/event', { event: 'open' }],
+
+      // Telemetry
+      ['Telemetry', 'POST', '/analytics/track', { event: 'smoke', properties: {} }],
+      ['Telemetry', 'POST', '/client-errors', { message: 'smoke', stack: '' }],
+
+      // Account
+      ['Account', 'POST', '/account/delete-request'],
+      ['Account', 'POST', '/account/restore'],
+    ];
+
+    function tdResult(status) {
+      const cls = status === 0 ? 'pending' : (status >= 200 && status < 300 ? 'ok' : 'fail');
+      return `<span class="${cls}">${status || '—'}</span>`;
+    }
+
+    function render() {
+      const tbody = $('#grid tbody');
+      tbody.innerHTML = '';
+      ROUTES.forEach(([group, method, path, body], idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${group}</td>
+          <td class="method">${method}</td>
+          <td class="path">${path}</td>
+          <td><button data-idx="${idx}">送</button></td>
+          <td class="status" id="st-${idx}">${tdResult(0)}</td>
+          <td class="body"><pre id="bd-${idx}">—</pre></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      tbody.addEventListener('click', async (ev) => {
+        const btn = ev.target.closest('button[data-idx]');
+        if (!btn) return;
+        const idx = Number(btn.dataset.idx);
+        await runRow(idx);
+      });
+    }
+
+    async function runRow(idx) {
+      const [, method, path, bodyArg] = ROUTES[idx];
+      const body = typeof bodyArg === 'function' ? bodyArg() : bodyArg;
+      $('#st-' + idx).innerHTML = tdResult(0);
+      $('#bd-' + idx).textContent = '...';
+      try {
+        const r = await call(method, path, body);
+        $('#st-' + idx).innerHTML = tdResult(r.status);
+        $('#bd-' + idx).textContent = typeof r.payload === 'string'
+          ? r.payload.slice(0, 600)
+          : JSON.stringify(r.payload, null, 2).slice(0, 1200);
+        // capture token from auth responses
+        const tok = r.payload && r.payload.data && (r.payload.data.user?.api_token || r.payload.data.api_token);
+        if (tok) setToken(tok);
+      } catch (e) {
+        $('#st-' + idx).innerHTML = '<span class="fail">ERR</span>';
+        $('#bd-' + idx).textContent = String(e);
+      }
+    }
+
+    async function runAllGets() {
+      for (let i = 0; i < ROUTES.length; i++) {
+        if (ROUTES[i][1] === 'GET') {
+          // eslint-disable-next-line no-await-in-loop
+          await runRow(i);
+        }
+      }
+    }
+
+    // ---------- bootstrap UI ----------
+    document.addEventListener('DOMContentLoaded', () => {
+      $('#apiBase').value = window.DODO_API_BASE || '';
+      $('#token').value = getToken();
+      $('#who').textContent = getToken() ? '已登入' : '未登入';
+
+      $('#saveApi').addEventListener('click', () => setApi($('#apiBase').value.trim()));
+      $('#clearApi').addEventListener('click', () => { setApi(''); location.reload(); });
+      $('#saveTok').addEventListener('click', () => setToken($('#token').value.trim()));
+      $('#clearTok').addEventListener('click', () => setToken(''));
+
+      $('#login').addEventListener('click', async () => {
+        const r = await call('POST', '/auth/login', { email: $('#email').value, password: $('#password').value });
+        alert('HTTP ' + r.status + '\n' + JSON.stringify(r.payload).slice(0, 400));
+        const tok = r.payload && r.payload.data && (r.payload.data.user?.api_token || r.payload.data.api_token);
+        if (tok) setToken(tok);
+      });
+      $('#register').addEventListener('click', async () => {
+        const email = $('#email').value || ('smoke+' + Date.now() + '@test.dev');
+        const password = $('#password').value || 'password123';
+        const r = await call('POST', '/auth/register', { email, password, display_name: 'Smoke' });
+        alert('HTTP ' + r.status + '\n' + JSON.stringify(r.payload).slice(0, 400));
+        const tok = r.payload && r.payload.data && (r.payload.data.user?.api_token || r.payload.data.api_token);
+        if (tok) setToken(tok);
+      });
+      $('#runAll').addEventListener('click', runAllGets);
+
+      render();
+    });
+  </script>
+</body>
+</html>

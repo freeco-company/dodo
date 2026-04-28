@@ -1,9 +1,7 @@
 # 朵朵 Dodo 前端（Capacitor + 純 web bundle）
 
-> ⚠️ 2026-04-28 從 [`../../ai-game/`](../../ai-game/) **複製**過來（不是移動）。
-> 原版仍在 `ai-game/`，等 Phase G 上架成功 + 1 個月後再評估從 ai-game/ 刪除（依 ADR-002）。
->
-> 本目錄目前是「並列複本 + 待調整 API endpoint」的狀態，**還沒驗證可 build 出新 iOS bundle**。
+> ⚠️ 2026-04-28 從 [`../../ai-game/`](../../ai-game/) **複製**過來。原版仍在 `ai-game/`，
+> 等 Phase G 上架成功 + 1 個月後再評估從 `ai-game/` 刪除（依 ADR-002）。
 
 ---
 
@@ -12,44 +10,124 @@
 ```
 frontend/
 ├── capacitor.config.json   ← appId com.jerosse.doudou (與舊版相同)
-├── package.json            ← 只裝 Capacitor + http-server，不再含 vitest / 後端 deps
-├── public/                 ← 純 web bundle (vanilla JS + HTML + 42 個檔案)
+├── package.json            ← Capacitor + http-server，不再含後端 deps
+├── public/                 ← 純 web bundle (vanilla JS + HTML)
 │   ├── index.html
-│   ├── app.js              ← 主 entry
-│   ├── character.js / config.js / icons.js / sound.js
+│   ├── config.js           ← 解析 window.DODO_API_BASE（單一 source of truth）
+│   ├── app.js              ← 主 entry，所有 fetch 都走 const API
+│   ├── dev-smoke.html      ← 開發用：每個 endpoint 一個按鈕的 smoke test
+│   ├── character.js / icons.js / sound.js / style.css
 │   └── ...
-└── ios/                    ← Capacitor iOS Xcode 專案 (App/, capacitor-cordova-ios-plugins/)
+└── ios/                    ← Capacitor iOS Xcode 專案（user 之後 cap sync）
 ```
 
 ---
 
-## 與 dodo/backend 的整合
+## API base URL
 
-舊版 ai-game 是 **Fastify 同 process 同時 serve `/public/*` static 與 `/api/*` JSON**。
-搬到 dodo 之後：
+**Single source of truth**：`window.DODO_API_BASE`（在 `public/config.js` 解析）。
+所有 `fetch()` 呼叫一律 `fetch(API + path, ...)`，其中 `const API = window.DODO_API_BASE || ...`（見 `app.js`）。
 
-- **後端**：`../backend/`（Laravel 13）只 serve `/api/*`，不再服務 web bundle
-- **前端**：`./public/` 由 Capacitor 打包進 iOS app；本機開發可用 `npm run serve` 跑 localhost:5173
-- **API endpoint**：`public/config.js` 或 `app.js` 內的 API base URL 必須改指向 Laravel
+**解析優先順序**（第一個非空值勝出）：
 
-⚠️ **下一個 session 必須做**：
-1. grep `public/` 找所有寫死的 `/api/...` 呼叫，確認契約對得上 dodo/backend 的 12 條新 endpoint
-2. 把 `localhost:8080`（舊 Fastify）改成 `localhost:8000`（Laravel `php artisan serve`）或環境變數
-3. 把舊版 LINE / Apple OAuth 流程改成 Sanctum register/login（或保留並讓 backend 接 OAuth callback）
-4. `cap sync ios` → 開 Xcode 驗證 build 跑得起來
+1. `?api=...` query string（會寫進 `sessionStorage` 持久化到下次刷新）
+2. `window.DODO_API_BASE` 在 `index.html` 顯式設定
+3. `window.DOUDOU_API_BASE`（legacy，向後相容）
+4. 自動判斷：
+   - Capacitor / `file://` shell → `PROD_API` 常數（`config.js` 內）
+   - `localhost` / `127.0.0.1` → `http://localhost:8765/api`
+   - 其他 web origin → `/api`（同 origin）
+
+**production 部署**：
+- 在 `config.js` 改 `PROD_API` 常數，或
+- 在 build 時在 `index.html` `<head>` 加 `<script>window.DODO_API_BASE = 'https://...'</script>`
+
+---
+
+## 本機開發流程
+
+```bash
+# terminal 1 — Laravel backend
+cd /Users/chris/freeco/pandora/dodo/backend
+php artisan serve --port=8765
+
+# terminal 2 — frontend static server
+cd /Users/chris/freeco/pandora/dodo/frontend
+npx http-server public -p 5173 -c-1
+#   或：python3 -m http.server 5173 --directory public
+
+# 瀏覽器
+open http://localhost:5173/                 # 主 app
+open http://localhost:5173/dev-smoke.html   # API smoke test
+# 想覆寫 base：http://localhost:5173/?api=http://localhost:9000/api
+```
+
+`config.js` 偵測 `localhost` 時會自動指向 `http://localhost:8765/api`，所以一般情況下不用帶 `?api=`。
+
+---
+
+## CORS
+
+前端 `:5173` ↔ 後端 `:8765` 是跨 origin。後端 `backend/config/cors.php` 已加：
+
+```php
+'paths' => ['api/*', 'sanctum/csrf-cookie'],
+'allowed_origins' => [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:5174',
+    'http://localhost:8080',
+],
+'allowed_headers' => ['*'],   // 包含 Authorization、Content-Type
+```
+
+production 上線前要把 `allowed_origins` 收緊到實際的 web origin（Capacitor 走 `file://` / `capacitor://` 不觸發瀏覽器 CORS，可不列）。
+
+---
+
+## Auth（Sanctum bearer）
+
+- token 從 `POST /api/auth/login` 或 `POST /api/auth/register` 拿，存 `localStorage.doudou_token`
+- 所有 `fetch` 透過 `app.js` 的 `api()` helper 自動帶 `Authorization: Bearer ...`
+- 收到 `401` 時 `api()` helper 會自動清掉 stale token（`doudou_user` / `doudou_token`），下次 render 由 SPA 自己處理 onboarding / login
+
+OAuth（LINE / Apple Sign-In）目前**前端沒程式碼**，等 [Pandora Core Identity](../../docs/adr/ADR-001-identity-service.md) ship 後再加 SSO bootstrap module（`MIGRATION_NOTES.md` 有規劃）。
+
+---
+
+## Endpoint mapping（Fastify → Laravel）
+
+詳見 [`MIGRATION_NOTES.md`](MIGRATION_NOTES.md)。摘要：
+
+- ✅ 已對應的 endpoint：56 條 Laravel routes 涵蓋 bootstrap / auth / meals / cards / checkin / quests / chat / paywall / referral / push / analytics / account
+- ⚠️ 已知 TODO（前端會打但 Laravel 還沒）：
+  - `GET /api/foods/search`（Phase B+ 手動食物 picker）
+  - `POST /api/cards/event-draw`、`event-skip`、`event-offer/...`、`scene-draw`（Phase B+ NPC / 劇情卡）
+
+---
+
+## SSE / streaming / 上傳
+
+目前前端沒用 `EventSource`、`ReadableStream`、`multipart/form-data`：
+
+- chat 用 `POST /api/chat/message` 一次回一段（非 streaming）
+- meals/scan 用 JSON `{ image_base64 }` 而不是 multipart
+- analytics / client-errors 是 fire-and-forget JSON POST
+
+未來若改 streaming（chat 邊打邊吐），不能用 `EventSource`（無法帶 `Authorization` header），要改 `fetch + ReadableStream + TextDecoder`。
 
 ---
 
 ## 執行指令
 
 ```bash
-cd dodo/frontend
+cd /Users/chris/freeco/pandora/dodo/frontend
 npm install                    # 裝 Capacitor + http-server
-npm run serve                  # 本機開 http://localhost:5173 看 web bundle
+npx http-server public -p 5173 # 本機 web 預覽
 
-# iOS（需 macOS + Xcode）
-npm run cap:sync:ios
-npm run cap:open:ios           # 開啟 Xcode
+# iOS（需 macOS + Xcode）— 由 user 之後執行
+npx cap sync ios
+npx cap open ios
 ```
 
 ---
@@ -58,12 +136,5 @@ npm run cap:open:ios           # 開啟 Xcode
 
 - ai-game/ios 的 Xcode 專案有絕對路徑 reference，貿然刪除會破壞舊版 build
 - ai-game/ 仍是「上 production 前的可運作參考」（依 ADR-002）
-- 集團 CLAUDE.md 寫「目錄並列策略：ai-game 保留至 Phase G 上架成功 + 1 個月」
+- 集團 CLAUDE.md：「目錄並列策略：ai-game 保留至 Phase G 上架成功 + 1 個月」
 - 本目錄做完 endpoint 調整、cap sync 跑通、產出新 iOS build 後，再從 ai-game/ 刪除原版
-
----
-
-## 與 pandora.js-store 結構對齊
-
-母艦 `pandora.js-store/` 是 `backend/` + `frontend/` 並列。本 repo 同樣 `backend/` + `frontend/`。
-這樣集團工具鏈、agent prompts、CI workflow 都能套用一致 pattern。
