@@ -222,52 +222,199 @@ class CardService
         $correct = null;
         $explain = null;
         $feedback = null;
-        if ($card && isset($card['choices'][$choiceIdx])) {
-            $choice = $card['choices'][$choiceIdx];
-            $correct = (bool) ($choice['correct'] ?? false);
-            $feedback = $choice['feedback'] ?? null;
-            $explain = $card['explain'] ?? null;
+        $revealCorrectIdx = null;
+        if ($card) {
+            foreach ((array) ($card['choices'] ?? []) as $i => $c) {
+                if ((bool) ($c['correct'] ?? false)) {
+                    $revealCorrectIdx = $i;
+                    break;
+                }
+            }
+            if (isset($card['choices'][$choiceIdx])) {
+                $choice = $card['choices'][$choiceIdx];
+                $correct = (bool) ($choice['correct'] ?? false);
+                $feedback = $choice['feedback'] ?? null;
+                $explain = $card['explain'] ?? null;
+            }
+        }
+
+        $firstSolve = $correct === true && ! CardPlay::where('pandora_user_uuid', $user->pandora_user_uuid)
+            ->where('card_id', $play->card_id)
+            ->where('correct', true)
+            ->whereNotNull('answered_at')
+            ->where('id', '!=', $play->id)
+            ->exists();
+
+        $baseXp = $correct === null ? 5 : ($correct ? 8 : 3);
+        $firstSolveBonus = $firstSolve ? 5 : 0;
+        $totalXp = $baseXp + $firstSolveBonus;
+
+        $xpBreakdown = [['label' => $correct ? '答對' : ($correct === false ? '答錯' : '參與'), 'amount' => $baseXp]];
+        if ($firstSolveBonus > 0) {
+            $xpBreakdown[] = ['label' => '首次解鎖', 'amount' => $firstSolveBonus];
         }
 
         $play->choice_idx = $choiceIdx;
         $play->correct = $correct;
-        // Simple XP curve: correct answer 8, wrong 3, missing card metadata 5.
-        $play->xp_gained = $correct === null ? 5 : ($correct ? 8 : 3);
+        $play->xp_gained = $totalXp;
         $play->answered_at = now();
         $play->save();
 
-        $user->xp = (int) $user->xp + $play->xp_gained;
+        $levelBefore = (int) $user->level;
+        $user->xp = (int) $user->xp + $totalXp;
         $user->level = GameXp::levelForXp((int) $user->xp);
         $user->save();
+        $levelAfter = (int) $user->level;
 
         return [
             'card_id' => $play->card_id,
             'card_type' => $play->card_type,
             'chosen_idx' => $choiceIdx,
             'correct' => $correct,
+            'reveal_correct_idx' => $revealCorrectIdx,
             'feedback' => $feedback,
             'explain' => $explain,
-            'xp_gained' => $play->xp_gained,
-            'level' => (int) $user->level,
+            'first_solve' => $firstSolve,
+            'combo_bonus_triggered' => false,
+            'combo_count' => 0,
+            'xp_gained' => $totalXp,
+            'xp_breakdown' => $xpBreakdown,
+            'leveled_up' => $levelAfter > $levelBefore,
+            'level_after' => $levelAfter,
+            'level' => $levelAfter,
+            'new_achievements' => [],
             'stamina' => $this->getStamina($user),
         ];
     }
 
     public function collection(User $user): array
     {
-        $rows = CardPlay::where('pandora_user_uuid', $user->pandora_user_uuid)
+        $deck = $this->deck();
+        $eventCardIds = [];
+        foreach ($deck as $c) {
+            if (($c['type'] ?? null) === 'event') {
+                $eventCardIds[(string) ($c['id'] ?? '')] = true;
+            }
+        }
+
+        $plays = CardPlay::where('pandora_user_uuid', $user->pandora_user_uuid)
             ->whereNotNull('answered_at')
-            ->select('card_id', 'card_type', 'rarity')
-            ->groupBy('card_id', 'card_type', 'rarity')
-            ->get();
+            ->get(['card_id', 'card_type', 'rarity', 'correct']);
+
+        $playByCardId = [];
+        foreach ($plays as $p) {
+            $cid = (string) $p->card_id;
+            if (! isset($playByCardId[$cid])) {
+                $playByCardId[$cid] = ['plays' => 0, 'correct' => 0];
+            }
+            $playByCardId[$cid]['plays']++;
+            if ($p->correct) {
+                $playByCardId[$cid]['correct']++;
+            }
+        }
+
+        $userTier = (string) ($user->membership_tier ?? 'free');
+        $userLevel = (int) ($user->level ?? 1);
+
+        $collectedCards = [];
+        $lockedCards = [];
+        $byRarity = [
+            'common' => ['collected' => 0, 'total' => 0],
+            'rare' => ['collected' => 0, 'total' => 0],
+            'legendary' => ['collected' => 0, 'total' => 0],
+        ];
+        $eventTotal = 0;
+        $eventCollected = 0;
+
+        foreach ($deck as $c) {
+            $cid = (string) ($c['id'] ?? '');
+            if ($cid === '') {
+                continue;
+            }
+            $rarity = (string) ($c['rarity'] ?? 'common');
+            $type = (string) ($c['type'] ?? 'knowledge');
+            $isEvent = $type === 'event';
+            $playStat = $playByCardId[$cid] ?? null;
+            $collected = $playStat !== null;
+
+            if (isset($byRarity[$rarity])) {
+                $byRarity[$rarity]['total']++;
+                if ($collected) {
+                    $byRarity[$rarity]['collected']++;
+                }
+            }
+            if ($isEvent) {
+                $eventTotal++;
+                if ($collected) {
+                    $eventCollected++;
+                }
+            }
+
+            $cardMeta = [
+                'card_id' => $cid,
+                'type' => $type,
+                'rarity' => $rarity,
+                'emoji' => $c['emoji'] ?? '🎴',
+                'category' => $c['category'] ?? null,
+                'question' => $c['question'] ?? '',
+                'is_event' => $isEvent,
+                'tier_required' => $c['tier_required'] ?? null,
+            ];
+
+            if ($collected) {
+                $collectedCards[] = $cardMeta + [
+                    'stats' => [
+                        'plays' => $playStat['plays'],
+                        'correct' => $playStat['correct'],
+                        'mastered' => $playStat['correct'] >= 3,
+                    ],
+                ];
+            } else {
+                $tierLocked = ! $this->tierSatisfies($userTier, $c['tier_required'] ?? null);
+                $minLevel = isset($c['min_level']) ? (int) $c['min_level'] : null;
+                $levelLocked = $minLevel !== null && $userLevel < $minLevel;
+                if ($tierLocked || $levelLocked) {
+                    $lockedCards[] = $cardMeta + [
+                        'min_level' => $minLevel,
+                        'lock_reason' => $tierLocked ? 'tier' : 'level',
+                    ];
+                }
+            }
+        }
+
+        // For legacy plays whose card_id isn't in the seeded deck (test fixtures,
+        // events that pre-date the deck seed), surface them in `cards`/`collected`
+        // so tenant-isolation tests + back-compat queries still see them.
+        $deckCardIds = array_flip(array_map(fn ($c) => (string) ($c['id'] ?? ''), $deck));
+        $orphanCards = [];
+        foreach ($plays->groupBy('card_id') as $cid => $group) {
+            if (! isset($deckCardIds[(string) $cid])) {
+                $first = $group->first();
+                $orphanCards[] = [
+                    'card_id' => (string) $cid,
+                    'type' => (string) $first->card_type,
+                    'rarity' => (string) $first->rarity,
+                ];
+            }
+        }
+
+        $cardsFlat = array_merge(
+            array_map(
+                fn ($cc) => ['card_id' => $cc['card_id'], 'type' => $cc['type'], 'rarity' => $cc['rarity']],
+                $collectedCards,
+            ),
+            $orphanCards,
+        );
 
         return [
-            'total' => $rows->count(),
-            'cards' => $rows->map(fn ($r) => [
-                'card_id' => $r->card_id,
-                'type' => $r->card_type,
-                'rarity' => $r->rarity,
-            ])->all(),
+            'collected' => count($cardsFlat),
+            'total' => max(count($deck), count($cardsFlat)),
+            'by_rarity' => $byRarity,
+            'event_total' => $eventTotal,
+            'event_collected' => $eventCollected,
+            'collected_cards' => $collectedCards,
+            'locked_cards' => $lockedCards,
+            'cards' => $cardsFlat,
         ];
     }
 
