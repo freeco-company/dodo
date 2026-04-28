@@ -101,12 +101,37 @@ class IslandController extends Controller
             ->where('store_key', $scene)
             ->first();
 
+        $today = \Carbon\Carbon::today()->toDateString();
+        $consumed = (int) \App\Models\Meal::where('pandora_user_uuid', $user->pandora_user_uuid)
+            ->where('date', $today)->sum('calories');
+        $proteinConsumed = (float) \App\Models\Meal::where('pandora_user_uuid', $user->pandora_user_uuid)
+            ->where('date', $today)->sum('protein_g');
+        $calTarget = (int) ($user->daily_calorie_target ?? 1800);
+        $proteinTarget = (float) ($user->daily_protein_target_g ?? 80);
+
+        $intents = array_map(
+            fn ($h) => ['emoji' => $h['emoji'] ?? '🛒', 'label' => $h['name'] ?? $h['key'] ?? 'item'],
+            $sceneData['hotspots'] ?? [],
+        );
+
         return response()->json([
-            'scene' => $sceneData,
+            'key' => $sceneData['key'],
+            'name' => $sceneData['name'],
+            'emoji' => $sceneData['emoji'] ?? '🏪',
+            'backdrop' => $sceneData['backdrop'] ?? 'pastel',
+            'description' => $sceneData['description'] ?? '',
+            'npc' => $sceneData['npc'] ?? ['emoji' => '🧑', 'name' => '店員'],
+            'dialog' => $sceneData['dialog'] ?? [],
+            'intents' => $intents,
+            'user_state' => [
+                'remaining_calories' => max(0, $calTarget - $consumed),
+                'protein_needed_g' => max(0, (int) ($proteinTarget - $proteinConsumed)),
+            ],
             'unlocked' => $tierOk && $levelOk,
             'lock_reason' => ! $tierOk ? 'tier' : (! $levelOk ? 'level' : null),
             'visit_count' => $visit ? (int) $visit->visit_count : 0,
             'entitlements' => $this->entitlements->get($user),
+            'scene' => $sceneData,
         ]);
     }
 
