@@ -41,10 +41,9 @@ class OutfitController extends Controller
             if (! $unlocked) {
                 $unlocked = match ($o['unlock_type']) {
                     'default' => true,
-                    'level' => $level >= (int) ($o['unlock_value'] ?? 999),
-                    'streak' => $longest >= (int) ($o['unlock_value'] ?? 999),
-                    'fp_lifetime' => $isFpLifetime,
-                    default => false,
+                    'level' => $level >= (int) $o['unlock_value'],
+                    'streak' => $longest >= (int) $o['unlock_value'],
+                    default => $isFpLifetime,
                 };
             }
 

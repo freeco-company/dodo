@@ -62,7 +62,7 @@ class SuggestController extends Controller
         return response()->json([
             'next_meal_type' => $next,
             'message' => "建議的{$next}選項",
-            'food_suggestions' => $defaults[$next] ?? [],
+            'food_suggestions' => $defaults[$next],
         ]);
     }
 }
