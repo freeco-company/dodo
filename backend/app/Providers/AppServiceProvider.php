@@ -2,10 +2,15 @@
 
 namespace App\Providers;
 
+use App\Events\ConversionEventPublished;
+use App\Events\UserOptedOutFranchiseCta;
+use App\Listeners\RecordFranchiseLead;
+use App\Listeners\SilenceFranchiseLeads;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Observers\SubscriptionObserver;
 use App\Observers\UserObserver;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -29,5 +34,11 @@ class AppServiceProvider extends ServiceProvider
 
         // Phase E — Subscription state machine writes mirror to legacy User columns.
         Subscription::observe(SubscriptionObserver::class);
+
+        // UX sensitivity follow-up — write franchise leads inbox & honor opt-out.
+        // 不放 EventServiceProvider 是為了讓 wiring 集中在這個 boot()，避免
+        // 朵朵 repo 為了兩條 listener 多生一個 provider 檔。
+        Event::listen(ConversionEventPublished::class, RecordFranchiseLead::class);
+        Event::listen(UserOptedOutFranchiseCta::class, SilenceFranchiseLeads::class);
     }
 }

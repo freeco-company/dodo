@@ -830,69 +830,96 @@ async function hydrateBootstrap() {
   }
 }
 
-// ADR-008 §2.1 §4 — Franchise CTA banner with stage-differentiated copy.
+// ADR-003 §2.3 / ADR-008 — Franchise consultation CTA (gentle, opt-outable).
 //
 // Server returns { status, show_franchise_cta, show_operator_portal, franchise_url }.
 // Banner shows when show_franchise_cta === true. franchisee_active uses the
 // operator portal hook (not the banner) — server flips show_franchise_cta=false
 // for that stage so this function naturally hides.
 //
-// Stage → copy matrix (ADR-008 §4 task spec):
-//   loyalist             → 「你已經連續使用 14 天，加盟自用回本只要 N 個月，要了解？」
-//   applicant            → 「諮詢加盟方案 — 自用客也能加盟省錢，看看回本試算 →」
-//   franchisee_self_use  → 「想擴大經營？看仙女學院經營者課程 →」(導 operator portal)
-//   franchisee_active    → (banner hidden; operator portal hook handled elsewhere)
+// UX sensitivity rules layered on top of the server decision (ADR-008 + UX 4 constraints):
+//   1) per-session render-once: sessionStorage flag prevents banner from
+//      reappearing if user switches tabs within the same session
+//   2) 30-day local dismiss: close (x) button writes localStorage cooldown
+//   3) permanent silence: server-side via /api/me/franchise-cta-silence
+//      (flag returned in show_franchise_cta=false from bootstrap)
+//   4) copy is inquiry-toned (gentle), not push-toned
+//   5) stage-aware copy (loyalist / applicant / franchisee_self_use)
 //
-// Fair Trade Act compliance (公平交易法 §21 / ADR-008 §7):
-//   - 鼓勵詞：自用回本 / 親友合購 / 省錢 / 省 N%
+// Fair Trade Act compliance (公平交易法 §21 / dodo CLAUDE.md / ADR-003 §6 / ADR-008 §7):
+//   - 鼓勵詞：自用回本 / 親友合購 / 省錢 / 有興趣的話 / 再點
 //   - 禁字（同步 BootstrapLifecycleTest ban-words lint）：
-//     下線 / 分潤 / 推薦獎金 / 招募 / 金字塔 / 老鼠會 / 合作夥伴 / 升級加盟方案
+//     下線 / 分潤 / 推薦獎金 / 招募 / 金字塔 / 老鼠會 / 合作夥伴 / 升級加盟方案 / 立刻 / 馬上 / 快速
 //   - 文案在前端 hardcode，後端絕不送中文 copy。
+const FRANCHISE_CTA_DISMISS_KEY = 'franchise_cta_dismissed_until';
+const FRANCHISE_CTA_SESSION_KEY = 'franchise_cta_shown';
+const FRANCHISE_CTA_DISMISS_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+
 const FRANCHISE_CTA_COPY = {
   loyalist: {
-    icon: '🎯',
-    title: '你已經連續使用 14 天',
-    sub: '加盟自用回本只要 N 個月，要了解嗎？',
-    link: '看回本試算 →',
+    title: '有興趣的話，了解一下加盟自用回本？',
+    sub: '親友合購、自用省錢，不感興趣可以隨時關閉',
+    link: '看看試算',
   },
   applicant: {
-    icon: '💰',
-    title: '諮詢加盟方案',
-    sub: '自用客也能加盟省錢，看看回本試算',
-    link: '看回本試算 →',
+    title: '諮詢加盟方案 — 自用客也能省錢，要看試算嗎？',
+    sub: '已表示過興趣，提供試算給你參考',
+    link: '看看試算',
   },
   franchisee_self_use: {
-    icon: '🌱',
-    title: '想擴大經營？',
-    sub: '看仙女學院經營者課程，從自用到親友合購',
-    link: '前往仙女學院 →',
+    title: '想擴大經營？仙女學院有經營者課程，有興趣再點',
+    sub: '不打擾，僅供參考',
+    link: '了解課程',
   },
+  // franchisee_active 不顯示 — server 應該 return show_franchise_cta=false
 };
+
+function franchiseCtaIsDismissed() {
+  try {
+    const until = Number(localStorage.getItem(FRANCHISE_CTA_DISMISS_KEY) || 0);
+    return until > Date.now();
+  } catch { return false; }
+}
+
+function franchiseCtaMarkDismissed() {
+  try {
+    localStorage.setItem(FRANCHISE_CTA_DISMISS_KEY, String(Date.now() + FRANCHISE_CTA_DISMISS_MS));
+  } catch {}
+}
+
 
 function renderFranchiseCta(lifecycle) {
   const banner = document.querySelector('#franchise-cta');
   if (!banner) return;
-  const show = !!(lifecycle && lifecycle.show_franchise_cta && lifecycle.franchise_url);
-  if (!show) {
-    banner.classList.add('hidden');
-    return;
-  }
-  // Pick copy based on stage; default to applicant tone if unrecognised stage.
-  const stage = (lifecycle && lifecycle.status) || 'applicant';
-  const copy = FRANCHISE_CTA_COPY[stage] || FRANCHISE_CTA_COPY.applicant;
 
-  const iconEl = banner.querySelector('.franchise-cta-icon');
-  const titleEl = banner.querySelector('.franchise-cta-title');
-  const subEl = banner.querySelector('.franchise-cta-sub');
+  // 5 layered guards — any single one being true → not shown.
+  // Order matters: cheapest checks first.
+  if (franchiseCtaIsDismissed()) { banner.classList.add('hidden'); return; }
+  try {
+    if (sessionStorage.getItem(FRANCHISE_CTA_SESSION_KEY) === '1') {
+      banner.classList.add('hidden'); return;
+    }
+  } catch {}
+
+  const show = !!(lifecycle && lifecycle.show_franchise_cta && lifecycle.franchise_url);
+  if (!show) { banner.classList.add('hidden'); return; }
+
+  // Stage-specific copy (the franchisee_active case never reaches here because
+  // server returns show_franchise_cta=false for that stage).
+  const stage = lifecycle.status || 'loyalist';
+  const copy = FRANCHISE_CTA_COPY[stage] || FRANCHISE_CTA_COPY.loyalist;
+  const titleEl = banner.querySelector('#franchise-cta-title') || banner.querySelector('.franchise-cta-title');
+  const subEl = banner.querySelector('#franchise-cta-sub') || banner.querySelector('.franchise-cta-sub');
   const link = banner.querySelector('.cta-link');
-  if (iconEl) iconEl.textContent = copy.icon;
   if (titleEl) titleEl.textContent = copy.title;
   if (subEl) subEl.textContent = copy.sub;
   if (link) {
-    link.href = lifecycle.franchise_url;
     link.textContent = copy.link;
+    link.href = lifecycle.franchise_url;
   }
+
   banner.classList.remove('hidden');
+  try { sessionStorage.setItem(FRANCHISE_CTA_SESSION_KEY, '1'); } catch {}
 
   // Fire view event once per bootstrap (server-side dedup is the safety net).
   api('POST', '/franchise/cta-view', { source: 'me_tab', stage }).catch((err) => {
@@ -900,19 +927,53 @@ function renderFranchiseCta(lifecycle) {
   });
 }
 
-// Wire CTA click — fire cta-click event then open the franchise URL in a new tab.
-// Bound once on DOMContentLoaded; the banner element may start hidden but the
-// listener attaches to a stable DOM node.
+// Wire CTA close (x), CTA click, and Me-tab preferences toggle.
 document.addEventListener('DOMContentLoaded', () => {
-  const link = document.querySelector('#franchise-cta .cta-link');
-  if (!link) return;
-  link.addEventListener('click', (ev) => {
-    // Don't preventDefault — let the default new-tab navigation happen so the
-    // user lands on the consultation page even if the analytics call fails.
-    api('POST', '/franchise/cta-click', { source: 'me_tab' }).catch((err) => {
-      console.warn('[franchise-cta] click event failed (non-fatal):', err && err.message);
+  const banner = document.querySelector('#franchise-cta');
+
+  // Close (x) — 30 day cooldown, no analytics ping (we respect the user;
+  // server doesn't need to know about every hide).
+  const closeBtn = document.querySelector('#franchise-cta-close');
+  if (closeBtn && banner) {
+    closeBtn.addEventListener('click', () => {
+      franchiseCtaMarkDismissed();
+      banner.classList.add('hidden');
     });
-  });
+  }
+
+  // CTA click — fire analytics, then default new-tab nav happens.
+  const link = document.querySelector('#franchise-cta .cta-link');
+  if (link) {
+    link.addEventListener('click', () => {
+      api('POST', '/franchise/cta-click', { source: 'me_tab' }).catch((err) => {
+        console.warn('[franchise-cta] click event failed (non-fatal):', err && err.message);
+      });
+    });
+  }
+
+  // Me-tab opt-out toggle — permanent silence (server-side).
+  const toggle = document.querySelector('#pref-franchise-silence');
+  if (toggle) {
+    // Initial state from cached bootstrap: if server says show=false because of
+    // silenced flag, we don't have a direct boolean exposed yet. We use a
+    // localStorage echo so the toggle reflects user's last action even after
+    // bootstrap noop. Server is still authoritative on actual display.
+    try { toggle.checked = localStorage.getItem('franchise_cta_silenced') === '1'; } catch {}
+
+    toggle.addEventListener('change', async () => {
+      const silenced = !!toggle.checked;
+      try {
+        await api('POST', '/me/franchise-cta-silence', { silenced });
+        try { localStorage.setItem('franchise_cta_silenced', silenced ? '1' : '0'); } catch {}
+        if (silenced && banner) banner.classList.add('hidden');
+        // 不彈 alert：尊重使用者，避免 friction
+      } catch (err) {
+        console.warn('[franchise-cta] silence toggle failed:', err && err.message);
+        // 還原 toggle 狀態以反映實際 server 狀態
+        toggle.checked = !silenced;
+      }
+    });
+  }
 });
 // Convenience getter: `cfg('goal_cheers.water')` walks the config tree.
 function cfg(path, fallback = null) {

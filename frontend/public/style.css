@@ -1130,42 +1130,92 @@ button { font-family: inherit; letter-spacing: 0.04em; }
  * 視覺上比 .me-entry 更「金色 / 主動推進」一些，但避免過度刺激（不閃 / 不脈動）。
  * 中性配色：象牙白底 + 金色描邊 + 深褐字，不踩警告色（紅 / 黃）
  */
+/*
+ * ADR-008 UX sensitivity — gentle, pastel, opt-outable.
+ * 拆掉前一版金色描邊 + gradient（過於主動 / 廣告感太重），改用淡灰 + 微綠的
+ * 平和配色，視覺上像「資訊提示」而不是「促銷 banner」。
+ */
 .franchise-cta {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 16px 18px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #FFFBEF 0%, #FFF1D6 100%);
-  border: 2px solid #D4A24C;
-  box-shadow: 0 4px 14px rgba(212, 162, 76, .14);
+  gap: 12px;
+  padding: 14px 36px 14px 16px; /* 右側留白給 close button */
+  border-radius: 14px;
+  background: #F7F6F2; /* 米白 */
+  border: 1px solid #E2E0D8;
+  box-shadow: none;
   margin: 4px 0;
 }
-.franchise-cta-icon { font-size: 28px; flex-shrink: 0; line-height: 1; }
+.franchise-cta-icon { font-size: 22px; flex-shrink: 0; line-height: 1; opacity: .85; }
 .franchise-cta-body { flex: 1; min-width: 0; }
-.franchise-cta-title { font-size: 15px; font-weight: 700; color: #6E4F1A; margin-bottom: 3px; }
-.franchise-cta-sub { font-size: 12px; color: #8B6F3D; line-height: 1.5; }
+.franchise-cta-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #3F4A3D; /* 微綠墨色 */
+  margin-bottom: 2px;
+  line-height: 1.4;
+}
+.franchise-cta-sub { font-size: 11px; color: #7A8278; line-height: 1.5; }
 .franchise-cta .cta-link {
   display: inline-block;
-  padding: 8px 14px;
+  padding: 6px 12px;
   border-radius: 999px;
-  background: #D4A24C;
-  color: #fff;
-  font-size: 13px;
+  background: #DDE5D6; /* pastel 微綠 */
+  color: #3F4A3D;
+  font-size: 12px;
   font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: background .15s, transform .15s;
+  border: 1px solid #C9D3BE;
+  transition: background .15s;
 }
-.franchise-cta .cta-link:hover { background: #B8862E; transform: translateY(-1px); }
-.franchise-cta .cta-link:active { transform: scale(.97); }
+.franchise-cta .cta-link:hover { background: #CFDAC5; }
+.franchise-cta .cta-link:active { transform: scale(.98); }
 .franchise-cta.hidden { display: none; }
 
+/* Close (x) button — 明顯但不刺眼。右上角 small icon。 */
+.franchise-cta-close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: #9AA29A;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background .15s, color .15s;
+}
+.franchise-cta-close:hover { background: rgba(0,0,0,.06); color: #5A615A; }
+.franchise-cta-close:focus-visible { outline: 2px solid #C9D3BE; outline-offset: 2px; }
+
 @media (max-width: 360px) {
-  .franchise-cta { flex-wrap: wrap; }
+  .franchise-cta { flex-wrap: wrap; padding-right: 36px; }
   .franchise-cta .cta-link { width: 100%; text-align: center; margin-top: 4px; }
 }
+
+/* Me-tab preferences card — toggle row */
+.me-pref-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  cursor: pointer;
+}
+.me-pref-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.me-pref-title { font-size: 13px; font-weight: 600; color: #3F4A3D; }
+.me-pref-sub { font-size: 11px; color: #7A8278; line-height: 1.5; }
+.me-pref-toggle { width: 20px; height: 20px; flex-shrink: 0; cursor: pointer; }
 
 /* Tab content panel fade+slide on switch (only when tab actually switches via JS) */
 #tab-home, #tab-scan, #tab-chat, #tab-calendar, #tab-wardrobe, #tab-pokedex, #tab-achievements, #tab-report, #tab-me {
