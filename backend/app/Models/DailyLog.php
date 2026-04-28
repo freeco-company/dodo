@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasPandoraUserUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,10 +10,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class DailyLog extends Model
 {
-    use HasFactory;
+    use HasFactory, HasPandoraUserUuid;
 
     protected $fillable = [
-        'legacy_id', 'user_id', 'date',
+        'legacy_id', 'user_id', 'pandora_user_uuid', 'date',
         'total_score', 'calorie_score', 'protein_score',
         'consistency_score', 'exercise_score', 'hydration_score',
         'total_calories', 'total_protein_g', 'total_carbs_g', 'total_fat_g', 'total_fiber_g',

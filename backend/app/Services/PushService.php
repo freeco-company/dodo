@@ -25,6 +25,8 @@ class PushService
         DB::table('push_tokens')->upsert(
             [[
                 'user_id' => $user->id,
+                // Phase D Wave 1 dual-write
+                'pandora_user_uuid' => $user->pandora_user_uuid,
                 'platform' => $platform,
                 'token' => $token,
                 'device_info' => $deviceInfo ? json_encode($deviceInfo, JSON_UNESCAPED_UNICODE) : null,
@@ -33,7 +35,7 @@ class PushService
                 'disabled_at' => null,
             ]],
             ['platform', 'token'],
-            ['user_id', 'device_info', 'last_seen_at', 'disabled_at']
+            ['user_id', 'pandora_user_uuid', 'device_info', 'last_seen_at', 'disabled_at']
         );
 
         $row = DB::table('push_tokens')

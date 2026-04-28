@@ -21,6 +21,8 @@ class RatingPromptService
     {
         DB::table('rating_prompt_events')->insert([
             'user_id' => $user->id,
+            // Phase D Wave 1 dual-write
+            'pandora_user_uuid' => $user->pandora_user_uuid,
             'event_kind' => $kind,
             'created_at' => now(),
         ]);

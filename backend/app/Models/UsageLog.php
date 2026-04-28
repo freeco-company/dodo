@@ -2,18 +2,19 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasPandoraUserUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UsageLog extends Model
 {
-    use HasFactory;
+    use HasFactory, HasPandoraUserUuid;
 
     protected $table = 'usage_logs';
 
     protected $fillable = [
-        'legacy_id', 'user_id', 'date', 'kind', 'model', 'tokens',
+        'legacy_id', 'user_id', 'pandora_user_uuid', 'date', 'kind', 'model', 'tokens',
     ];
 
     protected function casts(): array

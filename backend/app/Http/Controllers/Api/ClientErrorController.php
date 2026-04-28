@@ -23,6 +23,8 @@ class ClientErrorController extends Controller
         ]);
         DB::table('client_errors')->insert([
             'user_id' => $request->user()?->id,
+            // Phase D Wave 1 dual-write — 匿名 user 兩欄都 null
+            'pandora_user_uuid' => $request->user()?->pandora_user_uuid,
             'message' => $data['message'],
             'stack' => $data['stack'] ?? null,
             'context' => isset($data['context']) ? json_encode($data['context'], JSON_UNESCAPED_UNICODE) : null,

@@ -21,6 +21,8 @@ class PaywallService
     {
         DB::table('paywall_events')->insert([
             'user_id' => $user->id,
+            // Phase D Wave 1 dual-write
+            'pandora_user_uuid' => $user->pandora_user_uuid,
             'event_kind' => $kind,
             'trigger' => $trigger,
             'properties' => json_encode($properties, JSON_UNESCAPED_UNICODE),

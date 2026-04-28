@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasPandoraUserUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class WeeklyReport extends Model
 {
-    use HasFactory;
+    use HasFactory, HasPandoraUserUuid;
 
     protected $fillable = [
-        'legacy_id', 'user_id', 'week_start', 'week_end',
+        'legacy_id', 'user_id', 'pandora_user_uuid', 'week_start', 'week_end',
         'avg_score', 'daily_scores', 'weight_change',
         'level_before', 'level_after', 'top_foods',
         'letter_content', 'read_at',
