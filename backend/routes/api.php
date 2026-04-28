@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\IdentityWebhookController;
 use App\Http\Controllers\Api\InteractController;
 use App\Http\Controllers\Api\JourneyController;
 use App\Http\Controllers\Api\MealController;
+use App\Http\Controllers\Api\MePreferencesController;
 use App\Http\Controllers\Api\MetaController;
 use App\Http\Controllers\Api\PaywallController;
 use App\Http\Controllers\Api\PushController;
@@ -140,6 +141,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // ADR-003 §2.3 加盟漏斗 CTA 事件
     Route::post('/franchise/cta-view', [FranchiseController::class, 'ctaView']);
     Route::post('/franchise/cta-click', [FranchiseController::class, 'ctaClick']);
+
+    // ADR-008 UX sensitivity — 使用者主動關閉 / 重新開啟 franchise CTA
+    Route::post('/me/franchise-cta-silence', [MePreferencesController::class, 'franchiseCtaSilence']);
 
     Route::post('/referrals/redeem', [ReferralController::class, 'redeem']);
     Route::get('/referrals/me', [ReferralController::class, 'me']);

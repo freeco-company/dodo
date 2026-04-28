@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\DodoUser;
 use App\Services\AppConfigService;
 use App\Services\Conversion\ConversionEventPublisher;
 use App\Services\Conversion\LifecycleClient;
@@ -84,6 +85,11 @@ class BootstrapController extends Controller
      * ADR-008 §2.1 §3.3: response 多送一個 `show_operator_portal` boolean，
      * 給段 2「想擴大經營」鉤子用（franchisee_active 才為 true）。
      *
+     * UX sensitivity (4 條 user constraint)：使用者若已主動 opt-out
+     * （dodo_users.franchise_cta_silenced = true），即使後端 lifecycle stage 算出
+     * loyalist / applicant，也**不**回 show_franchise_cta=true。這代表使用者
+     * 「我不想被推銷」的強訊號，prefer 客人感受 over 漏斗 KPI。
+     *
      * @return array{status: string, show_franchise_cta: bool, show_operator_portal: bool, franchise_url: string}
      */
     private function lifecycleBlock(?string $pandoraUserUuid): array
@@ -92,9 +98,15 @@ class BootstrapController extends Controller
             ? $this->lifecycle->getStatus($pandoraUserUuid)
             : LifecycleClient::DEFAULT_STAGE;
 
+        $stageEligible = in_array($status, self::CTA_ELIGIBLE_STAGES, true);
+        $userSilenced = $pandoraUserUuid !== null && $pandoraUserUuid !== ''
+            && DodoUser::query()
+                ->whereKey($pandoraUserUuid)
+                ->value('franchise_cta_silenced') === true;
+
         return [
             'status' => $status,
-            'show_franchise_cta' => in_array($status, self::CTA_ELIGIBLE_STAGES, true),
+            'show_franchise_cta' => $stageEligible && ! $userSilenced,
             'show_operator_portal' => in_array($status, self::OPERATOR_PORTAL_STAGES, true),
             'franchise_url' => (string) config(
                 'services.pandora_conversion.franchise_url',

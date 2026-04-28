@@ -76,6 +76,8 @@ use Illuminate\Support\Carbon;
  * @property ?Carbon $disclaimer_ack_at
  * @property ?string $referral_code
  * @property bool $push_enabled
+ * @property bool $franchise_cta_silenced
+ * @property ?Carbon $franchise_cta_silenced_at
  * @property ?Carbon $deletion_requested_at
  * @property ?Carbon $hard_delete_after
  */
@@ -124,6 +126,9 @@ class DodoUser extends Model
         // app-internal state
         'onboarded_at', 'disclaimer_ack_at', 'referral_code', 'push_enabled',
 
+        // UX sensitivity — 使用者主動關閉加盟 CTA（永久靜音）
+        'franchise_cta_silenced', 'franchise_cta_silenced_at',
+
         // account deletion
         'deletion_requested_at', 'hard_delete_after',
     ];
@@ -166,6 +171,10 @@ class DodoUser extends Model
         'onboarded_at' => 'datetime',
         'disclaimer_ack_at' => 'datetime',
         'push_enabled' => 'boolean',
+
+        // UX sensitivity
+        'franchise_cta_silenced' => 'boolean',
+        'franchise_cta_silenced_at' => 'datetime',
 
         // deletion
         'deletion_requested_at' => 'datetime',

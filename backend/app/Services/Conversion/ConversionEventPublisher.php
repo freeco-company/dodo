@@ -2,6 +2,7 @@
 
 namespace App\Services\Conversion;
 
+use App\Events\ConversionEventPublished;
 use App\Jobs\PublishConversionEventJob;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
@@ -136,6 +137,14 @@ class ConversionEventPublisher
         // successful one. py-service is also idempotent enough to absorb the
         // occasional duplicate.
         PublishConversionEventJob::dispatch($body);
+
+        // Broadcast Laravel event for internal listeners (e.g. RecordFranchiseLead).
+        // See docblock on App\Events\ConversionEventPublished for rationale.
+        event(new ConversionEventPublished(
+            pandoraUserUuid: $pandoraUserUuid,
+            eventType: $eventType,
+            payload: $body['payload'],
+        ));
 
         // Cache-bust lifecycle for events that may trigger a stage transition on
         // py-service. We don't know exactly when py-service will evaluate the

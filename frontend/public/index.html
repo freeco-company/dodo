@@ -753,21 +753,42 @@
       </button>
 
       <!--
-        ADR-008 section 2.1 / 4 — 自用回本 CTA banner（取代 ADR-003 「合作夥伴」文案）.
-        Visibility & copy 由 lifecycle stage 決定（loyalist / applicant / franchisee_self_use 三檔差異化文案）；
-        渲染由 frontend/public/app.js renderFranchiseCta() 負責，後端只送 stage + url。
-        Copy compliance（公平交易法 §21 / ADR-008 §7）：
-          鼓勵詞：自用回本 / 親友合購 / 省錢 / 省 N%
-          禁字：下線 / 分潤 / 推薦獎金 / 招募 / 金字塔 / 老鼠會 / 合作夥伴 / 升級加盟方案
-        See dodo CLAUDE.md and tests/Feature/Api/BootstrapLifecycleTest.php for the lint.
+        ADR-003 §2.3 / ADR-008 §2.1 §4 — Franchise consultation CTA (gentle / opt-outable / 自用回本訴求).
+        Visibility controlled by server (lifecycle.show_franchise_cta); starts hidden.
+        Stage-aware copy & 5 UX sensitivity guards 由 frontend/public/app.js renderFranchiseCta() 負責。
+        Copy compliance（公平交易法 §21 / dodo CLAUDE.md / ADR-003 §6 / ADR-008 §7）：
+          鼓勵詞：自用回本 / 親友合購 / 省錢 / 有興趣的話 / 再點
+          禁字：下線 / 分潤 / 推薦獎金 / 招募 / 金字塔 / 老鼠會 / 合作夥伴 / 升級加盟方案 / 立刻 / 馬上 / 快速
+
+        UX sensitivity rules baked in:
+          - close (×) 按鈕 → 30 天 local cooldown
+          - per-session render once (sessionStorage flag)
+          - permanent silence via Me-tab preferences (server-side flag)
+          - copy uses inquiry tone ("有興趣的話") not push tone
       -->
-      <div id="franchise-cta" class="franchise-cta hidden" role="region" aria-label="加盟自用回本">
-        <div class="franchise-cta-icon" aria-hidden="true">💰</div>
+      <div id="franchise-cta" class="franchise-cta hidden" role="region" aria-label="加盟自用方案資訊">
+        <button class="franchise-cta-close" id="franchise-cta-close" type="button" aria-label="暫時關閉這個提醒">×</button>
+        <div class="franchise-cta-icon" aria-hidden="true">🌿</div>
         <div class="franchise-cta-body">
-          <div class="franchise-cta-title">加盟自用更省錢</div>
-          <div class="franchise-cta-sub">自用客也能加盟省錢，看看回本試算</div>
+          <div class="franchise-cta-title" id="franchise-cta-title">有興趣的話，了解一下加盟自用回本？</div>
+          <div class="franchise-cta-sub" id="franchise-cta-sub">親友合購、自用省錢，不感興趣可以隨時關閉</div>
         </div>
-        <a class="cta-link" href="#" target="_blank" rel="noopener" data-track="franchise.cta_click">看回本試算 →</a>
+        <a class="cta-link" href="#" target="_blank" rel="noopener" data-track="franchise.cta_click">看看試算</a>
+      </div>
+
+      <!--
+        Me-tab preferences card — opt-out toggle for franchise CTA.
+        放在 me-tab 偏設區，user 主動找才看到，不主動推銷。
+      -->
+      <div class="card p-4" id="me-preferences-card" style="margin-top:12px;">
+        <div class="text-sm font-bold mb-2">🔔 通知偏好</div>
+        <label class="me-pref-row" for="pref-franchise-silence">
+          <span class="me-pref-text">
+            <span class="me-pref-title">對加盟方案不感興趣</span>
+            <span class="me-pref-sub">開啟後不再顯示加盟相關的提示</span>
+          </span>
+          <input type="checkbox" id="pref-franchise-silence" class="me-pref-toggle" />
+        </label>
       </div>
 
       <!-- Daily goals editor -->
