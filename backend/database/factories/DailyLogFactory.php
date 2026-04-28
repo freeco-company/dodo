@@ -15,7 +15,7 @@ class DailyLogFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'date' => fake()->unique()->dateTimeBetween('-30 days', 'now')->format('Y-m-d'),
+            'date' => \Carbon\Carbon::today()->subDays(fake()->unique()->numberBetween(0, 29))->format('Y-m-d'),
             'total_score' => fake()->numberBetween(40, 100),
             'calorie_score' => fake()->numberBetween(0, 100),
             'protein_score' => fake()->numberBetween(0, 100),
