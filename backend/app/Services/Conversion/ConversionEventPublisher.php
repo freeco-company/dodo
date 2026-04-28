@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * 朵朵 → Pandora Core conversion service 事件發布器（ADR-003 §2.3）。
+ * 朵朵 → Pandora Core conversion service 事件發布器（ADR-003 §2.3 + ADR-008 §2.3）。
  *
  * 設計決策：
  *
@@ -41,15 +41,37 @@ class ConversionEventPublisher
      * After dispatching such an event we forget the per-user lifecycle cache so the next
      * `LifecycleClient::getStatus()` re-fetches the (potentially upgraded) stage.
      *
-     * Why this set: `engagement.deep` is the on-ramp from registered → engaged, and
-     * `franchise.cta_click` is the on-ramp from loyalist → applicant. Other events
-     * (app.opened, cta_view) are observation-only and would just thrash the cache.
+     * Why this set (ADR-008 §2.2 / §2.3):
+     *   - `engagement.deep` (14 days, ADR-008 §2.1 §2.2) — on-ramp from visitor → loyalist
+     *   - `franchise.cta_click` — on-ramp from loyalist → applicant
+     *   - `mothership.first_order` — applicant → franchisee_self_use (婕樂纖後台首單成立)
+     *   - `mothership.consultation_submitted` — visitor/loyalist → applicant (提交諮詢表單)
+     *   - `academy.operator_portal_click` — franchisee_self_use → franchisee_active
+     *     (TODO ADR-008 §6.1 Phase D：仙女學院前端發；朵朵 backend 暫不接收，先列入轉接清單)
+     *
+     * 觀察類事件（app.opened / franchise.cta_view）不在此 — 不能 thrash cache。
      *
      * @var list<string>
      */
     private const LIFECYCLE_TRIGGERING_EVENTS = [
         'engagement.deep',
         'franchise.cta_click',
+        'mothership.first_order',
+        'mothership.consultation_submitted',
+        'academy.operator_portal_click',
+    ];
+
+    /**
+     * Events explicitly dropped (no-op) because ADR-008 retired them.
+     *
+     *   - `academy.training_progress` — ADR-003 §2.4 仙女學院 3.5hr 線上必修系統訊號。
+     *     ADR-008 §3.2 確認此訊號源作廢（3.5hr 訓練是婕樂纖人工 Zoom 課，系統不碰）。
+     *     朵朵從未實作此 event，但保留 deny-list 防止其他 App 誤用。
+     *
+     * @var list<string>
+     */
+    private const DROPPED_EVENTS = [
+        'academy.training_progress',
     ];
 
     public function __construct(
@@ -68,6 +90,18 @@ class ConversionEventPublisher
         array $payload = [],
         ?CarbonInterface $occurredAt = null,
     ): void {
+        if (in_array($eventType, self::DROPPED_EVENTS, true)) {
+            // ADR-008 §3.2: explicitly retired events. Noop silently so callers
+            // that haven't been refactored don't break, but the event never
+            // reaches py-service.
+            Log::info('[Conversion] dropping retired event (ADR-008)', [
+                'event_type' => $eventType,
+                'uuid' => $pandoraUserUuid,
+            ]);
+
+            return;
+        }
+
         if (! $this->isEnabled()) {
             Log::debug('[Conversion] publisher disabled (no base_url configured); skipping', [
                 'event_type' => $eventType,

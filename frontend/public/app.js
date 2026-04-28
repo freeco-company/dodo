@@ -830,16 +830,45 @@ async function hydrateBootstrap() {
   }
 }
 
-// ADR-003 §2.3 — Franchise consultation CTA (loyalist / applicant only).
+// ADR-008 §2.1 §4 — Franchise CTA banner with stage-differentiated copy.
 //
-// Server returns { status, show_franchise_cta, franchise_url }. We *only* render
-// when show_franchise_cta === true and a non-empty url is present. Frontend never
-// flips the boolean on its own — the server's lifecycle decision is authoritative.
+// Server returns { status, show_franchise_cta, show_operator_portal, franchise_url }.
+// Banner shows when show_franchise_cta === true. franchisee_active uses the
+// operator portal hook (not the banner) — server flips show_franchise_cta=false
+// for that stage so this function naturally hides.
 //
-// Fair Trade Act compliance (dodo CLAUDE.md / ADR-003 section 6):
-//   CTA copy must use neutral commercial terms (partner / consultation) only.
-//   index.html owns the human-readable strings; this function only toggles
-//   visibility and binds the URL — never mutates copy.
+// Stage → copy matrix (ADR-008 §4 task spec):
+//   loyalist             → 「你已經連續使用 14 天，加盟自用回本只要 N 個月，要了解？」
+//   applicant            → 「諮詢加盟方案 — 自用客也能加盟省錢，看看回本試算 →」
+//   franchisee_self_use  → 「想擴大經營？看仙女學院經營者課程 →」(導 operator portal)
+//   franchisee_active    → (banner hidden; operator portal hook handled elsewhere)
+//
+// Fair Trade Act compliance (公平交易法 §21 / ADR-008 §7):
+//   - 鼓勵詞：自用回本 / 親友合購 / 省錢 / 省 N%
+//   - 禁字（同步 BootstrapLifecycleTest ban-words lint）：
+//     下線 / 分潤 / 推薦獎金 / 招募 / 金字塔 / 老鼠會 / 合作夥伴 / 升級加盟方案
+//   - 文案在前端 hardcode，後端絕不送中文 copy。
+const FRANCHISE_CTA_COPY = {
+  loyalist: {
+    icon: '🎯',
+    title: '你已經連續使用 14 天',
+    sub: '加盟自用回本只要 N 個月，要了解嗎？',
+    link: '看回本試算 →',
+  },
+  applicant: {
+    icon: '💰',
+    title: '諮詢加盟方案',
+    sub: '自用客也能加盟省錢，看看回本試算',
+    link: '看回本試算 →',
+  },
+  franchisee_self_use: {
+    icon: '🌱',
+    title: '想擴大經營？',
+    sub: '看仙女學院經營者課程，從自用到親友合購',
+    link: '前往仙女學院 →',
+  },
+};
+
 function renderFranchiseCta(lifecycle) {
   const banner = document.querySelector('#franchise-cta');
   if (!banner) return;
@@ -848,12 +877,25 @@ function renderFranchiseCta(lifecycle) {
     banner.classList.add('hidden');
     return;
   }
+  // Pick copy based on stage; default to applicant tone if unrecognised stage.
+  const stage = (lifecycle && lifecycle.status) || 'applicant';
+  const copy = FRANCHISE_CTA_COPY[stage] || FRANCHISE_CTA_COPY.applicant;
+
+  const iconEl = banner.querySelector('.franchise-cta-icon');
+  const titleEl = banner.querySelector('.franchise-cta-title');
+  const subEl = banner.querySelector('.franchise-cta-sub');
   const link = banner.querySelector('.cta-link');
-  if (link) link.href = lifecycle.franchise_url;
+  if (iconEl) iconEl.textContent = copy.icon;
+  if (titleEl) titleEl.textContent = copy.title;
+  if (subEl) subEl.textContent = copy.sub;
+  if (link) {
+    link.href = lifecycle.franchise_url;
+    link.textContent = copy.link;
+  }
   banner.classList.remove('hidden');
+
   // Fire view event once per bootstrap (server-side dedup is the safety net).
-  // Reuse the existing /api/franchise/cta-view endpoint added in PR #8.
-  api('POST', '/franchise/cta-view', { source: 'me_tab' }).catch((err) => {
+  api('POST', '/franchise/cta-view', { source: 'me_tab', stage }).catch((err) => {
     console.warn('[franchise-cta] view event failed (non-fatal):', err && err.message);
   });
 }

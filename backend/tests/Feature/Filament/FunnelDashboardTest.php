@@ -45,9 +45,11 @@ class FunnelDashboardTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('加盟漏斗');
-        // stub fixture: visitor 1,000 / registered 620
+        // ADR-008 stub fixture: visitor 1,000 / loyalist 95 / applicant 18 /
+        // franchisee_self_use 12 / franchisee_active 3
         $response->assertSee('1,000');
-        $response->assertSee('620');
+        $response->assertSee('Self-Use');
+        $response->assertSee('Active');
         $response->assertSee('stub fixture');
     }
 
@@ -71,12 +73,12 @@ class FunnelDashboardTest extends TestCase
         Http::fake([
             'py.test/api/v1/funnel/metrics' => Http::response([
                 'stages' => [
+                    // ADR-008 5-stage shape
                     'visitor' => 4242,
-                    'registered' => 2100,
-                    'engaged' => 800,
-                    'loyalist' => 333,
-                    'applicant' => 44,
-                    'franchisee' => 11,
+                    'loyalist' => 800,
+                    'applicant' => 333,
+                    'franchisee_self_use' => 80,
+                    'franchisee_active' => 11,
                 ],
             ], 200),
         ]);
@@ -85,7 +87,7 @@ class FunnelDashboardTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('4,242');
-        $response->assertSee('2,100');
+        $response->assertSee('800');
     }
 
     public function test_metrics_client_returns_zero_stages_on_5xx(): void
@@ -102,7 +104,7 @@ class FunnelDashboardTest extends TestCase
 
         $this->assertSame('error', $result['source']);
         $this->assertSame(0, $result['stages']['visitor']);
-        $this->assertSame(0, $result['stages']['franchisee']);
+        $this->assertSame(0, $result['stages']['franchisee_active']);
     }
 
     public function test_metrics_client_returns_stub_when_not_configured(): void
@@ -114,11 +116,48 @@ class FunnelDashboardTest extends TestCase
 
         $this->assertSame('stub', $result['source']);
         $this->assertSame(1000, $result['stages']['visitor']);
-        $this->assertSame(7, $result['stages']['franchisee']);
+        $this->assertSame(3, $result['stages']['franchisee_active']);
         $this->assertSame(
-            ['visitor', 'registered', 'engaged', 'loyalist', 'applicant', 'franchisee'],
+            ['visitor', 'loyalist', 'applicant', 'franchisee_self_use', 'franchisee_active'],
             array_keys($result['stages']),
         );
+    }
+
+    public function test_widget_survives_legacy_py_service_payload(): void
+    {
+        // ADR-008 §6 merge order note: 若 py-service 還沒升級，仍回舊 stage 名，
+        // 我們要保證 widget 顯示 0（不炸 / 不爆 stack）並讓 admin 知道狀況。
+        config()->set('services.pandora_conversion.base_url', 'https://py.test');
+        config()->set('services.pandora_conversion.shared_secret', 'shh');
+
+        Http::fake([
+            'py.test/api/v1/funnel/metrics' => Http::response([
+                'stages' => [
+                    // 全部是舊 6-stage 名稱 — normalizeStages() 應該丟掉
+                    'visitor' => 999,
+                    'registered' => 600,
+                    'engaged' => 300,
+                    'loyalist' => 80,
+                    'applicant' => 10,
+                    'franchisee' => 2,
+                ],
+            ], 200),
+        ]);
+
+        $client = app(FunnelMetricsClient::class);
+        $result = $client->fetch();
+
+        // visitor / loyalist / applicant 是新舊都有 → 應該保留
+        $this->assertSame(999, $result['stages']['visitor']);
+        $this->assertSame(80, $result['stages']['loyalist']);
+        $this->assertSame(10, $result['stages']['applicant']);
+        // 新 stage 在舊 payload 缺席 → 應該 fill 0，不炸
+        $this->assertSame(0, $result['stages']['franchisee_self_use']);
+        $this->assertSame(0, $result['stages']['franchisee_active']);
+        // 並且不能殘留 legacy key（避免 widget render 出錯）
+        $this->assertArrayNotHasKey('registered', $result['stages']);
+        $this->assertArrayNotHasKey('engaged', $result['stages']);
+        $this->assertArrayNotHasKey('franchisee', $result['stages']);
     }
 
     public function test_metrics_client_sends_x_internal_secret_header(): void

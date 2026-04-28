@@ -118,6 +118,77 @@ it('franchise.cta_view does NOT clear the cache (observation-only, no transition
     expect(Cache::get($key))->toBe('loyalist');
 });
 
+it('engagement.deep semantic is now 14 days (ADR-008 §2.2) — payload streak_days 14 still dispatches', function () {
+    Bus::fake();
+    app(ConversionEventPublisher::class)->publish(
+        '00000000-0000-0000-0000-0000000000ee',
+        'engagement.deep',
+        ['streak_days' => 14, 'reason' => 'demo_seeded_streak'],
+    );
+    Bus::assertDispatched(PublishConversionEventJob::class, function (PublishConversionEventJob $job) {
+        return $job->body['event_type'] === 'engagement.deep'
+            && $job->body['payload']['streak_days'] === 14;
+    });
+});
+
+it('mothership.first_order clears the lifecycle cache (applicant → franchisee_self_use, ADR-008 §2.3)', function () {
+    Bus::fake();
+    $uuid = '00000000-0000-0000-0000-000000000101';
+    $key = app(LifecycleClient::class)->cacheKey($uuid);
+    Cache::put($key, 'applicant', 3600);
+
+    app(ConversionEventPublisher::class)->publish($uuid, 'mothership.first_order', [
+        'order_id' => 'JS-12345',
+        'amount_twd' => 6600,
+    ]);
+
+    expect(Cache::has($key))->toBeFalse();
+    Bus::assertDispatched(PublishConversionEventJob::class);
+});
+
+it('mothership.consultation_submitted clears the lifecycle cache (loyalist → applicant)', function () {
+    Bus::fake();
+    $uuid = '00000000-0000-0000-0000-000000000102';
+    $key = app(LifecycleClient::class)->cacheKey($uuid);
+    Cache::put($key, 'loyalist', 3600);
+
+    app(ConversionEventPublisher::class)->publish($uuid, 'mothership.consultation_submitted', [
+        'form_id' => 'consult-form-v2',
+    ]);
+
+    expect(Cache::has($key))->toBeFalse();
+    Bus::assertDispatched(PublishConversionEventJob::class);
+});
+
+it('academy.operator_portal_click clears cache (franchisee_self_use → franchisee_active, ADR-008 §2.3)', function () {
+    Bus::fake();
+    $uuid = '00000000-0000-0000-0000-000000000103';
+    $key = app(LifecycleClient::class)->cacheKey($uuid);
+    Cache::put($key, 'franchisee_self_use', 3600);
+
+    app(ConversionEventPublisher::class)->publish($uuid, 'academy.operator_portal_click', [
+        'source' => 'academy_home',
+    ]);
+
+    expect(Cache::has($key))->toBeFalse();
+});
+
+it('drops academy.training_progress (ADR-008 §3.2 retired event) — no dispatch, no cache touch', function () {
+    Bus::fake();
+    $uuid = '00000000-0000-0000-0000-000000000104';
+    $key = app(LifecycleClient::class)->cacheKey($uuid);
+    Cache::put($key, 'applicant', 3600);
+
+    app(ConversionEventPublisher::class)->publish($uuid, 'academy.training_progress', [
+        'lesson_id' => 'foo',
+    ]);
+
+    // ADR-008 §3.2: training progress 訊號源作廢（3.5hr Zoom 課人工帶，系統不碰）。
+    Bus::assertNotDispatched(PublishConversionEventJob::class);
+    // Cache 也不應被誤清 — 此事件純粹丟掉。
+    expect(Cache::get($key))->toBe('applicant');
+});
+
 it('send() throws on failed response (so queue worker retries)', function () {
     Http::fake([
         'conversion.test/*' => Http::response(['detail' => 'oops'], 500),

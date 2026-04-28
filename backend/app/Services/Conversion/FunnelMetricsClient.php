@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * 朵朵 admin → py-service `GET /api/v1/funnel/metrics` 客戶端（ADR-003 §1.1）。
+ * 朵朵 admin → py-service `GET /api/v1/funnel/metrics` 客戶端（ADR-008 §2.2）。
  *
- * Lifecycle stages（與 py-service 對齊）：
- *   visitor → registered → engaged → loyalist → applicant → franchisee
+ * Lifecycle stages（ADR-008 兩段漏斗，5 stages）：
+ *   visitor → loyalist → applicant → franchisee_self_use → franchisee_active
  *
  * 設計決策：
  *
@@ -20,21 +20,23 @@ use Illuminate\Support\Facades\Log;
  *   2) Failure mode：5xx / connection error → log + 回傳 empty stages（不爆 admin 頁）。
  *      漏斗 dashboard 是觀察類面板，缺資料總比讓整個 panel 503 好。
  *
- *   3) base_url 未設 → 回傳 stub fixture（visitor 1000、registered 600 …），
- *      讓 Phase A 開發者在沒部署 py-service 時也能在 admin 看到 layout。
- *      production 設了 base_url 就一定打真實 endpoint，不會混淆 stub 與實資料。
+ *   3) base_url 未設 → 回傳 stub fixture，讓 Phase A 開發者在沒部署 py-service 時
+ *      也能在 admin 看到 layout。production 設了 base_url 就一定打真實 endpoint。
  *
  *   4) 不在這層做 cache。Widget 自己用 1h cache 包住 fetch()。
+ *
+ *   5) 與 py-service 部署順序：若 py-service 仍回舊 stage 名（registered/engaged/franchisee），
+ *      normalizeStages() 會把那些 key 直接丟掉（unknown），新 stages count = 0。
+ *      Admin Widget 顯示 0 但不炸；merge 順序自由。
  */
 class FunnelMetricsClient
 {
     public const STAGES = [
         'visitor',
-        'registered',
-        'engaged',
         'loyalist',
         'applicant',
-        'franchisee',
+        'franchisee_self_use',
+        'franchisee_active',
     ];
 
     /**
@@ -101,11 +103,10 @@ class FunnelMetricsClient
         return [
             'stages' => [
                 'visitor' => 1000,
-                'registered' => 620,
-                'engaged' => 310,
                 'loyalist' => 95,
                 'applicant' => 18,
-                'franchisee' => 7,
+                'franchisee_self_use' => 12,
+                'franchisee_active' => 3,
             ],
             'source' => 'stub',
             'fetched_at' => now()->toIso8601String(),

@@ -20,14 +20,23 @@ class BootstrapController extends Controller
 {
     /**
      * Lifecycle stages that should see the franchise consultation CTA
-     * (ADR-003 §2.3 — loyalist 是「愛用者」階段、applicant 是已主動表態想了解加盟的人，
-     *  兩者都還沒成為 franchisee 所以 CTA 仍要露出)。
+     * (ADR-008 §2.1 §4 — 加盟自用回本 CTA 對 loyalist / applicant / franchisee_self_use 顯示).
      *
-     * 公平交易法紅線（dodo CLAUDE.md / ADR-003 §6）：
+     * 對 self_use 仍露 banner — 文案改成「想擴大經營？」入口（前端做差異化）。
+     * franchisee_active 不顯示 banner（已是進階經營者）；改顯示 operator portal 鉤子。
+     *
+     * 公平交易法紅線（dodo CLAUDE.md / ADR-003 §7 / ADR-008 §7）：
      *   不可在 CTA 文案中出現「下線 / 分潤 / 推薦獎金 / 招募」等多層次傳銷暗示詞。
-     *   後端只送 url + boolean，文案由前端 hardcode 中性詞。
+     *   ADR-008 新增禁字：「合作夥伴」「升級加盟方案」（過於曖昧）。
+     *   後端只送 url + boolean，文案由前端 hardcode 中性詞（「自用回本 / 省錢 / 親友合購」）。
      */
-    private const CTA_ELIGIBLE_STAGES = ['loyalist', 'applicant'];
+    private const CTA_ELIGIBLE_STAGES = ['loyalist', 'applicant', 'franchisee_self_use'];
+
+    /**
+     * Stages that should see the operator portal hook (段 2 鉤子，ADR-008 §3.3).
+     * 目前只有 franchisee_active；franchisee_self_use 仍走 CTA banner（差異化文案）。
+     */
+    private const OPERATOR_PORTAL_STAGES = ['franchisee_active'];
 
     public function __construct(
         private readonly AppConfigService $config,
@@ -72,7 +81,10 @@ class BootstrapController extends Controller
      * Build the lifecycle response block. Always returned (even for anon)
      * so the client can rely on a stable response shape.
      *
-     * @return array{status: string, show_franchise_cta: bool, franchise_url: string}
+     * ADR-008 §2.1 §3.3: response 多送一個 `show_operator_portal` boolean，
+     * 給段 2「想擴大經營」鉤子用（franchisee_active 才為 true）。
+     *
+     * @return array{status: string, show_franchise_cta: bool, show_operator_portal: bool, franchise_url: string}
      */
     private function lifecycleBlock(?string $pandoraUserUuid): array
     {
@@ -83,6 +95,7 @@ class BootstrapController extends Controller
         return [
             'status' => $status,
             'show_franchise_cta' => in_array($status, self::CTA_ELIGIBLE_STAGES, true),
+            'show_operator_portal' => in_array($status, self::OPERATOR_PORTAL_STAGES, true),
             'franchise_url' => (string) config(
                 'services.pandora_conversion.franchise_url',
                 'https://js-store.com.tw/franchise/consult',
