@@ -3,6 +3,7 @@
 use App\Http\Middleware\AdminTokenAuth;
 use App\Http\Middleware\PandoraJwtAuth;
 use App\Http\Middleware\SanctumOrPandoraJwt;
+use App\Http\Middleware\VerifyGamificationWebhookSignature;
 use App\Http\Middleware\VerifyIdentityWebhookSignature;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -24,6 +25,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.dual' => SanctumOrPandoraJwt::class,
             // platform → 朵朵 webhook 簽章驗證
             'identity.webhook' => VerifyIdentityWebhookSignature::class,
+            // py-service → 朵朵 gamification webhook 簽章驗證 (ADR-009 §2.2)
+            'gamification.webhook' => VerifyGamificationWebhookSignature::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
