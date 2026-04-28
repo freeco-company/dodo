@@ -752,6 +752,21 @@
         <div class="me-entry-chev">›</div>
       </button>
 
+      <!--
+        ADR-003 section 2.3 — Franchise consultation CTA.
+        Visibility controlled by server (lifecycle.show_franchise_cta); starts hidden.
+        Copy compliance: only neutral commercial terms (cooperation / consultation).
+        See dodo CLAUDE.md and ADR-003 section 6 for the prohibited-terms allowlist.
+      -->
+      <div id="franchise-cta" class="franchise-cta hidden" role="region" aria-label="集團合作夥伴諮詢">
+        <div class="franchise-cta-icon" aria-hidden="true">⭐</div>
+        <div class="franchise-cta-body">
+          <div class="franchise-cta-title">準備好成為集團合作夥伴？</div>
+          <div class="franchise-cta-sub">了解婕樂纖加盟方案，與我們一起經營</div>
+        </div>
+        <a class="cta-link" href="#" target="_blank" rel="noopener" data-track="franchise.cta_click">諮詢方案 →</a>
+      </div>
+
       <!-- Daily goals editor -->
       <div class="card p-4" id="goals-settings-card">
         <div class="text-sm font-bold mb-2">🎯 每日目標</div>

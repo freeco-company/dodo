@@ -1125,6 +1125,48 @@ button { font-family: inherit; letter-spacing: 0.04em; }
 .me-header { background: linear-gradient(135deg, #FFE8D8, #FFD8E0); border: 1px solid rgba(232,159,122,.18); }
 .me-header .text-base { color: var(--ink); }
 
+/*
+ * Franchise consultation CTA (ADR-003 §2.3)
+ * 視覺上比 .me-entry 更「金色 / 主動推進」一些，但避免過度刺激（不閃 / 不脈動）。
+ * 中性配色：象牙白底 + 金色描邊 + 深褐字，不踩警告色（紅 / 黃）
+ */
+.franchise-cta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #FFFBEF 0%, #FFF1D6 100%);
+  border: 2px solid #D4A24C;
+  box-shadow: 0 4px 14px rgba(212, 162, 76, .14);
+  margin: 4px 0;
+}
+.franchise-cta-icon { font-size: 28px; flex-shrink: 0; line-height: 1; }
+.franchise-cta-body { flex: 1; min-width: 0; }
+.franchise-cta-title { font-size: 15px; font-weight: 700; color: #6E4F1A; margin-bottom: 3px; }
+.franchise-cta-sub { font-size: 12px; color: #8B6F3D; line-height: 1.5; }
+.franchise-cta .cta-link {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #D4A24C;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background .15s, transform .15s;
+}
+.franchise-cta .cta-link:hover { background: #B8862E; transform: translateY(-1px); }
+.franchise-cta .cta-link:active { transform: scale(.97); }
+.franchise-cta.hidden { display: none; }
+
+@media (max-width: 360px) {
+  .franchise-cta { flex-wrap: wrap; }
+  .franchise-cta .cta-link { width: 100%; text-align: center; margin-top: 4px; }
+}
+
 /* Tab content panel fade+slide on switch (only when tab actually switches via JS) */
 #tab-home, #tab-scan, #tab-chat, #tab-calendar, #tab-wardrobe, #tab-pokedex, #tab-achievements, #tab-report, #tab-me {
   opacity: 1;

@@ -809,6 +809,9 @@ async function hydrateBootstrap() {
       }
     }
     localStorage.setItem(BOOTSTRAP_CACHE_KEY, JSON.stringify(data));
+    // ADR-003 §2.3: render franchise consultation CTA based on lifecycle stage.
+    // Server is authoritative — frontend never decides to show it on its own.
+    renderFranchiseCta(data && data.lifecycle);
     return data;
   } catch (e) {
     console.warn('[bootstrap] online hydrate failed, using cache:', e.message);
@@ -820,11 +823,55 @@ async function hydrateBootstrap() {
         state.config = cached.config || {};
         state.contentVersion = cached.content_version;
         if (cached.settings) state.settings = cached.settings;
+        renderFranchiseCta(cached && cached.lifecycle);
       }
     } catch {}
     return state.bootstrap || null;
   }
 }
+
+// ADR-003 §2.3 — Franchise consultation CTA (loyalist / applicant only).
+//
+// Server returns { status, show_franchise_cta, franchise_url }. We *only* render
+// when show_franchise_cta === true and a non-empty url is present. Frontend never
+// flips the boolean on its own — the server's lifecycle decision is authoritative.
+//
+// Fair Trade Act compliance (dodo CLAUDE.md / ADR-003 section 6):
+//   CTA copy must use neutral commercial terms (partner / consultation) only.
+//   index.html owns the human-readable strings; this function only toggles
+//   visibility and binds the URL — never mutates copy.
+function renderFranchiseCta(lifecycle) {
+  const banner = document.querySelector('#franchise-cta');
+  if (!banner) return;
+  const show = !!(lifecycle && lifecycle.show_franchise_cta && lifecycle.franchise_url);
+  if (!show) {
+    banner.classList.add('hidden');
+    return;
+  }
+  const link = banner.querySelector('.cta-link');
+  if (link) link.href = lifecycle.franchise_url;
+  banner.classList.remove('hidden');
+  // Fire view event once per bootstrap (server-side dedup is the safety net).
+  // Reuse the existing /api/franchise/cta-view endpoint added in PR #8.
+  api('POST', '/franchise/cta-view', { source: 'me_tab' }).catch((err) => {
+    console.warn('[franchise-cta] view event failed (non-fatal):', err && err.message);
+  });
+}
+
+// Wire CTA click — fire cta-click event then open the franchise URL in a new tab.
+// Bound once on DOMContentLoaded; the banner element may start hidden but the
+// listener attaches to a stable DOM node.
+document.addEventListener('DOMContentLoaded', () => {
+  const link = document.querySelector('#franchise-cta .cta-link');
+  if (!link) return;
+  link.addEventListener('click', (ev) => {
+    // Don't preventDefault — let the default new-tab navigation happen so the
+    // user lands on the consultation page even if the analytics call fails.
+    api('POST', '/franchise/cta-click', { source: 'me_tab' }).catch((err) => {
+      console.warn('[franchise-cta] click event failed (non-fatal):', err && err.message);
+    });
+  });
+});
 // Convenience getter: `cfg('goal_cheers.water')` walks the config tree.
 function cfg(path, fallback = null) {
   const c = state.config || {};

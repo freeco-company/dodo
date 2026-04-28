@@ -78,6 +78,9 @@ return [
         'shared_secret' => env('PANDORA_CONVERSION_SHARED_SECRET'),
         'app_id' => env('PANDORA_CONVERSION_APP_ID', 'doudou'),
         'timeout' => (int) env('PANDORA_CONVERSION_TIMEOUT', 5),
+        // 婕樂纖（母艦）諮詢加盟頁面 URL — 朵朵 CTA 點擊後導去這裡（ADR-003 §2.3）。
+        // 沒設環境變數時用 placeholder（dev / Phase A），production 必須在 env 覆寫。
+        'franchise_url' => env('PANDORA_FRANCHISE_URL', 'https://js-store.com.tw/franchise/consult'),
     ],
 
     /*
