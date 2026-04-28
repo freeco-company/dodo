@@ -1,0 +1,27 @@
+# One-shot Laravel scheduler tick. Triggered by dodo-backend-schedule.timer
+# every minute. Handles: mirror:dispatch-pending, lifecycle:tick, etc.
+#
+# Install:
+#   cp deploy/systemd/dodo-backend-schedule.{service,timer} /etc/systemd/system/
+#   systemctl daemon-reload
+#   systemctl enable --now dodo-backend-schedule.timer
+# Verify:
+#   systemctl list-timers | grep dodo-backend-schedule
+#   journalctl -u dodo-backend-schedule.service -n 50
+
+[Unit]
+Description=Dodo backend Laravel scheduler tick
+After=network.target mariadb.service
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/dodo/backend
+EnvironmentFile=/var/www/dodo/backend/.env
+ExecStart=/usr/bin/php /var/www/dodo/backend/artisan schedule:run
+StandardOutput=append:/var/log/dodo/backend-schedule.log
+StandardError=append:/var/log/dodo/backend-schedule.log
+
+NoNewPrivileges=true
+PrivateTmp=true

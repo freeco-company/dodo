@@ -1,0 +1,42 @@
+# Laravel queue worker for dodo backend.
+# Handles: identity outbox dispatch, ai-service callbacks, IAP/ECPay webhooks
+# fan-out, FCM push, analytics flush jobs.
+#
+# Install:
+#   cp deploy/systemd/dodo-backend-queue.service /etc/systemd/system/
+#   systemctl daemon-reload
+#   systemctl enable --now dodo-backend-queue.service
+#
+# After a deploy, run `php artisan queue:restart` (the deploy script does this);
+# this service will pick up new code on the next loop. Restart=on-failure means
+# crashes recover automatically; queue:restart is the graceful path.
+
+[Unit]
+Description=Dodo backend Laravel queue worker
+After=network.target mariadb.service
+Requires=mariadb.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/dodo/backend
+EnvironmentFile=/var/www/dodo/backend/.env
+ExecStart=/usr/bin/php /var/www/dodo/backend/artisan queue:work \
+    --sleep=3 \
+    --tries=3 \
+    --max-time=3600 \
+    --timeout=90
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:/var/log/dodo/backend-queue.log
+StandardError=append:/var/log/dodo/backend-queue.log
+
+# Light hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,13 @@
+[Unit]
+Description=Run Dodo Laravel scheduler every minute
+Requires=dodo-backend-schedule.service
+
+[Timer]
+# Mirror Laravel's recommended cron entry (* * * * *).
+OnCalendar=*:0/1
+AccuracySec=10s
+Persistent=false
+Unit=dodo-backend-schedule.service
+
+[Install]
+WantedBy=timers.target

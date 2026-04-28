@@ -1,0 +1,40 @@
+# py-service (Pandora group conversion / lifecycle) — FastAPI / uvicorn :8003
+#
+# NOTE: py-service code lives in a SEPARATE repo (not this dodo monorepo).
+# This unit file is provided here for operator convenience because all six
+# services run on the same Linode box and share the same install pattern.
+# Copy it into /etc/systemd/system/ alongside the dodo units.
+#
+# Prereq:
+#   # py-service repo cloned to /var/www/py-service
+#   sudo -u dodo bash -c 'cd /var/www/py-service && uv sync --frozen'
+
+[Unit]
+Description=Pandora py-service (conversion / lifecycle)
+After=network.target postgresql.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=dodo
+Group=dodo
+WorkingDirectory=/var/www/py-service
+EnvironmentFile=/var/www/py-service/.env
+ExecStart=/var/www/py-service/.venv/bin/uvicorn app.main:app \
+    --host 127.0.0.1 \
+    --port 8003 \
+    --workers 2 \
+    --proxy-headers \
+    --no-access-log
+Restart=always
+RestartSec=5
+StandardOutput=append:/var/log/dodo/py-service.log
+StandardError=append:/var/log/dodo/py-service.log
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
