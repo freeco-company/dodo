@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MealResource;
 use App\Models\Meal;
+use App\Services\Gamification\AchievementPublisher;
 use App\Services\Gamification\GamificationPublisher;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
@@ -14,6 +15,7 @@ class MealController extends Controller
 {
     public function __construct(
         private readonly GamificationPublisher $gamification,
+        private readonly AchievementPublisher $achievements,
     ) {}
 
     public function index(Request $request): AnonymousResourceCollection
@@ -84,6 +86,25 @@ class MealController extends Controller
                     "dodo.first_meal_of_day.{$uuid}.".$meal->date->toDateString(),
                     ['meal_id' => $meal->id],
                 );
+            }
+
+            // ADR-009 §5 — `dodo.first_meal` achievement on the user's
+            // first-ever meal. Cheap exact count when the user has only one
+            // meal so far; we already know `$mealsToday` above so a 0 there
+            // narrows it. py-service is idempotent on (uuid, code) so a stray
+            // double-publish is harmless.
+            if ($mealsToday === 0) {
+                $totalMeals = $user->meals()
+                    ->where('id', '!=', $meal->id)
+                    ->count();
+                if ($totalMeals === 0) {
+                    $this->achievements->publish(
+                        $uuid,
+                        'dodo.first_meal',
+                        "dodo.first_meal.{$uuid}",
+                        ['meal_id' => $meal->id, 'meal_type' => $meal->meal_type],
+                    );
+                }
             }
         }
 
