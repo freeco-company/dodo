@@ -33,7 +33,7 @@ jobs:
         uses: astral-sh/setup-uv@v3
 
       - name: uv sync (with dev extras)
-        run: uv sync --dev
+        run: uv sync --extra dev
 
       - name: Ruff
         run: uv run ruff check .
