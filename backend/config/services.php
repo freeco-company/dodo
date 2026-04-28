@@ -81,6 +81,11 @@ return [
         // 婕樂纖（母艦）諮詢加盟頁面 URL — 朵朵 CTA 點擊後導去這裡（ADR-003 §2.3）。
         // 沒設環境變數時用 placeholder（dev / Phase A），production 必須在 env 覆寫。
         'franchise_url' => env('PANDORA_FRANCHISE_URL', 'https://js-store.com.tw/franchise/consult'),
+        // 僅供 `php artisan demo:franchise-funnel --force-loyalist` 用：
+        // 一個帶 `lifecycle:write` scope 的 service JWT，hit py-service
+        // POST /api/v1/users/{uuid}/lifecycle/transition 強制升等。
+        // production 不會用到；dev 可從 py-service 簽一張塞進 .env。
+        'demo_admin_jwt' => env('PANDORA_DEMO_ADMIN_JWT'),
     ],
 
     /*

@@ -12,6 +12,18 @@
             <directory>tests/Feature</directory>
         </testsuite>
     </testsuites>
+    <!--
+        demo group: locally-runnable artisan-command tests that exercise the
+        full ADR-003 funnel (e.g. demo:franchise-funnel). Excluded from CI to
+        avoid coupling default test runs to py-service behaviour. Run manually
+        with `php artisan test ==group=demo` (replace == with double-dash) or
+        `pest ==group=demo`.
+    -->
+    <groups>
+        <exclude>
+            <group>demo</group>
+        </exclude>
+    </groups>
     <source>
         <include>
             <directory>app</directory>

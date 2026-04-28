@@ -2,13 +2,16 @@
 
 use App\Jobs\PublishConversionEventJob;
 use App\Services\Conversion\ConversionEventPublisher;
+use App\Services\Conversion\LifecycleClient;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
     config()->set('services.pandora_conversion.base_url', 'https://conversion.test');
     config()->set('services.pandora_conversion.shared_secret', 'test-secret');
     config()->set('services.pandora_conversion.app_id', 'doudou');
+    Cache::flush();
 });
 
 it('dispatches a job when configured', function () {
@@ -66,6 +69,53 @@ it('send() POSTs to py-service with the correct headers and body', function () {
             && $request->hasHeader('X-Internal-Secret', 'test-secret')
             && $request['event_type'] === 'app.opened';
     });
+});
+
+it('engagement.deep clears the lifecycle cache so next bootstrap re-fetches', function () {
+    Bus::fake();
+    $uuid = '00000000-0000-0000-0000-0000000000aa';
+    $key = app(LifecycleClient::class)->cacheKey($uuid);
+    Cache::put($key, 'engaged', 3600);
+    expect(Cache::get($key))->toBe('engaged');
+
+    app(ConversionEventPublisher::class)->publish($uuid, 'engagement.deep');
+
+    expect(Cache::has($key))->toBeFalse();
+    Bus::assertDispatched(PublishConversionEventJob::class);
+});
+
+it('franchise.cta_click clears the lifecycle cache (loyalist → applicant transition)', function () {
+    Bus::fake();
+    $uuid = '00000000-0000-0000-0000-0000000000bb';
+    $key = app(LifecycleClient::class)->cacheKey($uuid);
+    Cache::put($key, 'loyalist', 3600);
+
+    app(ConversionEventPublisher::class)->publish($uuid, 'franchise.cta_click');
+
+    expect(Cache::has($key))->toBeFalse();
+});
+
+it('app.opened does NOT clear the lifecycle cache (avoid thrashing on every bootstrap)', function () {
+    Bus::fake();
+    $uuid = '00000000-0000-0000-0000-0000000000cc';
+    $key = app(LifecycleClient::class)->cacheKey($uuid);
+    Cache::put($key, 'loyalist', 3600);
+
+    app(ConversionEventPublisher::class)->publish($uuid, 'app.opened');
+
+    // app.opened fires every bootstrap — if it cleared cache the cache would be useless.
+    expect(Cache::get($key))->toBe('loyalist');
+});
+
+it('franchise.cta_view does NOT clear the cache (observation-only, no transition)', function () {
+    Bus::fake();
+    $uuid = '00000000-0000-0000-0000-0000000000dd';
+    $key = app(LifecycleClient::class)->cacheKey($uuid);
+    Cache::put($key, 'loyalist', 3600);
+
+    app(ConversionEventPublisher::class)->publish($uuid, 'franchise.cta_view');
+
+    expect(Cache::get($key))->toBe('loyalist');
 });
 
 it('send() throws on failed response (so queue worker retries)', function () {

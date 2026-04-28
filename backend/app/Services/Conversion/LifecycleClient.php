@@ -42,8 +42,12 @@ class LifecycleClient
 
     /**
      * 取單一 user 的 lifecycle stage。失敗一律回 'visitor'。
+     *
+     * @param  bool  $bypassCache  true → 忽略 1h cache 直接打 py-service，並把新值寫回 cache。
+     *                             用於剛 fire 過 lifecycle-相關 event（engagement.deep /
+     *                             franchise.cta_click）後想看「升等了沒」的場景。預設 false。
      */
-    public function getStatus(string $pandoraUserUuid): string
+    public function getStatus(string $pandoraUserUuid, bool $bypassCache = false): string
     {
         if ($pandoraUserUuid === '') {
             return self::DEFAULT_STAGE;
@@ -53,11 +57,37 @@ class LifecycleClient
             return self::DEFAULT_STAGE;
         }
 
+        if ($bypassCache) {
+            // 強制重抓並覆寫 cache，這樣後續讀者也會拿到新值。
+            $stage = $this->fetch($pandoraUserUuid);
+            Cache::put($this->cacheKey($pandoraUserUuid), $stage, self::CACHE_TTL_SECONDS);
+
+            return $stage;
+        }
+
         return Cache::remember(
             $this->cacheKey($pandoraUserUuid),
             self::CACHE_TTL_SECONDS,
             fn () => $this->fetch($pandoraUserUuid),
         );
+    }
+
+    /**
+     * 清除某個 user 的 lifecycle cache。
+     *
+     * 用途：fire 完 lifecycle-觸發類 event（engagement.deep / franchise.cta_click）後，
+     * py-service 會在幾秒內 evaluate lifecycle rule 並可能 transition stage；
+     * 我們不知道確切時間點，但「下次 bootstrap 時抓最新」就夠用 → 清 cache 即可。
+     *
+     * v2 計畫：py-service 直接 push stage_change webhook 過來再清，省一次 HTTP。
+     */
+    public function forget(string $pandoraUserUuid): void
+    {
+        if ($pandoraUserUuid === '') {
+            return;
+        }
+
+        Cache::forget($this->cacheKey($pandoraUserUuid));
     }
 
     public function isConfigured(): bool
