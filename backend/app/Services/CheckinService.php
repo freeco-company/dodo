@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\DailyLog;
 use App\Models\User;
 use App\Services\Conversion\ConversionEventPublisher;
+use App\Services\Gamification\GamificationPublisher;
 use Carbon\Carbon;
 
 /**
@@ -28,9 +29,19 @@ class CheckinService
      */
     public const ENGAGEMENT_STREAK_DAYS = 7;
 
+    /**
+     * ADR-009 §3 / catalog §3.1 — gamification streak milestones.
+     * Fire once per cycle per threshold (idempotency_key on py-service is keyed by date,
+     * so a fresh cycle on a different date triggers a new ledger entry).
+     *
+     * @var list<int>
+     */
+    public const GAMIFICATION_STREAK_THRESHOLDS = [3, 7, 14, 30];
+
     public function __construct(
         private readonly JourneyService $journey,
         private readonly ConversionEventPublisher $conversion,
+        private readonly GamificationPublisher $gamification,
     ) {}
 
     private function getOrCreateDailyLog(User $user, ?string $date = null): DailyLog
@@ -55,7 +66,71 @@ class CheckinService
         // via Cache flag on pandora_user_uuid).
         $this->maybeFireEngagementDeep($user);
 
+        // ADR-009 §3 / catalog §3.1 — fire gamification streak milestones.
+        $this->maybeFireGamificationStreaks($user);
+
         return $log;
+    }
+
+    /**
+     * Compute streak count for a window ending at `endDate` (inclusive). 0 if
+     * `endDate` itself has no DailyLog row. Counts days back as long as they
+     * are contiguous and have a row.
+     */
+    private function computeStreak(string $uuid, Carbon $endDate, int $maxLookback = 35): int
+    {
+        $since = $endDate->copy()->subDays($maxLookback - 1);
+        $dates = DailyLog::where('pandora_user_uuid', $uuid)
+            ->whereDate('date', '>=', $since->toDateString())
+            ->whereDate('date', '<=', $endDate->toDateString())
+            ->pluck('date')
+            ->map(fn ($d) => Carbon::parse($d)->toDateString())
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+
+        $set = array_flip($dates);
+        $count = 0;
+        $cursor = $endDate->copy();
+        while (isset($set[$cursor->toDateString()])) {
+            $count++;
+            $cursor->subDay();
+        }
+
+        return $count;
+    }
+
+    /**
+     * Fire `dodo.streak_{N}` events for thresholds the user crossed *today*
+     * (i.e., today's streak >= N AND yesterday's streak < N). idempotency_key
+     * is per-(uuid, threshold, today) so naturally idempotent across retries
+     * and across multiple checkin writes within the same day.
+     */
+    private function maybeFireGamificationStreaks(User $user): void
+    {
+        $uuid = $user->pandora_user_uuid;
+        if (! is_string($uuid) || $uuid === '') {
+            return;
+        }
+
+        $today = Carbon::today();
+        $todayCount = $this->computeStreak($uuid, $today);
+        if ($todayCount === 0) {
+            return;
+        }
+        $yesterdayCount = $this->computeStreak($uuid, $today->copy()->subDay());
+
+        foreach (self::GAMIFICATION_STREAK_THRESHOLDS as $threshold) {
+            if ($todayCount >= $threshold && $yesterdayCount < $threshold) {
+                $this->gamification->publish(
+                    $uuid,
+                    "dodo.streak_{$threshold}",
+                    "dodo.streak_{$threshold}.{$uuid}.{$today->toDateString()}",
+                    ['streak_days' => $todayCount],
+                );
+            }
+        }
     }
 
     /**
