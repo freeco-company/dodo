@@ -11,14 +11,24 @@ use App\Models\DailyLog;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class DailyLogResource extends Resource
 {
     protected static ?string $model = DailyLog::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static ?string $navigationLabel = '每日彙總';
+
+    protected static ?string $modelLabel = '每日紀錄';
+
+    protected static ?string $pluralModelLabel = '每日紀錄';
+
+    protected static string|UnitEnum|null $navigationGroup = '飲食紀錄';
+
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-list';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

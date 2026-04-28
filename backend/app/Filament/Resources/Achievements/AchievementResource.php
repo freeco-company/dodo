@@ -11,14 +11,24 @@ use App\Models\Achievement;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class AchievementResource extends Resource
 {
     protected static ?string $model = Achievement::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static ?string $navigationLabel = '成就';
+
+    protected static ?string $modelLabel = '成就';
+
+    protected static ?string $pluralModelLabel = '成就';
+
+    protected static string|UnitEnum|null $navigationGroup = '使用者';
+
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-trophy';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {
