@@ -23,6 +23,8 @@ class AnalyticsService
     {
         DB::table('analytics_events')->insert([
             'user_id' => $user?->id,
+            // Phase D Wave 1 dual-write: 從 legacy user 抄 uuid（model attribute 已 hydrate）
+            'pandora_user_uuid' => $user?->pandora_user_uuid,
             'event' => $event,
             'properties' => $properties ? json_encode($properties, JSON_UNESCAPED_UNICODE) : null,
             'sent_to_provider' => false,

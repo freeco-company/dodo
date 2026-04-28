@@ -68,6 +68,9 @@ class ReferralService
             DB::table('referrals')->insert([
                 'referrer_id' => $referrer->id,
                 'referee_id' => $referee->id,
+                // Phase D Wave 1 dual-write — referrals 是雙欄表
+                'pandora_referrer_uuid' => $referrer->pandora_user_uuid,
+                'pandora_referee_uuid' => $referee->pandora_user_uuid,
                 'code' => $cleaned,
                 'reward_kind' => 'trial_extension_7d',
                 'created_at' => now(),

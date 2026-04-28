@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasPandoraUserUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CardEventOffer extends Model
 {
-    use HasFactory;
+    use HasFactory, HasPandoraUserUuid;
 
     protected $fillable = [
-        'legacy_id', 'user_id', 'card_id',
+        'legacy_id', 'user_id', 'pandora_user_uuid', 'card_id',
         'offered_at', 'expires_at', 'status', 'play_id', 'event_group',
     ];
 

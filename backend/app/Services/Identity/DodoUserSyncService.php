@@ -5,7 +5,7 @@ namespace App\Services\Identity;
 use App\Models\DodoUser;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
+use Symfony\Component\Uid\Uuid;
 
 /**
  * Phase C — 把朵朵端「業務狀態」與 platform 的「identity mirror」維持一致。
@@ -57,6 +57,46 @@ class DodoUserSyncService
         if ($legacy !== null) {
             $this->mirrorIdentityToLegacy($mirror, $legacy);
         }
+
+        return $mirror->refresh();
+    }
+
+    /**
+     * Phase D Wave 1 — legacy User 進門時，保證對應的 DodoUser mirror 存在。
+     *
+     * 觸發時機：UserObserver::saved 自動呼叫；artisan identity:backfill-mirror
+     * 對既有 user 也呼叫一次。
+     *
+     * 行為：
+     *   1. legacy User 還沒 pandora_user_uuid → 產一個 UUID v7 寫回 user。
+     *      用 v7 而非 v4 的原因：時間有序、index locality 較好（dodo_users PK 是
+     *      pandora_user_uuid，CHAR(36)，B-tree insertion 按時間進場成本最低）。
+     *      這個 uuid 是「朵朵側發起」的，Phase 4 platform 接上來時，platform
+     *      也會以同一個 uuid 為標識（W3 SDK migration 才開始與 platform 雙向）。
+     *   2. updateOrCreate DodoUser by uuid。
+     *   3. syncBusinessState user → mirror，把 50+ 業務狀態欄位推上去。
+     *
+     * idempotent — 多次呼叫結果一致：
+     *   - 已有 uuid → 不重簽
+     *   - 已有 mirror → updateOrCreate 走 update path
+     *   - business state 雙向欄位是 overwrite，不會疊加
+     */
+    public function ensureMirror(User $user): DodoUser
+    {
+        // step 1: 給 legacy user 釘上 uuid（若還沒有）
+        if (empty($user->pandora_user_uuid)) {
+            $user->pandora_user_uuid = (string) Uuid::v7();
+            $user->save();
+        }
+
+        // step 2: updateOrCreate mirror — 不直接灌業務狀態，留給 step 3 統一處理
+        $mirror = DodoUser::query()->updateOrCreate(
+            ['pandora_user_uuid' => $user->pandora_user_uuid],
+            ['last_synced_at' => now()],
+        );
+
+        // step 3: legacy User → DodoUser business state mirror
+        $this->syncBusinessState($user, $mirror, 'user-to-mirror');
 
         return $mirror->refresh();
     }

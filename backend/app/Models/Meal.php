@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasPandoraUserUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Meal extends Model
 {
-    use HasFactory;
+    use HasFactory, HasPandoraUserUuid;
 
     protected $fillable = [
-        'legacy_id', 'user_id', 'daily_log_id', 'date', 'meal_type',
+        'legacy_id', 'user_id', 'pandora_user_uuid', 'daily_log_id', 'date', 'meal_type',
         'photo_url', 'food_name', 'food_components', 'matched_food_ids',
         'serving_weight_g',
         'calories', 'protein_g', 'carbs_g', 'fat_g', 'fiber_g', 'sodium_mg', 'sugar_g',

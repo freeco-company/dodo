@@ -15,7 +15,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable([
-    'legacy_id', 'line_id', 'apple_id',
+    'legacy_id', 'pandora_user_uuid', 'line_id', 'apple_id',
     'name', 'email', 'password',
     'avatar_color', 'avatar_species', 'avatar_animal',
     'daily_pet_count', 'last_pet_date', 'last_gift_date', 'outfits_owned', 'equipped_outfit',
@@ -87,6 +87,17 @@ class User extends Authenticatable implements FilamentUser
             'target_weight_kg' => 'float',
             'start_weight_kg' => 'float',
         ];
+    }
+
+    /**
+     * 1:1 link 到 Pandora Core identity mirror（Phase D Wave 1 起用 pandora_user_uuid 配對）。
+     *
+     * 為什麼用 hasOne 而非 belongsTo：legacy User 仍是 Phase A authentication SoT，
+     * DodoUser 是這個 user 在朵朵的 mirror（從屬關係）。Phase F drop user_id 後反過來。
+     */
+    public function dodoUser(): HasOne
+    {
+        return $this->hasOne(DodoUser::class, 'pandora_user_uuid', 'pandora_user_uuid');
     }
 
     public function dailyLogs(): HasMany
