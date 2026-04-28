@@ -65,4 +65,74 @@ return [
         'timeout' => (int) env('PANDORA_CONVERSION_TIMEOUT', 5),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Phase E — IAP (Apple / Google) verification
+    |--------------------------------------------------------------------------
+    | stub_mode=true  → verifiers accept STUB_APPLE_* and STUB_GOOGLE_*
+    |                   tokens without contacting the provider; webhooks accept
+    |                   `signature: STUB_VALID`. For dev / E2E only.
+    | stub_mode=false → real path; missing keys throw IapNotConfiguredException
+    |                   so the route returns 503 instead of pretending.
+    */
+    'iap' => [
+        'stub_mode' => filter_var(env('IAP_STUB_MODE', false), FILTER_VALIDATE_BOOLEAN),
+        'apple' => [
+            'shared_secret' => env('IAP_APPLE_SHARED_SECRET'),
+            'bundle_id' => env('IAP_APPLE_BUNDLE_ID', 'com.dodo.app'),
+        ],
+        'google' => [
+            'service_account_json' => env('IAP_GOOGLE_SERVICE_ACCOUNT_JSON'),
+            'package_name' => env('IAP_GOOGLE_PACKAGE_NAME', 'com.dodo.app'),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Phase E — ECPay (綠界) recurring subscription
+    |--------------------------------------------------------------------------
+    | Test credentials from ECPay docs:
+    |   merchant_id=2000132 / hash_key=pwFHCqoQZGmho4w6 / hash_iv=EkRm7iFT261dpevs
+    | Production keys come from ECPay merchant console. Missing keys fail
+    | closed (sign() throws); webhook handler returns "0|invalid_signature".
+    */
+    'ecpay' => [
+        'merchant_id' => env('ECPAY_MERCHANT_ID'),
+        'hash_key' => env('ECPAY_HASH_KEY'),
+        'hash_iv' => env('ECPAY_HASH_IV'),
+        'aio_endpoint' => env('ECPAY_AIO_ENDPOINT', 'https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5'),
+        'return_url' => env('ECPAY_RETURN_URL'),
+        'period_return_url' => env('ECPAY_PERIOD_RETURN_URL'),
+        'client_back_url' => env('ECPAY_CLIENT_BACK_URL'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Phase E — Analytics (PostHog)
+    |--------------------------------------------------------------------------
+    | api_key unset → AnalyticsService::flush is a no-op (DB writes still
+    | happen unconditionally). Keeps CI green without leaking events to a
+    | live PostHog project.
+    */
+    'posthog' => [
+        'api_key' => env('POSTHOG_API_KEY'),
+        'host' => env('POSTHOG_HOST', 'https://app.posthog.com'),
+        'batch_size' => (int) env('POSTHOG_BATCH_SIZE', 200),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Phase E — Push (FCM HTTP v1)
+    |--------------------------------------------------------------------------
+    | service_account_json unset → PushService::send logs + skips. The token
+    | registration path is already independent of this and will keep working.
+    | dry_run=true forces the FCM `validate_only` flag — used by tests to
+    | exercise auth/serialisation without delivering a notification.
+    */
+    'fcm' => [
+        'service_account_json' => env('FCM_SERVICE_ACCOUNT_JSON'),
+        'project_id' => env('FCM_PROJECT_ID'),
+        'dry_run' => filter_var(env('FCM_DRY_RUN', false), FILTER_VALIDATE_BOOLEAN),
+    ],
+
 ];

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\AiMealController;
 use App\Http\Controllers\Api\AnalyticsController;
+use App\Http\Controllers\Api\AppleNotificationController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BootstrapController;
 use App\Http\Controllers\Api\CardController;
@@ -10,8 +11,11 @@ use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\CheckinController;
 use App\Http\Controllers\Api\ClientErrorController;
 use App\Http\Controllers\Api\DailyLogController;
+use App\Http\Controllers\Api\EcpayCallbackController;
 use App\Http\Controllers\Api\FranchiseController;
+use App\Http\Controllers\Api\GooglePubSubController;
 use App\Http\Controllers\Api\HealthController;
+use App\Http\Controllers\Api\IapController;
 use App\Http\Controllers\Api\IdentityWebhookController;
 use App\Http\Controllers\Api\InteractController;
 use App\Http\Controllers\Api\JourneyController;
@@ -42,6 +46,14 @@ Route::prefix('auth')->group(function () {
 
 Route::post('/client-errors', [ClientErrorController::class, 'store'])->middleware('throttle:30,1');
 Route::post('/webhooks/ecommerce/order', [WebhookController::class, 'ecommerceOrder']);
+
+// ----- Phase E: IAP server-to-server webhooks (signature handled in controller) -----
+Route::post('/iap/apple/notifications', AppleNotificationController::class);
+Route::post('/iap/google/pubsub', GooglePubSubController::class);
+
+// ----- Phase E: ECPay server-to-server callbacks (signature handled in client) -----
+Route::post('/ecpay/notify', [EcpayCallbackController::class, 'notify']);
+Route::post('/ecpay/return', [EcpayCallbackController::class, 'returnUrl']);
 
 // /api/bootstrap — sanctum optional. Use the unauthenticated route; the
 // controller resolves the user via the Sanctum bearer token on a best-effort
@@ -129,6 +141,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // ----- Batch D: subscription / monetization -----
     Route::post('/tier/redeem', [TierController::class, 'redeem']);
     Route::post('/subscribe/mock', [TierController::class, 'mockSubscribe']);
+
+    // ----- Phase E: real IAP receipt verify (auth'd; called by RN App after purchase) -----
+    Route::post('/iap/verify', [IapController::class, 'verify']);
 
     // ----- Batch E: AI (stub 503 until Python service is wired) -----
     Route::post('/meals/scan', [AiMealController::class, 'scan']);
