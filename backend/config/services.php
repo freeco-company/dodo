@@ -90,6 +90,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Pandora Core gamification service (ADR-009)
+    |--------------------------------------------------------------------------
+    | Publishes XP / level / achievement events to py-service. Same py-service
+    | host as conversion above; the gamification module shares the same HMAC
+    | trust boundary but is wired with its own env vars to allow split
+    | deployments later (e.g. a separate gamification micro-service).
+    */
+    'pandora_gamification' => [
+        'base_url' => env('PANDORA_GAMIFICATION_BASE_URL', env('PANDORA_CONVERSION_BASE_URL')),
+        'shared_secret' => env('PANDORA_GAMIFICATION_SHARED_SECRET', env('PANDORA_CONVERSION_SHARED_SECRET')),
+        'timeout' => (int) env('PANDORA_GAMIFICATION_TIMEOUT', 5),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Phase E — IAP (Apple / Google) verification
     |--------------------------------------------------------------------------
     | stub_mode=true  → verifiers accept STUB_APPLE_* and STUB_GOOGLE_*
