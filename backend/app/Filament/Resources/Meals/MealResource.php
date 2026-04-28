@@ -11,14 +11,24 @@ use App\Models\Meal;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use UnitEnum;
 
 class MealResource extends Resource
 {
     protected static ?string $model = Meal::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static ?string $navigationLabel = '餐食記錄';
+
+    protected static ?string $modelLabel = '餐食';
+
+    protected static ?string $pluralModelLabel = '餐食';
+
+    protected static string|UnitEnum|null $navigationGroup = '飲食紀錄';
+
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-cake';
+
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {
