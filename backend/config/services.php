@@ -35,4 +35,20 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Pandora Core Identity (ADR-007 Phase 4)
+    |--------------------------------------------------------------------------
+    | platform 是身份的 single source of truth。朵朵的 IdentityClient SDK 用
+    | base_url 拉 public key 驗 RS256 JWT，用 webhook_secret 驗 platform 推來的
+    | user.upserted webhook。
+    */
+    'pandora_core' => [
+        'base_url' => env('PANDORA_CORE_BASE_URL'),
+        'jwt_issuer' => env('PANDORA_CORE_JWT_ISSUER', 'pandora-core-identity'),
+        'jwt_audience' => env('PANDORA_CORE_JWT_AUDIENCE', 'dodo'),
+        'webhook_secret' => env('PANDORA_CORE_WEBHOOK_SECRET'),
+        'webhook_window_seconds' => (int) env('PANDORA_CORE_WEBHOOK_WINDOW_SECONDS', 300),
+    ],
+
 ];
