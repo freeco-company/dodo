@@ -60,12 +60,17 @@ it('rejects /pokedex without auth', function () {
 });
 
 // ----- /api/achievements -----
-it('returns achievements with locked + unlocked split', function () {
+it('returns achievements with frontend flat shape', function () {
     $user = User::factory()->create();
-    $this->actingAs($user, 'sanctum')
+    $resp = $this->actingAs($user, 'sanctum')
         ->getJson('/api/achievements')
         ->assertOk()
-        ->assertJsonStructure(['unlocked', 'locked']);
+        ->assertJsonStructure([
+            'achievements' => [['key', 'name', 'description', 'unlocked']],
+            'unlocked', 'total', 'unlocked_list', 'locked',
+        ]);
+    expect($resp->json('unlocked'))->toBeInt();
+    expect($resp->json('total'))->toBeInt();
 });
 it('rejects /achievements without auth', function () {
     $this->getJson('/api/achievements')->assertUnauthorized();
@@ -93,6 +98,7 @@ it('returns calendar heatmap with default 30 days', function () {
         ->getJson('/api/calendar')
         ->assertOk()
         ->assertJsonStructure([
+            'cells',
             'days',
             'today',
             'stats' => ['total_days', 'perfect_days', 'logged_days', 'current_streak'],

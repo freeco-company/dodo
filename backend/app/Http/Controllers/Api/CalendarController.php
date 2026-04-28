@@ -62,6 +62,7 @@ class CalendarController extends Controller
         }
 
         return response()->json([
+            'cells' => $cells,
             'days' => $cells,
             'today' => $today->toDateString(),
             'stats' => [

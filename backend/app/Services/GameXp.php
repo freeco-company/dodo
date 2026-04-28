@@ -82,4 +82,43 @@ class GameXp
         }
         return $found;
     }
+
+    /** @return array{level:int, name:string, name_en:string} */
+    public static function levelDefForXp(int $xp): array
+    {
+        $found = self::table()[0];
+        foreach (self::table() as $row) {
+            if ($xp >= $row['xp']) {
+                $found = $row;
+            } else {
+                break;
+            }
+        }
+        return ['level' => $found['level'], 'name' => $found['name'], 'name_en' => $found['name_en']];
+    }
+
+    /** @return array{xpNeeded:int, progress:float}|null */
+    public static function xpForNextLevel(int $xp): ?array
+    {
+        $table = self::table();
+        $current = $table[0];
+        $next = null;
+        foreach ($table as $i => $row) {
+            if ($xp >= $row['xp']) {
+                $current = $row;
+                $next = $table[$i + 1] ?? null;
+            } else {
+                break;
+            }
+        }
+        if ($next === null) {
+            return null;
+        }
+        $span = max(1, $next['xp'] - $current['xp']);
+        $into = $xp - $current['xp'];
+        return [
+            'xpNeeded' => $next['xp'] - $xp,
+            'progress' => max(0.0, min(1.0, $into / $span)),
+        ];
+    }
 }

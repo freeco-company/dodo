@@ -14,9 +14,15 @@ it('returns dashboard for authenticated user', function () {
         ->getJson('/api/me/dashboard')
         ->assertOk()
         ->assertJsonStructure([
-            'user' => ['id', 'name', 'avatar_animal', 'subscription_tier'],
-            'today' => ['date', 'calories', 'calories_target', 'protein_g', 'meals'],
+            'user' => ['id', 'name', 'avatar_animal', 'subscription_tier', 'equipped_outfit'],
+            'doudou' => [
+                'level', 'level_name', 'xp', 'xp_next_level', 'xp_progress',
+                'streak', 'longest_streak', 'streak_shields', 'friendship',
+                'mood', 'mood_phrase',
+            ],
+            'today' => ['date', 'calories', 'calories_target', 'remaining_calories', 'protein_g', 'meals'],
             'progress' => ['level', 'xp', 'current_streak'],
+            'tasks',
             'last7',
             'achievements',
         ])
@@ -37,6 +43,7 @@ it('returns settings for authenticated user', function () {
     $this->actingAs($user, 'sanctum')
         ->getJson('/api/me/settings')
         ->assertOk()
+        ->assertJsonStructure(['daily_water_goal_ml'])
         ->assertJsonPath('dietary_type', 'vegetarian')
         ->assertJsonPath('allergies', ['peanut'])
         ->assertJsonPath('push_enabled', true);

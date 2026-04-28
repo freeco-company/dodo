@@ -59,13 +59,29 @@ class BootstrapController extends Controller
             ]);
         }
 
+        $appConfig = [
+            'paywall' => $this->config->get('paywall'),
+            'disclaimer' => $this->config->get('disclaimer'),
+            'push_templates' => $this->config->get('push_templates'),
+            'tier_limits' => $this->config->get('tier_limits'),
+        ];
+
+        $settings = $user ? [
+            'push_enabled' => (bool) ($user->push_enabled ?? false),
+            'dietary_type' => $user->dietary_type,
+            'allergies' => $user->allergies ?? [],
+            'dislike_foods' => $user->dislike_foods ?? [],
+            'favorite_foods' => $user->favorite_foods ?? [],
+            'activity_level' => $user->activity_level,
+            'target_weight_kg' => $user->target_weight_kg,
+            'daily_water_goal_ml' => (int) ($user->daily_water_goal_ml ?? 3000),
+        ] : null;
+
         return response()->json([
-            'app_config' => [
-                'paywall' => $this->config->get('paywall'),
-                'disclaimer' => $this->config->get('disclaimer'),
-                'push_templates' => $this->config->get('push_templates'),
-                'tier_limits' => $this->config->get('tier_limits'),
-            ],
+            'config' => $appConfig,
+            'app_config' => $appConfig,
+            'content_version' => $this->config->contentVersion(),
+            'settings' => $settings,
             'entitlements' => $user ? $this->entitlements->get($user) : null,
             'user' => $user ? [
                 'id' => $user->id,

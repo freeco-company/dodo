@@ -17,36 +17,47 @@ use Illuminate\Http\Request;
  */
 class AchievementController extends Controller
 {
-    /** @var list<array{key:string, name:string, hint?:string}> Catalog stub. */
+    /** @var list<array{key:string, name:string, description:string}> Catalog stub. */
     private const CATALOG = [
-        ['key' => 'first_meal', 'name' => '第一餐', 'hint' => '記錄第一次餐點'],
-        ['key' => 'streak_3', 'name' => '三日連勝', 'hint' => '連續三天打卡'],
-        ['key' => 'streak_7', 'name' => '一週有你', 'hint' => '連續七天打卡'],
-        ['key' => 'foodie_10', 'name' => '美食家 10', 'hint' => '收集 10 種食物'],
-        ['key' => 'perfect_day', 'name' => '完美一日', 'hint' => '單日 80 分以上'],
-        ['key' => 'perfect_week', 'name' => '完美一週', 'hint' => '累積 7 個完美日'],
+        ['key' => 'first_meal', 'name' => '第一餐', 'description' => '記錄第一次餐點'],
+        ['key' => 'streak_3', 'name' => '三日連勝', 'description' => '連續三天打卡'],
+        ['key' => 'streak_7', 'name' => '一週有你', 'description' => '連續七天打卡'],
+        ['key' => 'foodie_10', 'name' => '美食家 10', 'description' => '收集 10 種食物'],
+        ['key' => 'perfect_day', 'name' => '完美一日', 'description' => '單日 80 分以上'],
+        ['key' => 'perfect_week', 'name' => '完美一週', 'description' => '累積 7 個完美日'],
     ];
 
     public function index(Request $request): JsonResponse
     {
         $user = $request->user();
-        /** @var \Illuminate\Database\Eloquent\Collection<int,Achievement> $unlocked */
-        $unlocked = Achievement::where('pandora_user_uuid', $user->pandora_user_uuid)
+        /** @var \Illuminate\Database\Eloquent\Collection<int,Achievement> $rows */
+        $rows = Achievement::where('pandora_user_uuid', $user->pandora_user_uuid)
             ->orderByDesc('unlocked_at')
             ->get(['achievement_key', 'achievement_name', 'unlocked_at']);
 
-        $unlockedKeys = $unlocked->pluck('achievement_key')->toArray();
-        $locked = array_values(array_filter(
-            self::CATALOG,
-            fn ($a) => ! in_array($a['key'], $unlockedKeys, true),
-        ));
+        $unlockedKeys = $rows->pluck('achievement_key')->toArray();
+        $unlockedList = $rows->map(fn (Achievement $a) => [
+            'key' => $a->achievement_key,
+            'name' => $a->achievement_name,
+            'unlocked_at' => $a->unlocked_at?->toIso8601String(),
+        ])->values();
+
+        $merged = array_map(function ($a) use ($unlockedKeys) {
+            return [
+                'key' => $a['key'],
+                'name' => $a['name'],
+                'description' => $a['description'],
+                'unlocked' => in_array($a['key'], $unlockedKeys, true),
+            ];
+        }, self::CATALOG);
+
+        $locked = array_values(array_filter($merged, fn ($a) => ! $a['unlocked']));
 
         return response()->json([
-            'unlocked' => $unlocked->map(fn (Achievement $a) => [
-                'key' => $a->achievement_key,
-                'name' => $a->achievement_name,
-                'unlocked_at' => $a->unlocked_at?->toIso8601String(),
-            ])->values(),
+            'achievements' => $merged,
+            'unlocked' => count($unlockedKeys),
+            'total' => count(self::CATALOG),
+            'unlocked_list' => $unlockedList,
             'locked' => $locked,
         ]);
     }

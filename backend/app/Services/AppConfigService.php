@@ -36,6 +36,18 @@ class AppConfigService
         return $out;
     }
 
+    /**
+     * Stable content version derived from latest config row's updated_at.
+     * Frontend uses this to decide whether to invalidate cached config.
+     */
+    public function contentVersion(): string
+    {
+        return (string) Cache::remember('app_config:_version', self::CACHE_TTL, function () {
+            $latest = DB::table('app_config')->max('updated_at');
+            return $latest ? (string) strtotime((string) $latest) : '0';
+        });
+    }
+
     public function set(string $key, mixed $value): void
     {
         DB::table('app_config')->upsert(
