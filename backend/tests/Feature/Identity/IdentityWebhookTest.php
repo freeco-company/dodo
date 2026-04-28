@@ -111,6 +111,43 @@ class IdentityWebhookTest extends TestCase
         $this->postWithSig($body)->assertStatus(422);
     }
 
+    public function test_webhook_does_not_overwrite_app_business_state(): void
+    {
+        // 朵朵端先有業務狀態（user 玩遊戲累積出來的）
+        $uuid = '019dd1c9-0a76-7304-af1c-aaaaaaaaaa99';
+        DodoUser::create([
+            'pandora_user_uuid' => $uuid,
+            'level' => 12,
+            'xp' => 9999,
+            'current_streak' => 30,
+            'outfits_owned' => ['premium-hat'],
+        ]);
+
+        // platform 推 user.upserted（即使 payload 帶業務欄位也不應覆蓋）
+        $body = $this->buildBody('user.upserted', [
+            'uuid' => $uuid,
+            'display_name' => 'Updated Name',
+            'avatar_url' => 'https://cdn/new.png',
+            'subscription_tier' => 'premium',
+            // platform 不該夾這些，但即使夾了也不能蓋掉朵朵業務狀態
+            'level' => 1,
+            'xp' => 0,
+            'current_streak' => 0,
+        ]);
+
+        $this->postWithSig($body, 'evt-no-overwrite')->assertOk();
+
+        $u = DodoUser::find($uuid);
+        // identity 4 欄位被 sync
+        $this->assertSame('Updated Name', $u->display_name);
+        $this->assertSame('premium', $u->subscription_tier);
+        // 業務狀態保留
+        $this->assertSame(12, $u->level);
+        $this->assertSame(9999, $u->xp);
+        $this->assertSame(30, $u->current_streak);
+        $this->assertSame(['premium-hat'], $u->outfits_owned);
+    }
+
     public function test_idempotent_update(): void
     {
         $body1 = $this->buildBody('user.upserted', [
