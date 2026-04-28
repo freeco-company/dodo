@@ -35,8 +35,48 @@ dodo/
 ├── CLAUDE.md          ← 你正在看的這個
 ├── MIGRATION_LOG.md   ← Node→Laravel 遷移進度
 ├── backend/           ← Laravel 13 主棧（本 repo 主體）
-└── frontend/          ← Capacitor + 純 web bundle（2026-04-28 從 ai-game/ 複製）
+├── frontend/          ← Capacitor + 純 web bundle（2026-04-28 從 ai-game/ 複製）
+└── e2e/               ← Playwright + smoke.sh（contract tests，2026-04-29 加入）
 ```
+
+## 🧪 測試規範
+
+朵朵 repo 有三層測試，**請依序通過**：
+
+1. **Backend Pest（`backend/tests/`）— 必跑、最快**
+   ```bash
+   cd backend && php artisan test
+   ```
+   目標：380+ 綠（Phase B 後 = 331 + 49 contract auth 補齊）。
+   PR 必跑；CI 已經自動跑。
+
+2. **PHPStan（`backend/`）— 必跑**
+   ```bash
+   cd backend && ./vendor/bin/phpstan analyse --no-progress --memory-limit=2G
+   ```
+   No errors。**不要新增 baseline**，找錯誤的根因修。
+
+3. **E2E + smoke（`e2e/`）— PR 觸發時跑**
+   ```bash
+   # 兩個 server 要先起來（見 e2e/README.md）：
+   #   - php artisan serve --port=8000
+   #   - python3 -m http.server 5173 --bind 127.0.0.1（在 frontend/public/）
+   cd e2e && npm install && npx playwright install chromium
+   DODO_BASE_URL=http://127.0.0.1:8000 \
+   DODO_FRONTEND_URL=http://127.0.0.1:5173 \
+   npx playwright test
+   bash scripts/smoke.sh
+   ```
+   目前 3 條 spec 跑通（onboarding / daily-flow / admin-funnel），
+   4 條 skip（cards / island / franchise-cta / me-tab）等
+   feature ticket 起。
+
+**寫新 endpoint 時的測試補齊清單**：
+1. Feature test happy path（authenticated）
+2. Feature test 401（未登入）— 補進
+   `tests/Feature/Api/FrontendContractAuthTest.php` 的 dataProvider
+3. Feature test 跨 tenant 寫入失敗（如果是寫操作）
+4. 如果 endpoint 進前端，順手在 `e2e/scripts/smoke.sh` 加一行
 
 **舊 Node 版本** 並列保留在 [`../ai-game/`](../ai-game/) 至 Phase G 上架成功 + 1 個月後再評估刪除。
 
