@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\CheckinController;
 use App\Http\Controllers\Api\ClientErrorController;
 use App\Http\Controllers\Api\DailyLogController;
 use App\Http\Controllers\Api\HealthController;
+use App\Http\Controllers\Api\IdentityWebhookController;
 use App\Http\Controllers\Api\InteractController;
 use App\Http\Controllers\Api\JourneyController;
 use App\Http\Controllers\Api\MealController;
@@ -130,3 +131,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/chat/message', [ChatController::class, 'message']);
     Route::get('/chat/starters', [ChatController::class, 'starters']);
 });
+
+// ADR-007 Phase 4 — platform → 朵朵 identity webhook（HMAC + nonce 由 middleware 驗）
+Route::post('/internal/identity/webhook', IdentityWebhookController::class)
+    ->middleware('identity.webhook');

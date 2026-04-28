@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\AdminTokenAuth;
+use App\Http\Middleware\PandoraJwtAuth;
+use App\Http\Middleware\VerifyIdentityWebhookSignature;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,7 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'admin.token' => \App\Http\Middleware\AdminTokenAuth::class,
+            'admin.token' => AdminTokenAuth::class,
+            // ADR-007 Phase 4 — Pandora Core JWT auth (與既有 sanctum 並行；Phase 5+ 才陸續切換)
+            'pandora.jwt' => PandoraJwtAuth::class,
+            // platform → 朵朵 webhook 簽章驗證
+            'identity.webhook' => VerifyIdentityWebhookSignature::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
