@@ -47,7 +47,9 @@ class QuestService
             if (is_array($remote) && ! empty($remote)) {
                 $normalised = [];
                 foreach ($remote as $q) {
-                    if (! is_array($q) || empty($q['key'])) continue;
+                    if (! is_array($q) || empty($q['key'])) {
+                        continue;
+                    }
                     $normalised[] = [
                         'key' => (string) $q['key'],
                         'label' => (string) ($q['label'] ?? $q['key']),
@@ -58,16 +60,19 @@ class QuestService
                         'rarity' => (string) ($q['rarity'] ?? 'common'),
                     ];
                 }
-                if (! empty($normalised)) return $normalised;
+                if (! empty($normalised)) {
+                    return $normalised;
+                }
             }
         }
+
         return self::POOL;
     }
 
     private function dailyPick(string $userKey, string $date): array
     {
         $seed = 0;
-        foreach (str_split($userKey . $date) as $c) {
+        foreach (str_split($userKey.$date) as $c) {
             $seed = (($seed * 31) + ord($c)) & 0x7FFFFFFF;
         }
         $pool = $this->pool();
@@ -75,6 +80,7 @@ class QuestService
         $rares = array_values(array_filter($pool, fn ($q) => $q['rarity'] === 'rare'));
         $rng = function () use (&$seed) {
             $seed = ($seed * 1103515245 + 12345) & 0x7FFFFFFF;
+
             return $seed;
         };
         $picked = [];
@@ -87,17 +93,22 @@ class QuestService
             $idx = $rng() % count($rares);
             $picked[] = $rares[$idx];
         }
+
         return $picked;
     }
 
     private function ensureToday(User $user, string $date): void
     {
-        $count = DailyQuest::where('user_id', $user->id)->whereDate('date', $date)->count();
-        if ($count > 0) return;
+        // Phase D Wave 2: read by uuid; dual-write on create
+        $count = DailyQuest::where('pandora_user_uuid', $user->pandora_user_uuid)->whereDate('date', $date)->count();
+        if ($count > 0) {
+            return;
+        }
         $picked = $this->dailyPick((string) $user->id, $date);
         foreach ($picked as $q) {
             DailyQuest::create([
                 'user_id' => $user->id,
+                'pandora_user_uuid' => $user->pandora_user_uuid,
                 'date' => $date,
                 'quest_key' => $q['key'],
                 'target' => $q['target'],
@@ -109,12 +120,13 @@ class QuestService
 
     private function refreshProgress(User $user, string $date): void
     {
-        $log = DailyLog::where('user_id', $user->id)->whereDate('date', $date)->first();
+        // Phase D Wave 2: all reads via uuid
+        $log = DailyLog::where('pandora_user_uuid', $user->pandora_user_uuid)->whereDate('date', $date)->first();
         $mealsToday = (int) ($log->meals_logged ?? 0);
         $waterMl = (int) ($log->water_ml ?? 0);
         $exerciseMin = (int) ($log->exercise_minutes ?? 0);
 
-        $cardsAnswered = CardPlay::where('user_id', $user->id)
+        $cardsAnswered = CardPlay::where('pandora_user_uuid', $user->pandora_user_uuid)
             ->whereDate('date', $date)
             ->whereNotNull('answered_at')
             ->count();
@@ -131,13 +143,13 @@ class QuestService
 
         foreach ($this->pool() as $q) {
             $value = $metricMap[$q['progress_metric']] ?? 0;
-            DailyQuest::where('user_id', $user->id)
+            DailyQuest::where('pandora_user_uuid', $user->pandora_user_uuid)
                 ->whereDate('date', $date)
                 ->where('quest_key', $q['key'])
                 ->update(['progress' => $value]);
         }
 
-        $justDone = DailyQuest::where('user_id', $user->id)
+        $justDone = DailyQuest::where('pandora_user_uuid', $user->pandora_user_uuid)
             ->whereDate('date', $date)
             ->whereColumn('progress', '>=', 'target')
             ->whereNull('completed_at')
@@ -161,7 +173,7 @@ class QuestService
         $this->ensureToday($user, $date);
         $this->refreshProgress($user, $date);
 
-        $rows = DailyQuest::where('user_id', $user->id)
+        $rows = DailyQuest::where('pandora_user_uuid', $user->pandora_user_uuid)
             ->whereDate('date', $date)
             ->orderBy('target')
             ->get();
@@ -173,6 +185,7 @@ class QuestService
 
         $quests = $rows->map(function (DailyQuest $r) use ($byKey) {
             $def = $byKey[$r->quest_key] ?? null;
+
             return [
                 'key' => $r->quest_key,
                 'label' => $def['label'] ?? $r->quest_key,

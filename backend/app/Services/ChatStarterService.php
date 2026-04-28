@@ -46,6 +46,7 @@ class ChatStarterService
         if ($hour >= 17 && $hour < 20) {
             return "傍晚了～今天過得怎樣？想跟{$mascot}說說嗎 🫶";
         }
+
         return "嗨 {$name}！{$mascot}在這裡～有什麼想聊或想問的嗎？";
     }
 
@@ -59,9 +60,13 @@ class ChatStarterService
         $pool = [];
 
         // Meal-time situational
-        if ($hour >= 10 && $hour < 14) $pool[] = ['emoji' => '🍱', 'text' => '午餐吃什麼好？'];
-        elseif ($hour >= 17 && $hour < 20) $pool[] = ['emoji' => '🍲', 'text' => '晚餐推薦？'];
-        elseif ($hour < 10) $pool[] = ['emoji' => '🥐', 'text' => '早餐吃什麼好？'];
+        if ($hour >= 10 && $hour < 14) {
+            $pool[] = ['emoji' => '🍱', 'text' => '午餐吃什麼好？'];
+        } elseif ($hour >= 17 && $hour < 20) {
+            $pool[] = ['emoji' => '🍲', 'text' => '晚餐推薦？'];
+        } elseif ($hour < 10) {
+            $pool[] = ['emoji' => '🥐', 'text' => '早餐吃什麼好？'];
+        }
 
         // Calorie budget
         if ($remaining > 0 && $remaining < 500) {
@@ -85,7 +90,8 @@ class ChatStarterService
 
     private function todayLog(User $user): ?DailyLog
     {
-        return DailyLog::where('user_id', $user->id)
+        // Phase D Wave 2: read by uuid
+        return DailyLog::where('pandora_user_uuid', $user->pandora_user_uuid)
             ->whereDate('date', Carbon::today()->toDateString())
             ->first();
     }

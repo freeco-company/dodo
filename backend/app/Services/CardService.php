@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\App;
 class CardService
 {
     private const STAMINA_BASE = 3;
+
     private const STAMINA_CAP = 10;
 
     public function __construct(
@@ -44,12 +45,14 @@ class CardService
     {
         $decks = $this->config()->get('question_decks') ?? [];
         $cards = $decks['cards'] ?? [];
+
         return is_array($cards) ? array_values($cards) : [];
     }
 
     private function countPlaysToday(User $user): int
     {
-        return CardPlay::where('user_id', $user->id)
+        // Phase D Wave 2: read by uuid (legacy user_id retained on row by trait)
+        return CardPlay::where('pandora_user_uuid', $user->pandora_user_uuid)
             ->whereDate('date', Carbon::today())
             ->whereNotNull('answered_at')
             ->count();
@@ -58,8 +61,13 @@ class CardService
     public function getStamina(User $user): array
     {
         $today = Carbon::today()->toDateString();
-        $log = DailyLog::where('user_id', $user->id)->whereDate('date', $today)->first()
-            ?? DailyLog::create(['user_id' => $user->id, 'date' => $today]);
+        $log = DailyLog::where('pandora_user_uuid', $user->pandora_user_uuid)->whereDate('date', $today)->first()
+            // dual-write on create: keep user_id alive until Phase F drop
+            ?? DailyLog::create([
+                'user_id' => $user->id,
+                'pandora_user_uuid' => $user->pandora_user_uuid,
+                'date' => $today,
+            ]);
         $bonuses = [];
         $mealsBonus = min(3, (int) ($log->meals_logged ?? 0));
         if ($mealsBonus > 0) {
@@ -91,7 +99,7 @@ class CardService
         }
 
         // 1) Event offers (pushed by NPC interactions etc.) take priority.
-        $offer = CardEventOffer::where('user_id', $user->id)
+        $offer = CardEventOffer::where('pandora_user_uuid', $user->pandora_user_uuid)
             ->where('status', 'pending')
             ->orderBy('offered_at')
             ->first();
@@ -108,6 +116,7 @@ class CardService
             ];
             $play = CardPlay::create([
                 'user_id' => $user->id,
+                'pandora_user_uuid' => $user->pandora_user_uuid,
                 'date' => Carbon::today()->toDateString(),
                 'card_id' => $offer->card_id,
                 'card_type' => $card['type'] ?? 'event',
@@ -115,6 +124,7 @@ class CardService
             ]);
             $offer->play_id = $play->id;
             $offer->save();
+
             return $this->cardPayload($play->id, $card, isNew: true, user: $user);
         }
 
@@ -126,7 +136,7 @@ class CardService
             abort(409, 'NO_CARDS_AVAILABLE');
         }
 
-        $seenIds = CardPlay::where('user_id', $user->id)
+        $seenIds = CardPlay::where('pandora_user_uuid', $user->pandora_user_uuid)
             ->whereNotNull('answered_at')
             ->pluck('card_id')
             ->all();
@@ -142,6 +152,7 @@ class CardService
 
         $play = CardPlay::create([
             'user_id' => $user->id,
+            'pandora_user_uuid' => $user->pandora_user_uuid,
             'date' => Carbon::today()->toDateString(),
             'card_id' => (string) ($card['id'] ?? 'unknown'),
             'card_type' => (string) ($card['type'] ?? 'knowledge'),
@@ -155,8 +166,11 @@ class CardService
     private function findCardById(string $id): ?array
     {
         foreach ($this->deck() as $c) {
-            if (($c['id'] ?? null) === $id) return $c;
+            if (($c['id'] ?? null) === $id) {
+                return $c;
+            }
         }
+
         return null;
     }
 
@@ -196,9 +210,13 @@ class CardService
 
     public function answer(User $user, int $playId, int $choiceIdx): array
     {
-        $play = CardPlay::where('id', $playId)->where('user_id', $user->id)->first();
-        if (!$play) abort(404, 'PLAY_NOT_FOUND');
-        if ($play->answered_at) abort(409, 'ALREADY_ANSWERED');
+        $play = CardPlay::where('id', $playId)->where('pandora_user_uuid', $user->pandora_user_uuid)->first();
+        if (! $play) {
+            abort(404, 'PLAY_NOT_FOUND');
+        }
+        if ($play->answered_at) {
+            abort(409, 'ALREADY_ANSWERED');
+        }
 
         $card = $this->findCardById((string) $play->card_id);
         $correct = null;
@@ -237,11 +255,12 @@ class CardService
 
     public function collection(User $user): array
     {
-        $rows = CardPlay::where('user_id', $user->id)
+        $rows = CardPlay::where('pandora_user_uuid', $user->pandora_user_uuid)
             ->whereNotNull('answered_at')
             ->select('card_id', 'card_type', 'rarity')
             ->groupBy('card_id', 'card_type', 'rarity')
             ->get();
+
         return [
             'total' => $rows->count(),
             'cards' => $rows->map(fn ($r) => [

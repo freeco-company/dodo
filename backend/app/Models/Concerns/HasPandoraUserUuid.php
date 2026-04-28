@@ -34,20 +34,35 @@ trait HasPandoraUserUuid
     public static function bootHasPandoraUserUuid(): void
     {
         static::saving(function ($model) {
-            // 已有 uuid → 不蓋；沒 user_id → 沒源可抄
-            if (! empty($model->pandora_user_uuid)) {
-                return;
-            }
-            if (empty($model->user_id)) {
-                return;
+            // ── Direction 1: user_id → pandora_user_uuid（Phase D Wave 1 原邏輯）
+            if (empty($model->pandora_user_uuid) && ! empty($model->user_id)) {
+                $uuid = User::query()
+                    ->whereKey($model->user_id)
+                    ->value('pandora_user_uuid');
+
+                if ($uuid !== null) {
+                    $model->pandora_user_uuid = $uuid;
+                }
             }
 
-            $uuid = User::query()
-                ->whereKey($model->user_id)
-                ->value('pandora_user_uuid');
+            // ── Direction 2: pandora_user_uuid → user_id（Phase D Wave 2 新增）
+            //
+            // 為什麼新增這條：Wave 2 把 User::hasMany 的 FK 從 user_id 改成
+            // pandora_user_uuid，所以 `$user->meals()->create([...])` 只會帶 uuid，
+            // user_id 維持 NOT NULL → INSERT 會炸。在 Phase F drop user_id 之前，
+            // 這條反向回填確保 dual-write 不破。
+            //
+            // 為什麼不靠 controller 顯式帶兩個欄位：22 個 service / 多個 controller
+            // 改動風險面積更大；trait 是已 wired 的單點。Phase F drop user_id 後
+            // 兩條方向都可移除。
+            if (empty($model->user_id) && ! empty($model->pandora_user_uuid)) {
+                $legacyId = User::query()
+                    ->where('pandora_user_uuid', $model->pandora_user_uuid)
+                    ->value('id');
 
-            if ($uuid !== null) {
-                $model->pandora_user_uuid = $uuid;
+                if ($legacyId !== null) {
+                    $model->user_id = $legacyId;
+                }
             }
         });
     }
