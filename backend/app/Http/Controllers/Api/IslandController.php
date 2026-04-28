@@ -193,11 +193,20 @@ class IslandController extends Controller
             'version' => 1,
             'scenes' => [
                 [
-                    'key' => '7eleven',
+                    'key' => 'seven_eleven',
                     'name' => '7-11',
                     'emoji' => '🏪',
                     'backdrop' => 'mint',
                     'description' => '社區的便利商店',
+                    'min_level' => 1,
+                    'hotspots' => [],
+                ],
+                [
+                    'key' => 'familymart',
+                    'name' => '全家',
+                    'emoji' => '🏬',
+                    'backdrop' => 'sky',
+                    'description' => '便利又齊全',
                     'min_level' => 1,
                     'hotspots' => [],
                 ],
