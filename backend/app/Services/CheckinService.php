@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\DailyLog;
 use App\Models\User;
 use App\Services\Conversion\ConversionEventPublisher;
+use App\Services\Gamification\AchievementPublisher;
 use App\Services\Gamification\GamificationPublisher;
 use Carbon\Carbon;
 
@@ -42,7 +43,20 @@ class CheckinService
         private readonly JourneyService $journey,
         private readonly ConversionEventPublisher $conversion,
         private readonly GamificationPublisher $gamification,
+        private readonly AchievementPublisher $achievements,
     ) {}
+
+    /**
+     * Streak threshold → achievement code map. Only thresholds that have a
+     * matching achievement in py-service ACHIEVEMENT_CATALOG appear; others
+     * are XP-only milestones (handled by streak_3 / streak_14).
+     *
+     * @var array<int, string>
+     */
+    private const STREAK_THRESHOLD_TO_ACHIEVEMENT = [
+        7 => 'dodo.streak_7',
+        30 => 'dodo.streak_30',
+    ];
 
     private function getOrCreateDailyLog(User $user, ?string $date = null): DailyLog
     {
@@ -129,6 +143,19 @@ class CheckinService
                     "dodo.streak_{$threshold}.{$uuid}.{$today->toDateString()}",
                     ['streak_days' => $todayCount],
                 );
+
+                // ADR-009 §5 — fire achievement award alongside the XP event for
+                // thresholds that have a matching badge. Server idempotent on
+                // (uuid, code) so repeat fires are harmless.
+                $achCode = self::STREAK_THRESHOLD_TO_ACHIEVEMENT[$threshold] ?? null;
+                if ($achCode !== null) {
+                    $this->achievements->publish(
+                        $uuid,
+                        $achCode,
+                        "{$achCode}.{$uuid}",
+                        ['streak_days' => $todayCount, 'reached_at' => $today->toDateString()],
+                    );
+                }
             }
         }
     }
