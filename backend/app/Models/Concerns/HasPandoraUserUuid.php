@@ -28,6 +28,9 @@ use App\Models\User;
  *
  * @see ADR-007 §2.3 — strangler fig dual-column rails
  * @see App\Services\Identity\DodoUserSyncService::ensureMirror()
+ *
+ * @property ?int $user_id legacy 整數 FK，Phase F drop
+ * @property ?string $pandora_user_uuid 集團統一身份 UUID v7
  */
 trait HasPandoraUserUuid
 {

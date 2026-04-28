@@ -71,6 +71,7 @@ class Wave2UuidQueriesTest extends TestCase
         $user = $this->makeUser();
 
         // create via relation — Wave 2 後 FK 是 pandora_user_uuid
+        /** @var \App\Models\DailyLog $log */
         $log = $user->dailyLogs()->create(['date' => now()->toDateString()]);
 
         $this->assertSame($user->pandora_user_uuid, $log->pandora_user_uuid);
