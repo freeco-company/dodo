@@ -13,8 +13,11 @@ use Carbon\Carbon;
 class CheckinService
 {
     public const DAILY_WATER_CAP_ML = 5000;
+
     public const DAILY_EXERCISE_CAP_MIN = 300;
+
     public const DAILY_WATER_GOAL_ML = 2000;
+
     public const DAILY_EXERCISE_GOAL_MIN = 30;
 
     public function __construct(private readonly JourneyService $journey) {}
@@ -22,11 +25,19 @@ class CheckinService
     private function getOrCreateDailyLog(User $user, ?string $date = null): DailyLog
     {
         $date ??= Carbon::today()->toDateString();
-        $existing = DailyLog::where('user_id', $user->id)
+        // Phase D Wave 2: read by uuid; dual-write on create
+        $existing = DailyLog::where('pandora_user_uuid', $user->pandora_user_uuid)
             ->whereDate('date', $date)
             ->first();
-        if ($existing) return $existing;
-        return DailyLog::create(['user_id' => $user->id, 'date' => $date]);
+        if ($existing) {
+            return $existing;
+        }
+
+        return DailyLog::create([
+            'user_id' => $user->id,
+            'pandora_user_uuid' => $user->pandora_user_uuid,
+            'date' => $date,
+        ]);
     }
 
     private function recalcScore(User $user, DailyLog $log): array
@@ -44,6 +55,7 @@ class CheckinService
         $log->hydration_score = $score['hydration'];
         $log->exercise_score = $score['exercise'];
         $log->save();
+
         return $score;
     }
 
@@ -64,6 +76,7 @@ class CheckinService
         if ($ml >= 500) {
             $this->journey->tryAdvance($user, 'water');
         }
+
         return [
             'water_ml' => (int) $log->water_ml,
             'total_score' => $score['total'],
@@ -81,6 +94,7 @@ class CheckinService
         $log->water_ml = $ml;
         $log->save();
         $score = $this->recalcScore($user, $log);
+
         return ['water_ml' => (int) $log->water_ml, 'total_score' => $score['total']];
     }
 
@@ -100,6 +114,7 @@ class CheckinService
         if ($minutes >= 15) {
             $this->journey->tryAdvance($user, 'exercise');
         }
+
         return [
             'exercise_minutes' => (int) $log->exercise_minutes,
             'total_score' => $score['total'],
@@ -117,6 +132,7 @@ class CheckinService
         $log->exercise_minutes = $minutes;
         $log->save();
         $score = $this->recalcScore($user, $log);
+
         return ['exercise_minutes' => (int) $log->exercise_minutes, 'total_score' => $score['total']];
     }
 

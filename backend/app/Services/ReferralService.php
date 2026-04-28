@@ -17,13 +17,16 @@ use Illuminate\Support\Facades\DB;
 class ReferralService
 {
     private const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
     private const REWARD_DAYS = 7;
 
     public function __construct(private readonly TrialService $trial) {}
 
     public function ensureCode(User $user): string
     {
-        if ($user->referral_code) return $user->referral_code;
+        if ($user->referral_code) {
+            return $user->referral_code;
+        }
 
         // Generate + retry on rare UNIQUE collision.
         for ($i = 0; $i < 10; $i++) {
@@ -31,6 +34,7 @@ class ReferralService
             try {
                 $user->referral_code = $code;
                 $user->save();
+
                 return $code;
             } catch (\Throwable $e) {
                 // collision — try again
@@ -43,7 +47,10 @@ class ReferralService
     public function findUserByCode(string $code): ?User
     {
         $cleaned = strtoupper(trim($code));
-        if ($cleaned === '') return null;
+        if ($cleaned === '') {
+            return null;
+        }
+
         return User::where('referral_code', $cleaned)->first();
     }
 
@@ -55,14 +62,23 @@ class ReferralService
     public function apply(User $referee, string $code): ?array
     {
         $cleaned = strtoupper(trim($code));
-        if (strlen($cleaned) < 4) return null;
+        if (strlen($cleaned) < 4) {
+            return null;
+        }
 
         $referrer = $this->findUserByCode($cleaned);
-        if (! $referrer) return null;
-        if ($referrer->id === $referee->id) return null;
+        if (! $referrer) {
+            return null;
+        }
+        if ($referrer->id === $referee->id) {
+            return null;
+        }
 
-        $existing = DB::table('referrals')->where('referee_id', $referee->id)->exists();
-        if ($existing) return null;
+        // Phase D Wave 2: read by uuid
+        $existing = DB::table('referrals')->where('pandora_referee_uuid', $referee->pandora_user_uuid)->exists();
+        if ($existing) {
+            return null;
+        }
 
         $expiresIso = DB::transaction(function () use ($referrer, $referee, $cleaned) {
             DB::table('referrals')->insert([
@@ -77,6 +93,7 @@ class ReferralService
             ]);
             $this->trial->extend($referrer, self::REWARD_DAYS);
             $refereeExpires = $this->trial->extend($referee, self::REWARD_DAYS);
+
             return $refereeExpires->toIso8601String();
         });
 
@@ -92,10 +109,12 @@ class ReferralService
     public function stats(User $user): array
     {
         $code = $this->ensureCode($user);
+        // Phase D Wave 2: read by uuid; expose referee_id (legacy) via dual column
         $invited = DB::table('referrals')
-            ->where('referrer_id', $user->id)
+            ->where('pandora_referrer_uuid', $user->pandora_user_uuid)
             ->orderByDesc('created_at')
             ->get(['referee_id as id', 'created_at']);
+
         return [
             'code' => $code,
             'invited_count' => $invited->count(),
@@ -111,6 +130,7 @@ class ReferralService
         for ($i = 0; $i < $len; $i++) {
             $out .= self::ALPHABET[random_int(0, $max)];
         }
+
         return $out;
     }
 }

@@ -100,68 +100,84 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasOne(DodoUser::class, 'pandora_user_uuid', 'pandora_user_uuid');
     }
 
+    /*
+     |---------------------------------------------------------------------------
+     | Reference-table relations — Phase D Wave 2 (ADR-007 §2.3)
+     |---------------------------------------------------------------------------
+     |
+     | All hasMany / hasOne FKs swapped from default `user_id` to
+     | `pandora_user_uuid` against `pandora_user_uuid` on this User.
+     |
+     | Why now: Wave 1 backfilled every legacy User with a uuid + auto-creates
+     | one via UserObserver, and Wave 1's HasPandoraUserUuid trait dual-writes
+     | uuid on every reference-table save. So both legacy and fresh rows are
+     | guaranteed to carry the uuid before Wave 2 reads them.
+     |
+     | Phase F will drop the `user_id` column entirely; these relations stay
+     | as-is (already on uuid).
+     */
     public function dailyLogs(): HasMany
     {
-        return $this->hasMany(DailyLog::class);
+        return $this->hasMany(DailyLog::class, 'pandora_user_uuid', 'pandora_user_uuid');
     }
 
     public function meals(): HasMany
     {
-        return $this->hasMany(Meal::class);
+        return $this->hasMany(Meal::class, 'pandora_user_uuid', 'pandora_user_uuid');
     }
 
     public function conversations(): HasMany
     {
-        return $this->hasMany(Conversation::class);
+        return $this->hasMany(Conversation::class, 'pandora_user_uuid', 'pandora_user_uuid');
     }
 
     public function summary(): HasOne
     {
-        return $this->hasOne(UserSummary::class);
+        return $this->hasOne(UserSummary::class, 'pandora_user_uuid', 'pandora_user_uuid');
     }
 
     public function weeklyReports(): HasMany
     {
-        return $this->hasMany(WeeklyReport::class);
+        return $this->hasMany(WeeklyReport::class, 'pandora_user_uuid', 'pandora_user_uuid');
     }
 
     public function achievements(): HasMany
     {
-        return $this->hasMany(Achievement::class);
+        return $this->hasMany(Achievement::class, 'pandora_user_uuid', 'pandora_user_uuid');
     }
 
     public function foodDiscoveries(): HasMany
     {
-        return $this->hasMany(FoodDiscovery::class);
+        return $this->hasMany(FoodDiscovery::class, 'pandora_user_uuid', 'pandora_user_uuid');
     }
 
     public function usageLogs(): HasMany
     {
-        return $this->hasMany(UsageLog::class);
+        return $this->hasMany(UsageLog::class, 'pandora_user_uuid', 'pandora_user_uuid');
     }
 
     public function cardPlays(): HasMany
     {
-        return $this->hasMany(CardPlay::class);
+        return $this->hasMany(CardPlay::class, 'pandora_user_uuid', 'pandora_user_uuid');
     }
 
     public function cardEventOffers(): HasMany
     {
-        return $this->hasMany(CardEventOffer::class);
+        return $this->hasMany(CardEventOffer::class, 'pandora_user_uuid', 'pandora_user_uuid');
     }
 
     public function dailyQuests(): HasMany
     {
-        return $this->hasMany(DailyQuest::class);
+        return $this->hasMany(DailyQuest::class, 'pandora_user_uuid', 'pandora_user_uuid');
     }
 
     public function storeVisits(): HasMany
     {
-        return $this->hasMany(StoreVisit::class);
+        return $this->hasMany(StoreVisit::class, 'pandora_user_uuid', 'pandora_user_uuid');
     }
 
     public function journeyAdvances(): HasMany
     {
-        return $this->hasMany(JourneyAdvance::class);
+        return $this->hasMany(JourneyAdvance::class, 'pandora_user_uuid', 'pandora_user_uuid');
     }
 }

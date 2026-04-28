@@ -35,10 +35,14 @@ class JourneyService
         );
         $next = null;
         foreach (self::MILESTONES as $m) {
-            if ($m['day'] > $day) { $next = $m; break; }
+            if ($m['day'] > $day) {
+                $next = $m;
+                break;
+            }
         }
 
-        $recent = JourneyAdvance::where('user_id', $user->id)
+        // Phase D Wave 2: read by uuid
+        $recent = JourneyAdvance::where('pandora_user_uuid', $user->pandora_user_uuid)
             ->where('cycle', $cycle)
             ->orderByDesc('created_at')
             ->limit(5)
@@ -66,7 +70,7 @@ class JourneyService
     public function advance(User $user, string $reason): array
     {
         $allowed = ['meal_log', 'water', 'exercise', 'card_correct', 'daily_quest'];
-        if (!in_array($reason, $allowed, true)) {
+        if (! in_array($reason, $allowed, true)) {
             throw new \InvalidArgumentException('INVALID_REASON');
         }
 
@@ -82,7 +86,9 @@ class JourneyService
             'milestones_crossed' => [],
             'xp_gained' => 0,
         ];
-        if ($alreadyAdvanced) return $out;
+        if ($alreadyAdvanced) {
+            return $out;
+        }
 
         $nextDay = (int) ($user->journey_day ?? 0) + 1;
         $nextCycle = (int) ($user->journey_cycle ?? 1);
@@ -102,7 +108,7 @@ class JourneyService
         $user->journey_day = $nextDay;
         $user->journey_cycle = $nextCycle;
         $user->journey_last_advance_date = $today;
-        if (!$user->journey_started_at) {
+        if (! $user->journey_started_at) {
             $user->journey_started_at = now();
         }
         if ($xpGained > 0) {
@@ -113,6 +119,7 @@ class JourneyService
 
         JourneyAdvance::create([
             'user_id' => $user->id,
+            'pandora_user_uuid' => $user->pandora_user_uuid,
             'cycle' => $nextCycle,
             'day' => $nextDay,
             'reason' => $reason,
