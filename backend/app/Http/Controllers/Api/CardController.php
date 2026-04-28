@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\CardEventOffer;
 use App\Services\CardService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -44,6 +45,31 @@ class CardController extends Controller
     {
         return response()->json([
             'data' => $this->service->eventOfferShow($request->user(), $offerId),
+        ]);
+    }
+
+    /**
+     * GET /api/cards/event-offer/next — current active offer for the user, or
+     * 204 if none. Replaces the legacy /cards/event-offer/:userId endpoint
+     * (the offer_id was always derived from "first active row" anyway).
+     */
+    public function eventOfferNext(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $offer = CardEventOffer::where('pandora_user_uuid', $user->pandora_user_uuid)
+            ->where('status', 'pending')
+            ->where(function ($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>', now());
+            })
+            ->orderByDesc('offered_at')
+            ->first();
+
+        if (! $offer) {
+            return response()->json(null, 204);
+        }
+
+        return response()->json([
+            'data' => $this->service->eventOfferShow($user, (int) $offer->id),
         ]);
     }
 
