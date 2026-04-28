@@ -1,0 +1,49 @@
+name: ai-service CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ai-service/**"
+      - ".github/workflows/ai-service-ci.yml"
+  pull_request:
+    paths:
+      - "ai-service/**"
+      - ".github/workflows/ai-service-ci.yml"
+
+jobs:
+  quality:
+    name: ruff + mypy + pytest
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: ai-service
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: uv sync (with dev extras)
+        run: uv sync --extra dev
+
+      - name: Ruff
+        run: uv run ruff check .
+
+      - name: Mypy strict
+        run: uv run mypy app --strict
+
+      - name: Pytest
+        env:
+          # Stub mode (no real LLM calls in CI)
+          ANTHROPIC_API_KEY: ""
+          PANDORA_CORE_ALLOWED_PRODUCTS: doudou
+        run: uv run pytest -v --tb=short

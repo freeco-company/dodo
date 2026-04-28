@@ -1,0 +1,40 @@
+[project]
+name = "dodo-ai-service"
+version = "0.1.0"
+description = "Dodo AI microservice — chat streaming + food vision recognition (ADR-002 Phase B)."
+requires-python = ">=3.12"
+authors = [{ name = "Pandora Group · Dodo team" }]
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.10",
+    "pydantic-settings>=2.6",
+    "python-jose[cryptography]>=3.3",
+    "httpx>=0.28",
+    "anthropic>=0.39",
+    "python-multipart>=0.0.20",
+    "sse-starlette>=2.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=6.0",
+    "respx>=0.21",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "types-python-jose>=3.3",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-ra"
