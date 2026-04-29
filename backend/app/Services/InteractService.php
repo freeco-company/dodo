@@ -24,17 +24,23 @@ class InteractService
         ['kind' => 'fortune',    'weight' => 20],
     ];
 
-    /** @var array<string, array{spirit:string, msg:string}> */
+    /**
+     * 集團 anchor v2 11 species（2026-04-30 拍板）。hamster→bear / shiba→dog / tuxedo→cat 已 migrate。
+     *
+     * @var array<string, array{spirit:string, msg:string}>
+     */
     private const SPIRIT_FORTUNES = [
-        'cat'      => ['spirit' => '貓貓',   'msg' => '今天身體的聲音值得被聽見，不用勉強吃完不愛的那口。'],
         'rabbit'   => ['spirit' => '兔兔',   'msg' => '輕輕地，不用急。春風從來不在意時間。'],
-        'bear'     => ['spirit' => '熊熊',   'msg' => '允許自己被照顧，今晚早點睡也算進步。'],
-        'hamster'  => ['spirit' => '倉鼠',   'msg' => '你今天多走的那 100 步，一年後會變成 36,500 步。'],
-        'fox'      => ['spirit' => '狐狸',   'msg' => '別被「健康標章」騙了，看營養標示才是真的。'],
-        'shiba'    => ['spirit' => '柴犬',   'msg' => '走出去散 10 分鐘，真的就夠了～'],
-        'dinosaur' => ['spirit' => '恐龍',   'msg' => '億年的觀點看來，你現在擔心的事情，都很小。'],
+        'cat'      => ['spirit' => '貓貓',   'msg' => '今天身體的聲音值得被聽見，不用勉強吃完不愛的那口。'],
+        'tiger'    => ['spirit' => '虎虎',   'msg' => '想要的就直直地走過去，不繞路。'],
         'penguin'  => ['spirit' => '企鵝',   'msg' => '跌倒不重要，爬起來繼續搖搖晃晃前進就好。'],
-        'tuxedo'   => ['spirit' => '賓士貓', 'msg' => '優雅地拒絕第二份蛋糕，你值得更好的。'],
+        'bear'     => ['spirit' => '熊熊',   'msg' => '允許自己被照顧，今晚早點睡也算進步。'],
+        'dog'      => ['spirit' => '狗狗',   'msg' => '走出去散 10 分鐘，真的就夠了～'],
+        'fox'      => ['spirit' => '狐狸',   'msg' => '別被「健康標章」騙了，看營養標示才是真的。'],
+        'dinosaur' => ['spirit' => '恐龍',   'msg' => '億年的觀點看來，你現在擔心的事情，都很小。'],
+        'sheep'    => ['spirit' => '綿羊',   'msg' => '今天累了沒關係，包起來軟軟的也是進步。'],
+        'pig'      => ['spirit' => '小豬',   'msg' => '想吃就吃，但記得是「妳想」不是「他要」。'],
+        'robot'    => ['spirit' => '機器人', 'msg' => '記錄勝過記憶，數據會替妳撐住。'],
     ];
 
     /** @return array{friendship:int, pet_count:int, capped:bool, message:string} */

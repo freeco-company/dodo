@@ -1,18 +1,22 @@
-// Doudou character renderer — powered by Microsoft Fluent Emoji (Flat, MIT).
-// Assets downloaded locally at /characters/*.svg
-// No more hand-drawn SVG. Pro-grade illustrations.
+// 潘朵拉飲食 character renderer — 集團統一 anchor v2 (方向1 手繪棉花紙質感 / 溫柔文青風)
+// PNGs come from @freeco-company/pandora-design-svg v0.2.0, copied to /svg/anchors/*.png
+// at frontend build time (see package.json: "sync:design-svg" / preserve / presync:cap:sync:ios).
+// Hand-drawn SVG / Fluent Emoji set retired 2026-04-30.
+
+const ANCHOR_BASE = '/svg/anchors';
 
 const ANIMAL_META = {
-  cat:      { file: 'cat.svg',      name: '貓貓', halo: '#FFD9B5' },
-  rabbit:   { file: 'rabbit.png',   name: '兔兔', halo: '#FCE6E6' },
-  bear:     { file: 'bear.svg',     name: '熊熊', halo: '#FFE0B5' },
-  hamster:  { file: 'hamster.svg',  name: '倉鼠', halo: '#FFECC2' },
-  fox:      { file: 'fox.svg',      name: '狐狸', halo: '#FFD4B5' },
-  // --- Custom-made in Fluent Flat style (not from Microsoft) ---
-  shiba:    { file: 'shiba.svg',    name: '柴犬',   halo: '#FFE0B5' },
-  dinosaur: { file: 'dinosaur.svg', name: '恐龍',   halo: '#DCF0D9' },
-  penguin:  { file: 'penguin.svg',  name: '企鵝',   halo: '#DDE9F2' },
-  tuxedo:   { file: 'tuxedo.svg',   name: '賓士貓', halo: '#F0F0F0' },
+  rabbit:   { file: 'rabbit.png',   name: '兔兔',     halo: '#FCE6E6' },
+  cat:      { file: 'cat.png',      name: '貓貓',     halo: '#FFE3D6' },
+  tiger:    { file: 'tiger.png',    name: '虎虎',     halo: '#FAE3B3' },
+  penguin:  { file: 'penguin.png',  name: '企鵝',     halo: '#DDE9F2' },
+  bear:     { file: 'bear.png',     name: '熊熊',     halo: '#E8D5BB' },
+  dog:      { file: 'dog.png',      name: '狗狗',     halo: '#F5E1C8' },
+  fox:      { file: 'fox.png',      name: '狐狸',     halo: '#F5C8A0' },
+  dinosaur: { file: 'dinosaur.png', name: '恐龍',     halo: '#D5DFC2' },
+  sheep:    { file: 'sheep.png',    name: '綿羊',     halo: '#F0E4D2' },
+  pig:      { file: 'pig.png',      name: '小豬',     halo: '#F5D5D2' },
+  robot:    { file: 'robot.png',    name: '機器人',   halo: '#D8D8D8' },
 };
 
 const MOOD_BADGE = {
@@ -74,7 +78,7 @@ function renderCharacter({ animal = 'cat', level = 1, mood = 'happy', outfit = n
   if (mini) {
     return `<div class="char-root mini">
       <div class="char-stage-mini">
-        <img class="char-body-mini" src="/characters/${a.file}" alt="${a.name}"/>
+        <img class="char-body-mini" src="${ANCHOR_BASE}/${a.file}" alt="${a.name}"/>
       </div>
     </div>`;
   }
@@ -87,7 +91,7 @@ function renderCharacter({ animal = 'cat', level = 1, mood = 'happy', outfit = n
     <div class="char-root" style="--halo:${a.halo};">
       <div class="char-halo"></div>
       <div class="char-wrap">
-        <img class="char-body" src="/characters/${a.file}" alt="${a.name}" draggable="false"/>
+        <img class="char-body" src="${ANCHOR_BASE}/${a.file}" alt="${a.name}" draggable="false"/>
         ${outfitRender(outfit)}
         ${accFile ? `<img class="char-accessory" src="/characters/${accFile}" alt=""/>` : ''}
         ${moodFile ? `<img class="char-mood-badge" src="/characters/${moodFile}" alt=""/>` : ''}
@@ -99,7 +103,7 @@ function renderCharacter({ animal = 'cat', level = 1, mood = 'happy', outfit = n
 // Simple img-only renderer for compact slots (store NPC, store mascot thumbnail)
 function animalImg(animal, extraClass = '') {
   const a = ANIMAL_META[animal] || ANIMAL_META.cat;
-  return `<img class="animal-img ${extraClass}" src="/characters/${a.file}" alt="${a.name}" draggable="false"/>`;
+  return `<img class="animal-img ${extraClass}" src="${ANCHOR_BASE}/${a.file}" alt="${a.name}" draggable="false"/>`;
 }
 function animalList() { return Object.keys(ANIMAL_META); }
 
