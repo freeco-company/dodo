@@ -56,7 +56,9 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::post('/client-errors', [ClientErrorController::class, 'store'])->middleware('throttle:30,1');
-Route::post('/webhooks/ecommerce/order', [WebhookController::class, 'ecommerceOrder']);
+// 婕樂纖 → 朵朵 ecommerce/order webhook (HMAC-SHA256 signed; see middleware)
+Route::post('/webhooks/ecommerce/order', [WebhookController::class, 'ecommerceOrder'])
+    ->middleware('ecommerce.webhook');
 
 // ----- Phase E: IAP server-to-server webhooks (signature handled in controller) -----
 Route::post('/iap/apple/notifications', AppleNotificationController::class);

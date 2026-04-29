@@ -197,6 +197,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | 婕樂纖 ecommerce webhook (inbound /api/webhooks/ecommerce/order)
+    |--------------------------------------------------------------------------
+    | HMAC-SHA256 signature on raw body using shared secret. Rejects
+    | unsigned / mismatched / out-of-window requests with 401. Empty secret
+    | = endpoint returns 503 (fail closed) so a misconfigured deploy doesn't
+    | silently accept fake order events.
+    */
+    'meal_ecommerce_webhook' => [
+        'secret' => env('MEAL_ECOMMERCE_WEBHOOK_SECRET'),
+        'window_seconds' => (int) env('MEAL_ECOMMERCE_WEBHOOK_WINDOW_SECONDS', 300),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | AI cost guard
     |--------------------------------------------------------------------------
     | Per-user monthly Anthropic budget. Default cap reflects the NT$80/MAU
