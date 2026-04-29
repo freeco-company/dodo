@@ -178,4 +178,28 @@ return [
         'dry_run' => filter_var(env('FCM_DRY_RUN', false), FILTER_VALIDATE_BOOLEAN),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | AI cost guard
+    |--------------------------------------------------------------------------
+    | Per-user monthly Anthropic budget. Default cap reflects the NT$80/MAU
+    | guard rail in the project CLAUDE.md (NT$80 ≈ USD 2.50 at 32 NTD/USD).
+    |
+    | Pricing rates are USD per 1M tokens, refreshed manually when Anthropic
+    | adjusts. Add new model rows when introducing a different SKU.
+    */
+    'ai_cost_guard' => [
+        'monthly_cap_usd' => (float) env('AI_MONTHLY_CAP_USD', 2.50),
+        'enabled' => filter_var(env('AI_COST_GUARD_ENABLED', true), FILTER_VALIDATE_BOOLEAN),
+        'pricing' => [
+            // USD per 1M input / output tokens
+            'claude-haiku-4-5' => ['input' => 1.00, 'output' => 5.00],
+            'claude-haiku-4-5-20251001' => ['input' => 1.00, 'output' => 5.00],
+            'claude-sonnet-4-6' => ['input' => 3.00, 'output' => 15.00],
+            'claude-opus-4-7' => ['input' => 15.00, 'output' => 75.00],
+            // pessimistic blended fallback for unknown models — errs toward throttling
+            'default' => ['input' => 5.00, 'output' => 25.00],
+        ],
+    ],
+
 ];

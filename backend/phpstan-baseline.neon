@@ -623,3 +623,11 @@ parameters:
 			identifier: method.alreadyNarrowedType
 			count: 1
 			path: tests/Unit/ExampleTest.php
+
+		# Pest binds $this to TestCase inside it() closures but phpstan/larastan
+		# can't infer it — same pattern accepted across this whole codebase.
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Feature/Logging/RequestContextLoggerTest.php
