@@ -142,8 +142,11 @@ class InteractService
         }
         $reward = $this->buildReward($kind, $user);
 
-        $user->xp = (int) $user->xp + $reward['xp_gained'];
-        $user->level = GameXp::levelForXp((int) $user->xp);
+        // ADR-009 Phase B.3 — gate the xp/level mirror write
+        if ((bool) config('services.pandora_gamification.local_xp_writes_enabled', true)) {
+            $user->xp = (int) $user->xp + $reward['xp_gained'];
+            $user->level = GameXp::levelForXp((int) $user->xp);
+        }
         $user->friendship = (int) $user->friendship + $reward['friendship_gained'];
         $user->streak_shields = min(2, (int) $user->streak_shields + $reward['shield_gained']);
         $user->last_gift_date = $today;

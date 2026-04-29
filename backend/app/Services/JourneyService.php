@@ -111,7 +111,8 @@ class JourneyService
         if (! $user->journey_started_at) {
             $user->journey_started_at = now();
         }
-        if ($xpGained > 0) {
+        // ADR-009 Phase B.3 — gate the local mirror write but keep the single save.
+        if ($xpGained > 0 && (bool) config('services.pandora_gamification.local_xp_writes_enabled', true)) {
             $user->xp = (int) $user->xp + $xpGained;
             $user->level = GameXp::levelForXp((int) $user->xp);
         }

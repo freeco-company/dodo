@@ -340,7 +340,8 @@ class CheckinService
         $log->save();
 
         $xp = $wasLogged ? 0 : GameXp::REWARDS['WEIGHT_LOGGED'];
-        if ($xp > 0) {
+        // ADR-009 Phase B.3 — gate the xp/level mirror write
+        if ($xp > 0 && (bool) config('services.pandora_gamification.local_xp_writes_enabled', true)) {
             $user->xp = (int) $user->xp + $xp;
             $user->level = GameXp::levelForXp((int) $user->xp);
         }

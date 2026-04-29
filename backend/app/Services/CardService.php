@@ -261,11 +261,9 @@ class CardService
         $play->answered_at = now();
         $play->save();
 
-        $levelBefore = (int) $user->level;
-        $user->xp = (int) $user->xp + $totalXp;
-        $user->level = GameXp::levelForXp((int) $user->xp);
-        $user->save();
-        $levelAfter = (int) $user->level;
+        // ADR-009 Phase B.3: writer is a no-op when GAMIFICATION_LOCAL_XP_WRITES_ENABLED=false
+        [$levelBefore, $levelAfter] = app(\App\Services\Gamification\LocalXpWriter::class)
+            ->apply($user, $totalXp);
 
         // ADR-009 §3 / catalog §3.1 — gamification events on card answer.
         $uuid = is_string($user->pandora_user_uuid) ? $user->pandora_user_uuid : '';
