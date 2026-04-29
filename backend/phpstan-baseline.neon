@@ -529,9 +529,15 @@ parameters:
 			path: tests/Feature/Api/TierTest.php
 
 		-
-			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\|Pest\\Support\\HigherOrderTapProxy\:\:call\(\)\.$#'
 			identifier: method.notFound
-			count: 3
+			count: 6
+			path: tests/Feature/Api/WebhookTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\|Pest\\Support\\HigherOrderTapProxy\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
 			path: tests/Feature/Api/WebhookTest.php
 
 		-
