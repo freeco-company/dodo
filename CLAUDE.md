@@ -57,10 +57,9 @@ dodo/
 
 1. **Backend Pest（`backend/tests/`）— 必跑、最快**
    ```bash
-   cd backend && php artisan test
+   cd backend && ./vendor/bin/pest --parallel
    ```
-   目標：380+ 綠（Phase B 後 = 331 + 49 contract auth 補齊）。
-   PR 必跑；CI 已經自動跑。
+   當前：**527 綠（2026-04-29）**。PR 必跑；CI 已自動跑（每個 PR）。
 
 2. **PHPStan（`backend/`）— 必跑**
    ```bash
@@ -92,7 +91,7 @@ dodo/
 
 **舊 Node 版本** 並列保留在 [`../ai-game/`](../ai-game/) 至 Phase G 上架成功 + 1 個月後再評估刪除。
 
-**前端狀態**：`frontend/public/` + `frontend/ios/` 是從 `../ai-game/` **複製**過來的，API 呼叫還寫死指向舊 Fastify。下個 session 必須先把 endpoint 對接 dodo/backend 才能 cap sync 出新 iOS build。詳見 [`frontend/README.md`](frontend/README.md) 與根層 [`../HANDOFF.md`](../HANDOFF.md)。
+**前端狀態（2026-04-29）**：`frontend/public/` 已全 endpoints 對接到本 repo backend，prod 跑在 `https://meal-api.js-store.com.tw`。50-check smoke 全綠。`frontend/ios/` 仍是從 `../ai-game/` 複製過來的 Capacitor wrapper，**待 Apple Developer Portal 註冊新 bundle ID `com.jerosse.pandora.meal` + 真實 keys 後才能 cap sync 出 TestFlight build**。詳見根層 [`../HANDOFF.md`](../HANDOFF.md)。
 
 ---
 
@@ -108,14 +107,24 @@ dodo/
 
 ---
 
-## 🚧 當前狀態
+## 🚧 當前狀態（2026-04-29 更新）
 
-ADR-002 §4 Phase A 進行中（Week 1）：
-- ✅ Day 1：skeleton + Filament + Sanctum + MariaDB
-- ⏳ Day 2+：把 `../ai-game/src/db/schema.sql`（20+ tables）翻成 Laravel migrations + Eloquent models
-- ⏳ Week 2：第一條 Fastify route → Laravel controller
+**Production live** — ADR-002 Phase A-D 全部完成，prod backend 跑在 `https://meal-api.js-store.com.tw`。
 
-詳見 [MIGRATION_LOG.md](MIGRATION_LOG.md)。
+| 區塊 | 狀態 |
+|---|---|
+| Backend 56 endpoints / 22 services | ✅ deployed |
+| Test suite | ✅ **527+ Pest 綠 / phpstan clean** |
+| ADR-009 集團遊戲化（XP / level / outfit / achievement） | ✅ deployed；publisher + webhook 雙向 chain prod live |
+| Phase B.3 cutover flag | ⚠️ default ON；待 1 週 webhook latency 觀察後翻 `GAMIFICATION_LOCAL_XP_WRITES_ENABLED=false` |
+| Identity mirror（dodo_users uuid 對映） | ✅ ADR-007 backfill 完成；JWT 接入待 Phase 5 |
+| 50-check prod smoke (`tools/smoke-pandora-meal.sh`) | ✅ 全綠 |
+| Capacitor iOS 包裝 | ⚠️ 卡 Apple Developer Portal 註冊 + TestFlight |
+| 真實 keys（Anthropic / Apple IAP / ECPay / FCM / PostHog） | ⚠️ 卡 user 手動設 |
+
+舊 Node 版（`../ai-game/`）已凍結，待 1 個月後評估退役。
+
+詳見 [MIGRATION_LOG.md](MIGRATION_LOG.md)、根層 [`../HANDOFF.md`](../HANDOFF.md)。
 
 ---
 

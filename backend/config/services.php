@@ -49,6 +49,11 @@ return [
         'jwt_audience' => env('PANDORA_CORE_JWT_AUDIENCE', 'dodo'),
         'webhook_secret' => env('PANDORA_CORE_WEBHOOK_SECRET'),
         'webhook_window_seconds' => (int) env('PANDORA_CORE_WEBHOOK_WINDOW_SECONDS', 300),
+        // ADR-007 §6 #4 mitigation (b) — periodic reconcile for missed identity webhooks.
+        // Hits Pandora Core's GET /api/internal/reconcile/users?since=<cursor>&limit=100
+        // Same shared secret as the mirror upsert / webhook receiver path.
+        'internal_secret' => env('PANDORA_CORE_INTERNAL_SECRET'),
+        'reconcile_limit' => (int) env('PANDORA_CORE_RECONCILE_LIMIT', 100),
     ],
 
     /*
