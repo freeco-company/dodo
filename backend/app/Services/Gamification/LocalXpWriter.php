@@ -36,6 +36,14 @@ class LocalXpWriter
      * `[$levelBefore, $levelAfter, $applied]` tuple so callers can decide what
      * downstream events / responses to fire.
      *
+     * Phase B.3 cutover note (frontend optimistic UI):
+     *   When the flag is OFF, the local row is NOT updated, but `levelAfter`
+     *   still reflects what the level WILL be after the webhook arrives. This
+     *   lets API responses keep returning correct celebration data
+     *   (`leveled_up`, `level_after`) so the frontend can show +XP / level-up
+     *   immediately. The user briefly sees the optimistic value; the next
+     *   bootstrap (after webhook lands ~3s later) reads the canonical mirror.
+     *
      * @return array{0:int, 1:int, 2:bool}  [levelBefore, levelAfter, didWrite]
      */
     public function apply(User $user, int $xpDelta): array
@@ -45,15 +53,23 @@ class LocalXpWriter
             return [$levelBefore, $levelBefore, false];
         }
 
+        // Forecast — the level once the publisher round-trip lands. Used both
+        // for the immediate API response (optimistic UI) and as the actual
+        // write target when the flag is on.
+        $forecastXp = (int) ($user->xp ?? 0) + $xpDelta;
+        $forecastLevel = GameXp::levelForXp($forecastXp);
+
         if (! $this->enabled()) {
-            return [$levelBefore, $levelBefore, false];
+            // Optimistic mode: don't write, but still forecast the new level
+            // so the response carries `leveled_up = (after > before)` correctly.
+            return [$levelBefore, $forecastLevel, false];
         }
 
-        $user->xp = (int) ($user->xp ?? 0) + $xpDelta;
-        $user->level = GameXp::levelForXp((int) $user->xp);
+        $user->xp = $forecastXp;
+        $user->level = $forecastLevel;
         $user->save();
 
-        return [$levelBefore, (int) $user->level, true];
+        return [$levelBefore, $forecastLevel, true];
     }
 
     public function enabled(): bool

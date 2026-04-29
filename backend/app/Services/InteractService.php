@@ -142,10 +142,16 @@ class InteractService
         }
         $reward = $this->buildReward($kind, $user);
 
+        // Forecast values for optimistic UI (frontend reads these even when
+        // local mirror write is gated off — webhook fills in the canonical
+        // mirror ~3s later).
+        $forecastXp = (int) $user->xp + $reward['xp_gained'];
+        $forecastLevel = GameXp::levelForXp($forecastXp);
+
         // ADR-009 Phase B.3 — gate the xp/level mirror write
         if ((bool) config('services.pandora_gamification.local_xp_writes_enabled', true)) {
-            $user->xp = (int) $user->xp + $reward['xp_gained'];
-            $user->level = GameXp::levelForXp((int) $user->xp);
+            $user->xp = $forecastXp;
+            $user->level = $forecastLevel;
         }
         $user->friendship = (int) $user->friendship + $reward['friendship_gained'];
         $user->streak_shields = min(2, (int) $user->streak_shields + $reward['shield_gained']);
@@ -155,8 +161,10 @@ class InteractService
         return [
             'claimed' => true,
             'reward' => $reward,
-            'current_xp' => (int) $user->xp,
-            'level' => (int) $user->level,
+            // Always forecast — keeps frontend +XP / level-up celebration
+            // working regardless of Phase B.3 flag state.
+            'current_xp' => $forecastXp,
+            'level' => $forecastLevel,
             'next_available_in_ms' => $nextMs,
             'next_available_at' => $nextAt,
             'message' => "盒子打開了：{$reward['title']}",
