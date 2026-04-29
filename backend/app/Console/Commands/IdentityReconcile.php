@@ -88,9 +88,8 @@ class IdentityReconcile extends Command
                 return self::FAILURE;
             }
 
-            /** @var array{users: array<int, array<string, mixed>>, next_cursor: ?string, has_more: bool, count: int} $body */
             $body = (array) $resp->json();
-            $users = (array) ($body['users'] ?? []);
+            $users = is_array($body['users'] ?? null) ? $body['users'] : [];
             $nextCursor = $body['next_cursor'] ?? null;
             $hasMore = (bool) ($body['has_more'] ?? false);
 
@@ -116,7 +115,7 @@ class IdentityReconcile extends Command
             $cursor = $nextCursor;
         }
 
-        if (! $dryRun && $page > 0) {
+        if (! $dryRun) {
             // Advance the persisted cursor to "now" so we don't re-scan the
             // last delta on the next run. Slightly conservative: a webhook
             // arriving in this exact second could be missed; reconcile is a
