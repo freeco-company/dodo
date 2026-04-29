@@ -1,0 +1,190 @@
+{
+  "version": 1,
+  "scenes": [
+    {
+      "key": "seven_eleven",
+      "name": "7-Eleven",
+      "emoji": "🏪",
+      "backdrop": "conv_store",
+      "description": "綠色招牌，台灣人的第二個家",
+      "min_level": 3,
+      "npc": {"emoji": "🧑‍💼", "name": "大夜班阿哥"},
+      "hotspots": [
+        { "key": "oden", "emoji": "🍢", "name": "關東煮", "card_id": "seven-oden", "x_pct": 25, "y_pct": 38 },
+        { "key": "salad", "emoji": "🥗", "name": "雞胸沙拉", "card_id": "seven-salad", "x_pct": 55, "y_pct": 30 },
+        { "key": "coffee", "emoji": "☕", "name": "City Café", "card_id": "seven-coffee", "x_pct": 78, "y_pct": 42 },
+        { "key": "onigiri", "emoji": "🍙", "name": "御飯糰", "card_id": "seven-onigiri", "x_pct": 30, "y_pct": 70 },
+        { "key": "yogurt", "emoji": "🥤", "name": "優酪乳", "card_id": "seven-yogurt", "x_pct": 68, "y_pct": 72 }
+      ]
+    },
+    {
+      "key": "kfc",
+      "name": "肯德基",
+      "emoji": "🍗",
+      "backdrop": "fastfood",
+      "description": "炸雞霸主，聰明選不爆",
+      "min_level": 5,
+      "npc": {"emoji": "🧑‍🍳", "name": "炸雞店長"},
+      "hotspots": [
+        { "key": "grilled_chicken", "emoji": "🔥", "name": "紙包烤雞腿", "card_id": "kfc-grilled", "x_pct": 25, "y_pct": 38 },
+        { "key": "original_chicken", "emoji": "🍗", "name": "原味炸雞", "card_id": "kfc-original", "x_pct": 55, "y_pct": 32 },
+        { "key": "spicy_wings", "emoji": "🌶️", "name": "勁辣雞翅", "card_id": "kfc-spicy", "x_pct": 78, "y_pct": 46 },
+        { "key": "egg_tart", "emoji": "🥧", "name": "葡式蛋塔", "card_id": "kfc-egg-tart", "x_pct": 35, "y_pct": 72 },
+        { "key": "coleslaw", "emoji": "🥬", "name": "涼拌蔬菜絲", "card_id": "kfc-coleslaw", "x_pct": 68, "y_pct": 74 }
+      ]
+    },
+    {
+      "key": "starbucks",
+      "name": "星巴克",
+      "emoji": "☕",
+      "backdrop": "cafe",
+      "description": "辦公室續命站，地雷款別踩",
+      "min_level": 4,
+      "npc": {"emoji": "👩‍🎨", "name": "文青咖啡師"},
+      "hotspots": [
+        { "key": "americano", "emoji": "☕", "name": "美式咖啡", "card_id": "sb-americano", "x_pct": 25, "y_pct": 38 },
+        { "key": "latte", "emoji": "🥛", "name": "拿鐵", "card_id": "sb-latte", "x_pct": 55, "y_pct": 30 },
+        { "key": "frappuccino", "emoji": "🥤", "name": "星冰樂", "card_id": "sb-frap", "x_pct": 78, "y_pct": 42 },
+        { "key": "sandwich", "emoji": "🥪", "name": "三明治", "card_id": "sb-sandwich", "x_pct": 30, "y_pct": 70 },
+        { "key": "scone", "emoji": "🧁", "name": "司康/蛋糕", "card_id": "sb-scone", "x_pct": 68, "y_pct": 72 }
+      ]
+    },
+    {
+      "key": "night_market",
+      "name": "夜市",
+      "emoji": "🏮",
+      "backdrop": "night_market",
+      "description": "台式夜市地雷區，學會避雷",
+      "min_level": 6,
+      "npc": {"emoji": "👨‍🍳", "name": "夜市老闆"},
+      "hotspots": [
+        { "key": "fried_chicken", "emoji": "🍗", "name": "雞排", "card_id": "nm-fried-chicken", "x_pct": 22, "y_pct": 40 },
+        { "key": "stinky_tofu", "emoji": "🥘", "name": "臭豆腐", "card_id": "nm-stinky-tofu", "x_pct": 48, "y_pct": 32 },
+        { "key": "lu_wei", "emoji": "🥬", "name": "滷味", "card_id": "nm-lu-wei", "x_pct": 75, "y_pct": 42 },
+        { "key": "oyster_omelet", "emoji": "🍳", "name": "蚵仔煎", "card_id": "nm-oyster", "x_pct": 30, "y_pct": 72 },
+        { "key": "shaved_ice", "emoji": "🍧", "name": "剉冰", "card_id": "nm-shaved-ice", "x_pct": 68, "y_pct": 74 }
+      ]
+    },
+    {
+      "key": "bubble_tea",
+      "name": "手搖杯店",
+      "emoji": "🧋",
+      "backdrop": "bubble_tea",
+      "description": "每週省 2 杯 = 一年少 2 公斤",
+      "min_level": 4,
+      "npc": {"emoji": "👧", "name": "手搖店妹"},
+      "hotspots": [
+        { "key": "pearl_milk_tea", "emoji": "🧋", "name": "珍珠奶茶", "card_id": "bt-pearl", "x_pct": 25, "y_pct": 38 },
+        { "key": "fruit_tea", "emoji": "🍋", "name": "水果茶", "card_id": "bt-fruit", "x_pct": 55, "y_pct": 30 },
+        { "key": "plain_green", "emoji": "🍵", "name": "無糖綠茶", "card_id": "bt-green", "x_pct": 78, "y_pct": 42 },
+        { "key": "matcha", "emoji": "🍃", "name": "抹茶拿鐵", "card_id": "bt-matcha", "x_pct": 35, "y_pct": 72 },
+        { "key": "winter_melon", "emoji": "🍉", "name": "冬瓜檸檬", "card_id": "bt-winter", "x_pct": 68, "y_pct": 74 }
+      ]
+    },
+    {
+      "key": "sushi_box",
+      "name": "壽司便當店",
+      "emoji": "🍣",
+      "backdrop": "sushi",
+      "description": "外食首選之一，但米飯量要看好",
+      "min_level": 5,
+      "npc": {"emoji": "👨‍🍳", "name": "壽司師傅"},
+      "hotspots": [
+        { "key": "salmon_sushi", "emoji": "🍣", "name": "鮭魚握壽司", "card_id": "sushi-salmon", "x_pct": 25, "y_pct": 38 },
+        { "key": "sashimi_don", "emoji": "🐟", "name": "生魚片丼", "card_id": "sushi-sashimi", "x_pct": 55, "y_pct": 32 },
+        { "key": "tempura", "emoji": "🍤", "name": "天婦羅", "card_id": "sushi-tempura", "x_pct": 78, "y_pct": 44 },
+        { "key": "miso_soup", "emoji": "🥣", "name": "味噌湯", "card_id": "sushi-miso", "x_pct": 35, "y_pct": 72 },
+        { "key": "chawanmushi", "emoji": "🍮", "name": "茶碗蒸", "card_id": "sushi-chawan", "x_pct": 68, "y_pct": 74 }
+      ]
+    },
+    {
+      "key": "healthy_box",
+      "name": "健康餐盒店",
+      "emoji": "🥗",
+      "backdrop": "healthy",
+      "description": "看起來健康不代表就少卡，會看成分才叫贏",
+      "min_level": 7,
+      "npc": {"emoji": "👩‍🔬", "name": "餐盒店營養師"},
+      "hotspots": [
+        { "key": "chicken_box", "emoji": "🍱", "name": "舒肥雞胸便當", "card_id": "hb-chicken", "x_pct": 25, "y_pct": 38 },
+        { "key": "keto_box", "emoji": "🥑", "name": "生酮餐盒", "card_id": "hb-keto", "x_pct": 55, "y_pct": 30 },
+        { "key": "vegan_box", "emoji": "🌱", "name": "蔬食餐盒", "card_id": "hb-vegan", "x_pct": 78, "y_pct": 42 },
+        { "key": "salad_bowl", "emoji": "🥗", "name": "沙拉碗", "card_id": "hb-salad", "x_pct": 30, "y_pct": 70 },
+        { "key": "protein_shake", "emoji": "🥤", "name": "蛋白飲", "card_id": "hb-protein", "x_pct": 68, "y_pct": 72 }
+      ]
+    },
+    {
+      "key": "familymart",
+      "name": "全家便利商店",
+      "emoji": "🏪",
+      "backdrop": "conv_store",
+      "description": "午晚餐救星，關鍵是「選對」不是「吃少」",
+      "npc": {"emoji": "🧑", "name": "全家店員"},
+      "hotspots": [
+        { "key": "egg", "emoji": "🥚", "name": "茶葉蛋", "card_id": "fm-egg", "x_pct": 22, "y_pct": 40 },
+        { "key": "sweet_potato", "emoji": "🍠", "name": "地瓜", "card_id": "fm-sweet-potato", "x_pct": 48, "y_pct": 30 },
+        { "key": "soy_milk", "emoji": "🥛", "name": "無糖豆漿", "card_id": "fm-soy-milk", "x_pct": 72, "y_pct": 45 },
+        { "key": "salad", "emoji": "🥗", "name": "雞胸沙拉", "card_id": "fm-salad", "x_pct": 30, "y_pct": 70 },
+        { "key": "oden", "emoji": "🍢", "name": "關東煮", "card_id": "fm-oden", "x_pct": 65, "y_pct": 75 }
+      ]
+    },
+    {
+      "key": "pxmart",
+      "name": "全聯福利中心",
+      "emoji": "🛒",
+      "backdrop": "supermarket",
+      "description": "一週採購的靈魂場景，買對食材省 500 卡",
+      "hotspots": [
+        { "key": "chicken", "emoji": "🍗", "name": "舒肥雞胸", "card_id": "px-chicken", "x_pct": 25, "y_pct": 35 },
+        { "key": "tofu", "emoji": "🧈", "name": "嫩豆腐", "card_id": "px-tofu", "x_pct": 50, "y_pct": 30 },
+        { "key": "broccoli", "emoji": "🥦", "name": "青花菜", "card_id": "px-broccoli", "x_pct": 75, "y_pct": 40 },
+        { "key": "greek_yogurt", "emoji": "🍶", "name": "希臘優格", "card_id": "px-yogurt", "x_pct": 35, "y_pct": 70 },
+        { "key": "oats", "emoji": "🌾", "name": "無糖燕麥", "card_id": "px-oats", "x_pct": 68, "y_pct": 72 }
+      ]
+    },
+    {
+      "key": "mcdonalds",
+      "name": "麥當勞",
+      "emoji": "🍔",
+      "backdrop": "fastfood",
+      "description": "誰說減脂不能吃速食？關鍵在選哪份套餐",
+      "hotspots": [
+        { "key": "mcmuffin", "emoji": "🍳", "name": "滿福堡", "card_id": "mc-mcmuffin", "x_pct": 25, "y_pct": 40 },
+        { "key": "grilled_chicken", "emoji": "🥪", "name": "烤雞沙拉", "card_id": "mc-grilled", "x_pct": 55, "y_pct": 32 },
+        { "key": "fries", "emoji": "🍟", "name": "薯條大份", "card_id": "mc-fries", "x_pct": 78, "y_pct": 48 },
+        { "key": "mcflurry", "emoji": "🍦", "name": "冰炫風", "card_id": "mc-mcflurry", "x_pct": 35, "y_pct": 72 },
+        { "key": "coke", "emoji": "🥤", "name": "可樂中杯", "card_id": "mc-coke", "x_pct": 68, "y_pct": 76 }
+      ]
+    },
+    {
+      "key": "fp_shop",
+      "name": "FP 婕樂纖商城",
+      "emoji": "🌿",
+      "backdrop": "fp_shop",
+      "description": "FP 產品食譜與搭配法",
+      "tier_required": "fp_lifetime",
+      "hotspots": [
+        { "key": "fiber_drink_x", "emoji": "🥤", "name": "纖纖飲 X", "card_id": "fp-fiber-drink-x", "x_pct": 28, "y_pct": 38 },
+        { "key": "fiber_float", "emoji": "💊", "name": "纖飄錠", "card_id": "fp-fiber-float", "x_pct": 55, "y_pct": 32 },
+        { "key": "burst_fiber", "emoji": "💥", "name": "爆纖錠", "card_id": "fp-burst-fiber", "x_pct": 78, "y_pct": 46 },
+        { "key": "milk_tea", "emoji": "🧋", "name": "厚焙奶茶", "card_id": "fp-milk-tea", "x_pct": 38, "y_pct": 72 },
+        { "key": "glow", "emoji": "💎", "name": "水光錠", "card_id": "fp-glow", "x_pct": 68, "y_pct": 74 }
+      ]
+    },
+    {
+      "key": "fp_base",
+      "name": "FP 加盟基地",
+      "emoji": "👑",
+      "backdrop": "fp_base",
+      "description": "進階搭配與教學卡",
+      "tier_required": "fp_lifetime",
+      "hotspots": [
+        { "key": "combo_morning", "emoji": "🌅", "name": "FP 黃金早餐組", "card_id": "fp-combo-morning", "x_pct": 25, "y_pct": 40 },
+        { "key": "combo_afternoon", "emoji": "☕", "name": "下午斷糖組合", "card_id": "fp-combo-afternoon", "x_pct": 55, "y_pct": 32 },
+        { "key": "combo_night", "emoji": "🌙", "name": "夜間修復組", "card_id": "fp-combo-night", "x_pct": 78, "y_pct": 46 },
+        { "key": "coach_talk", "emoji": "📣", "name": "加盟主分享術", "card_id": "fp-coach-talk", "x_pct": 35, "y_pct": 72 },
+        { "key": "premium_exam", "emoji": "🎓", "name": "加盟認證測驗", "card_id": "fp-cert-exam", "x_pct": 68, "y_pct": 74 }
+      ]
+    }
+  ]
+}

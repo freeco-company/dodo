@@ -190,7 +190,19 @@ class MeController extends Controller
             'activity_level' => ['nullable', 'in:sedentary,light,moderate,active'],
             'target_weight_kg' => ['nullable', 'numeric', 'between:30,250'],
             'name' => ['nullable', 'string', 'max:80'],
+            'disclaimer_ack' => ['nullable', 'boolean'],
+            'onboarded' => ['nullable', 'boolean'],
         ]);
+
+        // Map ack booleans to timestamp columns
+        if (! empty($data['disclaimer_ack'])) {
+            $user->disclaimer_ack_at = now();
+        }
+        unset($data['disclaimer_ack']);
+        if (! empty($data['onboarded'])) {
+            $user->onboarded_at = now();
+        }
+        unset($data['onboarded']);
 
         foreach ($data as $k => $v) {
             $user->{$k} = $v;

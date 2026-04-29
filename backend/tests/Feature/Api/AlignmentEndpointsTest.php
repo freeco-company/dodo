@@ -210,6 +210,37 @@ it('returns island store for known scene with frontend flat shape', function () 
         ]);
 });
 
+it('returns intents with prompt_line + recommendations + dodo dialog for seven_eleven', function () {
+    $user = User::factory()->create(['avatar_animal' => 'rabbit']);
+    $resp = $this->actingAs($user, 'sanctum')
+        ->getJson('/api/island/store/seven_eleven')
+        ->assertOk();
+
+    // 朵朵 is the unified storekeeper across all scenes (group naming 2026-04-29).
+    expect($resp->json('npc.name'))->toBe('朵朵');
+
+    // 3-line opening dialog: pet → dodo → dodo (budget hint).
+    $dialog = $resp->json('dialog');
+    expect($dialog)->toHaveCount(3);
+    expect($dialog[0]['speaker'])->toBe('mascot');
+    expect($dialog[0]['text'])->toContain('兔兔');
+    expect($dialog[1]['speaker'])->toBe('npc');
+    expect($dialog[1]['text'])->toContain('朵朵');
+    expect($dialog[2]['speaker'])->toBe('npc');
+    expect($dialog[2]['text'])->toContain('朵朵');
+
+    // Intents must carry prompt_line + recommendations so the rec panel
+    // doesn't render '兔兔：undefined' on the frontend.
+    $intents = (array) $resp->json('intents');
+    expect(count($intents))->toBeGreaterThan(0);
+    expect($intents[0])->toHaveKeys(['key', 'emoji', 'label', 'prompt_line', 'recommendations']);
+    expect($intents[0]['prompt_line'])->toBeString();
+    expect($intents[0]['prompt_line'])->toBeTruthy();
+    $recs = (array) $intents[0]['recommendations'];
+    expect(count($recs))->toBeGreaterThan(0);
+    expect($recs[0])->toHaveKeys(['title', 'items', 'calories', 'protein_g', 'stars', 'why']);
+});
+
 it('returns 404 for unknown island scene', function () {
     $user = User::factory()->create();
     $this->actingAs($user, 'sanctum')

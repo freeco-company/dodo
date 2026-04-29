@@ -4233,7 +4233,7 @@ async function showRecommendations(intent) {
       user_id: state.userId,
       store_key: islandState.currentStore?.key,
     });
-    islandState.entitlements = r;
+    islandState.entitlements = r.entitlements ?? r;
     renderIslandMap();
   } catch (e) {
     const msg = String(e.message || '');
