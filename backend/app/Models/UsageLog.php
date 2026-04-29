@@ -14,13 +14,17 @@ class UsageLog extends Model
     protected $table = 'usage_logs';
 
     protected $fillable = [
-        'legacy_id', 'user_id', 'pandora_user_uuid', 'date', 'kind', 'model', 'tokens',
+        'legacy_id', 'user_id', 'pandora_user_uuid', 'date', 'kind', 'model',
+        'tokens', 'input_tokens', 'output_tokens', 'latency_ms',
     ];
 
     protected function casts(): array
     {
         return [
             'date' => 'date',
+            'input_tokens' => 'integer',
+            'output_tokens' => 'integer',
+            'latency_ms' => 'integer',
         ];
     }
 
