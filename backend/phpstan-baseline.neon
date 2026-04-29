@@ -103,6 +103,30 @@ parameters:
 			path: app/Services/Identity/PlatformJwtVerifier.php
 
 		-
+			message: '#^Comparison operation "\<\=" between 0\.6699999999999999\|0\.7\|0\.73\|0\.9 and 0\.15 is always false\.$#'
+			identifier: smallerOrEqual.alwaysFalse
+			count: 1
+			path: app/Services/MealScoreService.php
+
+		-
+			message: '#^Comparison operation "\<\=" between 0\.6699999999999999\|0\.7\|0\.73\|0\.9 and 0\.3 is always false\.$#'
+			identifier: smallerOrEqual.alwaysFalse
+			count: 1
+			path: app/Services/MealScoreService.php
+
+		-
+			message: '#^Comparison operation "\<\=" between 0\.6699999999999999\|0\.7\|0\.73\|0\.9 and 0\.5 is always false\.$#'
+			identifier: smallerOrEqual.alwaysFalse
+			count: 1
+			path: app/Services/MealScoreService.php
+
+		-
+			message: '#^Comparison operation "\>" between int\<1, max\> and 0\.1\|0\.27\|0\.3\|0\.33 is always true\.$#'
+			identifier: greater.alwaysTrue
+			count: 1
+			path: app/Services/MealScoreService.php
+
+		-
 			message: '#^Offset ''activity_level'' on array\{weight_kg\: float, height_cm\: float, age\: int, gender\: string, activity_level\: string, goal_weight_kg\?\: float\|null\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
@@ -563,6 +587,12 @@ parameters:
 			identifier: method.notFound
 			count: 6
 			path: tests/Feature/Gamification/MealEventHooksTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: tests/Feature/Gamification/MealScoreTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'

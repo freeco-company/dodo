@@ -211,12 +211,20 @@ it('POST /api/meals with matched_food_ids triggers food discovery flow', functio
     ]);
     $food = Food::factory()->create();
 
+    // Send nutrition that scores >=90 server-side (MealScoreService).
+    // Breakfast ideal=486 kcal at 1800 daily target. 500 kcal + 40g protein
+    // (8 g/100kcal density) + 8g fibre + low sodium/sugar → ~93 score.
+    $user->update(['daily_calorie_target' => 1800]);
     $this->actingAs($user, 'sanctum')
         ->postJson('/api/meals', [
             'date' => Carbon::today()->toDateString(),
             'meal_type' => 'breakfast',
             'matched_food_ids' => [$food->id],
-            'meal_score' => 95,
+            'calories' => 500,
+            'protein_g' => 40,
+            'fiber_g' => 8,
+            'sodium_mg' => 200,
+            'sugar_g' => 5,
         ])
         ->assertCreated();
 
