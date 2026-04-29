@@ -14,10 +14,12 @@ use Carbon\Carbon;
  */
 class ChatStarterService
 {
+    // 集團 anchor v2 11 species（2026-04-30 拍板）
     private const MASCOT_NAMES = [
-        'cat' => '貓貓', 'rabbit' => '兔兔', 'bear' => '熊熊',
-        'hamster' => '倉鼠', 'fox' => '狐狸', 'shiba' => '柴犬',
-        'dinosaur' => '恐龍', 'penguin' => '企鵝', 'tuxedo' => '賓士貓',
+        'rabbit' => '兔兔', 'cat' => '貓貓', 'tiger' => '虎虎',
+        'penguin' => '企鵝', 'bear' => '熊熊', 'dog' => '狗狗',
+        'fox' => '狐狸', 'dinosaur' => '恐龍', 'sheep' => '綿羊',
+        'pig' => '小豬', 'robot' => '機器人',
     ];
 
     public function welcome(User $user): string

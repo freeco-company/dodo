@@ -28,7 +28,7 @@ class UserFactory extends Factory
 
             'avatar_color' => fake()->randomElement(['peach', 'mint', 'lavender', 'cream', 'rose']),
             'avatar_species' => fake()->randomElement(['balance', 'protein', 'fiber', 'hydro', 'energy']),
-            'avatar_animal' => fake()->randomElement(['cat', 'rabbit', 'bear', 'hamster', 'fox']),
+            'avatar_animal' => fake()->randomElement(['rabbit', 'cat', 'tiger', 'penguin', 'bear', 'dog', 'fox', 'dinosaur', 'sheep', 'pig', 'robot']),
 
             'height_cm' => fake()->randomFloat(1, 150, 175),
             'start_weight_kg' => $start,

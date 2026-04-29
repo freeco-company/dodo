@@ -204,18 +204,24 @@ class IslandController extends Controller
         ]);
     }
 
+    /**
+     * 集團 anchor v2 11 species（2026-04-30 拍板）。
+     * Legacy hamster/shiba/tuxedo data 已 migrate 至 bear/dog/cat。
+     */
     private function petDisplayName(string $animal): string
     {
         return match ($animal) {
-            'cat' => '貓貓',
             'rabbit' => '兔兔',
-            'bear' => '熊熊',
-            'hamster' => '倉鼠',
-            'fox' => '狐狸',
-            'shiba' => '柴犬',
-            'dinosaur' => '恐龍',
+            'cat' => '貓貓',
+            'tiger' => '虎虎',
             'penguin' => '企鵝',
-            'tuxedo' => '賓士貓',
+            'bear' => '熊熊',
+            'dog' => '狗狗',
+            'fox' => '狐狸',
+            'dinosaur' => '恐龍',
+            'sheep' => '綿羊',
+            'pig' => '小豬',
+            'robot' => '機器人',
             default => '夥伴',
         };
     }
