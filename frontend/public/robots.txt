@@ -1,4 +1,4 @@
-# robots.txt — Doudou 豆豆 減脂夥伴
+# robots.txt — 潘朵拉飲食 減脂夥伴
 # Based on patterns from sister project pandora.js-store.
 # Goal: allow quality crawlers (Google / AI search engines), block system paths.
 

@@ -1,4 +1,4 @@
-// Doudou web app — cat/rabbit/bear/hamster/fox + camera + calorie ring + stickiness.
+// Pandora Meal web app — cat/rabbit/bear/hamster/fox + camera + calorie ring + stickiness.
 
 // Prefer the new DODO_API_BASE (set by config.js 2026-04-28); fall back to
 // the legacy DOUDOU_API_BASE for any environment that still injects it.
@@ -695,8 +695,8 @@ function showInAppRatingFallback(trigger) {
   overlay.innerHTML = `
     <div class="first-run-card" style="max-width:340px;text-align:center;">
       <div style="font-size:54px;margin-bottom:12px;">⭐</div>
-      <h3 style="font-size:20px;font-weight:900;margin-bottom:8px;">喜歡豆豆嗎？</h3>
-      <p style="font-size:14px;color:#6B5248;margin-bottom:18px;">給我們 5 顆星，讓更多人遇見豆豆 🫶</p>
+      <h3 style="font-size:20px;font-weight:900;margin-bottom:8px;">喜歡潘朵拉飲食嗎？</h3>
+      <p style="font-size:14px;color:#6B5248;margin-bottom:18px;">給我們 5 顆星，讓更多人遇見潘朵拉飲食 🫶</p>
       <button class="first-run-btn" id="rate-yes" style="margin-bottom:8px;">好啊，給五星 →</button>
       <button id="rate-later" style="background:transparent;border:none;color:#999;font-size:13px;cursor:pointer;padding:8px;">下次再說</button>
     </div>
@@ -755,10 +755,10 @@ async function openReferralPanel() {
   document.body.appendChild(overlay);
   overlay.querySelector('#ref-share').addEventListener('click', async () => {
     const shareUrl = `${location.origin}/?ref=${stats.code}`;
-    const shareText = `我在用「豆豆 Doudou」減脂 App，輸入我的邀請碼 ${stats.code}，雙方各得 7 天免費試用 🫶`;
+    const shareText = `我在用「潘朵拉飲食」減脂 App，輸入我的邀請碼 ${stats.code}，雙方各得 7 天免費試用 🫶`;
     trackEvent('referral_share_clicked');
     if (navigator.share) {
-      try { await navigator.share({ title: '豆豆 Doudou', text: shareText, url: shareUrl }); }
+      try { await navigator.share({ title: '潘朵拉飲食', text: shareText, url: shareUrl }); }
       catch { /* user cancelled */ }
     } else {
       try { await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`); toast('已複製到剪貼簿', { emoji: '📋' }); }

@@ -1,12 +1,14 @@
 {
   "appId": "com.jerosse.doudou",
-  "appName": "FP 豆豆",
+  "appName": "潘朵拉飲食",
   "webDir": "public",
   "server": {
     "cleartext": false,
     "allowNavigation": [
+      "meal-api.js-store.com.tw",
       "pandora.js-store.com.tw",
-      "*.pandora.js-store.com.tw"
+      "*.pandora.js-store.com.tw",
+      "*.js-store.com.tw"
     ]
   },
   "ios": {
