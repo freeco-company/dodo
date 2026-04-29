@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Re-aggregates DailyLog totals from Meal rows + recomputes daily score.
  *
- * Until ADR-009 Phase B.3 cuts dodo over to py-service ledger as the
+ * Until ADR-009 Phase B.3 cuts pandora-meal over to py-service ledger as the
  * authority, the local `daily_logs` table needs to reflect the sum of the
  * day's meals so the daily score (calorie / protein / consistency components)
  * actually responds to meal writes. CheckinService's existing recalcScore
@@ -23,7 +23,7 @@ use Illuminate\Support\Facades\DB;
  *      meals_logged for the given (user, date) from the meals table
  *   2) calls ScoringService::daily to compute the 0..100 total
  *   3) saves the DailyLog
- *   4) fires `dodo.daily_score_80_plus` when score ≥ 80 (catalog §3.1).
+ *   4) fires `meal.daily_score_80_plus` when score ≥ 80 (catalog §3.1).
  *      Server-side daily_cap_xp=15 + idempotency_key per (uuid, date) make
  *      the event once-per-day even if the score oscillates.
  */
@@ -105,14 +105,14 @@ class DailyLogAggregator
             $log->exercise_score = $score['exercise'];
             $log->save();
 
-            // ADR-009 §3.1 — dodo.daily_score_80_plus. Idempotency_key per
+            // ADR-009 §3.1 — meal.daily_score_80_plus. Idempotency_key per
             // (uuid, date) gives once-per-day on the server even if the
             // score oscillates above/below the threshold during the day.
             if ($uuid !== '' && (int) $log->total_score >= self::DAILY_SCORE_THRESHOLD) {
                 $this->gamification->publish(
                     $uuid,
-                    'dodo.daily_score_80_plus',
-                    "dodo.daily_score_80_plus.{$uuid}.{$date}",
+                    'meal.daily_score_80_plus',
+                    "meal.daily_score_80_plus.{$uuid}.{$date}",
                     ['score' => (int) $log->total_score],
                 );
             }

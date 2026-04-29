@@ -1,17 +1,18 @@
-# CLAUDE.md — 潘朵拉飲食（Pandora Meal · code identifier 仍 `dodo`）
+# CLAUDE.md — 潘朵拉飲食（Pandora Meal）
 
 > 📌 **2026-04-29 命名拍板**（[完整規範](../docs/group-naming-and-voice.md)）：
 > - **User-facing 產品名**：**潘朵拉飲食**（**不再用「朵朵 App」「dodo App」「豆豆」「仙女飲食」**）
 > - **集團 NPC 名**：**朵朵 dodo**（導師角色，給建議與提醒，**不是 App 名前綴**）
-> - **Code identifier 暫不改**：本 repo 仍叫 `dodo`、API base 仍 `dodo-api.js-store.com.tw`、ledger `source_app: dodo`、namespace `App\...\Dodo` 不動
-> - **B 範圍改名**（git repo / 目錄 / DNS / systemd / nginx）綁 ADR-009 Phase B 一次到位 — runbook: [`../docs/migrations/dodo-to-pandora-meal-rename.md`](../docs/migrations/dodo-to-pandora-meal-rename.md)
+> - **Repo / 目錄改名 2026-04-29 完成**：GitHub repo `dodo` → `pandora-meal`、本機目錄 `dodo/` → `pandora-meal/`
+> - **Code identifier 仍保留 `dodo`**：namespace `App\...\Dodo`、ledger `source_app: dodo`、env prefix `DODO_*`（向後相容用，新加變數可用 `PANDORA_MEAL_*`）
+> - **Prod DNS / nginx / SSL 改名 2026-04-29 完成**：API base `dodo-api` → `meal-api.js-store.com.tw`（CF DNS user 改、nginx server_name 改、Let's Encrypt 新 cert 簽發）；systemd `dodo-backend-queue.service` 暫保留（向後相容），有需要再單獨改
 >
 > **寫 user-facing 文案 / push / Filament 給用戶看的 label / App Store 描述**：必用「潘朵拉飲食」+「朵朵」（NPC，導師語氣）。
 > **寫 code / config / commit / branch / 環境變數**：仍用 `dodo`。
 
 ---
 
-> 你（Claude / 任一 AI agent）在這個**子專案（潘朵拉飲食 backend，目錄/repo 仍叫 dodo）**工作時的指導文件。
+> 你（Claude / 任一 AI agent）在這個**子專案（潘朵拉飲食 backend）**工作時的指導文件。
 > Claude Code 會自動載入此檔；同時會載入父層 [`../CLAUDE.md`](../CLAUDE.md)（**Pandora 集團憲法**）。
 >
 > **優先順序**：本檔（朵朵專屬）> 父層集團憲法 > 全域 `~/.claude/CLAUDE.md`

@@ -15,9 +15,9 @@ beforeEach(function () {
     Bus::fake();
 });
 
-// ── dodo.weight_logged ────────────────────────────────────────────────
+// ── meal.weight_logged ────────────────────────────────────────────────
 
-it('fires dodo.weight_logged on the first weight log of the day', function () {
+it('fires meal.weight_logged on the first weight log of the day', function () {
     $user = User::factory()->create([
         'pandora_user_uuid' => 'wwww1111-1111-1111-1111-111111111111',
     ]);
@@ -27,8 +27,8 @@ it('fires dodo.weight_logged on the first weight log of the day', function () {
         ->assertOk();
 
     Bus::assertDispatched(PublishGamificationEventJob::class, function ($job) {
-        return $job->body['event_kind'] === 'dodo.weight_logged'
-            && $job->body['source_app'] === 'dodo'
+        return $job->body['event_kind'] === 'meal.weight_logged'
+            && $job->body['source_app'] === 'meal'
             && $job->body['metadata']['weight_kg'] === 62.5;
     });
 });
@@ -49,7 +49,7 @@ it('does NOT re-fire weight_logged on a same-day overwrite', function () {
 
     Bus::assertNotDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => $job->body['event_kind'] === 'dodo.weight_logged',
+        fn ($job) => $job->body['event_kind'] === 'meal.weight_logged',
     );
 });
 
@@ -63,14 +63,14 @@ it('idempotency_key for weight_logged is per-(uuid, date)', function () {
 
     $today = Carbon::today()->toDateString();
     Bus::assertDispatched(PublishGamificationEventJob::class, function ($job) use ($today) {
-        return $job->body['event_kind'] === 'dodo.weight_logged'
+        return $job->body['event_kind'] === 'meal.weight_logged'
             && str_ends_with($job->body['idempotency_key'], $today);
     });
 });
 
-// ── dodo.chat_daily ───────────────────────────────────────────────────
+// ── meal.chat_daily ───────────────────────────────────────────────────
 
-it('fires dodo.chat_daily on POST /api/chat/message', function () {
+it('fires meal.chat_daily on POST /api/chat/message', function () {
     $user = User::factory()->create([
         'pandora_user_uuid' => 'cccc1111-aaaa-bbbb-cccc-111111111111',
     ]);
@@ -82,7 +82,7 @@ it('fires dodo.chat_daily on POST /api/chat/message', function () {
         ->assertStatus(503);
 
     Bus::assertDispatched(PublishGamificationEventJob::class, function ($job) {
-        return $job->body['event_kind'] === 'dodo.chat_daily'
+        return $job->body['event_kind'] === 'meal.chat_daily'
             && $job->body['metadata']['scenario'] === 'test';
     });
 });
@@ -99,16 +99,16 @@ it('chat_daily idempotency_key is per-(uuid, date) so multiple chats only credit
 
     $today = Carbon::today()->toDateString();
     $events = collect(Bus::dispatched(PublishGamificationEventJob::class))
-        ->filter(fn ($job) => ($job->body['event_kind'] ?? '') === 'dodo.chat_daily');
+        ->filter(fn ($job) => ($job->body['event_kind'] ?? '') === 'meal.chat_daily');
     expect($events->count())->toBe(2);
     foreach ($events as $job) {
         expect(str_ends_with($job->body['idempotency_key'], $today))->toBeTrue();
     }
 });
 
-// ── dodo.weekly_review_read ──────────────────────────────────────────
+// ── meal.weekly_review_read ──────────────────────────────────────────
 
-it('fires dodo.weekly_review_read when the week has enough logged days', function () {
+it('fires meal.weekly_review_read when the week has enough logged days', function () {
     $user = User::factory()->create([
         'pandora_user_uuid' => 'rrrr1111-aaaa-bbbb-cccc-111111111111',
     ]);
@@ -129,7 +129,7 @@ it('fires dodo.weekly_review_read when the week has enough logged days', functio
         ->assertOk();
 
     Bus::assertDispatched(PublishGamificationEventJob::class, function ($job) use ($weekStart) {
-        return $job->body['event_kind'] === 'dodo.weekly_review_read'
+        return $job->body['event_kind'] === 'meal.weekly_review_read'
             && str_ends_with(
                 $job->body['idempotency_key'],
                 $weekStart->toDateString()
@@ -159,7 +159,7 @@ it('does NOT fire weekly_review_read when the week has too few logged days', fun
 
     Bus::assertNotDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => $job->body['event_kind'] === 'dodo.weekly_review_read',
+        fn ($job) => $job->body['event_kind'] === 'meal.weekly_review_read',
     );
 });
 

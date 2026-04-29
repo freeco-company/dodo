@@ -17,7 +17,7 @@ beforeEach(function () {
 
 // `correctChoiceIdxForCard($cardId)` lives in tests/Pest.php
 
-it('fires dodo.card_correct AND dodo.card_first_solve on a correct answer', function () {
+it('fires meal.card_correct AND meal.card_first_solve on a correct answer', function () {
     $user = User::factory()->create([
         'pandora_user_uuid' => 'cccc1111-1111-1111-1111-111111111111',
         'current_streak' => 0,
@@ -37,12 +37,12 @@ it('fires dodo.card_correct AND dodo.card_first_solve on a correct answer', func
         ->assertOk();
 
     Bus::assertDispatched(PublishGamificationEventJob::class, function ($job) {
-        return $job->body['event_kind'] === 'dodo.card_correct'
-            && $job->body['source_app'] === 'dodo';
+        return $job->body['event_kind'] === 'meal.card_correct'
+            && $job->body['source_app'] === 'meal';
     });
     Bus::assertDispatched(PublishGamificationEventJob::class, function ($job) {
-        return $job->body['event_kind'] === 'dodo.card_first_solve'
-            && str_starts_with($job->body['idempotency_key'], 'dodo.card_first_solve.cccc1111-');
+        return $job->body['event_kind'] === 'meal.card_first_solve'
+            && str_starts_with($job->body['idempotency_key'], 'meal.card_first_solve.cccc1111-');
     });
 });
 
@@ -67,7 +67,7 @@ it('does not fire card_correct/first_solve on a wrong answer', function () {
 
     Bus::assertNotDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => in_array($job->body['event_kind'] ?? '', ['dodo.card_correct', 'dodo.card_first_solve'], true),
+        fn ($job) => in_array($job->body['event_kind'] ?? '', ['meal.card_correct', 'meal.card_first_solve'], true),
     );
 });
 
@@ -89,8 +89,8 @@ it('idempotency_key for card_correct uses the play id', function () {
         ->assertOk();
 
     Bus::assertDispatched(PublishGamificationEventJob::class, function ($job) use ($playId) {
-        return $job->body['event_kind'] === 'dodo.card_correct'
-            && $job->body['idempotency_key'] === "dodo.card_correct.{$playId}";
+        return $job->body['event_kind'] === 'meal.card_correct'
+            && $job->body['idempotency_key'] === "meal.card_correct.{$playId}";
     });
 });
 

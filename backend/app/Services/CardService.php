@@ -270,20 +270,20 @@ class CardService
         // ADR-009 §3 / catalog §3.1 — gamification events on card answer.
         $uuid = is_string($user->pandora_user_uuid) ? $user->pandora_user_uuid : '';
         if ($uuid !== '' && $correct === true) {
-            // dodo.card_correct — every correct answer (server daily_cap_xp=40 / 5 cards)
+            // meal.card_correct — every correct answer (server daily_cap_xp=40 / 5 cards)
             $this->gamification->publish(
                 $uuid,
-                'dodo.card_correct',
-                "dodo.card_correct.{$play->id}",
+                'meal.card_correct',
+                "meal.card_correct.{$play->id}",
                 ['card_id' => $play->card_id, 'card_type' => $play->card_type],
             );
 
-            // dodo.card_first_solve — once per card (server lifetime_unique enforces).
+            // meal.card_first_solve — once per card (server lifetime_unique enforces).
             // Use card_id in idempotency_key so each new card the user solves bumps once.
             $this->gamification->publish(
                 $uuid,
-                'dodo.card_first_solve',
-                "dodo.card_first_solve.{$uuid}.{$play->card_id}",
+                'meal.card_first_solve',
+                "meal.card_first_solve.{$uuid}.{$play->card_id}",
                 ['card_id' => $play->card_id],
             );
         }

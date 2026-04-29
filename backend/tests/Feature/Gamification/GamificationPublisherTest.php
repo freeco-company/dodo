@@ -14,14 +14,14 @@ it('dispatches a job when configured with a known event_kind', function () {
     Bus::fake();
     app(GamificationPublisher::class)->publish(
         '00000000-0000-0000-0000-000000000001',
-        'dodo.meal_logged',
-        'dodo.meal_logged.42',
+        'meal.meal_logged',
+        'meal.meal_logged.42',
         ['meal_id' => 42],
     );
     Bus::assertDispatched(PublishGamificationEventJob::class, function (PublishGamificationEventJob $job) {
-        return $job->body['event_kind'] === 'dodo.meal_logged'
-            && $job->body['source_app'] === 'dodo'
-            && $job->body['idempotency_key'] === 'dodo.meal_logged.42'
+        return $job->body['event_kind'] === 'meal.meal_logged'
+            && $job->body['source_app'] === 'meal'
+            && $job->body['idempotency_key'] === 'meal.meal_logged.42'
             && $job->body['pandora_user_uuid'] === '00000000-0000-0000-0000-000000000001';
     });
 });
@@ -30,7 +30,7 @@ it('drops unknown event_kind without dispatching', function () {
     Bus::fake();
     app(GamificationPublisher::class)->publish(
         'uuid-x',
-        'dodo.never_heard_of_this',
+        'meal.never_heard_of_this',
         'k1',
     );
     Bus::assertNotDispatched(PublishGamificationEventJob::class);
@@ -41,7 +41,7 @@ it('noops when base_url is missing', function () {
     Bus::fake();
     app(GamificationPublisher::class)->publish(
         'uuid-x',
-        'dodo.app_opened',
+        'meal.app_opened',
         'k1',
     );
     Bus::assertNotDispatched(PublishGamificationEventJob::class);
@@ -50,14 +50,14 @@ it('noops when base_url is missing', function () {
 it('noops when shared_secret is missing', function () {
     config()->set('services.pandora_gamification.shared_secret', '');
     Bus::fake();
-    app(GamificationPublisher::class)->publish('uuid-x', 'dodo.app_opened', 'k1');
+    app(GamificationPublisher::class)->publish('uuid-x', 'meal.app_opened', 'k1');
     Bus::assertNotDispatched(PublishGamificationEventJob::class);
 });
 
 it('drops events with empty uuid or idempotency_key', function () {
     Bus::fake();
-    app(GamificationPublisher::class)->publish('', 'dodo.app_opened', 'k1');
-    app(GamificationPublisher::class)->publish('uuid-x', 'dodo.app_opened', '');
+    app(GamificationPublisher::class)->publish('', 'meal.app_opened', 'k1');
+    app(GamificationPublisher::class)->publish('uuid-x', 'meal.app_opened', '');
     Bus::assertNotDispatched(PublishGamificationEventJob::class);
 });
 
@@ -81,9 +81,9 @@ it('send() POSTs to py-service with the correct headers and body', function () {
 
     app(GamificationPublisher::class)->send([
         'pandora_user_uuid' => '00000000-0000-0000-0000-000000000001',
-        'source_app' => 'dodo',
-        'event_kind' => 'dodo.meal_logged',
-        'idempotency_key' => 'dodo.meal_logged.42',
+        'source_app' => 'meal',
+        'event_kind' => 'meal.meal_logged',
+        'idempotency_key' => 'meal.meal_logged.42',
         'occurred_at' => '2026-04-29T00:00:00+00:00',
         'metadata' => [],
     ]);
@@ -91,8 +91,8 @@ it('send() POSTs to py-service with the correct headers and body', function () {
     Http::assertSent(function ($request) {
         return $request->url() === 'https://gamification.test/api/v1/internal/gamification/events'
             && $request->hasHeader('X-Internal-Secret', 'test-secret')
-            && $request['event_kind'] === 'dodo.meal_logged'
-            && $request['source_app'] === 'dodo';
+            && $request['event_kind'] === 'meal.meal_logged'
+            && $request['source_app'] === 'meal';
     });
 });
 
@@ -103,8 +103,8 @@ it('send() throws on non-2xx so the queue retries', function () {
 
     expect(fn () => app(GamificationPublisher::class)->send([
         'pandora_user_uuid' => '00000000-0000-0000-0000-000000000001',
-        'source_app' => 'dodo',
-        'event_kind' => 'dodo.app_opened',
+        'source_app' => 'meal',
+        'event_kind' => 'meal.app_opened',
         'idempotency_key' => 'k',
         'occurred_at' => '2026-04-29T00:00:00+00:00',
         'metadata' => [],
@@ -115,7 +115,7 @@ it('strips null metadata values before queueing', function () {
     Bus::fake();
     app(GamificationPublisher::class)->publish(
         '00000000-0000-0000-0000-000000000001',
-        'dodo.meal_logged',
+        'meal.meal_logged',
         'k1',
         ['meal_id' => 7, 'note' => null, 'tag' => 'x'],
     );
@@ -128,12 +128,12 @@ it('strips null metadata values before queueing', function () {
 
 it('catalog whitelist matches catalog §3.1 (no strays, no missing core events)', function () {
     expect(GamificationPublisher::KNOWN_EVENT_KINDS)
-        ->toContain('dodo.meal_logged')
-        ->toContain('dodo.streak_7')
-        ->toContain('dodo.card_first_solve')
-        ->toContain('dodo.app_opened');
+        ->toContain('meal.meal_logged')
+        ->toContain('meal.streak_7')
+        ->toContain('meal.card_first_solve')
+        ->toContain('meal.app_opened');
 
     foreach (GamificationPublisher::KNOWN_EVENT_KINDS as $kind) {
-        expect($kind)->toStartWith('dodo.');
+        expect($kind)->toStartWith('meal.');
     }
 });

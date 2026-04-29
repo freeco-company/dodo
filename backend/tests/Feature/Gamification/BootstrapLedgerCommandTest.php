@@ -71,7 +71,7 @@ it('POSTs users in batches with X-Internal-Secret header', function () {
         return $request->url() === 'https://gamification.test/api/v1/internal/gamification/migration/bootstrap-ledger'
             && $request->hasHeader('X-Internal-Secret', 'test-secret')
             && count($request['entries']) === 3
-            && $request['entries'][0]['source_app'] === 'dodo';
+            && $request['entries'][0]['source_app'] === 'meal';
     });
 });
 

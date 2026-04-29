@@ -172,7 +172,7 @@ it('POST /api/meals leaves meal_score null when no calories supplied', function 
     expect($meal->meal_score)->toBeNull();
 });
 
-it('fires dodo.meal_score_80_plus when meal_score ≥ 80', function () {
+it('fires meal.meal_score_80_plus when meal_score ≥ 80', function () {
     $user = User::factory()->create([
         'pandora_user_uuid' => 'mmmm3333-3333-3333-3333-mmmm33333333',
         'daily_calorie_target' => 1800,
@@ -189,12 +189,12 @@ it('fires dodo.meal_score_80_plus when meal_score ≥ 80', function () {
         ->assertCreated();
 
     Bus::assertDispatched(PublishGamificationEventJob::class, function ($job) {
-        return $job->body['event_kind'] === 'dodo.meal_score_80_plus'
+        return $job->body['event_kind'] === 'meal.meal_score_80_plus'
             && $job->body['metadata']['score'] >= 80;
     });
 });
 
-it('does NOT fire dodo.meal_score_80_plus when meal_score < 80', function () {
+it('does NOT fire meal.meal_score_80_plus when meal_score < 80', function () {
     $user = User::factory()->create([
         'pandora_user_uuid' => 'mmmm4444-4444-4444-4444-mmmm44444444',
         'daily_calorie_target' => 1800,
@@ -211,7 +211,7 @@ it('does NOT fire dodo.meal_score_80_plus when meal_score < 80', function () {
 
     Bus::assertNotDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => $job->body['event_kind'] === 'dodo.meal_score_80_plus',
+        fn ($job) => $job->body['event_kind'] === 'meal.meal_score_80_plus',
     );
 });
 
@@ -232,7 +232,7 @@ it('idempotency_key for meal_score_80_plus uses the meal id', function () {
 
     $mealId = (int) $resp->json('data.id');
     Bus::assertDispatched(PublishGamificationEventJob::class, function ($job) use ($mealId) {
-        return $job->body['event_kind'] === 'dodo.meal_score_80_plus'
-            && $job->body['idempotency_key'] === "dodo.meal_score_80_plus.{$mealId}";
+        return $job->body['event_kind'] === 'meal.meal_score_80_plus'
+            && $job->body['idempotency_key'] === "meal.meal_score_80_plus.{$mealId}";
     });
 });

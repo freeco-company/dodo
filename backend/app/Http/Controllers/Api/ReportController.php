@@ -88,15 +88,15 @@ class ReportController extends Controller
             ->whereBetween('date', [$weekStart->toDateString(), $weekEnd->toDateString()])
             ->count();
 
-        // ADR-009 §3 / catalog §3.1 — fire dodo.weekly_review_read once per
+        // ADR-009 §3 / catalog §3.1 — fire meal.weekly_review_read once per
         // (user, week) when the user has enough data for a meaningful review
         // (avoid crediting empty weeks). Server idempotency_key uses week_start.
         $uuid = is_string($user->pandora_user_uuid) ? $user->pandora_user_uuid : '';
         if ($uuid !== '' && $loggedDays >= 3) {
             $this->gamification->publish(
                 $uuid,
-                'dodo.weekly_review_read',
-                "dodo.weekly_review_read.{$uuid}.".$weekStart->toDateString(),
+                'meal.weekly_review_read',
+                "meal.weekly_review_read.{$uuid}.".$weekStart->toDateString(),
                 ['week_start' => $weekStart->toDateString()],
             );
         }

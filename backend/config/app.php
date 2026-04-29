@@ -130,6 +130,6 @@ return [
     | Shared secret for cron / ops endpoints (purge, analytics flush, SEO mgmt).
     | Sent via X-Admin-Token header. Unset = endpoints return 403 always.
     */
-    'admin_token' => env('DODO_ADMIN_TOKEN'),
+    'admin_token' => env('MEAL_ADMIN_TOKEN'),
 
 ];

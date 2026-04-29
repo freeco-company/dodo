@@ -82,36 +82,36 @@ class MealController extends Controller
             if ($uuidForMealScore !== '' && $score >= 80) {
                 $this->gamification->publish(
                     $uuidForMealScore,
-                    'dodo.meal_score_80_plus',
-                    "dodo.meal_score_80_plus.{$meal->id}",
+                    'meal.meal_score_80_plus',
+                    "meal.meal_score_80_plus.{$meal->id}",
                     ['meal_id' => $meal->id, 'score' => $score],
                 );
             }
         }
 
         // ADR-009 §3.1 — record food discoveries (Pokémon-style) which in turn
-        // fires `dodo.new_food_discovered` per new foodid + `dodo.foodie_10`
+        // fires `meal.new_food_discovered` per new foodid + `meal.foodie_10`
         // achievement when the user reaches 10 distinct foods.
         $this->foodDiscovery->recordFromMeal($user, $meal);
 
         // Re-aggregate daily totals from meals + recompute daily score; fires
-        // `dodo.daily_score_80_plus` if the new score crosses 80. (catalog §3.1)
+        // `meal.daily_score_80_plus` if the new score crosses 80. (catalog §3.1)
         $this->dailyLog->recompute($user, $meal->date->toDateString());
 
         // ADR-009 §3 / catalog §3.1 — fire gamification events for this meal.
         $uuid = is_string($user->pandora_user_uuid) ? $user->pandora_user_uuid : '';
         if ($uuid !== '') {
-            // dodo.meal_logged — fires every meal; daily cap (30 XP / 6 meals)
+            // meal.meal_logged — fires every meal; daily cap (30 XP / 6 meals)
             // and diminishing returns (4th meal onwards = 2 XP) live server-side
             // in catalog.EVENT_CATALOG so caller doesn't need to think about it.
             $this->gamification->publish(
                 $uuid,
-                'dodo.meal_logged',
-                "dodo.meal_logged.{$meal->id}",
+                'meal.meal_logged',
+                "meal.meal_logged.{$meal->id}",
                 ['meal_id' => $meal->id, 'meal_type' => $meal->meal_type],
             );
 
-            // dodo.first_meal_of_day — only when this is the first meal logged
+            // meal.first_meal_of_day — only when this is the first meal logged
             // for the meal's date. Catalog daily_cap_xp=5 enforces the once-a-day
             // cap on the server even if our detection is imperfect.
             $mealsToday = $user->meals()
@@ -121,13 +121,13 @@ class MealController extends Controller
             if ($mealsToday === 0) {
                 $this->gamification->publish(
                     $uuid,
-                    'dodo.first_meal_of_day',
-                    "dodo.first_meal_of_day.{$uuid}.".$meal->date->toDateString(),
+                    'meal.first_meal_of_day',
+                    "meal.first_meal_of_day.{$uuid}.".$meal->date->toDateString(),
                     ['meal_id' => $meal->id],
                 );
             }
 
-            // ADR-009 §5 — `dodo.first_meal` achievement on the user's
+            // ADR-009 §5 — `meal.first_meal` achievement on the user's
             // first-ever meal. Cheap exact count when the user has only one
             // meal so far; we already know `$mealsToday` above so a 0 there
             // narrows it. py-service is idempotent on (uuid, code) so a stray
@@ -139,8 +139,8 @@ class MealController extends Controller
                 if ($totalMeals === 0) {
                     $this->achievements->publish(
                         $uuid,
-                        'dodo.first_meal',
-                        "dodo.first_meal.{$uuid}",
+                        'meal.first_meal',
+                        "meal.first_meal.{$uuid}",
                         ['meal_id' => $meal->id, 'meal_type' => $meal->meal_type],
                     );
                 }

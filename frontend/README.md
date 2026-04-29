@@ -9,7 +9,7 @@
 
 ```
 frontend/
-├── capacitor.config.json   ← appId com.jerosse.doudou (與舊版相同)
+├── capacitor.config.json   ← appId com.jerosse.pandora.meal (與舊版相同)
 ├── package.json            ← Capacitor + http-server，不再含後端 deps
 ├── public/                 ← 純 web bundle (vanilla JS + HTML)
 │   ├── index.html

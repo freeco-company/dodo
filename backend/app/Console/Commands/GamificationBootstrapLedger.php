@@ -7,12 +7,12 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
 /**
- * One-shot migration command — pushes existing dodo users' `xp` totals into
+ * One-shot migration command — pushes existing pandora-meal users' `xp` totals into
  * the py-service gamification ledger as `migration.bootstrap` entries so
  * future events accumulate from the correct baseline. ADR-009 Phase B.
  *
  * Run AFTER py-service is deployed (alembic 0002+ + seed endpoints) and
- * dodo's PANDORA_GAMIFICATION_BASE_URL/SECRET are set.
+ * pandora-meal's PANDORA_GAMIFICATION_BASE_URL/SECRET are set.
  *
  * Idempotent — re-running is a no-op (py-service skips users it already
  * bootstrapped). Safe to run on staging first then prod.
@@ -94,7 +94,7 @@ class GamificationBootstrapLedger extends Command
             $batchEntries[] = [
                 'pandora_user_uuid' => (string) $user->pandora_user_uuid,
                 'total_xp' => (int) ($user->xp ?? 0),
-                'source_app' => 'dodo',
+                'source_app' => 'meal',
             ];
             if (count($batchEntries) >= $batchSize) {
                 [$new, $skipped] = $this->flushBatch($url, $secret, $batchEntries, $dryRun);

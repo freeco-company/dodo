@@ -15,7 +15,7 @@ beforeEach(function () {
     Bus::fake();
 });
 
-it('fires dodo.meal_logged on POST /api/meals', function () {
+it('fires meal.meal_logged on POST /api/meals', function () {
     $user = User::factory()->create([
         'pandora_user_uuid' => 'aaaaaaaa-1111-1111-1111-111111111111',
     ]);
@@ -30,14 +30,14 @@ it('fires dodo.meal_logged on POST /api/meals', function () {
         ->assertCreated();
 
     Bus::assertDispatched(PublishGamificationEventJob::class, function ($job) {
-        return $job->body['event_kind'] === 'dodo.meal_logged'
-            && $job->body['source_app'] === 'dodo'
-            && str_starts_with($job->body['idempotency_key'], 'dodo.meal_logged.')
+        return $job->body['event_kind'] === 'meal.meal_logged'
+            && $job->body['source_app'] === 'meal'
+            && str_starts_with($job->body['idempotency_key'], 'meal.meal_logged.')
             && $job->body['metadata']['meal_type'] === 'lunch';
     });
 });
 
-it('fires dodo.first_meal_of_day for the first meal of the date and not for subsequent ones', function () {
+it('fires meal.first_meal_of_day for the first meal of the date and not for subsequent ones', function () {
     $user = User::factory()->create([
         'pandora_user_uuid' => 'bbbbbbbb-2222-2222-2222-222222222222',
     ]);
@@ -53,7 +53,7 @@ it('fires dodo.first_meal_of_day for the first meal of the date and not for subs
 
     Bus::assertDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => $job->body['event_kind'] === 'dodo.first_meal_of_day',
+        fn ($job) => $job->body['event_kind'] === 'meal.first_meal_of_day',
     );
 
     Bus::fake();  // reset captured jobs
@@ -68,11 +68,11 @@ it('fires dodo.first_meal_of_day for the first meal of the date and not for subs
 
     Bus::assertNotDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => $job->body['event_kind'] === 'dodo.first_meal_of_day',
+        fn ($job) => $job->body['event_kind'] === 'meal.first_meal_of_day',
     );
     Bus::assertDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => $job->body['event_kind'] === 'dodo.meal_logged',
+        fn ($job) => $job->body['event_kind'] === 'meal.meal_logged',
     );
 });
 
@@ -100,7 +100,7 @@ it('first_meal_of_day fires again on a different date', function () {
 
     Bus::assertDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => $job->body['event_kind'] === 'dodo.first_meal_of_day'
+        fn ($job) => $job->body['event_kind'] === 'meal.first_meal_of_day'
             && str_ends_with($job->body['idempotency_key'], $today),
     );
 });
@@ -121,8 +121,8 @@ it('idempotency_key for meal_logged uses the meal id so retries cannot double-cr
     expect($mealId)->toBeInt();
 
     Bus::assertDispatched(PublishGamificationEventJob::class, function ($job) use ($mealId) {
-        return $job->body['event_kind'] === 'dodo.meal_logged'
-            && $job->body['idempotency_key'] === "dodo.meal_logged.{$mealId}";
+        return $job->body['event_kind'] === 'meal.meal_logged'
+            && $job->body['idempotency_key'] === "meal.meal_logged.{$mealId}";
     });
 });
 

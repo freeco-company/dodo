@@ -90,7 +90,7 @@ it('marks is_shiny when meal_score crosses SHINY_THRESHOLD (90)', function () {
 
 // ── new_food_discovered event ─────────────────────────────────────────
 
-it('fires dodo.new_food_discovered on first encounter only', function () {
+it('fires meal.new_food_discovered on first encounter only', function () {
     $user = User::factory()->create([
         'pandora_user_uuid' => 'ffff4444-4444-4444-4444-ffff44444444',
     ]);
@@ -107,7 +107,7 @@ it('fires dodo.new_food_discovered on first encounter only', function () {
     app(FoodDiscoveryService::class)->recordFromMeal($user, $meal1);
 
     Bus::assertDispatched(PublishGamificationEventJob::class, function ($job) use ($food) {
-        return $job->body['event_kind'] === 'dodo.new_food_discovered'
+        return $job->body['event_kind'] === 'meal.new_food_discovered'
             && $job->body['metadata']['food_id'] === $food->id;
     });
 
@@ -126,13 +126,13 @@ it('fires dodo.new_food_discovered on first encounter only', function () {
 
     Bus::assertNotDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => $job->body['event_kind'] === 'dodo.new_food_discovered',
+        fn ($job) => $job->body['event_kind'] === 'meal.new_food_discovered',
     );
 });
 
 // ── foodie_10 achievement ─────────────────────────────────────────────
 
-it('fires dodo.foodie_10 only when the user reaches 10 distinct foods', function () {
+it('fires meal.foodie_10 only when the user reaches 10 distinct foods', function () {
     $user = User::factory()->create([
         'pandora_user_uuid' => 'ffff5555-5555-5555-5555-ffff55555555',
     ]);
@@ -153,7 +153,7 @@ it('fires dodo.foodie_10 only when the user reaches 10 distinct foods', function
     // Should fire exactly when totalreached 10
     Bus::assertDispatched(
         PublishAchievementAwardJob::class,
-        fn ($job) => $job->body['code'] === 'dodo.foodie_10',
+        fn ($job) => $job->body['code'] === 'meal.foodie_10',
     );
 });
 
@@ -177,7 +177,7 @@ it('does NOT fire foodie_10 before reaching 10 foods', function () {
 
     Bus::assertNotDispatched(
         PublishAchievementAwardJob::class,
-        fn ($job) => $job->body['code'] === 'dodo.foodie_10',
+        fn ($job) => $job->body['code'] === 'meal.foodie_10',
     );
 });
 
@@ -234,7 +234,7 @@ it('POST /api/meals with matched_food_ids triggers food discovery flow', functio
 
     Bus::assertDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => $job->body['event_kind'] === 'dodo.new_food_discovered',
+        fn ($job) => $job->body['event_kind'] === 'meal.new_food_discovered',
     );
 });
 
@@ -253,6 +253,6 @@ it('POST /api/meals without matched_food_ids does not touch food_discoveries', f
     expect(FoodDiscovery::count())->toBe(0);
     Bus::assertNotDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => $job->body['event_kind'] === 'dodo.new_food_discovered',
+        fn ($job) => $job->body['event_kind'] === 'meal.new_food_discovered',
     );
 });

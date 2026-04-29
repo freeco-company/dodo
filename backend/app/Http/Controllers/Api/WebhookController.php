@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
  * Inbound webhooks from婕樂纖 (pandora.js-store) e-commerce.
  *
  * TODO: implement real signature verification (HMAC-SHA256 over raw body
- *       using a shared secret env DODO_ECOMMERCE_WEBHOOK_SECRET). For now
+ *       using a shared secret env MEAL_ECOMMERCE_WEBHOOK_SECRET). For now
  *       we just log + log + 200 so the producer can be wired without losing
  *       events. SECURITY: do NOT expose this in production until the
  *       signature check lands.
