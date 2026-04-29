@@ -54,4 +54,4 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://doudou.freeco.tw/sitemap.xml
+Sitemap: https://meal-api.js-store.com.tw/sitemap.xml

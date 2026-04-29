@@ -17,7 +17,7 @@ beforeEach(function () {
 
 // ── streak_7 / streak_30 ──────────────────────────────────────────────
 
-it('awards dodo.streak_7 when daily-log creation crosses the 7-day threshold', function () {
+it('awards meal.streak_7 when daily-log creation crosses the 7-day threshold', function () {
     $user = User::factory()->create([
         'pandora_user_uuid' => 'aaaa1111-1111-1111-1111-aaaa11111111',
     ]);
@@ -28,8 +28,8 @@ it('awards dodo.streak_7 when daily-log creation crosses the 7-day threshold', f
         ->assertOk();
 
     Bus::assertDispatched(PublishAchievementAwardJob::class, function ($job) {
-        return $job->body['code'] === 'dodo.streak_7'
-            && $job->body['source_app'] === 'dodo';
+        return $job->body['code'] === 'meal.streak_7'
+            && $job->body['source_app'] === 'meal';
     });
 });
 
@@ -45,11 +45,11 @@ it('does NOT re-award streak_7 once already past threshold', function () {
 
     Bus::assertNotDispatched(
         PublishAchievementAwardJob::class,
-        fn ($job) => $job->body['code'] === 'dodo.streak_7',
+        fn ($job) => $job->body['code'] === 'meal.streak_7',
     );
 });
 
-it('awards dodo.streak_30 on day-30 threshold and not streak_7', function () {
+it('awards meal.streak_30 on day-30 threshold and not streak_7', function () {
     $user = User::factory()->create([
         'pandora_user_uuid' => 'aaaa3333-3333-3333-3333-aaaa33333333',
     ]);
@@ -61,11 +61,11 @@ it('awards dodo.streak_30 on day-30 threshold and not streak_7', function () {
 
     Bus::assertDispatched(
         PublishAchievementAwardJob::class,
-        fn ($job) => $job->body['code'] === 'dodo.streak_30',
+        fn ($job) => $job->body['code'] === 'meal.streak_30',
     );
     Bus::assertNotDispatched(
         PublishAchievementAwardJob::class,
-        fn ($job) => $job->body['code'] === 'dodo.streak_7',
+        fn ($job) => $job->body['code'] === 'meal.streak_7',
     );
 });
 
@@ -81,7 +81,7 @@ it('streak_3 / streak_14 do NOT award (XP-only milestones, no badge)', function 
 
     Bus::assertNotDispatched(
         PublishAchievementAwardJob::class,
-        fn ($job) => str_starts_with($job->body['code'] ?? '', 'dodo.streak_'),
+        fn ($job) => str_starts_with($job->body['code'] ?? '', 'meal.streak_'),
     );
 });
 
@@ -96,14 +96,14 @@ it('idempotency_key for streak achievements is uuid-scoped (one badge ever)', fu
         ->assertOk();
 
     Bus::assertDispatched(PublishAchievementAwardJob::class, function ($job) {
-        return $job->body['code'] === 'dodo.streak_7'
-            && $job->body['idempotency_key'] === 'dodo.streak_7.aaaa5555-5555-5555-5555-aaaa55555555';
+        return $job->body['code'] === 'meal.streak_7'
+            && $job->body['idempotency_key'] === 'meal.streak_7.aaaa5555-5555-5555-5555-aaaa55555555';
     });
 });
 
 // ── first_meal ───────────────────────────────────────────────────────
 
-it('awards dodo.first_meal on the user’s very first meal', function () {
+it('awards meal.first_meal on the user’s very first meal', function () {
     $user = User::factory()->create([
         'pandora_user_uuid' => 'bbbb1111-1111-1111-1111-bbbb11111111',
     ]);
@@ -116,8 +116,8 @@ it('awards dodo.first_meal on the user’s very first meal', function () {
         ->assertCreated();
 
     Bus::assertDispatched(PublishAchievementAwardJob::class, function ($job) {
-        return $job->body['code'] === 'dodo.first_meal'
-            && $job->body['idempotency_key'] === 'dodo.first_meal.bbbb1111-1111-1111-1111-bbbb11111111';
+        return $job->body['code'] === 'meal.first_meal'
+            && $job->body['idempotency_key'] === 'meal.first_meal.bbbb1111-1111-1111-1111-bbbb11111111';
     });
 });
 
@@ -142,7 +142,7 @@ it('does NOT re-award first_meal on subsequent meals', function () {
 
     Bus::assertNotDispatched(
         PublishAchievementAwardJob::class,
-        fn ($job) => $job->body['code'] === 'dodo.first_meal',
+        fn ($job) => $job->body['code'] === 'meal.first_meal',
     );
 });
 

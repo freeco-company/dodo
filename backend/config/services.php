@@ -67,10 +67,10 @@ return [
     | shared_secret 對應 ai-service 端的 INTERNAL_SHARED_SECRET（X-Internal-Secret
     | header）；Phase F 切真 JWT 後此 path 移除。
     */
-    'dodo_ai_service' => [
-        'base_url' => env('DODO_AI_SERVICE_BASE_URL'),
-        'shared_secret' => env('DODO_AI_SERVICE_SHARED_SECRET'),
-        'timeout' => (int) env('DODO_AI_SERVICE_TIMEOUT', 30),
+    'meal_ai_service' => [
+        'base_url' => env('MEAL_AI_SERVICE_BASE_URL'),
+        'shared_secret' => env('MEAL_AI_SERVICE_SHARED_SECRET'),
+        'timeout' => (int) env('MEAL_AI_SERVICE_TIMEOUT', 30),
     ],
 
     'pandora_conversion' => [
@@ -103,7 +103,7 @@ return [
         'timeout' => (int) env('PANDORA_GAMIFICATION_TIMEOUT', 5),
         // ADR-009 Phase B.2 — receive-side webhook from py-service.
         // Independent secret (different direction); set on prod when py-service
-        // is configured with GAMIFICATION_CONSUMER_DODO_SECRET pointing here.
+        // is configured with GAMIFICATION_CONSUMER_MEAL_SECRET pointing here.
         'webhook_secret' => env('PANDORA_GAMIFICATION_WEBHOOK_SECRET'),
         'webhook_window_seconds' => (int) env('PANDORA_GAMIFICATION_WEBHOOK_WINDOW_SECONDS', 300),
     ],

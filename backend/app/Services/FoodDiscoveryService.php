@@ -14,12 +14,12 @@ use Illuminate\Support\Facades\DB;
  * `ai-game/src/services/pokedex.ts`.
  *
  * For each food id matched in a meal, upserts a `food_discoveries` row:
- *   - First time → INSERT, fire `dodo.new_food_discovered` (catalog §3.1).
+ *   - First time → INSERT, fire `meal.new_food_discovered` (catalog §3.1).
  *     If the meal also crossed SHINY_THRESHOLD, mark is_shiny=1 immediately.
  *   - Repeat → UPDATE times_eaten + maybe upgrade best_score / unlock shiny.
  *
  * Achievement triggers:
- *   - `dodo.foodie_10` when the user reaches 10 distinct discoveries (catalog §5.2).
+ *   - `meal.foodie_10` when the user reaches 10 distinct discoveries (catalog §5.2).
  *
  * Idempotency: db-level UNIQUE(user_id, food_id) guards the row; gamification
  * events use stable idempotency_keys so retries don't double-credit.
@@ -68,8 +68,8 @@ class FoodDiscoveryService
                 $newDiscoveries++;
                 $this->gamification->publish(
                     $uuid,
-                    'dodo.new_food_discovered',
-                    "dodo.new_food_discovered.{$uuid}.{$foodId}",
+                    'meal.new_food_discovered',
+                    "meal.new_food_discovered.{$uuid}.{$foodId}",
                     ['food_id' => $foodId, 'meal_id' => $meal->id],
                 );
             }
@@ -84,8 +84,8 @@ class FoodDiscoveryService
                 // subsequent publishes are no-ops.
                 $this->achievements->publish(
                     $uuid,
-                    'dodo.foodie_10',
-                    "dodo.foodie_10.{$uuid}",
+                    'meal.foodie_10',
+                    "meal.foodie_10.{$uuid}",
                     ['discoveries' => $total],
                 );
             }

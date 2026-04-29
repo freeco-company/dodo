@@ -15,13 +15,13 @@ uses(RefreshDatabase::class);
  * real request shape (headers / multipart / payload).
  */
 beforeEach(function () {
-    config()->set('services.dodo_ai_service.base_url', 'https://ai.test');
-    config()->set('services.dodo_ai_service.shared_secret', 'test-shared-secret');
-    config()->set('services.dodo_ai_service.timeout', 5);
+    config()->set('services.meal_ai_service.base_url', 'https://ai.test');
+    config()->set('services.meal_ai_service.shared_secret', 'test-shared-secret');
+    config()->set('services.meal_ai_service.timeout', 5);
 });
 
 it('throws AiServiceUnavailableException when base_url is missing', function () {
-    config()->set('services.dodo_ai_service.base_url', '');
+    config()->set('services.meal_ai_service.base_url', '');
     $user = User::factory()->create(['pandora_user_uuid' => 'uuid-1']);
 
     expect(fn () => app(AiServiceClient::class)->scanMeal($user, 'https://x.test/img.jpg'))
@@ -29,7 +29,7 @@ it('throws AiServiceUnavailableException when base_url is missing', function () 
 });
 
 it('throws AiServiceUnavailableException when shared_secret is missing', function () {
-    config()->set('services.dodo_ai_service.shared_secret', '');
+    config()->set('services.meal_ai_service.shared_secret', '');
     $user = User::factory()->create(['pandora_user_uuid' => 'uuid-1']);
 
     expect(fn () => app(AiServiceClient::class)->scanMeal($user, 'https://x.test/img.jpg'))
@@ -146,7 +146,7 @@ it('describeMeal raises AI_SERVICE_ERROR when ai-service returns 5xx', function 
 });
 
 it('describeMeal still throws when base_url not configured', function () {
-    config()->set('services.dodo_ai_service.base_url', '');
+    config()->set('services.meal_ai_service.base_url', '');
     $user = User::factory()->create(['pandora_user_uuid' => 'uuid-1']);
 
     expect(fn () => app(AiServiceClient::class)->describeMeal($user, '吃了便當'))

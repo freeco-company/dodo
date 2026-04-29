@@ -29,10 +29,10 @@ class AchievementMirrorTest extends TestCase
         ]);
 
         $body = $this->buildBody('gamification.achievement_awarded', $user->pandora_user_uuid, [
-            'code' => 'dodo.first_meal',
+            'code' => 'meal.first_meal',
             'name' => '第一餐',
             'tier' => 'bronze',
-            'source_app' => 'dodo',
+            'source_app' => 'meal',
             'occurred_at' => '2026-04-29T12:00:00+00:00',
         ], eventId: 'gamification.achievement_awarded.10');
 
@@ -43,7 +43,7 @@ class AchievementMirrorTest extends TestCase
 
         $row = Achievement::where('user_id', $user->id)->first();
         $this->assertNotNull($row);
-        $this->assertSame('dodo.first_meal', $row->achievement_key);
+        $this->assertSame('meal.first_meal', $row->achievement_key);
         $this->assertSame('第一餐', $row->achievement_name);
         $this->assertNotNull($row->unlocked_at);
     }
@@ -55,10 +55,10 @@ class AchievementMirrorTest extends TestCase
         ]);
 
         $payload = [
-            'code' => 'dodo.streak_7',
+            'code' => 'meal.streak_7',
             'name' => '一週有你',
             'tier' => 'silver',
-            'source_app' => 'dodo',
+            'source_app' => 'meal',
             'occurred_at' => '2026-04-29T12:00:00+00:00',
         ];
         $b1 = $this->buildBody('gamification.achievement_awarded', $user->pandora_user_uuid, $payload, eventId: 'evt-1');
@@ -78,10 +78,10 @@ class AchievementMirrorTest extends TestCase
             'pandora_user_uuid' => 'amir3333-3333-3333-3333-amir33333333',
         ]);
         $body = $this->buildBody('gamification.achievement_awarded', $user->pandora_user_uuid, [
-            'code' => 'dodo.streak_30',
+            'code' => 'meal.streak_30',
             'name' => '一個月的陪伴',
             'tier' => 'gold',
-            'source_app' => 'dodo',
+            'source_app' => 'meal',
         ], eventId: 'shared-event-id');
 
         $first = $this->postWithSig($body);
@@ -100,7 +100,7 @@ class AchievementMirrorTest extends TestCase
         $body = $this->buildBody(
             'gamification.achievement_awarded',
             'amir4444-4444-4444-4444-amir44444444',
-            ['code' => 'dodo.first_meal', 'name' => '第一餐', 'tier' => 'bronze'],
+            ['code' => 'meal.first_meal', 'name' => '第一餐', 'tier' => 'bronze'],
             eventId: 'evt-no-user',
         );
 
@@ -136,14 +136,14 @@ class AchievementMirrorTest extends TestCase
         $body = $this->buildBody(
             'gamification.achievement_awarded',
             $user->pandora_user_uuid,
-            ['code' => 'dodo.foodie_10'],
+            ['code' => 'meal.foodie_10'],
             eventId: 'evt-name-fallback',
         );
 
         $this->postWithSig($body)->assertOk()->assertJsonPath('mirrored', true);
 
         $row = Achievement::where('user_id', $user->id)->first();
-        $this->assertSame('dodo.foodie_10', $row->achievement_name);
+        $this->assertSame('meal.foodie_10', $row->achievement_name);
     }
 
     public function test_uses_payload_occurred_at_when_present(): void
@@ -155,7 +155,7 @@ class AchievementMirrorTest extends TestCase
             'gamification.achievement_awarded',
             $user->pandora_user_uuid,
             [
-                'code' => 'dodo.first_meal',
+                'code' => 'meal.first_meal',
                 'name' => '第一餐',
                 'occurred_at' => '2026-01-01T00:00:00+00:00',
             ],

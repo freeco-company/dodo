@@ -55,8 +55,8 @@ class CheckinService
      * @var array<int, string>
      */
     private const STREAK_THRESHOLD_TO_ACHIEVEMENT = [
-        7 => 'dodo.streak_7',
-        30 => 'dodo.streak_30',
+        7 => 'meal.streak_7',
+        30 => 'meal.streak_30',
     ];
 
     private function getOrCreateDailyLog(User $user, ?string $date = null): DailyLog
@@ -117,7 +117,7 @@ class CheckinService
     }
 
     /**
-     * Fire `dodo.streak_{N}` events for thresholds the user crossed *today*
+     * Fire `meal.streak_{N}` events for thresholds the user crossed *today*
      * (i.e., today's streak >= N AND yesterday's streak < N). idempotency_key
      * is per-(uuid, threshold, today) so naturally idempotent across retries
      * and across multiple checkin writes within the same day.
@@ -140,8 +140,8 @@ class CheckinService
             if ($todayCount >= $threshold && $yesterdayCount < $threshold) {
                 $this->gamification->publish(
                     $uuid,
-                    "dodo.streak_{$threshold}",
-                    "dodo.streak_{$threshold}.{$uuid}.{$today->toDateString()}",
+                    "meal.streak_{$threshold}",
+                    "meal.streak_{$threshold}.{$uuid}.{$today->toDateString()}",
                     ['streak_days' => $todayCount],
                 );
 
@@ -242,8 +242,8 @@ class CheckinService
             $logDate = $log->date->toDateString();
             $this->gamification->publish(
                 $uuid,
-                'dodo.daily_score_80_plus',
-                "dodo.daily_score_80_plus.{$uuid}.{$logDate}",
+                'meal.daily_score_80_plus',
+                "meal.daily_score_80_plus.{$uuid}.{$logDate}",
                 ['score' => (int) $log->total_score],
             );
         }
@@ -347,7 +347,7 @@ class CheckinService
         $user->current_weight_kg = $weight;
         $user->save();
 
-        // ADR-009 §3 / catalog §3.1 — fire dodo.weight_logged once per day
+        // ADR-009 §3 / catalog §3.1 — fire meal.weight_logged once per day
         // (server daily_cap_xp=5 also enforces; we additionally gate locally
         // on `wasLogged` to keep idempotency_key clean per-day).
         $uuid = is_string($user->pandora_user_uuid) ? $user->pandora_user_uuid : '';
@@ -355,8 +355,8 @@ class CheckinService
             $today = $log->date->toDateString();
             $this->gamification->publish(
                 $uuid,
-                'dodo.weight_logged',
-                "dodo.weight_logged.{$uuid}.{$today}",
+                'meal.weight_logged',
+                "meal.weight_logged.{$uuid}.{$today}",
                 ['weight_kg' => $weight],
             );
         }

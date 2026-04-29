@@ -18,7 +18,7 @@ beforeEach(function () {
 // `seedStreakDays($user, $count)` lives in tests/Pest.php so it doesn't
 // disturb `$this` binding inside `it(...)` closures here.
 
-it('fires dodo.streak_3 when today brings the streak to exactly 3', function () {
+it('fires meal.streak_3 when today brings the streak to exactly 3', function () {
     $user = User::factory()->create([
         'pandora_user_uuid' => '11111111-aaaa-bbbb-cccc-111111111111',
     ]);
@@ -29,13 +29,13 @@ it('fires dodo.streak_3 when today brings the streak to exactly 3', function () 
         ->assertOk();
 
     Bus::assertDispatched(PublishGamificationEventJob::class, function ($job) {
-        return $job->body['event_kind'] === 'dodo.streak_3'
-            && $job->body['source_app'] === 'dodo'
+        return $job->body['event_kind'] === 'meal.streak_3'
+            && $job->body['source_app'] === 'meal'
             && $job->body['metadata']['streak_days'] === 3;
     });
 });
 
-it('fires dodo.streak_7 when today is the 7th consecutive day', function () {
+it('fires meal.streak_7 when today is the 7th consecutive day', function () {
     $user = User::factory()->create([
         'pandora_user_uuid' => '22222222-aaaa-bbbb-cccc-222222222222',
     ]);
@@ -46,7 +46,7 @@ it('fires dodo.streak_7 when today is the 7th consecutive day', function () {
         ->assertOk();
 
     Bus::assertDispatched(PublishGamificationEventJob::class, function ($job) {
-        return $job->body['event_kind'] === 'dodo.streak_7';
+        return $job->body['event_kind'] === 'meal.streak_7';
     });
 });
 
@@ -62,7 +62,7 @@ it('does NOT re-fire streak_7 on day 8 (already crossed yesterday)', function ()
 
     Bus::assertNotDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => $job->body['event_kind'] === 'dodo.streak_7',
+        fn ($job) => $job->body['event_kind'] === 'meal.streak_7',
     );
 });
 
@@ -78,11 +78,11 @@ it('fires streak_14 but not streak_7 when streak crosses 14 (yesterday already p
 
     Bus::assertNotDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => $job->body['event_kind'] === 'dodo.streak_7',
+        fn ($job) => $job->body['event_kind'] === 'meal.streak_7',
     );
     Bus::assertDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => $job->body['event_kind'] === 'dodo.streak_14',
+        fn ($job) => $job->body['event_kind'] === 'meal.streak_14',
     );
 });
 
@@ -97,7 +97,7 @@ it('idempotency_key carries (uuid, threshold, today) so daily retries cannot dou
         ->assertOk();
 
     Bus::assertDispatched(PublishGamificationEventJob::class, function ($job) {
-        return str_starts_with($job->body['idempotency_key'], 'dodo.streak_7.55555555-')
+        return str_starts_with($job->body['idempotency_key'], 'meal.streak_7.55555555-')
             && str_ends_with($job->body['idempotency_key'], Carbon::today()->toDateString());
     });
 });
@@ -112,7 +112,7 @@ it('does not fire when no streak (single isolated day)', function () {
 
     Bus::assertNotDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => str_starts_with($job->body['event_kind'] ?? '', 'dodo.streak_'),
+        fn ($job) => str_starts_with($job->body['event_kind'] ?? '', 'meal.streak_'),
     );
 });
 

@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
  * Admin token middleware: requires X-Admin-Token header == config('app.admin_token').
  * Used for cron / ops endpoints (purge expired accounts, flush analytics, SEO admin).
  *
- * If config value is null (DODO_ADMIN_TOKEN unset), all requests are denied — fail
+ * If config value is null (MEAL_ADMIN_TOKEN unset), all requests are denied — fail
  * closed so accidentally-deployed envs without the secret can't be hit.
  */
 class AdminTokenAuth

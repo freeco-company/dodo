@@ -46,7 +46,7 @@ class SeoService
     }
 
     /** Build a minimal sitemap.xml from registered seo_metas paths. */
-    public function sitemapXml(string $baseUrl = 'https://doudou.freeco.tw'): string
+    public function sitemapXml(string $baseUrl = 'https://meal-api.js-store.com.tw'): string
     {
         $rows = DB::table('seo_metas')->orderBy('path')->get(['path', 'updated_at']);
         $urls = '';

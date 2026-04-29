@@ -38,7 +38,7 @@ use Illuminate\Support\Facades\Log;
  */
 class GamificationPublisher
 {
-    public const SOURCE_APP = 'dodo';
+    public const SOURCE_APP = 'meal';
 
     /**
      * Whitelist of event_kinds this publisher knows about. Catalog (catalog §3.1)
@@ -49,21 +49,21 @@ class GamificationPublisher
      * @var list<string>
      */
     public const KNOWN_EVENT_KINDS = [
-        'dodo.app_opened',
-        'dodo.meal_logged',
-        'dodo.meal_score_80_plus',
-        'dodo.daily_score_80_plus',
-        'dodo.streak_3',
-        'dodo.streak_7',
-        'dodo.streak_14',
-        'dodo.streak_30',
-        'dodo.weekly_review_read',
-        'dodo.chat_daily',
-        'dodo.weight_logged',
-        'dodo.first_meal_of_day',
-        'dodo.new_food_discovered',
-        'dodo.card_correct',
-        'dodo.card_first_solve',
+        'meal.app_opened',
+        'meal.meal_logged',
+        'meal.meal_score_80_plus',
+        'meal.daily_score_80_plus',
+        'meal.streak_3',
+        'meal.streak_7',
+        'meal.streak_14',
+        'meal.streak_30',
+        'meal.weekly_review_read',
+        'meal.chat_daily',
+        'meal.weight_logged',
+        'meal.first_meal_of_day',
+        'meal.new_food_discovered',
+        'meal.card_correct',
+        'meal.card_first_solve',
     ];
 
     /**

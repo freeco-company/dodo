@@ -707,7 +707,7 @@ function showInAppRatingFallback(trigger) {
     trackEvent('rating_prompt_rated', { trigger });
     const url = state.iosBundleId
       ? `https://apps.apple.com/app/id${state.iosBundleId}?action=write-review`
-      : 'https://doudou.freeco.tw';
+      : 'https://meal-api.js-store.com.tw';
     window.open(url, '_blank');
     overlay.remove();
   });

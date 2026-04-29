@@ -134,7 +134,7 @@ class AiServiceClient
         }
 
         $base = $this->base();
-        $secret = (string) config('services.dodo_ai_service.shared_secret');
+        $secret = (string) config('services.meal_ai_service.shared_secret');
         $timeout = $this->timeout();
         $userUuid = (string) ($user->pandora_user_uuid ?? '');
 
@@ -192,7 +192,7 @@ class AiServiceClient
 
     public function isEnabled(): bool
     {
-        return $this->base() !== '' && (string) config('services.dodo_ai_service.shared_secret') !== '';
+        return $this->base() !== '' && (string) config('services.meal_ai_service.shared_secret') !== '';
     }
 
     private function ensureEnabled(): void
@@ -205,7 +205,7 @@ class AiServiceClient
     private function baseRequest(User $user): PendingRequest
     {
         return Http::withHeaders([
-            'X-Internal-Secret' => (string) config('services.dodo_ai_service.shared_secret'),
+            'X-Internal-Secret' => (string) config('services.meal_ai_service.shared_secret'),
             'X-Pandora-User-Uuid' => (string) ($user->pandora_user_uuid ?? ''),
             'Accept' => 'application/json',
         ])
@@ -242,7 +242,7 @@ class AiServiceClient
 
     private function base(): string
     {
-        return rtrim((string) config('services.dodo_ai_service.base_url'), '/');
+        return rtrim((string) config('services.meal_ai_service.base_url'), '/');
     }
 
     private function url(string $path): string
@@ -252,7 +252,7 @@ class AiServiceClient
 
     private function timeout(): int
     {
-        return (int) config('services.dodo_ai_service.timeout', 30);
+        return (int) config('services.meal_ai_service.timeout', 30);
     }
 
     private function emitErrorFrame(string $code, string $detail): void

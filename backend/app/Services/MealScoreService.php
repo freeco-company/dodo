@@ -25,7 +25,7 @@ use App\Models\User;
  *   - Diversity bonus from matched_food_ids count (depends on AI matching
  *     write path; today most meals have empty matched_food_ids)
  *
- * @see ADR-009 §3.1 catalog `dodo.meal_score_80_plus`
+ * @see ADR-009 §3.1 catalog `meal.meal_score_80_plus`
  */
 class MealScoreService
 {

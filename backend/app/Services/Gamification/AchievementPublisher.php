@@ -29,13 +29,13 @@ class AchievementPublisher
      * @var list<string>
      */
     public const KNOWN_ACHIEVEMENT_CODES = [
-        'dodo.first_meal',
-        'dodo.streak_7',
-        'dodo.streak_30',
-        'dodo.foodie_10',  // wired in FoodDiscoveryService when user reaches 10 distinct foods
+        'meal.first_meal',
+        'meal.streak_7',
+        'meal.streak_30',
+        'meal.foodie_10',  // wired in FoodDiscoveryService when user reaches 10 distinct foods
     ];
 
-    public const SOURCE_APP = 'dodo';
+    public const SOURCE_APP = 'meal';
 
     public function publish(
         string $pandoraUserUuid,

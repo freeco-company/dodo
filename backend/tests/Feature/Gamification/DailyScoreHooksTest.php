@@ -48,7 +48,7 @@ it('aggregates meal totals into daily_log columns', function () {
     expect($result['total_score'])->toBeGreaterThan(0);
 });
 
-it('fires dodo.daily_score_80_plus when score crosses 80', function () {
+it('fires meal.daily_score_80_plus when score crosses 80', function () {
     // Calorie 1800 + protein 80 + 3 meals + 30 min exercise + 2000ml water → 100
     $user = User::factory()->create([
         'pandora_user_uuid' => 'dddd2222-2222-2222-2222-dddd22222222',
@@ -79,7 +79,7 @@ it('fires dodo.daily_score_80_plus when score crosses 80', function () {
     app(DailyLogAggregator::class)->recompute($user, $today);
 
     Bus::assertDispatched(PublishGamificationEventJob::class, function ($job) use ($today) {
-        return $job->body['event_kind'] === 'dodo.daily_score_80_plus'
+        return $job->body['event_kind'] === 'meal.daily_score_80_plus'
             && str_ends_with($job->body['idempotency_key'], $today)
             && $job->body['metadata']['score'] >= 80;
     });
@@ -106,7 +106,7 @@ it('does NOT fire daily_score_80_plus when score < 80', function () {
 
     Bus::assertNotDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => $job->body['event_kind'] === 'dodo.daily_score_80_plus',
+        fn ($job) => $job->body['event_kind'] === 'meal.daily_score_80_plus',
     );
 });
 
@@ -141,10 +141,10 @@ it('idempotency_key per (uuid, date) lets server dedup multiple recomputes', fun
     app(DailyLogAggregator::class)->recompute($user, $today);
 
     $jobs = collect(Bus::dispatched(PublishGamificationEventJob::class))
-        ->filter(fn ($j) => ($j->body['event_kind'] ?? '') === 'dodo.daily_score_80_plus');
+        ->filter(fn ($j) => ($j->body['event_kind'] ?? '') === 'meal.daily_score_80_plus');
     foreach ($jobs as $job) {
         expect($job->body['idempotency_key'])->toBe(
-            "dodo.daily_score_80_plus.{$user->pandora_user_uuid}.{$today}",
+            "meal.daily_score_80_plus.{$user->pandora_user_uuid}.{$today}",
         );
     }
     expect($jobs->count())->toBeGreaterThan(0);
@@ -212,6 +212,6 @@ it('water/exercise crossing 80 fires daily_score_80_plus once', function () {
 
     Bus::assertDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => $job->body['event_kind'] === 'dodo.daily_score_80_plus',
+        fn ($job) => $job->body['event_kind'] === 'meal.daily_score_80_plus',
     );
 });
