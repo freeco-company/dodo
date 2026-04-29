@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^6.2.1",
-    "@freeco-company/pandora-design-svg": "^0.2.1",
+    "@freeco-company/pandora-design-svg": "^0.2.2",
     "http-server": "^14.1.1"
   }
 }

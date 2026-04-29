@@ -1,4 +1,4 @@
-// Pandora Meal web app — cat/rabbit/bear/hamster/fox + camera + calorie ring + stickiness.
+// Pandora Meal web app — anchor v2 11 species (方向1 手繪棉花紙質感) + camera + calorie ring.
 
 // Prefer the new DODO_API_BASE (set by config.js 2026-04-28); fall back to
 // the legacy DOUDOU_API_BASE for any environment that still injects it.
@@ -6,7 +6,7 @@ const API = window.DODO_API_BASE || window.DOUDOU_API_BASE || '/api';
 const state = {
   userId: localStorage.getItem('doudou_user') || null,
   token: localStorage.getItem('doudou_token') || null,
-  animal: localStorage.getItem('doudou_animal') || 'cat',
+  animal: localStorage.getItem('doudou_animal') || 'rabbit',
   selectedFood: null,
   capturedBase64: null,
   lastAnimalMood: 'happy',
@@ -17,17 +17,23 @@ const state = {
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
-// Mascot naming — user sees their chosen animal's nickname everywhere.
+// 集團 anchor v2 11 species（2026-04-30 拍板）。Legacy hamster→bear / shiba→dog / tuxedo→cat 已 migrate。
+// Map legacy keys to v2 fallback so any cached localStorage doesn't crash.
+const LEGACY_REMAP = { hamster: 'bear', shiba: 'dog', tuxedo: 'cat' };
+function normalizeSpecies(k) { return LEGACY_REMAP[k] || k; }
+
 const MASCOT_NAMES = {
-  cat: '貓貓', rabbit: '兔兔', bear: '熊熊', hamster: '倉鼠', fox: '狐狸',
-  shiba: '柴柴', dinosaur: '恐龍', penguin: '企鵝', tuxedo: '賓士',
+  rabbit: '兔兔', cat: '貓貓', tiger: '虎虎', penguin: '企鵝',
+  bear: '熊熊', dog: '狗狗', fox: '狐狸', dinosaur: '恐龍',
+  sheep: '綿羊', pig: '小豬', robot: '機器人',
 };
 const MASCOT_EMOJIS = {
-  cat: '🐱', rabbit: '🐰', bear: '🐻', hamster: '🐹', fox: '🦊',
-  shiba: '🐕', dinosaur: '🦖', penguin: '🐧', tuxedo: '🐈‍⬛',
+  rabbit: '🐰', cat: '🐱', tiger: '🐯', penguin: '🐧',
+  bear: '🐻', dog: '🐶', fox: '🦊', dinosaur: '🦖',
+  sheep: '🐑', pig: '🐷', robot: '🤖',
 };
-function mascotName() { return MASCOT_NAMES[state.animal] || '夥伴'; }
-function mascotEmoji() { return MASCOT_EMOJIS[state.animal] || '🐾'; }
+function mascotName() { return MASCOT_NAMES[normalizeSpecies(state.animal)] || '夥伴'; }
+function mascotEmoji() { return MASCOT_EMOJIS[normalizeSpecies(state.animal)] || '🐾'; }
 // Safety net: older DB rows may still contain the literal "芽芽" baked into
 // coach feedback. Rewrite to the currently-selected mascot name at display time.
 function stripLegacyMascot(s) { return String(s || '').replace(/芽芽/g, mascotName()); }
@@ -3961,24 +3967,27 @@ function paintIslandCharacter() {
   if (storeChar) storeChar.innerHTML = window.animalImg ? window.animalImg(state.animal, 'in-store') : '';
 }
 
-// Per-store NPC animal — offline fallback. Server `store_npc_animal` config wins.
+// Per-store NPC animal — anchor v2 11 species. Server `store_npc_animal` config wins.
 const STORE_NPC_ANIMAL = {
   familymart: 'bear',
   seven_eleven: 'penguin',
-  pxmart: 'hamster',
+  pxmart: 'sheep',     // 倉鼠 → 綿羊（積攢 → 安撫）
   mcdonalds: 'fox',
-  kfc: 'shiba',
-  starbucks: 'tuxedo',
+  kfc: 'dog',          // 柴犬 → 狗（陪伴）
+  starbucks: 'cat',    // 賓士 → 貓
   night_market: 'dinosaur',
   bubble_tea: 'cat',
   sushi_box: 'rabbit',
-  healthy_box: 'hamster',
+  healthy_box: 'sheep',
   fp_shop: 'bear',
   fp_base: 'fox',
+  ai_kitchen: 'robot',
+  spicy_pot: 'tiger',
+  bbq: 'pig',
 };
 function npcAnimalFor(storeKey) {
-  const picks = ['bear','penguin','hamster','fox','shiba','tuxedo','dinosaur','cat','rabbit'];
-  const userAnimal = state.animal || 'cat';
+  const picks = ['rabbit','cat','tiger','penguin','bear','dog','fox','dinosaur','sheep','pig','robot'];
+  const userAnimal = normalizeSpecies(state.animal || 'rabbit');
   const serverMap = cfg('store_npc_animal', STORE_NPC_ANIMAL) || {};
   const preferred = serverMap[storeKey] || 'bear';
   if (preferred !== userAnimal) return preferred;
