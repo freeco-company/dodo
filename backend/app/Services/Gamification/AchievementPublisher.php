@@ -32,7 +32,7 @@ class AchievementPublisher
         'dodo.first_meal',
         'dodo.streak_7',
         'dodo.streak_30',
-        'dodo.foodie_10',
+        'dodo.foodie_10',  // wired in FoodDiscoveryService when user reaches 10 distinct foods
     ];
 
     public const SOURCE_APP = 'dodo';

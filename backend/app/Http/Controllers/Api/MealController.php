@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MealResource;
 use App\Models\Meal;
+use App\Services\FoodDiscoveryService;
 use App\Services\Gamification\AchievementPublisher;
 use App\Services\Gamification\GamificationPublisher;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -16,6 +17,7 @@ class MealController extends Controller
     public function __construct(
         private readonly GamificationPublisher $gamification,
         private readonly AchievementPublisher $achievements,
+        private readonly FoodDiscoveryService $foodDiscovery,
     ) {}
 
     public function index(Request $request): AnonymousResourceCollection
@@ -52,12 +54,24 @@ class MealController extends Controller
             'fiber_g' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'sodium_mg' => ['nullable', 'numeric', 'min:0', 'max:20000'],
             'sugar_g' => ['nullable', 'numeric', 'min:0', 'max:300'],
+            'matched_food_ids' => ['nullable', 'array', 'max:20'],
+            'matched_food_ids.*' => ['integer', 'min:1'],
+            'meal_score' => ['nullable', 'integer', 'min:0', 'max:100'],
         ]);
 
+        $matchedFoodIds = $data['matched_food_ids'] ?? [];
+        unset($data['matched_food_ids']);
+
         $user = $request->user();
+        /** @var Meal $meal */
         $meal = $user->meals()->create($data + [
-            'matched_food_ids' => [],
+            'matched_food_ids' => $matchedFoodIds,
         ]);
+
+        // ADR-009 §3.1 — record food discoveries (Pokémon-style) which in turn
+        // fires `dodo.new_food_discovered` per new foodid + `dodo.foodie_10`
+        // achievement when the user reaches 10 distinct foods.
+        $this->foodDiscovery->recordFromMeal($user, $meal);
 
         // ADR-009 §3 / catalog §3.1 — fire gamification events for this meal.
         $uuid = is_string($user->pandora_user_uuid) ? $user->pandora_user_uuid : '';
