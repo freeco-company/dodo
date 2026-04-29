@@ -220,7 +220,7 @@ it('returns 404 for unknown island scene', function () {
 it('consumes an island visit', function () {
     $user = User::factory()->create();
     $this->actingAs($user, 'sanctum')
-        ->postJson('/api/island/consume-visit', ['scene_key' => 'seven_eleven'])
+        ->postJson('/api/island/consume-visit', ['store_key' => 'seven_eleven'])
         ->assertOk()
         ->assertJsonStructure(['consumed', 'visit_count', 'entitlements']);
 });
