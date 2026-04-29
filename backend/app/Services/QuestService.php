@@ -159,9 +159,9 @@ class QuestService
             $q->completed_at = now();
             $q->save();
             if ((int) $q->reward_xp > 0) {
-                $user->xp = (int) $user->xp + (int) $q->reward_xp;
-                $user->level = GameXp::levelForXp((int) $user->xp);
-                $user->save();
+                // ADR-009 Phase B.3
+                app(\App\Services\Gamification\LocalXpWriter::class)
+                    ->apply($user, (int) $q->reward_xp);
             }
             $this->journey->tryAdvance($user, 'daily_quest');
         }

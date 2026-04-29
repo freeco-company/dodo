@@ -106,6 +106,18 @@ return [
         // is configured with GAMIFICATION_CONSUMER_MEAL_SECRET pointing here.
         'webhook_secret' => env('PANDORA_GAMIFICATION_WEBHOOK_SECRET'),
         'webhook_window_seconds' => (int) env('PANDORA_GAMIFICATION_WEBHOOK_WINDOW_SECONDS', 300),
+        // ADR-009 Phase B.3 cutover flag.
+        // true (default) — services that earn XP keep the local users.{xp,level}
+        //   write AND publish to py-service. Frontend reads local immediately;
+        //   webhook eventually catches up but is essentially a duplicate.
+        // false — only publisher fires; local write skipped. users.{xp,level} is
+        //   driven exclusively by GroupProgressionMirror on inbound webhook.
+        //   Requires (a) prod webhook latency observed < ~3s for ≥ 1 week,
+        //   (b) frontend optimistic-UI patch so user sees XP without flicker.
+        'local_xp_writes_enabled' => filter_var(
+            env('GAMIFICATION_LOCAL_XP_WRITES_ENABLED', true),
+            FILTER_VALIDATE_BOOLEAN,
+        ),
     ],
 
     /*
