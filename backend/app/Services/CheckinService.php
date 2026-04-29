@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\DailyLog;
 use App\Models\User;
 use App\Services\Conversion\ConversionEventPublisher;
+use App\Services\DailyLogAggregator;
 use App\Services\Gamification\AchievementPublisher;
 use App\Services\Gamification\GamificationPublisher;
 use Carbon\Carbon;
@@ -232,6 +233,21 @@ class CheckinService
         $log->exercise_score = $score['exercise'];
         $log->save();
 
+        // ADR-009 §3.1 — daily_score_80_plus. Server-side daily_cap_xp=15 +
+        // idempotency_key per (uuid, date) make this once-per-day on the
+        // server even if score oscillates. Catalog publisher whitelist gates.
+        $uuid = is_string($user->pandora_user_uuid) ? $user->pandora_user_uuid : '';
+        if ($uuid !== '' && (int) $log->total_score >= DailyLogAggregator::DAILY_SCORE_THRESHOLD) {
+            // DailyLog::$date is `date`-cast → Carbon (Laravel's date cast).
+            $logDate = $log->date->toDateString();
+            $this->gamification->publish(
+                $uuid,
+                'dodo.daily_score_80_plus',
+                "dodo.daily_score_80_plus.{$uuid}.{$logDate}",
+                ['score' => (int) $log->total_score],
+            );
+        }
+
         return $score;
     }
 
@@ -336,9 +352,7 @@ class CheckinService
         // on `wasLogged` to keep idempotency_key clean per-day).
         $uuid = is_string($user->pandora_user_uuid) ? $user->pandora_user_uuid : '';
         if ($uuid !== '' && ! $wasLogged) {
-            $today = $log->date instanceof \Carbon\CarbonInterface
-                ? $log->date->toDateString()
-                : Carbon::parse((string) $log->date)->toDateString();
+            $today = $log->date->toDateString();
             $this->gamification->publish(
                 $uuid,
                 'dodo.weight_logged',
