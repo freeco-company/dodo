@@ -9,6 +9,7 @@ use App\Services\DailyLogAggregator;
 use App\Services\FoodDiscoveryService;
 use App\Services\Gamification\AchievementPublisher;
 use App\Services\Gamification\GamificationPublisher;
+use App\Services\MealScoreService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -20,6 +21,7 @@ class MealController extends Controller
         private readonly AchievementPublisher $achievements,
         private readonly FoodDiscoveryService $foodDiscovery,
         private readonly DailyLogAggregator $dailyLog,
+        private readonly MealScoreService $mealScore,
     ) {}
 
     public function index(Request $request): AnonymousResourceCollection
@@ -58,7 +60,6 @@ class MealController extends Controller
             'sugar_g' => ['nullable', 'numeric', 'min:0', 'max:300'],
             'matched_food_ids' => ['nullable', 'array', 'max:20'],
             'matched_food_ids.*' => ['integer', 'min:1'],
-            'meal_score' => ['nullable', 'integer', 'min:0', 'max:100'],
         ]);
 
         $matchedFoodIds = $data['matched_food_ids'] ?? [];
@@ -69,6 +70,24 @@ class MealController extends Controller
         $meal = $user->meals()->create($data + [
             'matched_food_ids' => $matchedFoodIds,
         ]);
+
+        // ADR-009 §3.1 — compute per-meal score; null when nutrition data
+        // missing (manual freeform entry). Server is authoritative — request
+        // payload doesn't override.
+        $score = $this->mealScore->compute($meal, $user);
+        if ($score !== null) {
+            $meal->meal_score = $score;
+            $meal->save();
+            $uuidForMealScore = is_string($user->pandora_user_uuid) ? $user->pandora_user_uuid : '';
+            if ($uuidForMealScore !== '' && $score >= 80) {
+                $this->gamification->publish(
+                    $uuidForMealScore,
+                    'dodo.meal_score_80_plus',
+                    "dodo.meal_score_80_plus.{$meal->id}",
+                    ['meal_id' => $meal->id, 'score' => $score],
+                );
+            }
+        }
 
         // ADR-009 §3.1 — record food discoveries (Pokémon-style) which in turn
         // fires `dodo.new_food_discovered` per new foodid + `dodo.foodie_10`
