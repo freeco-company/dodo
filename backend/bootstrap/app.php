@@ -7,6 +7,7 @@ use App\Http\Middleware\SanctumOrPandoraJwt;
 use App\Http\Middleware\VerifyEcommerceWebhookSignature;
 use App\Http\Middleware\VerifyGamificationWebhookSignature;
 use App\Http\Middleware\VerifyIdentityWebhookSignature;
+use App\Http\Middleware\VerifyLifecycleInvalidateSignature;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -33,6 +34,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'identity.webhook' => VerifyIdentityWebhookSignature::class,
             // py-service → 朵朵 gamification webhook 簽章驗證 (ADR-009 §2.2)
             'gamification.webhook' => VerifyGamificationWebhookSignature::class,
+            // py-service → 潘朵拉飲食 lifecycle cache invalidate (PG-93)
+            'lifecycle.invalidate' => VerifyLifecycleInvalidateSignature::class,
             // 婕樂纖 → 朵朵 ecommerce/order webhook 簽章驗證
             'ecommerce.webhook' => VerifyEcommerceWebhookSignature::class,
         ]);
