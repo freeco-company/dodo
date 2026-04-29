@@ -42,8 +42,8 @@ class FranchiseLeadResource extends Resource
     public static function form(Schema $schema): Schema
     {
         // 不開放 admin 在 panel 上 free-form create / edit lead row
-        // （資料來源是 conversion event listener；admin 只能改 status / notes，
-        //  那條由 record action 處理）。
+        // （資料來源是 conversion event listener；admin 透過 record actions
+        //  改 status / 標 contacting / converted / dismissed / 覆寫 lifecycle 階段）。
         return $schema->components([]);
     }
 
