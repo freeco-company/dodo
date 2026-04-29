@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\StoreVisit;
 use App\Services\AppConfigService;
 use App\Services\EntitlementsService;
+use App\Services\StoreIntentsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -25,12 +26,13 @@ class IslandController extends Controller
     public function __construct(
         private readonly AppConfigService $config,
         private readonly EntitlementsService $entitlements,
+        private readonly StoreIntentsService $intents,
     ) {}
 
     public function scenes(Request $request): JsonResponse
     {
         $user = $request->user();
-        $catalog = $this->config->get('island_scenes') ?? $this->defaultScenes();
+        $catalog = $this->config->get('island_scenes') ?? $this->loadSceneCatalog();
         $scenes = $catalog['scenes'] ?? [];
 
         $visits = StoreVisit::where('pandora_user_uuid', $user->pandora_user_uuid)
@@ -83,7 +85,7 @@ class IslandController extends Controller
     public function store(Request $request, string $scene): JsonResponse
     {
         $user = $request->user();
-        $catalog = $this->config->get('island_scenes') ?? $this->defaultScenes();
+        $catalog = $this->config->get('island_scenes') ?? $this->loadSceneCatalog();
         $sceneData = collect($catalog['scenes'] ?? [])->firstWhere('key', $scene);
 
         if (! $sceneData) {
@@ -109,10 +111,34 @@ class IslandController extends Controller
         $calTarget = (int) ($user->daily_calorie_target ?? 1800);
         $proteinTarget = (float) ($user->daily_protein_target_g ?? 80);
 
-        $intents = array_map(
-            fn ($h) => ['emoji' => $h['emoji'] ?? '🛒', 'label' => $h['name'] ?? $h['key'] ?? 'item'],
-            $sceneData['hotspots'] ?? [],
-        );
+        // Load the full decision tree (prompt_line + recommendations per intent)
+        // from storage/app/store_intents.json — fall back to a slim hotspot-shaped
+        // list so the page still renders even without curated data.
+        $intents = $this->intents->intentsFor($scene);
+        if ($intents === []) {
+            $intents = array_map(
+                fn ($h) => [
+                    'key' => $h['key'] ?? 'browse',
+                    'emoji' => $h['emoji'] ?? '🛒',
+                    'label' => $h['name'] ?? $h['key'] ?? '看看',
+                    'prompt_line' => '看看有什麼好選擇',
+                    'recommendations' => [],
+                ],
+                $sceneData['hotspots'] ?? [],
+            );
+        }
+
+        // 朵朵 dodo (集團 NPC, 導師角色) is the storekeeper across all stores —
+        // 2026-04-29 group-naming-and-voice 拍板。Pet (avatar_animal) opens the
+        // dialog from the user side; 朵朵 follows up with guidance + nutrition
+        // hint. 3 lines total so user sees personality before the menu opens.
+        $petName = $this->petDisplayName((string) ($user->avatar_animal ?? 'rabbit'));
+        $storeName = (string) $sceneData['name'];
+        $dialog = [
+            ['speaker' => 'mascot', 'text' => "{$petName}：哇～我們來 {$storeName} 啦！"],
+            ['speaker' => 'npc', 'text' => '朵朵：我是朵朵，今天陪妳一起挑食物 ✨'],
+            ['speaker' => 'npc', 'text' => '朵朵：'.$this->dodoBudgetLine($consumed, $calTarget, (int) $proteinConsumed, (int) $proteinTarget)],
+        ];
 
         return response()->json([
             'key' => $sceneData['key'],
@@ -120,8 +146,8 @@ class IslandController extends Controller
             'emoji' => $sceneData['emoji'] ?? '🏪',
             'backdrop' => $sceneData['backdrop'] ?? 'pastel',
             'description' => $sceneData['description'] ?? '',
-            'npc' => $sceneData['npc'] ?? ['emoji' => '🧑', 'name' => '店員'],
-            'dialog' => $sceneData['dialog'] ?? [],
+            'npc' => ['emoji' => '👧', 'name' => '朵朵'],
+            'dialog' => $dialog,
             'intents' => $intents,
             'user_state' => [
                 'remaining_calories' => max(0, $calTarget - $consumed),
@@ -178,6 +204,40 @@ class IslandController extends Controller
         ]);
     }
 
+    private function petDisplayName(string $animal): string
+    {
+        return match ($animal) {
+            'cat' => '貓貓',
+            'rabbit' => '兔兔',
+            'bear' => '熊熊',
+            'hamster' => '倉鼠',
+            'fox' => '狐狸',
+            'shiba' => '柴犬',
+            'dinosaur' => '恐龍',
+            'penguin' => '企鵝',
+            'tuxedo' => '賓士貓',
+            default => '夥伴',
+        };
+    }
+
+    /**
+     * Dodo's third opening line — calibrated to the user's remaining budget so
+     * the dialog feels personalised before the menu opens.
+     */
+    private function dodoBudgetLine(int $consumed, int $calTarget, int $proteinConsumed, int $proteinTarget): string
+    {
+        $remainCal = max(0, $calTarget - $consumed);
+        $remainProtein = max(0, $proteinTarget - $proteinConsumed);
+        if ($remainCal <= 0) {
+            return '今天熱量已經達標了，挑點輕食或飲料就好喔。';
+        }
+        if ($remainProtein > 30) {
+            return "今天還剩 {$remainCal} 卡，蛋白質還缺 {$remainProtein}g — 我會幫妳挑蛋白多的。";
+        }
+
+        return "今天還剩 {$remainCal} 卡可以花，慢慢挑～";
+    }
+
     private function tierSatisfies(string $userTier, string $required): bool
     {
         // Hierarchy (low → high): free < retail < fp_franchise < fp_lifetime
@@ -186,49 +246,39 @@ class IslandController extends Controller
         return ($rank[$userTier] ?? 0) >= ($rank[$required] ?? 0);
     }
 
+    /**
+     * Load the 12-store catalog from storage/app/island_scenes.json (migrated
+     * from ai-game data file). Cached 5 min via app cache. Falls back to a
+     * minimal hardcoded list when the file is missing so the frontend never
+     * 500s during ops accidents.
+     *
+     * @return array<string,mixed>
+     */
+    private function loadSceneCatalog(): array
+    {
+        return \Illuminate\Support\Facades\Cache::remember('island_scenes_file', 300, function (): array {
+            $path = storage_path('app/island_scenes.json');
+            if (! is_file($path)) {
+                return $this->minimalScenes();
+            }
+            $raw = (string) file_get_contents($path);
+            $decoded = json_decode($raw, true);
+
+            return is_array($decoded) ? $decoded : $this->minimalScenes();
+        });
+    }
+
     /** @return array<string,mixed> */
-    private function defaultScenes(): array
+    private function minimalScenes(): array
     {
         return [
             'version' => 1,
             'scenes' => [
-                [
-                    'key' => 'seven_eleven',
-                    'name' => '7-11',
-                    'emoji' => '🏪',
-                    'backdrop' => 'mint',
-                    'description' => '社區的便利商店',
-                    'min_level' => 1,
-                    'hotspots' => [],
-                ],
-                [
-                    'key' => 'familymart',
-                    'name' => '全家',
-                    'emoji' => '🏬',
-                    'backdrop' => 'sky',
-                    'description' => '便利又齊全',
-                    'min_level' => 1,
-                    'hotspots' => [],
-                ],
-                [
-                    'key' => 'pxmart',
-                    'name' => '全聯',
-                    'emoji' => '🛒',
-                    'backdrop' => 'peach',
-                    'description' => '生鮮超市',
-                    'min_level' => 2,
-                    'hotspots' => [],
-                ],
-                [
-                    'key' => 'fp_shop',
-                    'name' => 'FP 旗艦店',
-                    'emoji' => '👑',
-                    'backdrop' => 'gold',
-                    'description' => '婕樂纖會員專屬',
-                    'tier_required' => 'fp_lifetime',
-                    'min_level' => 1,
-                    'hotspots' => [],
-                ],
+                ['key' => 'seven_eleven', 'name' => '7-11', 'emoji' => '🏪', 'backdrop' => 'mint', 'description' => '社區的便利商店', 'min_level' => 1, 'hotspots' => []],
+                ['key' => 'familymart', 'name' => '全家', 'emoji' => '🏬', 'backdrop' => 'sky', 'description' => '便利又齊全', 'min_level' => 1, 'hotspots' => []],
+                ['key' => 'pxmart', 'name' => '全聯', 'emoji' => '🛒', 'backdrop' => 'peach', 'description' => '生鮮超市', 'min_level' => 1, 'hotspots' => []],
+                ['key' => 'mcdonalds', 'name' => '麥當勞', 'emoji' => '🍟', 'backdrop' => 'fastfood', 'description' => '速食連鎖', 'min_level' => 1, 'hotspots' => []],
+                ['key' => 'fp_shop', 'name' => 'FP 旗艦店', 'emoji' => '👑', 'backdrop' => 'gold', 'description' => '婕樂纖會員專屬', 'tier_required' => 'fp_lifetime', 'min_level' => 1, 'hotspots' => []],
             ],
         ];
     }

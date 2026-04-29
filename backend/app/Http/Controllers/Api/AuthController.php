@@ -34,6 +34,7 @@ class AuthController extends Controller
             'dislike_foods' => ['nullable', 'array'],
             'favorite_foods' => ['nullable', 'array'],
             'fp_ref_code' => ['nullable', 'string', 'max:30'],
+            'avatar_animal' => ['nullable', 'string', 'in:cat,rabbit,bear,hamster,fox,shiba,dinosaur,penguin,tuxedo'],
         ]);
 
         $age = isset($data['birth_date'])
@@ -69,6 +70,7 @@ class AuthController extends Controller
             'favorite_foods' => $data['favorite_foods'] ?? [],
             'outfits_owned' => ['none'],
             'fp_ref_code' => $data['fp_ref_code'] ?? null,
+            'avatar_animal' => $data['avatar_animal'] ?? 'cat',
 
             'daily_calorie_target' => $targets['daily_calorie_target'],
             'daily_protein_target_g' => $targets['daily_protein_target_g'],
