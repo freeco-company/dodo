@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MealResource;
 use App\Models\Meal;
+use App\Services\DailyLogAggregator;
 use App\Services\FoodDiscoveryService;
 use App\Services\Gamification\AchievementPublisher;
 use App\Services\Gamification\GamificationPublisher;
@@ -18,6 +19,7 @@ class MealController extends Controller
         private readonly GamificationPublisher $gamification,
         private readonly AchievementPublisher $achievements,
         private readonly FoodDiscoveryService $foodDiscovery,
+        private readonly DailyLogAggregator $dailyLog,
     ) {}
 
     public function index(Request $request): AnonymousResourceCollection
@@ -72,6 +74,10 @@ class MealController extends Controller
         // fires `dodo.new_food_discovered` per new foodid + `dodo.foodie_10`
         // achievement when the user reaches 10 distinct foods.
         $this->foodDiscovery->recordFromMeal($user, $meal);
+
+        // Re-aggregate daily totals from meals + recompute daily score; fires
+        // `dodo.daily_score_80_plus` if the new score crosses 80. (catalog §3.1)
+        $this->dailyLog->recompute($user, $meal->date->toDateString());
 
         // ADR-009 §3 / catalog §3.1 — fire gamification events for this meal.
         $uuid = is_string($user->pandora_user_uuid) ? $user->pandora_user_uuid : '';

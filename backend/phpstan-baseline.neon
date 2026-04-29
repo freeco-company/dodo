@@ -3,7 +3,7 @@ parameters:
 		-
 			message: '#^Cannot call method toDateString\(\) on string\.$#'
 			identifier: method.nonObject
-			count: 1
+			count: 2
 			path: app/Http/Controllers/Api/MealController.php
 
 		-
@@ -73,9 +73,9 @@ parameters:
 			path: app/Services/ChatStarterService.php
 
 		-
-			message: '#^Instanceof between string and Carbon\\CarbonInterface will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
+			message: '#^Cannot call method toDateString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 2
 			path: app/Services/CheckinService.php
 
 		-
@@ -545,6 +545,12 @@ parameters:
 			identifier: method.notFound
 			count: 7
 			path: tests/Feature/Gamification/CheckinStreakHooksTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Feature/Gamification/DailyScoreHooksTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
