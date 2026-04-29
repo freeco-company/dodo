@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Services\Gamification\AchievementMirror;
 use App\Services\Gamification\GroupProgressionMirror;
+use App\Services\Gamification\OutfitMirror;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -17,8 +18,9 @@ use Illuminate\Support\Facades\Log;
  * controller can assume `event_id` is fresh and the body is authentic.
  *
  * Handled event_types:
- *   - gamification.level_up           → mirror users.level / users.xp
+ *   - gamification.level_up            → mirror users.level / users.xp
  *   - gamification.achievement_awarded → mirror achievements row
+ *   - gamification.outfit_unlocked     → merge codes into users.outfits_owned
  * Unknown types ack 200 (forward-compat for new server-side events).
  */
 class GamificationWebhookController extends Controller
@@ -26,6 +28,7 @@ class GamificationWebhookController extends Controller
     public function __construct(
         private readonly GroupProgressionMirror $progressionMirror,
         private readonly AchievementMirror $achievementMirror,
+        private readonly OutfitMirror $outfitMirror,
     ) {}
 
     public function handle(Request $request): JsonResponse
@@ -51,6 +54,15 @@ class GamificationWebhookController extends Controller
                     'status' => 'ok',
                     'event_type' => $eventType,
                     'mirrored' => $mirrored,
+                ], 200);
+
+            case 'gamification.outfit_unlocked':
+                $added = $this->outfitMirror->applyUnlocked($uuid, $payload);
+
+                return response()->json([
+                    'status' => 'ok',
+                    'event_type' => $eventType,
+                    'mirrored' => $added,
                 ], 200);
 
             default:
