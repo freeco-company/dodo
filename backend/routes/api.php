@@ -225,3 +225,8 @@ Route::post('/internal/identity/webhook', IdentityWebhookController::class)
 // (HMAC + event_id idempotency 由 middleware 驗)
 Route::post('/internal/gamification/webhook', [\App\Http\Controllers\Api\GamificationWebhookController::class, 'handle'])
     ->middleware('gamification.webhook');
+
+// PG-93 — py-service → 潘朵拉飲食 lifecycle cache invalidate
+// (HMAC + nonce idempotency 由 middleware 驗；route 後直接呼叫 LifecycleClient::forget)
+Route::post('/internal/lifecycle/invalidate', [\App\Http\Controllers\Api\LifecycleInvalidateController::class, 'handle'])
+    ->middleware('lifecycle.invalidate');

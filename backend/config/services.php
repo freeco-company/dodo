@@ -127,6 +127,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Lifecycle cache-invalidate webhook (PG-93)
+    |--------------------------------------------------------------------------
+    | Inbound from py-service when a LifecycleTransition is persisted (e.g.
+    | mothership 首單 webhook 推進 stage). HMAC scheme matches gamification.
+    */
+    'pandora_lifecycle_invalidate' => [
+        'webhook_secret' => env('PY_SERVICE_LIFECYCLE_INVALIDATE_SECRET'),
+        'webhook_window_seconds' => (int) env('PY_SERVICE_LIFECYCLE_INVALIDATE_WINDOW_SECONDS', 300),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Phase E — IAP (Apple / Google) verification
     |--------------------------------------------------------------------------
     | stub_mode=true  → verifiers accept STUB_APPLE_* and STUB_GOOGLE_*
