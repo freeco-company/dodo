@@ -195,12 +195,19 @@ it('returns island scenes', function () {
         ->assertJsonStructure(['tier', 'scenes']);
 });
 
-it('returns island store for known scene', function () {
+it('returns island store for known scene with frontend flat shape', function () {
     $user = User::factory()->create();
     $this->actingAs($user, 'sanctum')
-        ->getJson('/api/island/store/7eleven')
+        ->getJson('/api/island/store/seven_eleven')
         ->assertOk()
-        ->assertJsonStructure(['scene', 'unlocked', 'visit_count', 'entitlements']);
+        ->assertJsonStructure([
+            'key', 'name', 'emoji', 'backdrop', 'description',
+            'npc' => ['emoji', 'name'],
+            'dialog', 'intents',
+            'user_state' => ['remaining_calories', 'protein_needed_g'],
+            'unlocked', 'lock_reason', 'visit_count', 'entitlements',
+            'scene',
+        ]);
 });
 
 it('returns 404 for unknown island scene', function () {
@@ -213,7 +220,7 @@ it('returns 404 for unknown island scene', function () {
 it('consumes an island visit', function () {
     $user = User::factory()->create();
     $this->actingAs($user, 'sanctum')
-        ->postJson('/api/island/consume-visit', ['scene_key' => '7eleven'])
+        ->postJson('/api/island/consume-visit', ['scene_key' => 'seven_eleven'])
         ->assertOk()
         ->assertJsonStructure(['consumed', 'visit_count', 'entitlements']);
 });
@@ -237,11 +244,12 @@ it('rejects /journey/milestone without auth', function () {
 });
 
 // ----- /api/cards/event-offer/next -----
-it('returns 204 when no active event offer', function () {
+it('returns has_offer:false when no active event offer', function () {
     $user = User::factory()->create();
     $this->actingAs($user, 'sanctum')
         ->getJson('/api/cards/event-offer/next')
-        ->assertNoContent();
+        ->assertOk()
+        ->assertJsonPath('has_offer', false);
 });
 it('rejects /cards/event-offer/next without auth', function () {
     $this->getJson('/api/cards/event-offer/next')->assertUnauthorized();

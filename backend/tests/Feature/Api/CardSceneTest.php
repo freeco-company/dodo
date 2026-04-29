@@ -64,7 +64,7 @@ it('scene-draw creates a card_play tagged to the caller (tenant isolation)', fun
     $otherCollection = $this->actingAs($other, 'sanctum')
         ->getJson('/api/cards/collection')
         ->assertOk();
-    expect($otherCollection->json('total'))->toBe(0);
+    expect($otherCollection->json('collected'))->toBe(0);
 });
 
 it('scene-draw rejects a second draw of the same card on the same day', function () {
