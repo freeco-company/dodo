@@ -4,7 +4,7 @@
 
 const ANIMAL_META = {
   cat:      { file: 'cat.svg',      name: '貓貓', halo: '#FFD9B5' },
-  rabbit:   { file: 'rabbit.svg',   name: '兔兔', halo: '#FCE6E6' },
+  rabbit:   { file: 'rabbit.png',   name: '兔兔', halo: '#FCE6E6' },
   bear:     { file: 'bear.svg',     name: '熊熊', halo: '#FFE0B5' },
   hamster:  { file: 'hamster.svg',  name: '倉鼠', halo: '#FFECC2' },
   fox:      { file: 'fox.svg',      name: '狐狸', halo: '#FFD4B5' },

@@ -72,7 +72,7 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=Kosugi+Maru&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Shippori+Mincho+B1:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Zen+Maru+Gothic:wght@400;500;700;900&family=Yusei+Magic&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css?v=40" />
+<link rel="stylesheet" href="/style.css?v=41" />
 </head>
 <body>
 <div id="app" class="max-w-md mx-auto">
@@ -1296,10 +1296,55 @@
   </div>
 </div>
 
+<!-- 朵朵 dodo NPC 集團導師浮窗（preview） -->
+<div id="dodo-mentor-bubble" class="dodo-mentor-bubble" aria-hidden="true">
+  <div class="dodo-bubble-text">
+    <div class="dodo-bubble-name">朵朵</div>
+    <div class="dodo-bubble-msg" id="dodo-bubble-msg">妳好呀～今天慢慢來就好。</div>
+  </div>
+  <img class="dodo-bubble-img" src="/characters/dodo.png" alt="朵朵 dodo NPC"/>
+  <button class="dodo-bubble-close" id="dodo-bubble-close" aria-label="關閉" type="button">×</button>
+</div>
+
 <script src="/config.js?v=2"></script>
 <script src="/icons.js?v=2"></script>
 <script src="/sound.js?v=4"></script>
-<script src="/character.js?v=8"></script>
+<script src="/character.js?v=9"></script>
 <script src="/app.js?v=40"></script>
+<script>
+// 朵朵浮窗：關閉 + 隨機輪播語錄 (preview only)
+(function() {
+  const bubble = document.getElementById('dodo-mentor-bubble');
+  const closeBtn = document.getElementById('dodo-bubble-close');
+  const msgEl = document.getElementById('dodo-bubble-msg');
+  if (!bubble) return;
+  const dodoLines = [
+    '妳好呀～今天慢慢來就好。',
+    '記得喝水了嗎？',
+    '妳的步調，自己決定。',
+    '我在這裡。',
+    '妳今天的努力，我看見了。',
+    '累就先休息一下，我等妳。',
+    '謝謝妳願意陪自己走這段。',
+  ];
+  let dismissed = sessionStorage.getItem('dodo_bubble_dismissed') === '1';
+  if (dismissed) { bubble.classList.add('hidden'); return; }
+  bubble.removeAttribute('aria-hidden');
+  // 隨機初始 + 每 12 秒輪換
+  function pickLine() {
+    msgEl.textContent = dodoLines[Math.floor(Math.random() * dodoLines.length)];
+  }
+  pickLine();
+  setInterval(pickLine, 12000);
+  closeBtn?.addEventListener('click', () => {
+    bubble.classList.add('hidden');
+    sessionStorage.setItem('dodo_bubble_dismissed', '1');
+  });
+  bubble.addEventListener('click', (e) => {
+    if (e.target === closeBtn) return;
+    pickLine();
+  });
+})();
+</script>
 </body>
 </html>
