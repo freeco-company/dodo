@@ -8,7 +8,10 @@
     "cap:open:ios": "npx cap open ios",
     "cap:run:ios": "npx cap run ios",
     "ios:setup": "npx cap sync ios && npx cap open ios",
-    "serve": "npx http-server public -p 5173 -c-1"
+    "serve": "npx http-server public -p 5173 -c-1",
+    "sync:design-svg": "node node_modules/@freeco-company/pandora-design-svg/tools/copy-to-public.js public/svg",
+    "preserve": "npm run sync:design-svg",
+    "presync:cap:sync:ios": "npm run sync:design-svg"
   },
   "dependencies": {
     "@capacitor/core": "^6.2.1",
@@ -16,6 +19,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^6.2.1",
+    "@freeco-company/pandora-design-svg": "^0.1.1",
     "http-server": "^14.1.1"
   }
 }
