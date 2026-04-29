@@ -14,3 +14,12 @@ Schedule::command('subscription:lifecycle-sweep')
     ->dailyAt('03:30')
     ->withoutOverlapping()
     ->onOneServer();
+
+// ADR-007 §6 #4 mitigation (b) — hourly identity reconcile delta pull
+// from Pandora Core. Catches webhooks that the publisher dropped /
+// dead-lettered. Cheap (small JSON, indexed query); 1h matches the TTL
+// recommendation for consumer mirrors.
+Schedule::command('identity:reconcile')
+    ->hourly()
+    ->withoutOverlapping()
+    ->onOneServer();
