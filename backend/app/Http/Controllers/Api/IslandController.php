@@ -143,7 +143,7 @@ class IslandController extends Controller
     {
         $user = $request->user();
         $data = $request->validate([
-            'scene_key' => ['required', 'string', 'max:48'],
+            'store_key' => ['required', 'string', 'max:48'],
         ]);
 
         $ent = $this->entitlements->get($user);
@@ -161,7 +161,7 @@ class IslandController extends Controller
         // Bump store visit familiarity counter
         $visit = StoreVisit::firstOrNew([
             'pandora_user_uuid' => $user->pandora_user_uuid,
-            'store_key' => $data['scene_key'],
+            'store_key' => $data['store_key'],
         ]);
         $visit->user_id = $user->id;
         $visit->visit_count = (int) ($visit->visit_count ?? 0) + 1;
