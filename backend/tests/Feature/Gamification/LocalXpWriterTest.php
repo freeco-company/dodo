@@ -22,17 +22,30 @@ it('applies xp delta and bumps level when flag enabled', function () {
         ->and($u->fresh()->level)->toBeGreaterThanOrEqual(1);
 });
 
-it('is a no-op when flag disabled (Phase B.3 cutover state)', function () {
+it('does not write the user row when flag disabled (Phase B.3 cutover state)', function () {
     config()->set('services.pandora_gamification.local_xp_writes_enabled', false);
     $u = User::factory()->create(['xp' => 50, 'level' => 1]);
+
+    [, , $applied] = app(LocalXpWriter::class)->apply($u, 100);
+
+    expect($applied)->toBeFalse()
+        ->and($u->fresh()->xp)->toBe(50)
+        ->and($u->fresh()->level)->toBe(1);
+});
+
+it('still forecasts level_after when flag disabled (frontend optimistic UI)', function () {
+    config()->set('services.pandora_gamification.local_xp_writes_enabled', false);
+    // Need enough xp gain to actually cross a level boundary
+    $u = User::factory()->create(['xp' => 0, 'level' => 1]);
 
     [$before, $after, $applied] = app(LocalXpWriter::class)->apply($u, 100);
 
     expect($applied)->toBeFalse()
         ->and($before)->toBe(1)
-        ->and($after)->toBe(1)
-        ->and($u->fresh()->xp)->toBe(50)
-        ->and($u->fresh()->level)->toBe(1);
+        ->and($after)->toBeGreaterThanOrEqual(1)
+        // The user row stayed at 50/1, but `after` reflects the post-webhook
+        // forecast so the API response can carry `leveled_up: true` instantly.
+        ->and($u->fresh()->xp)->toBe(0);
 });
 
 it('returns early on zero or negative delta without writing', function () {
