@@ -1367,22 +1367,60 @@
     '謝謝妳願意陪自己走這段。',
   ];
   let dismissed = sessionStorage.getItem('dodo_bubble_dismissed') === '1';
-  if (dismissed) { bubble.classList.add('hidden'); return; }
-  bubble.removeAttribute('aria-hidden');
-  // 隨機初始 + 每 12 秒輪換
+
+  // Auto-hide during fullscreen modal flows (avoid blocking CTAs).
+  // 2026-04-30: user reported 朵朵 bubble blocked ceremony 「與牠開始旅程」 button.
+  function isInModalFlow() {
+    const ceremony = document.getElementById('screen-ceremony');
+    const welcome = document.getElementById('screen-welcome');
+    const disclaimer = document.getElementById('screen-disclaimer');
+    const islandFs = document.getElementById('island-fullscreen');
+    const paywall = document.querySelector('.paywall-overlay:not(.hidden), #paywall:not(.hidden)');
+    if (ceremony && !ceremony.classList.contains('hidden')) return true;
+    if (welcome && !welcome.classList.contains('hidden')) return true;
+    if (disclaimer && !disclaimer.classList.contains('hidden')) return true;
+    if (islandFs && !islandFs.classList.contains('hidden')) return true;
+    if (paywall) return true;
+    if (document.body.classList.contains('island-mode')) return true;
+    return false;
+  }
+
+  function applyVisibility() {
+    if (dismissed || isInModalFlow()) {
+      bubble.classList.add('hidden');
+      bubble.setAttribute('aria-hidden', 'true');
+    } else {
+      bubble.classList.remove('hidden');
+      bubble.removeAttribute('aria-hidden');
+    }
+  }
+
   function pickLine() {
     msgEl.textContent = dodoLines[Math.floor(Math.random() * dodoLines.length)];
   }
   pickLine();
   setInterval(pickLine, 12000);
+
   closeBtn?.addEventListener('click', () => {
-    bubble.classList.add('hidden');
+    dismissed = true;
     sessionStorage.setItem('dodo_bubble_dismissed', '1');
+    applyVisibility();
   });
   bubble.addEventListener('click', (e) => {
     if (e.target === closeBtn) return;
     pickLine();
   });
+
+  // Watch for screen / body class changes so bubble can re-show after ceremony done
+  const obs = new MutationObserver(applyVisibility);
+  ['screen-ceremony','screen-welcome','screen-disclaimer','island-fullscreen'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) obs.observe(el, { attributes: true, attributeFilter: ['class'] });
+  });
+  obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+  // Initial apply
+  applyVisibility();
 })();
 </script>
 </body>
