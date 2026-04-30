@@ -110,6 +110,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // Phase 5 — knowledge base (營養知識庫) — App-side reads
     Route::get('/knowledge', [KnowledgeController::class, 'index']);
     Route::get('/knowledge/daily', [KnowledgeController::class, 'daily']);
+    Route::get('/knowledge/saved', [KnowledgeController::class, 'saved']);
+    Route::get('/knowledge/categories', [KnowledgeController::class, 'categories']);
     Route::get('/knowledge/{slug}', [KnowledgeController::class, 'show']);
     Route::post('/knowledge/{slug}/save', [KnowledgeController::class, 'save']);
 

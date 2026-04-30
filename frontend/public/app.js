@@ -1453,7 +1453,7 @@ function mealTypeLabel(t) {
 // === Tabs ===
 // Map secondary tabs (only reachable from "我的") back to "me" for nav highlighting
 const SECONDARY_TABS = new Set(['wardrobe', 'pokedex', 'achievements', 'report', 'cards-codex', 'calendar']);
-const ALL_TABS = ['home','island','scan','chat','calendar','me','wardrobe','pokedex','achievements','report','cards-codex'];
+const ALL_TABS = ['home','island','scan','chat','calendar','me','wardrobe','pokedex','achievements','report','cards-codex','knowledge'];
 
 function switchTab(tab) {
   const navHighlight = SECONDARY_TABS.has(tab) ? 'me' : tab;
@@ -1470,6 +1470,7 @@ function switchTab(tab) {
     }
   });
   if (tab === 'home') { loadDashboard(); loadSuggestions(); loadGrowth(); loadKnowledgeDaily(); }
+  if (tab === 'knowledge') loadKnowledgeCategories();
   if (tab === 'pokedex') loadPokedex();
   if (tab === 'chat') loadChatStarters();
   if (tab === 'calendar') loadCalendar();
@@ -1937,6 +1938,81 @@ async function saveKnowledge(slug) {
     toast(e.message || '收藏失敗');
   }
 }
+async function loadKnowledgeCategories() {
+  const grid = document.getElementById('kb-categories-grid');
+  if (!grid) return;
+  try {
+    const r = await api('GET', '/knowledge/categories');
+    grid.innerHTML = r.categories.map((c) => `
+      <button class="kb-cat-chip ${c.count > 0 ? '' : 'is-empty'}" data-cat="${c.key}" type="button">
+        <span class="kb-cat-label">${c.label}</span>
+        <span class="kb-cat-count">${c.count}</span>
+      </button>
+    `).join('');
+    grid.querySelectorAll('.kb-cat-chip').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (btn.classList.contains('is-empty')) {
+          toast('這個主題還沒有文章');
+          return;
+        }
+        loadKnowledgeListByCategory(btn.dataset.cat, btn.querySelector('.kb-cat-label').textContent);
+      });
+    });
+  } catch (e) {
+    console.warn('loadKnowledgeCategories', e);
+  }
+}
+
+async function loadKnowledgeListByCategory(category, label) {
+  const card = document.getElementById('kb-list-card');
+  const body = document.getElementById('kb-list-body');
+  const title = document.getElementById('kb-list-title');
+  if (!card || !body) return;
+  try {
+    const r = await api('GET', `/knowledge?category=${encodeURIComponent(category)}`);
+    title.textContent = `${label} · ${r.count} 篇`;
+    body.innerHTML = (r.articles || []).length === 0
+      ? '<div class="text-xs text-muted py-6 text-center">這個主題還沒有文章～敬請期待 ✨</div>'
+      : r.articles.map((a) => `
+        <button class="kb-list-row" data-slug="${a.slug}" type="button">
+          <div class="kb-list-row-title">${escapeHtml(a.title)}</div>
+          <div class="kb-list-row-summary">${escapeHtml(a.summary || '')}</div>
+        </button>
+      `).join('');
+    body.querySelectorAll('.kb-list-row').forEach((row) => {
+      row.addEventListener('click', () => openKnowledgeReader(row.dataset.slug));
+    });
+    card.classList.remove('hidden');
+  } catch (e) {
+    toast(e.message || '載入失敗');
+  }
+}
+
+async function loadKnowledgeSaved() {
+  const card = document.getElementById('kb-list-card');
+  const body = document.getElementById('kb-list-body');
+  const title = document.getElementById('kb-list-title');
+  if (!card || !body) return;
+  try {
+    const r = await api('GET', '/knowledge/saved');
+    title.textContent = `⭐ 我的收藏 · ${r.count} 篇`;
+    body.innerHTML = (r.articles || []).length === 0
+      ? '<div class="text-xs text-muted py-6 text-center">還沒有收藏～看到喜歡的就點 ⭐</div>'
+      : r.articles.map((a) => `
+        <button class="kb-list-row" data-slug="${a.slug}" type="button">
+          <div class="kb-list-row-title">${escapeHtml(a.title)}</div>
+          <div class="kb-list-row-summary">${escapeHtml(a.summary || '')}</div>
+        </button>
+      `).join('');
+    body.querySelectorAll('.kb-list-row').forEach((row) => {
+      row.addEventListener('click', () => openKnowledgeReader(row.dataset.slug));
+    });
+    card.classList.remove('hidden');
+  } catch (e) {
+    toast(e.message || '載入失敗');
+  }
+}
+
 function setupKnowledgeCard() {
   const card = document.getElementById('kb-daily-card');
   const reader = document.getElementById('kb-reader');
@@ -1949,6 +2025,10 @@ function setupKnowledgeCard() {
     document.getElementById('kb-reader-save')?.addEventListener('click', () => saveKnowledge(kbCurrentSlug));
     reader.addEventListener('click', (e) => { if (e.target === reader) closeKnowledgeReader(); });
   }
+  document.getElementById('kb-show-saved')?.addEventListener('click', loadKnowledgeSaved);
+  document.getElementById('kb-list-back')?.addEventListener('click', () => {
+    document.getElementById('kb-list-card')?.classList.add('hidden');
+  });
 }
 
 // === Growth (Phase 3, 2026-04-30) — 體重 / 卡路里 / 蛋白曲線 + 朵朵 weekly comment ===

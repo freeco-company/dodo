@@ -72,6 +72,10 @@ return [
     | shared_secret 對應 ai-service 端的 INTERNAL_SHARED_SECRET（X-Internal-Secret
     | header）；Phase F 切真 JWT 後此 path 移除。
     */
+    'anthropic' => [
+        'api_key' => env('ANTHROPIC_API_KEY'),
+    ],
+
     'meal_ai_service' => [
         'base_url' => env('MEAL_AI_SERVICE_BASE_URL'),
         'shared_secret' => env('MEAL_AI_SERVICE_SHARED_SECRET'),
