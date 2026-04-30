@@ -1099,10 +1099,23 @@
     <button class="island-close" id="island-close" aria-label="離開島嶼">←</button>
   </div>
 
+  <!-- CHAPTERS VIEW — 7-章節故事入口（2026-04-30 改版核心）-->
+  <div class="island-view island-view-chapters" id="island-view-chapters">
+    <div class="island-chapters-header">
+      <div class="island-chapters-title">🏝️ 潘朵拉飲食島</div>
+      <div class="island-chapters-subtitle">七章覺醒 · 跟朵朵一起走完整段旅程</div>
+    </div>
+    <div class="island-chapters-list" id="island-chapters-list">
+      <!-- Chapter cards injected by JS -->
+    </div>
+    <div class="island-chapters-footer" id="island-chapters-footer">—</div>
+  </div>
+
   <!-- MAP VIEW — list of store pins, character on ground -->
-  <div class="island-view island-view-map" id="island-view-map">
+  <div class="island-view island-view-map hidden" id="island-view-map">
     <div class="island-title-plate">
-      <div class="island-title">🏝️ 知識之島</div>
+      <button class="island-back-to-chapters" id="island-back-to-chapters" type="button" aria-label="回章節列表">← 章節</button>
+      <div class="island-title" id="island-chapter-name">🏝️ 知識之島</div>
       <div class="island-subtitle" id="island-subtitle">選個地方走走，一起學點東西 ✨</div>
     </div>
 

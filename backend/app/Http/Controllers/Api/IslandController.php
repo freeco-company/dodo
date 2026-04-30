@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\StoreVisit;
 use App\Services\AppConfigService;
 use App\Services\EntitlementsService;
+use App\Services\IslandChapterService;
 use App\Services\StoreIntentsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,7 +28,21 @@ class IslandController extends Controller
         private readonly AppConfigService $config,
         private readonly EntitlementsService $entitlements,
         private readonly StoreIntentsService $intents,
+        private readonly IslandChapterService $chapters,
     ) {}
+
+    /**
+     * GET /api/island/chapters — 7-chapter story view of the island.
+     *
+     * Wraps existing scenes catalog into themed story chapters; intended to
+     * **augment** GET /scenes, not replace it. Frontend uses this for the new
+     * chapter list view; tap-into-chapter then renders only that chapter's
+     * stores from the existing scenes payload.
+     */
+    public function chapters(Request $request): JsonResponse
+    {
+        return response()->json($this->chapters->chaptersForUser($request->user()));
+    }
 
     public function scenes(Request $request): JsonResponse
     {

@@ -2803,6 +2803,7 @@ async function init() {
   // Island fullscreen overlay
   $('#island-close')?.addEventListener('click', closeIsland);
   $('#store-back')?.addEventListener('click', backToIslandMap);
+  $('#island-back-to-chapters')?.addEventListener('click', backToChapters);
   $('#store-recs-back')?.addEventListener('click', backToIntents);
 
   // Paywall modal
@@ -3957,13 +3958,18 @@ async function handlePaywallRedeem() {
 async function openIsland() {
   if (!state.userId) return;
   try {
-    const [scenes, ent] = await Promise.all([
+    const [scenes, ent, chapters] = await Promise.all([
       api('GET', `/island/scenes`),
       api('GET', `/entitlements`),
+      api('GET', `/island/chapters`).catch(() => ({ chapters: [] })),
     ]);
     islandState.data = scenes;
     islandState.entitlements = ent;
-    renderIslandMap();
+    islandState.chapters = chapters.chapters || [];
+    islandState.nextUnlock = chapters.next_unlock || null;
+    // 2026-04-30 redesign — show chapter list first; user picks chapter → enter map
+    renderIslandChapters();
+    showIslandView('chapters');
     paintIslandDecorations();
     $('#island-fullscreen').classList.remove('hidden');
     document.body.classList.add('island-mode');
@@ -3974,6 +3980,91 @@ async function openIsland() {
     console.error(e);
     toast('島嶼載入失敗');
   }
+}
+
+function showIslandView(view) {
+  const map = $('#island-view-map');
+  const chapters = $('#island-view-chapters');
+  const store = $('#island-view-store');
+  if (chapters) chapters.classList.toggle('hidden', view !== 'chapters');
+  if (map) map.classList.toggle('hidden', view !== 'map');
+  if (store) store.classList.toggle('hidden', view !== 'store');
+}
+
+function renderIslandChapters() {
+  const list = $('#island-chapters-list');
+  const footer = $('#island-chapters-footer');
+  if (!list) return;
+  const chapters = islandState.chapters || [];
+  if (chapters.length === 0) {
+    list.innerHTML = '<div style="text-align:center;color:#9c8b75;padding:24px">章節資料尚未準備好～</div>';
+    return;
+  }
+  list.innerHTML = chapters.map((c) => {
+    const stateCls = c.status === 'completed' ? 'completed' : c.status === 'locked' ? 'locked' : (c.is_current ? 'current' : '');
+    const statusLabel = c.status === 'completed' ? '✓ 完成'
+      : c.status === 'locked' ? `🔒 Lv.${c.min_level}`
+      : c.is_current ? '進行中' : '可探索';
+    const statusCls = c.status === 'completed' ? 'completed' : c.status === 'locked' ? 'locked' : '';
+    const boss = c.boss || {};
+    const progressBar = c.stores_total > 0
+      ? `<div class="icc-progress-row">
+          <span>${c.stores_visited}/${c.stores_total} 個地點</span>
+          <div class="icc-progress-bar"><div class="icc-progress-fill" style="width:${c.store_progress_percent}%"></div></div>
+          <span>${c.store_progress_percent}%</span>
+        </div>`
+      : '';
+    return `
+      <div class="island-chapter-card ${stateCls}" data-chapter-key="${c.key}">
+        <div class="icc-row1">
+          <div class="icc-icon">${c.icon}</div>
+          <div class="icc-titles">
+            <div class="icc-subtitle">${escapeHtml(c.subtitle)}</div>
+            <div class="icc-name">${escapeHtml(c.name)}</div>
+          </div>
+          <div class="icc-status ${statusCls}">${statusLabel}</div>
+        </div>
+        <div class="icc-intro">${escapeHtml(c.intro)}</div>
+        ${progressBar}
+        <div class="icc-boss-line"><span class="label">本章任務：</span>${escapeHtml(boss.title || '')}${boss.goal ? ' — ' + escapeHtml(boss.goal) : ''}</div>
+      </div>
+    `;
+  }).join('');
+  list.querySelectorAll('.island-chapter-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      if (card.classList.contains('locked')) {
+        const c = chapters.find(x => x.key === card.dataset.chapterKey);
+        toast(`這章要 Lv.${c?.min_level || '?'} 才能解鎖（目前 Lv.${c?.user_level || '?'}） 🔒`);
+        return;
+      }
+      enterChapter(card.dataset.chapterKey);
+    });
+  });
+
+  // Footer hint
+  if (footer) {
+    if (islandState.nextUnlock) {
+      const nu = islandState.nextUnlock;
+      footer.textContent = `再 ${nu.levels_away} 級就能解鎖《${nu.chapter_name}》`;
+    } else {
+      const completedCount = chapters.filter(c => c.status === 'completed').length;
+      footer.textContent = `已完成 ${completedCount} / ${chapters.length} 章 · 加油！`;
+    }
+  }
+}
+
+function enterChapter(chapterKey) {
+  const chapter = (islandState.chapters || []).find(c => c.key === chapterKey);
+  if (!chapter) return;
+  islandState.currentChapter = chapter;
+  // Render the existing map view, but with chapter context (header swap)
+  renderIslandMap();
+  // Override title with chapter name + intro
+  const titleEl = $('#island-chapter-name');
+  const subEl = $('#island-subtitle');
+  if (titleEl) titleEl.textContent = `${chapter.icon} ${chapter.name}`;
+  if (subEl) subEl.textContent = chapter.intro;
+  showIslandView('map');
 }
 
 // Replace the emoji deco nodes (tree / flower / rock) with SVG illustrations
@@ -4525,12 +4616,17 @@ function backToIntents() {
 
 function backToIslandMap() {
   window.sfx?.play('ui_close');
-  $('#island-view-store').classList.add('hidden');
-  $('#island-view-map').classList.remove('hidden');
   islandState.currentStore = null;
   islandState.currentStoreData = null;
-  // Refresh map to show new budget
+  // Return to chapter list (2026-04-30 redesign) — or map view if user came from there
+  showIslandView(islandState.currentChapter ? 'map' : 'chapters');
+  // Refresh both data sets in background
   openIsland();
+}
+
+function backToChapters() {
+  islandState.currentChapter = null;
+  showIslandView('chapters');
 }
 
 function tierLabel(tier) {
