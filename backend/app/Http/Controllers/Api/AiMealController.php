@@ -7,23 +7,62 @@ use App\Http\Controllers\Controller;
 use App\Services\AiServiceClient;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 /**
- * AI-powered meal endpoints. All proxy to the (not-yet-wired) Python service.
- * Until that service is up, every call returns 503 + AI_SERVICE_DOWN.
+ * AI-powered meal endpoints — HTTP proxy to the Python ai-service
+ * (ADR-002 §3). Returns 503 + AI_SERVICE_DOWN when the service is unreachable
+ * or not configured.
  */
 class AiMealController extends Controller
 {
+    /** ~5 MB base64 ≈ 3.75 MB raw — keep below ai-service 8 MB ceiling with headroom. */
+    private const MAX_PHOTO_BASE64_BYTES = 5_000_000;
+
     public function __construct(private readonly AiServiceClient $ai) {}
 
     public function scan(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'image_url' => ['required', 'url', 'max:2048'],
+            // Either source — exactly one. Frontend (camera/picker) uses photo_base64;
+            // admin / server-side flows that already have a stored URL use image_url.
+            'photo_base64' => [
+                'required_without:image_url',
+                'prohibits:image_url',
+                'string',
+                'max:'.self::MAX_PHOTO_BASE64_BYTES,
+            ],
+            'image_url' => [
+                'required_without:photo_base64',
+                'string',
+                'url',
+                'max:2048',
+            ],
+            'content_type' => ['nullable', 'string', Rule::in(['image/jpeg', 'image/png', 'image/webp', 'image/heic'])],
+            'meal_type' => ['nullable', 'string', Rule::in(['breakfast', 'lunch', 'dinner', 'snack', 'late_night'])],
             'context' => ['nullable', 'array'],
         ]);
+
+        $context = $data['context'] ?? [];
+        if (isset($data['meal_type'])) {
+            $context['meal_type'] = $data['meal_type'];
+        }
+
         try {
-            return response()->json($this->ai->scanMeal($request->user(), $data['image_url'], $data['context'] ?? []));
+            if (isset($data['photo_base64'])) {
+                $bytes = base64_decode($data['photo_base64'], true);
+                if ($bytes === false || $bytes === '') {
+                    return response()->json([
+                        'error_code' => 'INVALID_BASE64',
+                        'message' => '圖片資料無法解碼',
+                    ], 422);
+                }
+                $contentType = $data['content_type'] ?? 'image/jpeg';
+
+                return response()->json($this->ai->scanMealFromBytes($request->user(), $bytes, $contentType, $context));
+            }
+
+            return response()->json($this->ai->scanMeal($request->user(), $data['image_url'], $context));
         } catch (AiServiceUnavailableException $e) {
             return response()->json(['error_code' => $e->errorCode, 'message' => 'AI 服務暫時不可用'], 503);
         }
