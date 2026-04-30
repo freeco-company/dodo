@@ -27,6 +27,9 @@
 !/backend/storage/framework/views/.gitkeep
 /backend/storage/logs/*
 !/backend/storage/logs/.gitkeep
+# Knowledge base raw seed images (~68MB binary blobs, kept local + synced
+# to prod via rsync when Phase 5 OCR pipeline runs)
+/backend/storage/seed/nutrition_kb/raw/
 /backend/.env
 /backend/.env.backup
 /backend/.env.production
