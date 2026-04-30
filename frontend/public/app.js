@@ -1134,6 +1134,8 @@ async function loadDashboard() {
   paintMascotChrome();
   paintCustomIcons();
   refreshEventBanner();
+  // Phase 3 — pull growth widget alongside dashboard (best-effort, non-blocking)
+  loadGrowth().catch(() => {});
   // Brute-force ensure tab-home is visible (some browsers leave the entry animation stuck)
   ['tab-home','tab-island','tab-scan','tab-chat','tab-calendar','tab-wardrobe','tab-pokedex','tab-achievements','tab-report','tab-cards-codex'].forEach((id) => {
     const el = document.getElementById(id);
@@ -1462,7 +1464,7 @@ function switchTab(tab) {
       el.classList.add('tab-anim');
     }
   });
-  if (tab === 'home') { loadDashboard(); loadSuggestions(); }
+  if (tab === 'home') { loadDashboard(); loadSuggestions(); loadGrowth(); }
   if (tab === 'pokedex') loadPokedex();
   if (tab === 'chat') loadChatStarters();
   if (tab === 'calendar') loadCalendar();
@@ -1874,6 +1876,125 @@ function appendBubble(role, text) {
   c.scrollTop = c.scrollHeight;
 }
 function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// === Growth (Phase 3, 2026-04-30) — 體重 / 卡路里 / 蛋白曲線 + 朵朵 weekly comment ===
+let growthRangeDays = 7; // default 7d view
+let growthMetric = 'weight_kg';
+
+async function loadGrowth() {
+  try {
+    const [series, review] = await Promise.all([
+      api('GET', `/me/growth/timeseries?metric=${growthMetric}&days=${growthRangeDays}`),
+      api('GET', '/me/growth/weekly-review'),
+    ]);
+    renderGrowthChart(series.points || []);
+    renderGrowthDodo(review);
+    renderGrowthSummary(series.points || [], review);
+  } catch (e) {
+    console.warn('loadGrowth failed', e);
+    const empty = document.getElementById('growth-empty');
+    if (empty) empty.classList.remove('hidden');
+  }
+}
+
+function renderGrowthChart(points) {
+  const svg = document.getElementById('growth-chart');
+  const empty = document.getElementById('growth-empty');
+  if (!svg) return;
+  const valid = points.filter(p => p.value !== null && p.value !== undefined);
+  if (valid.length < 2) {
+    svg.innerHTML = '';
+    if (empty) empty.classList.remove('hidden');
+    return;
+  }
+  if (empty) empty.classList.add('hidden');
+
+  const w = 320, h = 80, pad = 4;
+  const values = valid.map(p => Number(p.value));
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  const xStep = (w - pad * 2) / Math.max(points.length - 1, 1);
+
+  // Map every point (including null) to position; for nulls, skip (line breaks)
+  let pathParts = [];
+  let lastValid = false;
+  let firstPoint = null;
+  let lastPoint = null;
+  points.forEach((p, i) => {
+    if (p.value === null || p.value === undefined) {
+      lastValid = false;
+      return;
+    }
+    const x = pad + i * xStep;
+    const y = h - pad - ((Number(p.value) - min) / range) * (h - pad * 2);
+    pathParts.push(`${lastValid ? 'L' : 'M'} ${x.toFixed(1)} ${y.toFixed(1)}`);
+    lastValid = true;
+    if (firstPoint === null) firstPoint = { x, y };
+    lastPoint = { x, y };
+  });
+
+  // Area fill: start at first valid x at bottom, line up to first point, follow path, drop to bottom at last x
+  const linePath = pathParts.join(' ');
+  let areaPath = '';
+  if (firstPoint && lastPoint && pathParts.length >= 2) {
+    areaPath = `M ${firstPoint.x.toFixed(1)} ${(h - pad).toFixed(1)} ` +
+               linePath.replace(/^M/, 'L') +
+               ` L ${lastPoint.x.toFixed(1)} ${(h - pad).toFixed(1)} Z`;
+  }
+
+  // Render
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="growthGrad" x1="0" x2="0" y1="0" y2="1">
+        <stop offset="0%" stop-color="#F4C5A3" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#F4C5A3" stop-opacity="0.05"/>
+      </linearGradient>
+    </defs>
+    ${areaPath ? `<path class="growth-area" d="${areaPath}"/>` : ''}
+    <path class="growth-line" d="${linePath}"/>
+    ${lastPoint ? `<circle class="growth-dot" cx="${lastPoint.x.toFixed(1)}" cy="${lastPoint.y.toFixed(1)}" r="3"/>` : ''}
+  `;
+}
+
+function renderGrowthDodo(review) {
+  if (!review || !review.dodo_commentary) return;
+  const c = review.dodo_commentary;
+  const headline = document.getElementById('growth-dodo-headline');
+  const line = document.getElementById('growth-dodo-line');
+  if (headline) headline.textContent = c.headline || '';
+  if (line) line.textContent = (c.lines && c.lines[0]) || '';
+}
+
+function renderGrowthSummary(points, review) {
+  const summary = document.getElementById('growth-summary');
+  if (!summary) return;
+  const valid = points.filter(p => p.value !== null && p.value !== undefined);
+  if (valid.length === 0) {
+    summary.textContent = '尚無紀錄';
+    return;
+  }
+  const last = Number(valid[valid.length - 1].value);
+  const first = Number(valid[0].value);
+  const delta = last - first;
+  const unit = growthMetric === 'weight_kg' ? 'kg' : '';
+  const sign = delta > 0 ? '+' : delta < 0 ? '' : '';
+  const deltaStr = Math.abs(delta) < 0.05 ? '持平' : `${sign}${delta.toFixed(1)}${unit}`;
+  summary.textContent = `最新 ${last.toFixed(1)}${unit} · ${deltaStr}（過去 ${growthRangeDays} 天）`;
+}
+
+function setupGrowthRangeButtons() {
+  const card = document.getElementById('growth-card');
+  if (!card) return;
+  card.querySelectorAll('.growth-range-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      card.querySelectorAll('.growth-range-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      growthRangeDays = parseInt(btn.dataset.range, 10) || 7;
+      loadGrowth();
+    });
+  });
+}
 
 // === Pokedex ===
 // Specific food-name → icon mapping (takes precedence over category)
@@ -2433,6 +2554,9 @@ async function init() {
   paintWelcome();
   // Swap [data-icon] elements to custom SVG immediately on load (tab nav, paywall, etc.)
   if (window.icon) swapDataIcons();
+
+  // Phase 3 — growth card 7d/30d/90d range toggles
+  setupGrowthRangeButtons();
 
   // species picker
   $$('#species-picker .sp-btn').forEach((b) => b.addEventListener('click', async () => {

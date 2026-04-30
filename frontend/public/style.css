@@ -5860,3 +5860,36 @@ body:has(.dialog-overlay:not(.hidden)) .dodo-mentor-bubble {
   .dodo-bubble-msg { font-size: 14px; }
   .dodo-bubble-name { font-size: 12px; }
 }
+
+/* ===== Growth card (Phase 3, 2026-04-30) — 體重曲線 + 朵朵 weekly comment ===== */
+.growth-card { padding: 16px; }
+.growth-range-btn {
+  font-size: 11px; padding: 4px 10px; border-radius: 999px;
+  background: #FFF8F2; color: #9c8b75; border: 1px solid #E8D9C1;
+  cursor: pointer; transition: background .15s, color .15s, border-color .15s;
+}
+.growth-range-btn.active {
+  background: #E89F7A; color: #fff; border-color: #E89F7A;
+}
+.growth-chart-wrap {
+  position: relative; height: 80px; margin: 8px 0 12px;
+}
+.growth-chart { width: 100%; height: 80px; display: block; }
+.growth-empty {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: #b0a08a; text-align: center;
+}
+.growth-dodo {
+  background: linear-gradient(135deg, #FFF8F2 0%, #FFF0E0 100%);
+  border-radius: 12px; padding: 10px 12px; border: 1px solid #F4DEC8;
+}
+.growth-dodo-headline {
+  font-size: 12px; font-weight: 700; color: #6b5a48; margin-bottom: 4px;
+}
+.growth-dodo-line {
+  font-size: 12px; color: #8a7a65; line-height: 1.5;
+}
+.growth-line { fill: none; stroke: #E89F7A; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.growth-area { fill: url(#growthGrad); opacity: 0.35; }
+.growth-dot { fill: #E89F7A; }
+.growth-baseline { stroke: #EDE3D0; stroke-width: 1; stroke-dasharray: 3 3; }

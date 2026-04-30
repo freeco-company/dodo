@@ -490,6 +490,30 @@
         <div id="m-meals-list" class="space-y-3 text-sm text-muted">還沒紀錄～上面點 🍱 記餐開始</div>
       </div>
 
+      <!-- Growth card — long-term trend visualization (Phase 3) -->
+      <div class="card growth-card p-4" id="growth-card">
+        <div class="flex justify-between items-center mb-1">
+          <div class="text-sm font-bold">📈 成長趨勢</div>
+          <div class="flex gap-1">
+            <button class="growth-range-btn active" data-range="7" type="button">7d</button>
+            <button class="growth-range-btn" data-range="30" type="button">30d</button>
+            <button class="growth-range-btn" data-range="90" type="button">90d</button>
+          </div>
+        </div>
+        <div class="text-[11px] text-muted mb-2">
+          <span id="growth-metric-label">體重</span>
+          · <span id="growth-summary">—</span>
+        </div>
+        <div class="growth-chart-wrap">
+          <svg id="growth-chart" viewBox="0 0 320 80" preserveAspectRatio="none" class="growth-chart"></svg>
+          <div class="growth-empty hidden" id="growth-empty">還沒有體重紀錄～到「我的」去填一下吧 ✨</div>
+        </div>
+        <div class="growth-dodo" id="growth-dodo">
+          <div class="growth-dodo-headline" id="growth-dodo-headline">—</div>
+          <div class="growth-dodo-line" id="growth-dodo-line">—</div>
+        </div>
+      </div>
+
       <!-- Friendship + achievements -->
       <div class="card p-4">
         <div class="flex justify-between items-center mb-2">
