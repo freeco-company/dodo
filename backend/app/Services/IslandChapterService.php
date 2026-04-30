@@ -6,8 +6,12 @@ use App\Models\StoreVisit;
 use App\Models\User;
 
 /**
- * Island chapter system — wraps the existing flat 12-store map into 7 themed
- * story chapters. User 2026-04-30 directive：島嶼是遊戲核心，要章節 / 關卡 / 故事感。
+ * Island chapter system — wraps the existing flat 12-store map into 6 themed
+ * story chapters + 1 special FP partner zone (separate from main story arc).
+ *
+ * 2026-04-30 — User pivot: FP 夥伴聖殿 不是終章，是品牌漏斗特殊區。 6 章故事是
+ * 給每個用戶的旅程；FP 區是給 FP 會員 / 想了解加盟的朋友的特殊入口（ADR-008
+ * sensitivity rules apply — 不主動推銷, opt-out aware）。
  *
  * Chapters are **code-defined** (not migrated tables) for speed of iteration —
  * narrative copy + boss quest definitions belong with code anyway. Future
@@ -120,7 +124,7 @@ class IslandChapterService
                 'order' => 6,
                 'icon' => '🥗',
                 'name' => '健康日料區',
-                'subtitle' => '第六章 · 主動選擇',
+                'subtitle' => '第六章 · 主動選擇 · 終章',
                 'intro' => '妳已經能看穿大多數陷阱了。最後一步：主動選——不只避開壞的，還要追求好的。',
                 'theme' => '進階主動選擇 / 自煮 / 食材搭配',
                 'min_level' => 15,
@@ -130,25 +134,41 @@ class IslandChapterService
                     'title' => '30 天平均分數 ≥ 75',
                     'goal' => '過去 30 天每日總分平均達 75 以上',
                 ],
-                'reward' => '飲食大師徽章 + 解鎖終章',
+                'reward' => '飲食大師徽章 + 朵朵畢業信',
             ],
-            [
-                'key' => 'fp_temple',
-                'order' => 7,
-                'icon' => '✨',
-                'name' => 'FP 夥伴聖殿',
-                'subtitle' => '終章 · 把光帶給朋友',
-                'intro' => '島嶼旅程的終點不是孤獨。妳已經學會了——現在，輪到妳幫身邊的朋友也找到他們的路。',
-                'theme' => 'FP 夥伴 / 加盟自用 / 把學到的分享出去',
-                'min_level' => 20,
-                'store_keys' => ['fp_shop', 'fp_base'],
-                'boss' => [
-                    'key' => 'fp_consultation',
-                    'title' => '了解 FP 夥伴計畫',
-                    'goal' => '在「FP 夥伴聖殿」探索一輪，看看自用回本如何運作（不感興趣可隨時離開）',
-                ],
-                'reward' => '潘朵拉飲食島畢業 · 朵朵的信',
-            ],
+        ];
+    }
+
+    /**
+     * FP 夥伴專區 — 獨立於 6 章故事之外的「品牌漏斗特殊區」。
+     *
+     * - FP 會員 (membership_tier = fp_lifetime): 解鎖完整 fp_shop / fp_base 體驗
+     * - 非 FP: 顯示「想了解 FP 夥伴計畫？」入口（ADR-008 sensitivity — gentle / opt-outable）
+     *
+     * 2026-04-30：明確不放在章節 array 中，避免「終章」誤導。
+     *
+     * @return array<string, mixed>
+     */
+    public function fpZone(User $user): array
+    {
+        $tier = $user->membership_tier ?? 'free';
+        $isFp = $tier === 'fp_lifetime';
+
+        return [
+            'key' => 'fp_zone',
+            'icon' => '✨',
+            'name' => 'FP 夥伴專區',
+            'subtitle' => $isFp ? 'FP 永久會員 · 已解鎖' : '加盟後解鎖',
+            'intro' => $isFp
+                ? '夥伴空間 — 妳是 FP 大家庭的一員。fp_shop 和 fp_base 等妳。'
+                : '想知道朵朵這套系統怎麼幫妳自用回本？這裡是 FP 夥伴入口，有興趣再點進來看看。',
+            'theme' => '品牌漏斗 / FP 自用回本 / 經營後盾',
+            'store_keys' => ['fp_shop', 'fp_base'],
+            'is_fp_member' => $isFp,
+            'unlocked' => $isFp,
+            'cta_label' => $isFp ? '進入夥伴空間' : '了解 FP 夥伴',
+            'cta_kind' => $isFp ? 'enter' : 'inquire', // frontend uses 'inquire' to open franchise CTA flow
+            'note' => $isFp ? null : 'ADR-008：FP CTA 不主動推銷 / 不感興趣可永久關閉 / 30 天 cooldown',
         ];
     }
 
@@ -211,6 +231,7 @@ class IslandChapterService
             'chapters' => $out,
             'user_level' => $level,
             'next_unlock' => $this->nextUnlockHint($out, $level),
+            'fp_zone' => $this->fpZone($user),
         ];
     }
 
