@@ -6302,3 +6302,58 @@ body:has(.dialog-overlay:not(.hidden)) .dodo-mentor-bubble {
 }
 .kb-list-row-title { font-size: 14px; font-weight: 700; color: #5a4a3c; }
 .kb-list-row-summary { font-size: 12px; color: #8a7a65; line-height: 1.5; }
+
+/* ===== Wardrobe outfit svg + FP exclusive glow (2026-04-30) ===== */
+.wardrobe-item .w-svg {
+  width: 56px; height: 56px;
+  display: block; margin: 0 auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(160, 110, 70, 0.2));
+  transition: transform .25s, filter .25s;
+}
+.wardrobe-item .w-emoji-fallback {
+  font-size: 36px;
+  display: block;
+  text-align: center;
+  line-height: 1.4;
+}
+.wardrobe-item:not(.locked):hover .w-svg {
+  transform: scale(1.1) rotate(-3deg);
+  filter: drop-shadow(0 4px 10px rgba(220, 150, 80, 0.4));
+}
+.wardrobe-item.locked .w-svg { filter: grayscale(0.85) opacity(0.4); }
+
+/* FP exclusive — Diablo-style legendary glow */
+.wardrobe-item.fp-exclusive {
+  background: linear-gradient(135deg, #FFEBB0 0%, #FFD770 50%, #E8A840 100%);
+  border-color: rgba(255, 230, 140, 0.9) !important;
+  box-shadow: 0 4px 14px rgba(240, 180, 90, .4), inset 0 1px 0 rgba(255,255,255,.5);
+  animation: wardrobe-fp-pulse 2.8s infinite ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+.wardrobe-item.fp-exclusive::after {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,.55) 45%, rgba(255,240,170,.4) 50%, rgba(255,255,255,.55) 55%, transparent 75%);
+  background-size: 280% 280%;
+  background-position: -140% -140%;
+  animation: wardrobe-fp-sheen 3s infinite ease-in-out;
+  border-radius: inherit;
+}
+.wardrobe-item.fp-exclusive.locked { animation: none; }
+.wardrobe-item.fp-exclusive.locked::after { animation: none; opacity: 0.3; }
+.w-fp-badge {
+  position: absolute; top: 6px; right: 6px;
+  background: rgba(122, 80, 0, 0.85); color: #FFE8A0;
+  font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 999px;
+  letter-spacing: 0.5px; z-index: 2;
+}
+@keyframes wardrobe-fp-pulse {
+  0%, 100% { box-shadow: 0 4px 14px rgba(240, 180, 90, .4), inset 0 1px 0 rgba(255,255,255,.5); }
+  50% { box-shadow: 0 4px 22px rgba(255, 200, 80, .6), 0 0 0 1px rgba(255, 230, 140, .7), inset 0 1px 0 rgba(255,255,255,.5); }
+}
+@keyframes wardrobe-fp-sheen {
+  0%, 60%, 100% { background-position: -140% -140%; }
+  80% { background-position: 240% 240%; }
+}

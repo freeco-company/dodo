@@ -2501,16 +2501,41 @@ function openCalDayModal(d) {
 
 // === Wardrobe ===
 let wardrobeEquippedKey = 'none'; // track real equipped to revert preview
+// 2026-04-30 — Outfit key → /characters/*.svg accessory mapping
+const OUTFIT_SVG = {
+  scarf: '/characters/scarf.svg',
+  glasses: '/characters/glasses.svg',
+  headphones: '/characters/headphone.svg',
+  angel_wings: '/characters/halo.svg',
+  fp_crown: '/characters/crown.svg',
+};
+function outfitVisual(o) {
+  const svg = OUTFIT_SVG[o.key];
+  if (svg) {
+    return `<img src="${svg}" alt="" class="w-svg" loading="lazy"/>`;
+  }
+  return `<span class="w-emoji-fallback">${o.emoji}</span>`;
+}
 async function loadWardrobe() {
   const data = await api('GET', `/outfits`);
   wardrobeEquippedKey = data.equipped;
-  $('#wardrobe-list').innerHTML = data.outfits.map((o) => `
-    <button class="wardrobe-item ${o.unlocked ? '' : 'locked'} ${o.equipped ? 'equipped' : ''}" data-key="${o.key}" data-unlocked="${o.unlocked ? '1' : '0'}">
-      <div class="w-emoji">${o.emoji}</div>
+  $('#wardrobe-list').innerHTML = data.outfits.map((o) => {
+    const isFp = o.fp_exclusive;
+    const cls = [
+      'wardrobe-item',
+      o.unlocked ? '' : 'locked',
+      o.equipped ? 'equipped' : '',
+      isFp ? 'fp-exclusive' : '',
+    ].filter(Boolean).join(' ');
+    return `
+    <button class="${cls}" data-key="${o.key}" data-unlocked="${o.unlocked ? '1' : '0'}">
+      ${isFp ? '<div class="w-fp-badge">✨ FP</div>' : ''}
+      <div class="w-emoji">${outfitVisual(o)}</div>
       <div class="w-name">${o.name}</div>
       <div class="w-hint">${o.unlocked ? (o.equipped ? '使用中' : o.description) : o.unlock_hint}</div>
     </button>
-  `).join('');
+  `;
+  }).join('');
   $$('.wardrobe-item').forEach((el) => el.addEventListener('click', async () => {
     const isLocked = el.dataset.unlocked === '0';
     const key = el.dataset.key;
