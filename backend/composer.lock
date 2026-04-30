@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4de4dbcdda3391ff976f51d5bb4769e9",
+    "content-hash": "679c2b715b1a671483bfc77757cbd91f",
     "packages": [
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -1414,10 +1414,16 @@
         {
             "name": "freeco/pandora-shared",
             "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/freeco-company/pandora-shared.git",
+                "reference": "efa982e333ee32be120a34caec9fcb944b20b20c"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../packages/pandora-shared",
-                "reference": "45b7ae86b344249728f5d768e31a033296d4f400"
+                "type": "zip",
+                "url": "https://api.github.com/repos/freeco-company/pandora-shared/zipball/efa982e333ee32be120a34caec9fcb944b20b20c",
+                "reference": "efa982e333ee32be120a34caec9fcb944b20b20c",
+                "shasum": ""
             },
             "require": {
                 "php": "^8.3"
@@ -1440,10 +1446,11 @@
                 "proprietary"
             ],
             "description": "Pandora 集團共用基礎設施與 domain services — ECPay, IndexNow, Discord, LINE Messaging, Google Ads, Achievement, Outfit, Serendipity. Pure PHP.",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/freeco-company/pandora-shared/tree/v0.1.0",
+                "issues": "https://github.com/freeco-company/pandora-shared/issues"
+            },
+            "time": "2026-04-30T19:10:36+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -11688,9 +11695,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "freeco/pandora-shared": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
