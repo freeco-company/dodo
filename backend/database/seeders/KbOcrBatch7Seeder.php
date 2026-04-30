@@ -27,7 +27,7 @@ class KbOcrBatch7Seeder extends Seeder
             [
                 'slug' => 'breakfast-toast-equals-half-rice',
                 'title' => '早餐店切邊吐司 2 片 = 半碗飯',
-                'category' => 'macros',
+                'category' => 'other',
                 'tags' => ['早餐', '吐司', '澱粉', '代換'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '早餐店切邊吐司 2 片的澱粉量 ≈ 半碗白飯。吐司本身是高精緻澱粉 + 油 + 鹽 + 糖，不適合天天當主食。',
@@ -40,7 +40,7 @@ class KbOcrBatch7Seeder extends Seeder
             [
                 'slug' => 'fiber-content-vegetables-100g',
                 'title' => '蔬菜膳食纖維比一比（每 100g）',
-                'category' => 'macros',
+                'category' => 'other',
                 'tags' => ['膳食纖維', '蔬菜', '營養素'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '每 100g 蔬菜纖維量：黑木耳（濕）7.4g、白木耳（濕）5.1g、黃秋葵 3.7g、地瓜葉 3.3g、花椰菜 3.1g、杏鮑菇 3.1g、海帶 2.8g、黃豆芽 2.7g、金針菇 2.3g、西洋芹 1.6g、青江菜 1.4g、小白菜 1.3g、萵苣 1.2g、高麗菜 1.1g。',

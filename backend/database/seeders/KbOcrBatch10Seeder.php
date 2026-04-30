@@ -40,7 +40,7 @@ class KbOcrBatch10Seeder extends Seeder
             [
                 'slug' => 'black-sesame-powder-label-check',
                 'title' => '黑芝麻粉 / 糊怎麼挑（看糖量）',
-                'category' => 'macros',
+                'category' => 'other',
                 'tags' => ['黑芝麻粉', '營養標示', '糖'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '挑黑芝麻粉 / 糊看標示：100% 純黑芝麻粉每 100g 碳水 18g（其中糖 0g，是芝麻天然碳水）OK；特濃黑芝麻糊每 100g 碳水 59.5g（裡面摻糙米粉、白米粉、糯米粉、麥芽糊精，糖量爆）NG。',
@@ -66,7 +66,7 @@ class KbOcrBatch10Seeder extends Seeder
             [
                 'slug' => 'one-serving-nuts-count',
                 'title' => '一份堅果有幾顆（45 大卡 / 5 克脂肪）',
-                'category' => 'macros',
+                'category' => 'other',
                 'tags' => ['堅果', '份量', '脂肪'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '一份堅果 = 5 克脂肪 = 45 大卡。換算：杏仁 5 顆 / 核桃 2 顆 / 夏威夷豆 3 顆 / 腰果 5 顆 / 胡桃 3 顆 / 花生仁 10 顆。挑無調味、少加工、最多一小把。',

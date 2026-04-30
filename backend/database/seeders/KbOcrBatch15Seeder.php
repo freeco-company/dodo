@@ -14,7 +14,7 @@ class KbOcrBatch15Seeder extends Seeder
             [
                 'slug' => 'cbt-overeat-self-talk',
                 'title' => '假日不小心吃太多，妳會怎麼想？（CBT 練習）',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['CBT', '心理', '飲食心理'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '5 種常見負面自我對話：1. 我好沒用，我真的沒救了 2. 反正已經破戒了，就繼續吃吧 3. 沒關係啦，明天再開始 4. 再調整回來就好了，沒有這麼嚴重啦 5. 那我這幾天要多運動贖罪。前 3 句屬於放棄型，第 4 句最健康，第 5 句容易掉入「補償運動 → 又想吃更多」循環。',
@@ -27,7 +27,7 @@ class KbOcrBatch15Seeder extends Seeder
             [
                 'slug' => 'beans-carbs-vs-protein-quiz-1',
                 'title' => '豆類迷思 #1：哪些是醣類？（鷹嘴豆 / 藜麥 / 花生 / 薏仁）',
-                'category' => 'macros',
+                'category' => 'other',
                 'tags' => ['豆類', '醣類', '六大類食物'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '4 選 1 哪個是醣類？答案：A 鷹嘴豆（醣類，每 100g 碳水 60g）+ D 薏仁（醣類，全穀雜糧類）。B 藜麥（醣類，全穀雜糧類）。C 花生仁（油脂類，蛋白質 + 油脂）。重點：「豆」這個字騙人，要看實際營養素。',
@@ -53,7 +53,7 @@ class KbOcrBatch15Seeder extends Seeder
             [
                 'slug' => 'fasting-vs-calorie-restriction',
                 'title' => '斷食 vs 節食的差別（提升 vs 降低代謝）',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['斷食', '節食', '代謝'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '斷食和節食概念相近，都是藉由減少總熱量攝取來幫助體重管理。但結果不同：斷食幫助提升新陳代謝；節食降低新陳代謝（身體進入「餓肚子模式」會主動降低基代）。',
@@ -66,7 +66,7 @@ class KbOcrBatch15Seeder extends Seeder
             [
                 'slug' => 'menstrual-pre-mid-post-care',
                 'title' => '月經前中後調養（飲食 + 穴道）',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['月經', '調養', '中醫'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '月經前（5-7 天）：補充優質蛋白質，鯊魚 / 雞蛋 / 鮭魚 / 滴雞精，提高新陳代謝。月經來（1-5 天）：飲食清淡可多吃魚肉湯，黑糯米茶（紅糖薑茶）+ 紫色食物（茄子、葡萄、紅豆湯），按摩三陰交緩解痛感。月經後（6-22 天）：補充補血食物，蛋白質、雞肉魚肉、深綠色蔬菜，紅棗枸杞湯，按摩子宮和卵巢區。',
@@ -79,7 +79,7 @@ class KbOcrBatch15Seeder extends Seeder
             [
                 'slug' => 'female-cycle-4-phases-jerosse',
                 'title' => '女性專屬黃金週期四循環',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['女性週期', '黃金週期', '荷爾蒙'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '女性黃金週期四階段：1. 生理期（代謝旺盛期）— 代謝旺盛、需較多營養 2. 排卵期（黃金高峰期）— 代謝快、吸收快 3. 黃體期（平快緩和期）— 代謝趨緩、輕微水腫 4. 分泌期（撞牆停滯期）— 心情浮躁不穩、油脂分泌旺盛。',
@@ -92,7 +92,7 @@ class KbOcrBatch15Seeder extends Seeder
             [
                 'slug' => 'beans-carbs-vs-protein-quiz-2',
                 'title' => '豆類迷思 #2：哪些是醣類？（毛豆 / 皇帝豆 / 綠豆 / 豌豆仁）',
-                'category' => 'macros',
+                'category' => 'other',
                 'tags' => ['豆類', '醣類', '六大類食物'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '4 選 1 哪個是醣類？答案：B 皇帝豆（醣類）+ C 綠豆（醣類）+ D 豌豆仁（醣類）。A 毛豆（蛋白質）。重點：黃豆系列（毛豆 / 黃豆 / 黑豆）才是蛋白質豆，其他綠色豆豆很容易誤判。',
@@ -105,7 +105,7 @@ class KbOcrBatch15Seeder extends Seeder
             [
                 'slug' => 'low-fat-protein-quiz',
                 'title' => '蛋白質迷思：把「低脂」蛋白質挑出來（豬血 / 雞爪 / 雞翅 / 豬心）',
-                'category' => 'macros',
+                'category' => 'other',
                 'tags' => ['蛋白質', '低脂', '內臟'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '4 選低脂蛋白質：A 豬血 ✅（純蛋白質、極低脂、富含鐵）+ D 豬心 ✅（瘦肉、低脂高蛋白）。B 雞爪（高油 + 高膠原蛋白，但脂肪含量不低）。C 雞翅（連皮帶皮下脂肪，高油）。',
@@ -118,7 +118,7 @@ class KbOcrBatch15Seeder extends Seeder
             [
                 'slug' => 'high-fat-protein-quiz',
                 'title' => '蛋白質迷思：把「高脂」蛋白質挑出來（牛腩 / 豬大腸 / 豬肚 / 豬腳）',
-                'category' => 'macros',
+                'category' => 'other',
                 'tags' => ['蛋白質', '高脂', '內臟'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '4 選 1 哪個是高脂蛋白質？答案：A 牛腩 + B 豬大腸 + D 豬腳（全是高脂）。C 豬肚相對中等。重點：很多人以為內臟很瘦，其實大部分內臟脂肪含量極高。',
@@ -131,7 +131,7 @@ class KbOcrBatch15Seeder extends Seeder
             [
                 'slug' => 'weight-down-bodyfat-up-case',
                 'title' => '體重降、體脂升的真實案例（為什麼？）',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['體脂', '肌肉', '案例'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '7 天間隔（2/3 vs 2/10）：體重 85.10kg → 84.00kg（-1.1kg），但體脂 37.9% → 38.1%（+0.2%）、骨骼肌 23.9% → 23.5%（-0.4%）、骨骼肌重量 20.3 → 19.7kg（流失 0.6kg）。原因：肌肉流失 = 體重降但體脂率反升。',

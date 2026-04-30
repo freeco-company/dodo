@@ -27,7 +27,7 @@ class KbOcrBatch16Seeder extends Seeder
             [
                 'slug' => 'good-noodles-quiz',
                 'title' => '麵類迷思：把「好的麵」挑出來（拉麵 / 鍋燒麵 / 雞絲麵 / 烏龍麵）',
-                'category' => 'macros',
+                'category' => 'other',
                 'tags' => ['麵條', '加工', '挑選'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '4 選 1 哪個是好的麵？答案：A 拉麵 ✅（手工或機製、無油炸）+ D 烏龍麵 ✅（純麵粉鹽水）。B 鍋燒麵（油炸過的速食麵磚）❌。C 雞絲麵（油炸過的細麵）❌。判斷重點：油炸過的麵 = 紅燈。',
@@ -40,7 +40,7 @@ class KbOcrBatch16Seeder extends Seeder
             [
                 'slug' => 'three-meals-vs-six-meals-blood-sugar',
                 'title' => '三餐 vs 六餐血糖曲線（少量多餐的迷思）',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['少量多餐', '血糖', '胰島素'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '三餐血糖：3 個明顯波峰（早午晚），餐間回到基線。六餐血糖：6 個小波動連續一整天，血糖一直起起伏伏，胰島素分泌過量，反而讓多餘熱量直接變脂肪囤積。',
