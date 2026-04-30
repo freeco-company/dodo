@@ -120,6 +120,75 @@ class KnowledgeController extends Controller
     }
 
     /**
+     * GET /api/knowledge/saved — list articles user has saved (mark action).
+     */
+    public function saved(Request $request): JsonResponse
+    {
+        $uuid = $request->user()->pandora_user_uuid ?? null;
+        if (! $uuid) {
+            return response()->json(['articles' => [], 'count' => 0]);
+        }
+        $savedIds = KnowledgeArticleUserMark::query()
+            ->where('pandora_user_uuid', $uuid)
+            ->where('action', 'saved')
+            ->pluck('article_id')
+            ->unique()
+            ->all();
+
+        $articles = KnowledgeArticle::query()
+            ->whereIn('id', $savedIds)
+            ->published()
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn ($r) => $this->shape($r))
+            ->all();
+
+        return response()->json(['articles' => $articles, 'count' => count($articles)]);
+    }
+
+    /**
+     * GET /api/knowledge/categories — group counts per category for the
+     * topic-browse page UI (badges showing how many articles per topic).
+     */
+    public function categories(): JsonResponse
+    {
+        $rows = KnowledgeArticle::query()
+            ->published()
+            ->selectRaw('category, count(*) as count')
+            ->groupBy('category')
+            ->get()
+            ->keyBy('category');
+
+        $all = [
+            'protein' => '蛋白質',
+            'carb' => '碳水',
+            'fiber' => '纖維',
+            'fat' => '油脂',
+            'water' => '水分',
+            'micronutrient' => '微量元素',
+            'product_match' => '產品搭配',
+            'meal_timing' => '餐次安排',
+            'cutting' => '減脂期',
+            'maintenance' => '維持期',
+            'qna' => '常見 Q&A',
+            'myth_busting' => '謬誤澄清',
+            'lifestyle' => '生活作息',
+            'other' => '其他',
+        ];
+
+        $out = [];
+        foreach ($all as $key => $label) {
+            $out[] = [
+                'key' => $key,
+                'label' => $label,
+                'count' => (int) ($rows->get($key)->count ?? 0),
+            ];
+        }
+
+        return response()->json(['categories' => $out]);
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function shape(KnowledgeArticle $a, bool $full = false): array

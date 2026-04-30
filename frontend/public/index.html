@@ -755,6 +755,27 @@
       </div>
     </div>
 
+    <!-- ===== Knowledge tab — 營養知識庫主題瀏覽 + 收藏 (Phase 5b expand) ===== -->
+    <div id="tab-knowledge" class="hidden px-5 space-y-3 pb-6">
+      <div class="card p-4">
+        <div class="flex items-baseline justify-between mb-2">
+          <div class="text-sm font-bold">📖 營養知識庫</div>
+          <button class="kb-tab-saved-btn text-xs" id="kb-show-saved" type="button">⭐ 我的收藏</button>
+        </div>
+        <div class="text-xs text-muted mb-3">挑個主題看看，朵朵幫妳整理過了 ✨</div>
+        <div id="kb-categories-grid" class="kb-cat-grid">
+          <!-- Category chips with article counts injected by JS -->
+        </div>
+      </div>
+      <div class="card p-4 hidden" id="kb-list-card">
+        <div class="flex items-baseline justify-between mb-2">
+          <div class="text-sm font-bold" id="kb-list-title">主題</div>
+          <button class="kb-list-back text-xs" id="kb-list-back" type="button">← 主題</button>
+        </div>
+        <div id="kb-list-body" class="kb-list-body"></div>
+      </div>
+    </div>
+
     <!-- ===== Me / 我的 tab — entry to secondary sections ===== -->
     <div id="tab-me" class="hidden px-5 space-y-3">
       <div class="me-header card p-4 text-center">
@@ -882,6 +903,14 @@
         <div class="me-entry-text">
           <div class="me-entry-title">卡牌圖鑑</div>
           <div class="me-entry-sub">收集過的知識卡與情境卡，隨時回來複習 ✨</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+      <button class="me-entry card" data-go="knowledge">
+        <div class="me-entry-emoji">📚</div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">營養知識庫</div>
+          <div class="me-entry-sub">14 主題分類 + 我的收藏，朵朵幫妳整理過了</div>
         </div>
         <div class="me-entry-chev">›</div>
       </button>
