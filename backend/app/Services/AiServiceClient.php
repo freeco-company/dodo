@@ -33,14 +33,13 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class AiServiceClient
 {
     /**
-     * Scan a meal photo. Returns the recognition response from
-     * POST /v1/vision/recognize as a decoded array.
+     * Scan a meal photo via URL. Downloads the image, then forwards bytes to
+     * POST /v1/vision/recognize as multipart.
      *
-     * Note on contract: the existing controller passes ``$imageUrl`` (string).
-     * The Python service expects a multipart upload. We download the image
-     * bytes here so the controller surface stays unchanged.
+     * Used by admin / server-side flows that already have a stored URL. The
+     * frontend mobile/web flow uses {@see scanMealFromBytes} (base64 → bytes).
      *
-     * @param  array<string, mixed>  $context  reserved for future per-meal hints (meal_type etc.)
+     * @param  array<string, mixed>  $context  optional per-meal hints (meal_type etc.)
      * @return array<string, mixed>
      */
     public function scanMeal(User $user, string $imageUrl, array $context = []): array
@@ -59,6 +58,37 @@ class AiServiceClient
         $bytes = (string) $imageResponse->body();
         $contentType = (string) ($imageResponse->header('Content-Type') ?: 'image/jpeg');
 
+        return $this->postVisionRecognize($user, $bytes, $contentType, $context);
+    }
+
+    /**
+     * Scan a meal photo from in-memory bytes (e.g. base64 from mobile camera).
+     *
+     * This is the fast path — the Python service expects multipart anyway, so
+     * skipping a round-trip self-download cuts latency + avoids a SSRF surface.
+     *
+     * @param  array<string, mixed>  $context  optional per-meal hints (meal_type etc.)
+     * @return array<string, mixed>
+     */
+    public function scanMealFromBytes(
+        User $user,
+        string $bytes,
+        string $contentType = 'image/jpeg',
+        array $context = [],
+    ): array {
+        $this->ensureEnabled();
+
+        return $this->postVisionRecognize($user, $bytes, $contentType, $context);
+    }
+
+    /**
+     * Internal: POST bytes as multipart to /v1/vision/recognize.
+     *
+     * @param  array<string, mixed>  $context
+     * @return array<string, mixed>
+     */
+    private function postVisionRecognize(User $user, string $bytes, string $contentType, array $context): array
+    {
         $mealType = is_string($context['meal_type'] ?? null) ? $context['meal_type'] : 'lunch';
 
         try {
