@@ -5893,3 +5893,65 @@ body:has(.dialog-overlay:not(.hidden)) .dodo-mentor-bubble {
 .growth-area { fill: url(#growthGrad); opacity: 0.35; }
 .growth-dot { fill: #E89F7A; }
 .growth-baseline { stroke: #EDE3D0; stroke-width: 1; stroke-dasharray: 3 3; }
+
+/* ===== Island chapters view (2026-04-30 redesign — 7 章覺醒) ===== */
+.island-view-chapters {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, #FFF8F2 0%, #F4DEC8 60%, #E89F7A 100%);
+  overflow-y: auto; padding: 60px 20px 24px;
+  display: flex; flex-direction: column;
+}
+.island-chapters-header { text-align: center; margin-bottom: 20px; }
+.island-chapters-title { font-size: 24px; font-weight: 800; color: #6b5a48; }
+.island-chapters-subtitle { font-size: 13px; color: #9c8b75; margin-top: 4px; }
+.island-chapters-list { display: flex; flex-direction: column; gap: 12px; max-width: 480px; width: 100%; margin: 0 auto; }
+.island-chapter-card {
+  background: rgba(255,255,255,0.92); border-radius: 18px; padding: 16px;
+  box-shadow: 0 6px 20px rgba(160, 120, 80, 0.12);
+  display: flex; flex-direction: column; gap: 8px;
+  position: relative; cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+}
+.island-chapter-card:not(.locked):hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(160, 120, 80, 0.18); }
+.island-chapter-card.current {
+  border-color: #E89F7A;
+  background: linear-gradient(135deg, #FFF8F2, #FFE8D5);
+}
+.island-chapter-card.completed { background: linear-gradient(135deg, #E8F5E9, #C8E6C9); }
+.island-chapter-card.locked { opacity: 0.55; cursor: not-allowed; background: #F5F0E8; }
+.icc-row1 { display: flex; align-items: center; gap: 10px; }
+.icc-icon { font-size: 32px; flex-shrink: 0; }
+.icc-titles { flex: 1; min-width: 0; }
+.icc-subtitle { font-size: 11px; color: #b0a08a; font-weight: 600; letter-spacing: 0.5px; }
+.icc-name { font-size: 17px; font-weight: 800; color: #5a4a3c; }
+.icc-status {
+  font-size: 11px; padding: 3px 10px; border-radius: 999px; font-weight: 600;
+  background: #FFE8D5; color: #C77F4F;
+}
+.icc-status.locked { background: #E0D5C5; color: #8a7a65; }
+.icc-status.completed { background: #C8E6C9; color: #2E7D32; }
+.icc-intro { font-size: 13px; color: #7a6a55; line-height: 1.55; }
+.icc-progress-row {
+  display: flex; align-items: center; gap: 10px; font-size: 11px; color: #9c8b75;
+}
+.icc-progress-bar {
+  flex: 1; height: 6px; background: #F4DEC8; border-radius: 3px; overflow: hidden;
+}
+.icc-progress-fill {
+  height: 100%; background: linear-gradient(90deg, #F4C5A3, #E89F7A);
+  border-radius: 3px; transition: width .3s;
+}
+.icc-boss-line {
+  font-size: 11px; color: #6b5a48; padding: 6px 10px;
+  background: rgba(232, 159, 122, 0.1); border-radius: 8px;
+  border-left: 3px solid #E89F7A;
+}
+.icc-boss-line .label { font-weight: 700; color: #C77F4F; }
+.island-chapters-footer { text-align: center; font-size: 11px; color: #fff; margin-top: 18px; opacity: 0.85; }
+.island-back-to-chapters {
+  position: absolute; left: 12px; top: 12px;
+  font-size: 12px; padding: 6px 12px; border-radius: 999px;
+  background: rgba(255,255,255,0.85); color: #6b5a48; border: 1px solid #E8D9C1;
+  font-weight: 600; cursor: pointer; z-index: 5;
+}

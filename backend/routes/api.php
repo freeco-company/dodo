@@ -123,6 +123,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('island')->group(function () {
         Route::get('/scenes', [IslandController::class, 'scenes']);
+        Route::get('/chapters', [IslandController::class, 'chapters']);
         Route::get('/store/{scene}', [IslandController::class, 'store'])
             ->where('scene', '[a-z0-9_-]+');
         Route::post('/consume-visit', [IslandController::class, 'consumeVisit']);
