@@ -1270,9 +1270,12 @@ async function loadDashboard() {
       <div class="es-hint">點上方 📷 拍照或搜尋食物<br/>紀錄一餐就開始累積分數跟 XP</div>
     </div>`;
 
-  // Achievements
+  // Achievements (use design-svg badges where mapped, fallback to emoji)
   $('#m-achievements').innerHTML = d.achievements.length
-    ? d.achievements.map((a) => `<span class="badge-chip">🏅 ${a.achievement_name}</span>`).join('')
+    ? d.achievements.map((a) => {
+        const icon = achievementIconHtml(a.achievement_key || a.key, true);
+        return `<span class="badge-chip">${icon} ${a.achievement_name}</span>`;
+      }).join('')
     : '<span class="text-muted">還沒有徽章，加油！</span>';
 
   // Gift button state
@@ -2377,6 +2380,31 @@ const ACH_ICON = {
   weight_goal_1kg:   '📉',
   weight_goal_5kg:   '🎯',
 };
+// 2026-04-30 — Map achievement keys to pandora-design-svg badges (v5 風格).
+// Fallback to ACH_ICON emoji when unmapped. Locked state desaturates via CSS.
+const ACH_BADGE_SVG = {
+  first_meal:      '/svg/badges/badge_first_bronze.svg',
+  streak_3:        '/svg/badges/badge_streak_bronze.svg',
+  streak_7:        '/svg/badges/badge_streak_silver.svg',
+  streak_14:       '/svg/badges/badge_streak_gold.svg',
+  streak_30:       '/svg/badges/badge_milestone_gold.svg',
+  level_10:        '/svg/badges/badge_milestone_bronze.svg',
+  level_20:        '/svg/badges/badge_milestone_silver.svg',
+  level_50:        '/svg/badges/badge_milestone_gold.svg',
+  foodie_10:       '/svg/badges/badge_first_silver.svg',
+  foodie_50:       '/svg/badges/badge_first_gold.svg',
+  perfect_day:     '/svg/badges/badge_milestone_bronze.svg',
+  perfect_week:    '/svg/badges/badge_milestone_silver.svg',
+  weight_goal_1kg: '/svg/badges/badge_milestone_bronze.svg',
+  weight_goal_5kg: '/svg/badges/badge_milestone_silver.svg',
+};
+function achievementIconHtml(key, unlocked) {
+  const svg = ACH_BADGE_SVG[key];
+  if (svg) {
+    return `<img src="${svg}" alt="" class="ach-svg-badge ${unlocked ? '' : 'is-locked'}" loading="lazy" draggable="false"/>`;
+  }
+  return ACH_ICON[key] || (unlocked ? '🏅' : '🔒');
+}
 async function loadAchievements() {
   const data = await api('GET', `/achievements`);
   $('#ach-done').textContent = data.unlocked;
@@ -2385,7 +2413,7 @@ async function loadAchievements() {
   el.classList.remove('space-y-2');
   el.classList.add('ach-grid');
   el.innerHTML = data.achievements.map((a) => {
-    const icon = ACH_ICON[a.key] || (a.unlocked ? '🏅' : '🔒');
+    const icon = achievementIconHtml(a.key, a.unlocked);
     return `
       <div class="ach-card ${a.unlocked ? 'unlocked' : 'locked'}">
         <div class="ac-icon">${icon}</div>
