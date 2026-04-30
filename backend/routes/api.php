@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\EntitlementsController;
 use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\FranchiseController;
 use App\Http\Controllers\Api\GooglePubSubController;
+use App\Http\Controllers\Api\GrowthController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\IapController;
 use App\Http\Controllers\Api\IdentityWebhookController;
@@ -102,6 +103,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me/dashboard', [MeController::class, 'dashboard']);
     Route::get('/me/settings', [MeController::class, 'getSettings']);
     Route::patch('/me/settings', [MeController::class, 'patchSettings']);
+    Route::get('/me/growth/timeseries', [GrowthController::class, 'timeseries']);
+    Route::get('/me/growth/weekly-review', [GrowthController::class, 'weeklyReview']);
 
     Route::get('/paywall', [PaywallController::class, 'view']);
     Route::get('/rating-prompt', [RatingPromptController::class, 'view']);
