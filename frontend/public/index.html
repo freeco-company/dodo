@@ -490,6 +490,20 @@
         <div id="m-meals-list" class="space-y-3 text-sm text-muted">還沒紀錄～上面點 🍱 記餐開始</div>
       </div>
 
+      <!-- Knowledge daily card — Phase 5b 每日營養知識 -->
+      <div class="card kb-daily-card p-4 hidden" id="kb-daily-card">
+        <div class="flex items-baseline justify-between mb-1">
+          <div class="text-sm font-bold">📖 今日營養知識</div>
+          <span class="text-[10px] text-muted" id="kb-daily-cat">—</span>
+        </div>
+        <div class="text-base font-bold mb-1" id="kb-daily-title">—</div>
+        <div class="text-xs text-muted mb-2" id="kb-daily-summary">—</div>
+        <div class="flex gap-2">
+          <button class="btn-primary kb-daily-read" id="kb-daily-read" type="button">看完整篇 →</button>
+          <button class="btn-secondary kb-daily-save" id="kb-daily-save" type="button">⭐ 收藏</button>
+        </div>
+      </div>
+
       <!-- Growth card — long-term trend visualization (Phase 3) -->
       <div class="card growth-card p-4" id="growth-card">
         <div class="flex justify-between items-center mb-1">
@@ -1332,6 +1346,20 @@
       <span id="review-explain"></span>
     </div>
     <div class="card-review-meta" id="review-meta"></div>
+  </div>
+</div>
+
+<!-- Knowledge reader overlay (Phase 5b) -->
+<div id="kb-reader" class="kb-reader hidden" role="dialog" aria-label="營養知識">
+  <div class="kb-reader-card">
+    <button class="kb-reader-close" id="kb-reader-close" aria-label="關閉" type="button">×</button>
+    <div class="kb-reader-cat" id="kb-reader-cat">—</div>
+    <h2 class="kb-reader-title" id="kb-reader-title">—</h2>
+    <div class="kb-reader-meta" id="kb-reader-meta">—</div>
+    <div class="kb-reader-body" id="kb-reader-body">—</div>
+    <div class="kb-reader-actions">
+      <button class="btn-secondary kb-reader-save" id="kb-reader-save" type="button">⭐ 收藏</button>
+    </div>
   </div>
 </div>
 

@@ -1136,6 +1136,8 @@ async function loadDashboard() {
   refreshEventBanner();
   // Phase 3 — pull growth widget alongside dashboard (best-effort, non-blocking)
   loadGrowth().catch(() => {});
+  // Phase 5b — daily knowledge card (best-effort)
+  loadKnowledgeDaily().catch(() => {});
   // Brute-force ensure tab-home is visible (some browsers leave the entry animation stuck)
   ['tab-home','tab-island','tab-scan','tab-chat','tab-calendar','tab-wardrobe','tab-pokedex','tab-achievements','tab-report','tab-cards-codex'].forEach((id) => {
     const el = document.getElementById(id);
@@ -1467,7 +1469,7 @@ function switchTab(tab) {
       el.classList.add('tab-anim');
     }
   });
-  if (tab === 'home') { loadDashboard(); loadSuggestions(); loadGrowth(); }
+  if (tab === 'home') { loadDashboard(); loadSuggestions(); loadGrowth(); loadKnowledgeDaily(); }
   if (tab === 'pokedex') loadPokedex();
   if (tab === 'chat') loadChatStarters();
   if (tab === 'calendar') loadCalendar();
@@ -1879,6 +1881,75 @@ function appendBubble(role, text) {
   c.scrollTop = c.scrollHeight;
 }
 function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// === Knowledge daily card (Phase 5b, 2026-04-30) ===
+let kbCurrentSlug = null;
+const KB_CATEGORY_LABEL = {
+  protein: '蛋白質', carb: '碳水', fiber: '纖維', fat: '油脂',
+  water: '水分', micronutrient: '微量元素', product_match: '產品搭配',
+  meal_timing: '餐次安排', cutting: '減脂期', maintenance: '維持期',
+  qna: '常見 Q&A', myth_busting: '謬誤澄清', lifestyle: '生活作息', other: '其他',
+};
+async function loadKnowledgeDaily() {
+  const card = document.getElementById('kb-daily-card');
+  if (!card) return;
+  try {
+    const r = await api('GET', '/knowledge/daily');
+    const a = r.article;
+    if (!a) { card.classList.add('hidden'); return; }
+    kbCurrentSlug = a.slug;
+    document.getElementById('kb-daily-title').textContent = a.title;
+    document.getElementById('kb-daily-summary').textContent = a.summary || '';
+    document.getElementById('kb-daily-cat').textContent = KB_CATEGORY_LABEL[a.category] || '';
+    card.classList.remove('hidden');
+  } catch (e) {
+    console.warn('loadKnowledgeDaily', e);
+    card.classList.add('hidden');
+  }
+}
+async function openKnowledgeReader(slug) {
+  try {
+    const r = await api('GET', `/knowledge/${slug}`);
+    const a = r.article;
+    document.getElementById('kb-reader-cat').textContent = KB_CATEGORY_LABEL[a.category] || '';
+    document.getElementById('kb-reader-title').textContent = a.title;
+    document.getElementById('kb-reader-meta').textContent = `朵朵 · ${a.reading_time_seconds || 60} 秒讀完`;
+    // body 用 textContent（不解析 markdown，安全）+ 維持換行
+    const bodyEl = document.getElementById('kb-reader-body');
+    bodyEl.textContent = a.body || '';
+    bodyEl.style.whiteSpace = 'pre-wrap';
+    document.getElementById('kb-reader').classList.remove('hidden');
+    window.sfx?.play('ui_open');
+  } catch (e) {
+    toast(e.message || '載入失敗');
+  }
+}
+function closeKnowledgeReader() {
+  document.getElementById('kb-reader').classList.add('hidden');
+  window.sfx?.play('ui_close');
+}
+async function saveKnowledge(slug) {
+  if (!slug) return;
+  try {
+    await api('POST', `/knowledge/${slug}/save`);
+    toast('已加入收藏 ⭐');
+  } catch (e) {
+    toast(e.message || '收藏失敗');
+  }
+}
+function setupKnowledgeCard() {
+  const card = document.getElementById('kb-daily-card');
+  const reader = document.getElementById('kb-reader');
+  if (card) {
+    document.getElementById('kb-daily-read')?.addEventListener('click', () => kbCurrentSlug && openKnowledgeReader(kbCurrentSlug));
+    document.getElementById('kb-daily-save')?.addEventListener('click', () => saveKnowledge(kbCurrentSlug));
+  }
+  if (reader) {
+    document.getElementById('kb-reader-close')?.addEventListener('click', closeKnowledgeReader);
+    document.getElementById('kb-reader-save')?.addEventListener('click', () => saveKnowledge(kbCurrentSlug));
+    reader.addEventListener('click', (e) => { if (e.target === reader) closeKnowledgeReader(); });
+  }
+}
 
 // === Growth (Phase 3, 2026-04-30) — 體重 / 卡路里 / 蛋白曲線 + 朵朵 weekly comment ===
 let growthRangeDays = 7; // default 7d view
@@ -2610,6 +2681,8 @@ async function init() {
 
   // Phase 3 — growth card 7d/30d/90d range toggles
   setupGrowthRangeButtons();
+  // Phase 5b — knowledge daily card + reader
+  setupKnowledgeCard();
 
   // species picker
   $$('#species-picker .sp-btn').forEach((b) => b.addEventListener('click', async () => {

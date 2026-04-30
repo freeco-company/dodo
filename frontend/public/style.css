@@ -6190,3 +6190,73 @@ body:has(.dialog-overlay:not(.hidden)) .dodo-mentor-bubble {
 .poke-card.shiny .poke-food-svg {
   filter: drop-shadow(0 0 12px rgba(255, 220, 130, 0.6)) drop-shadow(0 2px 4px rgba(160, 110, 70, 0.2));
 }
+
+/* ===== Knowledge daily card + reader (Phase 5b, 2026-04-30) ===== */
+.kb-daily-card {
+  background: linear-gradient(135deg, #FFF8F2 0%, #FDE3D0 100%);
+  border: 1px solid #F4DEC8;
+}
+.kb-daily-card .text-sm.font-bold { color: #6b5a48; }
+.kb-daily-read, .kb-daily-save {
+  font-size: 12px; padding: 7px 14px; border-radius: 999px;
+  border: none; cursor: pointer; font-weight: 700;
+}
+.kb-daily-read {
+  background: #E89F7A; color: #fff;
+  box-shadow: 0 3px 10px rgba(232,159,122,0.3);
+}
+.kb-daily-save {
+  background: #fff; color: #6b5a48;
+  border: 1px solid #E8D9C1;
+}
+.kb-reader {
+  position: fixed; inset: 0;
+  background: rgba(40, 30, 20, 0.65);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000; padding: 16px;
+  animation: kb-fade-in 0.2s ease-out;
+}
+.kb-reader.hidden { display: none; }
+@keyframes kb-fade-in { 0% { opacity: 0; } 100% { opacity: 1; } }
+.kb-reader-card {
+  background: #fff; border-radius: 20px;
+  max-width: 540px; width: 100%; max-height: 80vh;
+  padding: 28px 24px 20px;
+  position: relative; overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(40,30,20,0.4);
+  animation: kb-slide-up 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes kb-slide-up { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
+.kb-reader-close {
+  position: absolute; top: 12px; right: 14px;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #F5F0E8; border: none; cursor: pointer;
+  font-size: 18px; color: #8a7a65; line-height: 1;
+}
+.kb-reader-cat {
+  display: inline-block; padding: 3px 10px; border-radius: 999px;
+  background: #FFE5D0; color: #C77F4F;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.kb-reader-title {
+  font-size: 22px; font-weight: 800; color: #5a4a3c;
+  line-height: 1.4; margin: 0 0 6px;
+}
+.kb-reader-meta {
+  font-size: 12px; color: #b0a08a; margin-bottom: 16px;
+}
+.kb-reader-body {
+  font-size: 15px; color: #3a3028; line-height: 1.75;
+  font-family: 'Noto Sans TC', system-ui, sans-serif;
+}
+.kb-reader-actions {
+  margin-top: 20px; padding-top: 16px;
+  border-top: 1px solid #F0E5D5;
+  display: flex; gap: 10px;
+}
+.kb-reader-save {
+  font-size: 13px; padding: 9px 18px; border-radius: 999px;
+  background: #FFF8F2; color: #6b5a48; border: 1px solid #E8D9C1;
+  cursor: pointer; font-weight: 700;
+}
