@@ -4220,9 +4220,12 @@ function paintIslandCharacter() {
   const charEl = $('#island-character');
   if (!charEl) return;
   charEl.innerHTML = renderCharacter({ animal: state.animal, level: state.lastLevel, mood: 'happy', outfit: 'none' });
-  // Store-inside mascot: simple Fluent img, no halo/rarity chip — fits 72px circle cleanly
+  // Store-inside NPC: 固定朵朵 dodo（集團導師 NPC），不是用戶寵物。
+  // 2026-04-30 改：店員 = 朵朵 統一品牌
   const storeChar = $('#store-character');
-  if (storeChar) storeChar.innerHTML = window.animalImg ? window.animalImg(state.animal, 'in-store') : '';
+  if (storeChar) {
+    storeChar.innerHTML = `<img src="/characters/dodo.png" alt="朵朵 dodo NPC" style="width:100%;height:100%;object-fit:contain;"/>`;
+  }
 }
 
 // Per-store NPC animal — anchor v2 11 species. Server `store_npc_animal` config wins.
@@ -4419,9 +4422,10 @@ async function enterStore(scene) {
   const storeContent = storeView.querySelector('.store-content');
   if (storeContent) storeContent.scrollTop = 0;
   const speech = $('#store-speech');
+  // 2026-04-30 — 店員固定朵朵（集團 NPC），不用用戶寵物
   const greet = scene.key.startsWith('fp_')
-    ? `${mascotName()}：歡迎來到 ${storeData.name}，今天想...`
-    : `${mascotName()}：你今天來 ${storeData.name} 想...`;
+    ? `朵朵：歡迎來到 ${storeData.name}，今天想...`
+    : `朵朵：你今天來 ${storeData.name} 想...`;
   speech.textContent = greet;
 
   // Play JRPG-style NPC dialog FIRST (before showing intents)
@@ -4518,7 +4522,7 @@ async function showRecommendations(intent) {
   $('#store-intents').classList.add('hidden');
   const panel = $('#store-recs');
   panel.classList.remove('hidden');
-  $('#store-recs-prompt').textContent = `${mascotName()}：${intent.prompt_line}`;
+  $('#store-recs-prompt').textContent = `朵朵：${intent.prompt_line}`;
 
   const list = $('#store-recs-list');
   list.innerHTML = '';
@@ -4568,9 +4572,11 @@ async function logRecMeal(rec) {
   try {
     const hour = new Date().getHours();
     const meal_type = hour < 10 ? 'breakfast' : hour < 14 ? 'lunch' : hour < 21 ? 'dinner' : 'snack';
+    // /meals/text expects { description } per AiMealController validation
+    const description = rec.primary_item || rec.title || rec.items?.join('、') || '記錄一餐';
     const r = await api('POST', '/meals/text', {
       user_id: state.userId,
-      food_name: rec.primary_item,
+      description,
       meal_type,
     });
     window.sfx?.play('meal_logged');
@@ -4613,10 +4619,17 @@ async function openRecQuiz(rec) {
     data = await api('POST', '/cards/scene-draw', { user_id: state.userId, card_id: rec.quiz_card_id });
   } catch (e) {
     $('#card-loading').classList.add('hidden');
-    if (String(e.message).includes('ALREADY_ANSWERED')) {
+    const errMsg = String(e.message || '');
+    if (errMsg.includes('ALREADY_ANSWERED')) {
       toast('這張卡今天測過了～明天再來 ✨');
+    } else if (errMsg.includes('NO_STAMINA') || /體力/.test(errMsg)) {
+      toast('體力不足～明天再來測卡吧 💤');
+    } else if (errMsg.includes('NO_CARDS_AVAILABLE')) {
+      toast('今天的新卡都測過了 🎴');
+    } else if (errMsg.includes('QUOTA_EXHAUSTED')) {
+      toast('本月島嶼次數用完了～可以訂閱解鎖無限');
     } else {
-      toast(e.message || '開卡失敗');
+      toast(errMsg || '開卡失敗');
     }
     closeCardModal();
     return;

@@ -559,10 +559,13 @@ button { font-family: inherit; letter-spacing: 0.04em; }
 .char-mood-badge {
   position: absolute;
   width: 40px; height: 40px;
+  max-width: 40px; max-height: 40px; /* 防止 natural-size SVG/PNG 撐爆 */
   top: -6px; right: -4px;
   z-index: 6;
   filter: drop-shadow(0 2px 4px rgba(45,36,32,.2));
   animation: moodPop 2s ease-in-out infinite;
+  object-fit: contain;
+  pointer-events: none;
 }
 @keyframes moodPop {
   0%,100% { transform: scale(1); }
@@ -3770,8 +3773,9 @@ button { font-family: inherit; letter-spacing: 0.04em; }
 
 .store-character-row {
   display: flex; align-items: center;
-  gap: 10px;
+  gap: 14px;
   margin: 4px 0 12px;
+  padding-left: 8px; /* 朵朵 NPC 左邊留呼吸 */
   min-height: 80px;
   position: relative;
   z-index: 3;
@@ -3779,6 +3783,7 @@ button { font-family: inherit; letter-spacing: 0.04em; }
 .store-character {
   width: 72px; height: 72px;
   flex-shrink: 0;
+  margin-left: 4px; /* 對話框右移 — bubble 不擋朵朵頭 */
   overflow: visible; /* 允許角色高聳部位（如兔耳）突出圓圈 */
   border-radius: 50%;
   background: rgba(255,255,255,.7);

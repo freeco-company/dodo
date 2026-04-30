@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\IdentityWebhookController;
 use App\Http\Controllers\Api\InteractController;
 use App\Http\Controllers\Api\IslandController;
 use App\Http\Controllers\Api\JourneyController;
+use App\Http\Controllers\Api\KnowledgeController;
 use App\Http\Controllers\Api\MeController;
 use App\Http\Controllers\Api\MealController;
 use App\Http\Controllers\Api\MePreferencesController;
@@ -105,6 +106,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/me/settings', [MeController::class, 'patchSettings']);
     Route::get('/me/growth/timeseries', [GrowthController::class, 'timeseries']);
     Route::get('/me/growth/weekly-review', [GrowthController::class, 'weeklyReview']);
+
+    // Phase 5 — knowledge base (營養知識庫) — App-side reads
+    Route::get('/knowledge', [KnowledgeController::class, 'index']);
+    Route::get('/knowledge/daily', [KnowledgeController::class, 'daily']);
+    Route::get('/knowledge/{slug}', [KnowledgeController::class, 'show']);
+    Route::post('/knowledge/{slug}/save', [KnowledgeController::class, 'save']);
 
     Route::get('/paywall', [PaywallController::class, 'view']);
     Route::get('/rating-prompt', [RatingPromptController::class, 'view']);
