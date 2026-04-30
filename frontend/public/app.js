@@ -2035,7 +2035,39 @@ function toFoodIconHtml(emoji, size = 32) {
   if (name && window.icon) return window.icon(name, { size });
   return emoji; // graceful fallback for items we haven't drawn yet
 }
+// 2026-04-30 — Map food category/element → pandora-design-svg icons (food_*)
+const FOOD_DESIGN_SVG = {
+  meat: '/svg/icons/icon_food_meat.svg',
+  egg: '/svg/icons/icon_food_egg.svg',
+  rice: '/svg/icons/icon_food_rice.svg',
+  bread: '/svg/icons/icon_food_bread.svg',
+  fruit: '/svg/icons/icon_food_fruit.svg',
+  veggie: '/svg/icons/icon_food_veggie.svg',
+  snack: '/svg/icons/icon_food_snack.svg',
+};
+function categoryToDesignSvg(d) {
+  const cat = (d.category || '').toLowerCase();
+  if (cat.includes('蔬菜')) return FOOD_DESIGN_SVG.veggie;
+  if (cat.includes('水果')) return FOOD_DESIGN_SVG.fruit;
+  if (cat.includes('甜點')) return FOOD_DESIGN_SVG.snack;
+  if (cat.includes('蛋白質')) return FOOD_DESIGN_SVG.meat;
+  if (cat.includes('飯食')) return FOOD_DESIGN_SVG.rice;
+  if (cat.includes('麵食')) return FOOD_DESIGN_SVG.rice;
+  if (cat.includes('早餐')) return FOOD_DESIGN_SVG.bread;
+  const el = d.element;
+  if (el === 'protein') return FOOD_DESIGN_SVG.meat;
+  if (el === 'carb') return FOOD_DESIGN_SVG.rice;
+  if (el === 'veggie') return FOOD_DESIGN_SVG.veggie;
+  if (el === 'sweet') return FOOD_DESIGN_SVG.snack;
+  return null;
+}
 function foodIconFor(d) {
+  // Prefer design-svg category icons (v5 風格 統一視覺)
+  const svgPath = categoryToDesignSvg(d);
+  if (svgPath) {
+    return `<img src="${svgPath}" alt="" class="poke-food-svg" loading="lazy" draggable="false"/>`;
+  }
+  // Fallback to emoji-based path for unmapped categories
   let e;
   if (FOOD_ICON[d.name_zh]) e = FOOD_ICON[d.name_zh];
   else {
@@ -2044,15 +2076,8 @@ function foodIconFor(d) {
     else if (cat.includes('手搖')) e = '🧋';
     else if (cat.includes('夜市')) e = '🍢';
     else if (cat.includes('超商')) e = '🍙';
-    else if (cat.includes('早餐')) e = '🥐';
     else if (cat.includes('連鎖速食')) e = '🍔';
-    else if (cat.includes('蔬菜')) e = '🥬';
-    else if (cat.includes('水果')) e = '🍎';
-    else if (cat.includes('甜點')) e = '🍰';
     else if (cat.includes('湯品')) e = '🥣';
-    else if (cat.includes('蛋白質')) e = '🍗';
-    else if (cat.includes('飯食')) e = '🍚';
-    else if (cat.includes('麵食')) e = '🍜';
     else e = elementEmoji(d.element);
   }
   return toFoodIconHtml(e, 40);
