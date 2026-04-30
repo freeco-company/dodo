@@ -2996,6 +2996,7 @@ async function openEventCard() {
   });
 
   $('#card-loading').classList.add('hidden');
+  triggerRarityCeremony(data.rarity);
   const flipper = $('#card-flipper');
   flipper.classList.add('entering');
   window.sfx?.play('card_draw');
@@ -3245,6 +3246,9 @@ async function startCardDraw() {
 
   $('#card-loading').classList.add('hidden');
 
+  // 2026-04-30 Diablo 風稀有度 ceremony — rare/legendary 觸發 overlay
+  triggerRarityCeremony(data.rarity);
+
   // play card flight + flip
   const flipper = $('#card-flipper');
   flipper.classList.add('entering');
@@ -3261,6 +3265,40 @@ async function startCardDraw() {
     $('#choice-fan').classList.add('opened');
     cardState.locked = false;
   }, 900);
+}
+
+// === Diablo-style rarity ceremony (2026-04-30) ===
+// Triggered when a rare or legendary card is drawn.
+// Common: no extra effect (already subtle pulse on card body).
+// Rare: blue glow burst + sparkle ring overlay (~1.2s).
+// Legendary: golden screen flash + radiant rays + slow-mo + sparkle (~2s).
+function triggerRarityCeremony(rarity) {
+  if (rarity !== 'rare' && rarity !== 'legendary') return;
+  const stage = document.getElementById('card-stage');
+  if (!stage) return;
+  // Remove any prior overlay
+  stage.querySelectorAll('.rarity-ceremony-overlay').forEach((el) => el.remove());
+
+  const overlay = document.createElement('div');
+  overlay.className = `rarity-ceremony-overlay rarity-ceremony-${rarity}`;
+  overlay.innerHTML = `
+    <div class="rcm-flash"></div>
+    <div class="rcm-rays"></div>
+    <div class="rcm-ring"></div>
+    <div class="rcm-sparkles">
+      ${Array.from({ length: 14 }, (_, i) => `<span class="rcm-sparkle" style="--i:${i}"></span>`).join('')}
+    </div>
+    <div class="rcm-label">${rarity === 'legendary' ? '✨ 傳說 ✨' : '稀有'}</div>
+  `;
+  stage.appendChild(overlay);
+
+  // Play rarity stinger sound
+  if (rarity === 'rare') window.sfx?.play('notify');
+  if (rarity === 'legendary') window.sfx?.play('level_up');
+
+  // Self-cleanup after animation
+  const ttl = rarity === 'legendary' ? 2400 : 1400;
+  setTimeout(() => overlay.remove(), ttl);
 }
 
 function updateStaminaDisplay(stamina) {
