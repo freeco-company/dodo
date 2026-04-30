@@ -5999,3 +5999,118 @@ body:has(.dialog-overlay:not(.hidden)) .dodo-mentor-bubble {
   transition: transform .15s, box-shadow .15s;
 }
 .ifp-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(232, 159, 122, 0.45); }
+
+/* ===== Diablo-style rarity ceremony (2026-04-30) ===== */
+.rarity-ceremony-overlay {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  overflow: hidden;
+  border-radius: inherit;
+}
+.rcm-flash {
+  position: absolute; inset: 0;
+  opacity: 0;
+  background: radial-gradient(ellipse at center, var(--rcm-flash-color, #fff) 0%, transparent 70%);
+  animation: rcm-flash-anim 1.2s ease-out forwards;
+}
+.rcm-ring {
+  position: absolute; left: 50%; top: 50%;
+  width: 60px; height: 60px;
+  margin-left: -30px; margin-top: -30px;
+  border-radius: 50%;
+  border: 4px solid var(--rcm-ring-color, #fff);
+  opacity: 0;
+  animation: rcm-ring-anim 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.rcm-rays {
+  position: absolute; inset: 0;
+  background:
+    repeating-conic-gradient(from 0deg,
+      transparent 0deg 18deg,
+      var(--rcm-ray-color, transparent) 18deg 20deg);
+  opacity: 0;
+  animation: rcm-rays-anim 1.6s ease-out forwards;
+  filter: blur(0.5px);
+}
+.rcm-sparkles {
+  position: absolute; inset: 0;
+}
+.rcm-sparkle {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--rcm-spark-color, #fff);
+  opacity: 0;
+  box-shadow: 0 0 12px var(--rcm-spark-glow, #fff);
+  animation: rcm-spark-anim 1.4s ease-out forwards;
+  animation-delay: calc(var(--i) * 60ms);
+  --angle: calc(var(--i) * 25.7deg);
+  transform: rotate(var(--angle)) translateY(0) scale(0);
+}
+.rcm-label {
+  position: absolute; left: 50%; top: 28%;
+  transform: translateX(-50%) scale(0.6);
+  font-size: 28px; font-weight: 900; letter-spacing: 4px;
+  color: var(--rcm-label-color, #fff);
+  text-shadow:
+    0 0 12px var(--rcm-label-glow, #fff),
+    0 2px 6px rgba(0,0,0,.4);
+  opacity: 0;
+  animation: rcm-label-anim 1.6s ease-out forwards;
+  animation-delay: 0.18s;
+}
+.rarity-ceremony-rare {
+  --rcm-flash-color: rgba(150, 200, 255, 0.7);
+  --rcm-ring-color: #6A8FD8;
+  --rcm-ray-color: rgba(150, 200, 255, 0.18);
+  --rcm-spark-color: #DCE8FF;
+  --rcm-spark-glow: #6A8FD8;
+  --rcm-label-color: #fff;
+  --rcm-label-glow: #6A8FD8;
+}
+.rarity-ceremony-legendary {
+  --rcm-flash-color: rgba(255, 220, 120, 0.85);
+  --rcm-ring-color: #F0B860;
+  --rcm-ray-color: rgba(255, 200, 80, 0.28);
+  --rcm-spark-color: #FFE8A0;
+  --rcm-spark-glow: #F0B860;
+  --rcm-label-color: #FFF5DD;
+  --rcm-label-glow: #F0B860;
+}
+.rarity-ceremony-legendary .rcm-flash { animation-duration: 2s; }
+.rarity-ceremony-legendary .rcm-ring { animation-duration: 2.2s; }
+.rarity-ceremony-legendary .rcm-rays { animation-duration: 2.4s; }
+.rarity-ceremony-legendary .rcm-sparkles .rcm-sparkle { animation-duration: 2s; }
+.rarity-ceremony-legendary .rcm-label {
+  font-size: 36px;
+  animation-duration: 2.4s;
+}
+@keyframes rcm-flash-anim {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes rcm-ring-anim {
+  0% { opacity: 0.9; transform: scale(0.3); border-width: 5px; }
+  60% { opacity: 0.7; }
+  100% { opacity: 0; transform: scale(8); border-width: 1px; }
+}
+@keyframes rcm-rays-anim {
+  0% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+  30% { opacity: 0.7; }
+  100% { opacity: 0; transform: scale(2) rotate(60deg); }
+}
+@keyframes rcm-spark-anim {
+  0% { opacity: 0; transform: rotate(var(--angle)) translateY(0) scale(0); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--angle)) translateY(-160px) scale(1.2); }
+}
+@keyframes rcm-label-anim {
+  0% { opacity: 0; transform: translateX(-50%) scale(0.6); }
+  20% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+  35% { transform: translateX(-50%) scale(1); }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) scale(1); }
+}
