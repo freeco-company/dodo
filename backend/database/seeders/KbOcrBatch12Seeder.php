@@ -66,7 +66,7 @@ class KbOcrBatch12Seeder extends Seeder
             [
                 'slug' => 'noodle-types-dry-vs-soup-calories',
                 'title' => '各種麵條乾 / 湯熱量比較',
-                'category' => 'macros',
+                'category' => 'other',
                 'tags' => ['麵條', '熱量', '比較'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '同樣麵條，乾麵比湯麵熱量高 100-125 大卡。油炸意麵（乾 475 / 湯 350）/ 油麵（乾 425 / 湯 325）/ 米粉（乾 366 / 湯 250）/ 冬粉（乾 357 / 湯 230）。',

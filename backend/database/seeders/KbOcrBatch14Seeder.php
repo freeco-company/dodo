@@ -14,7 +14,7 @@ class KbOcrBatch14Seeder extends Seeder
             [
                 'slug' => 'body-fat-different-strategies',
                 'title' => '體脂不同，減脂手段也不同（3 階段策略）',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['體脂', '減脂', '飲食運動配比'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '減脂瘦身（男 >27% / 女 >40%）：7 分飲食 3 分運動，戒精緻糖 / 戒酒精 / 戒油炸物。突破停滯（男 23-27% / 女 36-40%）：5 分飲食 5 分運動，戒精緻澱粉 / 口味清淡 / 增加運動強度。維持體態（男 11-22% / 女 21-35%）：4 分飲食 6 分運動，維持良好習慣 + 增加運動強度。',
@@ -27,7 +27,7 @@ class KbOcrBatch14Seeder extends Seeder
             [
                 'slug' => 'why-everyone-needs-muscle',
                 'title' => '為什麼每個人都要訓練肌肉？',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['肌肉', '日常生活', '肌少症'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '訓練肌肉不是運動員專利，每個人都要訓練肌肉。肌肉維持日常生活功能：起來坐下需要下肢肌肉、開窗 / 抱小孩需要上肢肌肉。肌肉不足會力氣不足影響日常生活，嚴重還會有肌少症。',
@@ -40,7 +40,7 @@ class KbOcrBatch14Seeder extends Seeder
             [
                 'slug' => 'aerobic-vs-anaerobic-exercise',
                 'title' => '無氧 vs 有氧運動（差在哪）',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['無氧', '有氧', '運動'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '無氧持續時間較短、強度較高，可燃脂、能讓肌肉量 / 基礎代謝率上升（重訓、徒手肌力、TRX、舉重、短跑）。有氧持續時間較長、強度較低，可燃脂、但會讓肌肉量 / 基礎代謝率下降（快走、慢跑、騎車、游泳、有氧舞蹈、拳擊、飛輪）。',
@@ -53,7 +53,7 @@ class KbOcrBatch14Seeder extends Seeder
             [
                 'slug' => 'workout-sequence-warmup-to-cooldown',
                 'title' => '健身運動順序（4 階段）',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['運動順序', '健身', '熱身'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '完整健身順序：1. 熱身 10 分鐘（預防受傷）2. 無氧運動 45 分鐘 - 1 小時（增強肌力骨骼、燃燒熱量）3. 有氧運動 15-30 分鐘（幫助身體恢復、燃燒額外熱量）4. 拉伸放鬆 5-10 分鐘（放鬆肌肉、預防酸痛）。',
@@ -66,7 +66,7 @@ class KbOcrBatch14Seeder extends Seeder
             [
                 'slug' => 'exercise-30min-calorie-burn',
                 'title' => '運動 30 分鐘消耗的熱量（60 公斤）',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['運動', '熱量', '消耗'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '運動 30 分鐘消耗熱量（60 公斤）：快跑 381 / 上樓梯 250 / 慢跑 246 / 遊泳 189 / 快走 165 / 慢走 105 / 下樓梯 96 / 瑜珈 90 大卡。',
@@ -79,7 +79,7 @@ class KbOcrBatch14Seeder extends Seeder
             [
                 'slug' => 'low-gi-two-keys',
                 'title' => '低升糖（低 GI）關鍵二低：精緻度 + 糊化程度',
-                'category' => 'macros',
+                'category' => 'other',
                 'tags' => ['低 GI', '升糖指數', '澱粉'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '低 GI 兩個關鍵：1. 精緻程度→低（糙米比白米好，少了米糠血糖上升快）2. 糊化程度→低（乾飯比稀飯好、清煮比勾芡好、清湯比濃湯好）。澱粉糊化程度高易被腸胃吸收，GI 值反而大於乾飯。',
@@ -92,7 +92,7 @@ class KbOcrBatch14Seeder extends Seeder
             [
                 'slug' => 'muscle-fat-cannot-convert',
                 'title' => '不運動肌肉會變脂肪嗎？（迷思破解）',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['肌肉', '脂肪', '迷思'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '不會！肌肉和脂肪是不會互換的不同組織。但不運動會讓肌肉流失 → 基礎代謝率下降 → 同時若飲食量沒減少 → 容易造成熱量攝取過多 → 使體重和脂肪增加。所以「不運動會變胖」的真相是：肌肉流失 + 飲食量沒變 = 屯脂。',
@@ -105,7 +105,7 @@ class KbOcrBatch14Seeder extends Seeder
             [
                 'slug' => 'post-workout-protein-when',
                 'title' => '運動後一定要喝高蛋白嗎？',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['運動後', '高蛋白', '時機'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '主要根據運動種類、時間、體態和瘦身需求決定。中高強度運動持續超過 30 分鐘 + 體脂 < 30%：30 分鐘內補充蛋白質。運動強度 & 時間不足 + 想減脂變瘦：吃東西會增加體重。一整天蛋白質若攝取不足會影響肌肉合成，每餐請吃足夠 2 拳頭蛋白質。',
@@ -118,7 +118,7 @@ class KbOcrBatch14Seeder extends Seeder
             [
                 'slug' => 'chia-seeds-grind-for-better-absorption',
                 'title' => '奇亞籽磨成粉吸收率更高（Omega-3 + 蛋白質釋放）',
-                'category' => 'macros',
+                'category' => 'other',
                 'tags' => ['奇亞籽', '磨粉', '吸收率'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '奇亞籽磨成粉才不浪費！整顆奇亞籽外殼難消化，研磨後才能釋放更多 Omega-3 和蛋白質，吸收率大幅提升。實際體驗：腦袋較不當機、便便順、皮膚較亮，每天早餐加一匙在豆漿或優格裡。',

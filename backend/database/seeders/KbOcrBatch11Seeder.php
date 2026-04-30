@@ -14,7 +14,7 @@ class KbOcrBatch11Seeder extends Seeder
             [
                 'slug' => 'edema-prone-body-symptoms',
                 'title' => '易水腫體質的 6 個徵兆',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['水腫', '體質', '症狀'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '6 個易水腫徵兆：腳踝大小腿腫、肚子脹、臉腫眼袋、眼睛酸澀、頭暈疲勞、怕冷不流汗。常見部位：下肢腫、腹部腫、臉腫眼睛腫。',
@@ -27,7 +27,7 @@ class KbOcrBatch11Seeder extends Seeder
             [
                 'slug' => 'too-much-salt-causes-disease',
                 'title' => '重口味吃多真的會生病',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['重口味', '鈉', '健康'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '長期重口味的 5 大健康代價：水腫、易胖體質、疲勞、荷爾蒙失調、高血壓、心臟與腎臟病。',

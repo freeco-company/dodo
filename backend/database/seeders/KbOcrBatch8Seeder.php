@@ -92,7 +92,7 @@ class KbOcrBatch8Seeder extends Seeder
             [
                 'slug' => 'oat-blood-sugar-test-doctor',
                 'title' => '醫生實測 2 種燕麥血糖變化',
-                'category' => 'macros',
+                'category' => 'other',
                 'tags' => ['燕麥', '血糖', '升糖指數'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '神經內科醫師吳榛槿實測：無糖燕麥飲 → 血糖快速上升 & 下降（峰值高）；薄燕麥片 → 血糖平穩上升 & 下降。同樣是燕麥，型態不同血糖反應差很多。',
