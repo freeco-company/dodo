@@ -6137,3 +6137,18 @@ body:has(.dialog-overlay:not(.hidden)) .dodo-mentor-bubble {
   filter: drop-shadow(0 4px 12px rgba(220, 150, 80, 0.4));
 }
 .ach-card.unlocked .ac-icon { display: flex; align-items: center; justify-content: center; padding: 4px; }
+
+/* ===== Pokedex food svg (2026-04-30) — design-svg v5 ===== */
+.poke-food-svg {
+  width: 44px; height: 44px;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 2px 4px rgba(160, 110, 70, 0.15));
+  transition: transform .25s;
+}
+.poke-card:hover .poke-food-svg {
+  transform: scale(1.1) rotate(-2deg);
+}
+.poke-card.shiny .poke-food-svg {
+  filter: drop-shadow(0 0 12px rgba(255, 220, 130, 0.6)) drop-shadow(0 2px 4px rgba(160, 110, 70, 0.2));
+}
