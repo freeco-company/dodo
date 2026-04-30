@@ -436,6 +436,7 @@ button { font-family: inherit; letter-spacing: 0.04em; }
   cursor: pointer;
   transition: all .25s cubic-bezier(.3,1.5,.5,1);
   position: relative;
+  min-width: 0; /* prevent grid item from blowing out width when char img has natural 512px */
 }
 .sp-btn:hover { background: white; transform: translateY(-3px); }
 .sp-btn.active {
@@ -460,6 +461,8 @@ button { font-family: inherit; letter-spacing: 0.04em; }
   width: 52px; height: 52px; margin: 0 auto;
   display: flex; align-items: center; justify-content: center;
   overflow: visible; /* 允許角色高聳部位（如兔耳）突出 */
+  flex-shrink: 0;
+  max-width: 100%;
 }
 .sp-char .char-root.mini {
   width: 52px; height: 52px;
@@ -5955,3 +5958,39 @@ body:has(.dialog-overlay:not(.hidden)) .dodo-mentor-bubble {
   background: rgba(255,255,255,0.85); color: #6b5a48; border: 1px solid #E8D9C1;
   font-weight: 600; cursor: pointer; z-index: 5;
 }
+
+/* ===== Island FP zone (not a chapter — special brand funnel area) ===== */
+.island-fp-zone {
+  margin-top: 16px; padding: 16px;
+  background: linear-gradient(135deg, #FFF8F2 0%, #FFE5D0 50%, #F4C5A3 100%);
+  border-radius: 18px;
+  border: 2px dashed #E89F7A;
+  position: relative;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.island-fp-zone.unlocked { border-style: solid; }
+.island-fp-zone::before {
+  content: '✨ FP 夥伴專區（特殊區）';
+  position: absolute; top: -10px; left: 16px;
+  background: #E89F7A; color: white;
+  padding: 2px 10px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+}
+.ifp-row1 { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+.ifp-icon { font-size: 32px; flex-shrink: 0; }
+.ifp-titles { flex: 1; min-width: 0; }
+.ifp-subtitle { font-size: 11px; color: #b0a08a; font-weight: 600; }
+.ifp-name { font-size: 17px; font-weight: 800; color: #5a4a3c; }
+.ifp-status {
+  font-size: 11px; padding: 3px 10px; border-radius: 999px; font-weight: 600;
+  background: rgba(255,255,255,0.6); color: #C77F4F;
+}
+.island-fp-zone.unlocked .ifp-status { background: #C8E6C9; color: #2E7D32; }
+.ifp-intro { font-size: 13px; color: #5a4a3c; line-height: 1.55; }
+.ifp-cta {
+  align-self: flex-start; padding: 8px 16px; border-radius: 999px;
+  background: #E89F7A; color: white; font-weight: 700; font-size: 13px;
+  border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(232, 159, 122, 0.35);
+  transition: transform .15s, box-shadow .15s;
+}
+.ifp-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(232, 159, 122, 0.45); }

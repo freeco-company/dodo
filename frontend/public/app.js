@@ -3967,6 +3967,7 @@ async function openIsland() {
     islandState.entitlements = ent;
     islandState.chapters = chapters.chapters || [];
     islandState.nextUnlock = chapters.next_unlock || null;
+    islandState.fpZone = chapters.fp_zone || null;
     // 2026-04-30 redesign — show chapter list first; user picks chapter → enter map
     renderIslandChapters();
     showIslandView('chapters');
@@ -3996,11 +3997,12 @@ function renderIslandChapters() {
   const footer = $('#island-chapters-footer');
   if (!list) return;
   const chapters = islandState.chapters || [];
+  const fpZone = islandState.fpZone || null;
   if (chapters.length === 0) {
     list.innerHTML = '<div style="text-align:center;color:#9c8b75;padding:24px">章節資料尚未準備好～</div>';
     return;
   }
-  list.innerHTML = chapters.map((c) => {
+  const chaptersHtml = chapters.map((c) => {
     const stateCls = c.status === 'completed' ? 'completed' : c.status === 'locked' ? 'locked' : (c.is_current ? 'current' : '');
     const statusLabel = c.status === 'completed' ? '✓ 完成'
       : c.status === 'locked' ? `🔒 Lv.${c.min_level}`
@@ -4030,6 +4032,25 @@ function renderIslandChapters() {
       </div>
     `;
   }).join('');
+
+  // FP 夥伴專區 — 不算章節，獨立顯示在 6 章下方（per ADR-008 sensitivity）
+  const fpHtml = fpZone ? `
+    <div class="island-fp-zone ${fpZone.is_fp_member ? 'unlocked' : 'locked'}" data-fp-cta="${fpZone.cta_kind}">
+      <div class="ifp-row1">
+        <div class="ifp-icon">${fpZone.icon}</div>
+        <div class="ifp-titles">
+          <div class="ifp-subtitle">${escapeHtml(fpZone.subtitle)}</div>
+          <div class="ifp-name">${escapeHtml(fpZone.name)}</div>
+        </div>
+        <div class="ifp-status">${fpZone.is_fp_member ? '✓ 已解鎖' : '🔒 加盟後'}</div>
+      </div>
+      <div class="ifp-intro">${escapeHtml(fpZone.intro)}</div>
+      <button class="ifp-cta" type="button" data-fp-action="${fpZone.cta_kind}">${escapeHtml(fpZone.cta_label)} →</button>
+    </div>
+  ` : '';
+
+  list.innerHTML = chaptersHtml + fpHtml;
+
   list.querySelectorAll('.island-chapter-card').forEach((card) => {
     card.addEventListener('click', () => {
       if (card.classList.contains('locked')) {
@@ -4038,6 +4059,28 @@ function renderIslandChapters() {
         return;
       }
       enterChapter(card.dataset.chapterKey);
+    });
+  });
+
+  // FP 區 click handler
+  list.querySelectorAll('.ifp-cta').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const action = btn.dataset.fpAction;
+      if (action === 'enter') {
+        // FP 會員 → 進入 fp_shop / fp_base 直接從 scenes 找
+        const fpStore = (islandState.data?.scenes || []).find(s => s.key === 'fp_shop' || s.key === 'fp_base');
+        if (fpStore && fpStore.unlocked) {
+          enterStore(fpStore);
+        } else {
+          toast('FP 夥伴專區載入中～');
+        }
+      } else {
+        // 非 FP → 開 franchise CTA / 加盟資訊頁（per ADR-008 gentle inquiry）
+        const url = islandState.entitlements?.fp_web_signup_url || 'https://pandora.js-store.com.tw/join';
+        api('POST', '/franchise/cta-click', { source: 'island_fp_zone' }).catch(() => {});
+        window.open(url, '_blank', 'noopener');
+      }
     });
   });
 
