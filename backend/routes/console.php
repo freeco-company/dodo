@@ -23,3 +23,12 @@ Schedule::command('identity:reconcile')
     ->hourly()
     ->withoutOverlapping()
     ->onOneServer();
+
+// 集團合規硬規則（docs/group-fp-product-compliance.md）— 每日 04:00 UTC 掃 KB
+// articles 找新踩線詞 auto-rewrite。使用 freeco/pandora-shared 共用 sanitizer，
+// 與母艦 compliance:audit 同套詞庫。
+Schedule::command('compliance:audit', ['--apply'])
+    ->dailyAt('04:00')
+    ->withoutOverlapping()
+    ->onOneServer()
+    ->appendOutputTo(storage_path('logs/compliance-audit.log'));

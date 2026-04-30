@@ -76,6 +76,23 @@ return [
         'api_key' => env('ANTHROPIC_API_KEY'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | FP 商品內容合規 flag（集團硬規則 docs/group-fp-product-compliance.md §A）
+    |--------------------------------------------------------------------------
+    | type=fp_recipe / category=fp_recipe 的題卡涉及 FP 商品功效宣稱，無法靠
+    | term sanitize 救（整張卡的概念就是「商品功效宣稱」）。預設 false →
+    | CardService::deck() 在 query 層即過濾、不下發給 client。
+    |
+    | 翻 true 必要條件（見 group-fp-product-compliance.md §「實作守則」）：
+    |   1. 該系統的所有 FP 商品內容已過合規 review
+    |   2. 商品認證狀態（健康食品 / 一般食品）已確認
+    |   3. 法務 / 外部食安顧問 sign-off
+    */
+    'fp_product_content' => [
+        'enabled' => filter_var(env('PANDORA_FP_PRODUCT_CONTENT_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
+    ],
+
     'meal_ai_service' => [
         'base_url' => env('MEAL_AI_SERVICE_BASE_URL'),
         'shared_secret' => env('MEAL_AI_SERVICE_SHARED_SECRET'),

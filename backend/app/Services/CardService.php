@@ -41,13 +41,28 @@ class CardService
 
     /**
      * @return list<array<string,mixed>> all cards from the seeded JSON deck.
+     *
+     * 集團合規硬規則（docs/group-fp-product-compliance.md）：當
+     * services.fp_product_content.enabled=false 時，type=fp_recipe 或
+     * category=fp_recipe 的卡片在 query 層即被過濾、不下發給 client。
+     * 此類卡片整張的概念是「商品功效宣稱」(食安法 §28 / 健康食品管理法 §14)，
+     * 非單純 sanitize term 能化解，需要 flag-gate 直到完成合規 review。
      */
     private function deck(): array
     {
         $decks = $this->config()->get('question_decks') ?? [];
         $cards = $decks['cards'] ?? [];
+        $cards = is_array($cards) ? array_values($cards) : [];
 
-        return is_array($cards) ? array_values($cards) : [];
+        if (! (bool) config('services.fp_product_content.enabled', false)) {
+            $cards = array_values(array_filter(
+                $cards,
+                fn ($c) => ($c['type'] ?? null) !== 'fp_recipe'
+                    && ($c['category'] ?? null) !== 'fp_recipe',
+            ));
+        }
+
+        return $cards;
     }
 
     private function countPlaysToday(User $user): int
