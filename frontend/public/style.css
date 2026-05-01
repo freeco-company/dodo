@@ -5184,9 +5184,10 @@ body.time-night .island-ground .island-grass { background: linear-gradient(180de
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .dialog-char-frame {
-  /* 2026-05-01 — frame 放大讓朵朵 / 寵物 立繪有更多視覺份量
-     （原 220x240 在大螢幕顯小，user feedback「朵朵跟寵物比起來太小了」）。 */
-  width: 280px; height: 340px;
+  /* 2026-05-01 — 回到原 220x240（先前 280x340 user feedback「太大了 眼睛跑掉了」）。
+     先前以為朵朵小是 frame 太小，其實是 dodo.png 透明邊距問題；用 dodo-full.png
+     trimmed + npc-animal 規則填滿就解決，不需要放大 frame 把眼睛拉糊。 */
+  width: 220px; height: 240px;
   background: transparent;
   border: none;
   box-shadow: none;
