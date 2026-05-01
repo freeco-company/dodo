@@ -5847,19 +5847,27 @@ body.time-night .island-ground .island-grass { background: linear-gradient(180de
 }
 .dodo-mentor-bubble.hidden { display: none; }
 .dodo-mentor-bubble:hover { transform: translateY(-2px); }
-/* 在註冊 / 引導 / 開機過場等遮罩畫面隱藏朵朵浮窗，避免擋畫面 */
+/* 在註冊 / 引導 / 開機過場等遮罩畫面隱藏朵朵浮窗，避免擋畫面。
+   me-tab（含衣櫃）也隱藏 — 浮窗會直接蓋住 wardrobe grid 內容。 */
 body:has(#screen-welcome:not(.hidden)) .dodo-mentor-bubble,
 body:has(.first-run-overlay:not(.hidden)) .dodo-mentor-bubble,
 body:has(.onboarding-overlay:not(.hidden)) .dodo-mentor-bubble,
 body:has(.ceremony-overlay:not(.hidden)) .dodo-mentor-bubble,
 body:has(#card-modal:not(.hidden)) .dodo-mentor-bubble,
-body:has(.dialog-overlay:not(.hidden)) .dodo-mentor-bubble {
+body:has(.dialog-overlay:not(.hidden)) .dodo-mentor-bubble,
+body:has(#tab-me:not(.hidden)) .dodo-mentor-bubble,
+body:has(#tab-wardrobe:not(.hidden)) .dodo-mentor-bubble,
+body:has(#tab-pokedex:not(.hidden)) .dodo-mentor-bubble,
+body:has(#tab-achievements:not(.hidden)) .dodo-mentor-bubble {
   display: none !important;
 }
 .dodo-bubble-img {
-  width: 96px;
-  height: 96px;
-  object-fit: contain;
+  /* 2026-05-01 — 改用 dodo-portrait.png（頭像 crop），原本 dodo.png 全身在小框裡頭太小。
+     object-fit: cover 因 portrait 已是正方形 trim，無扭曲。圓角配合圓型呈現。 */
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
   flex-shrink: 0;
   filter: drop-shadow(0 3px 6px rgba(160, 126, 96, 0.18));
 }
@@ -5908,7 +5916,7 @@ body:has(.dialog-overlay:not(.hidden)) .dodo-mentor-bubble {
 }
 @media (max-width: 480px) {
   .dodo-mentor-bubble { right: 10px; bottom: 84px; max-width: 290px; padding: 12px 16px 12px 14px; gap: 10px; }
-  .dodo-bubble-img { width: 80px; height: 80px; }
+  .dodo-bubble-img { width: 100px; height: 100px; }
   .dodo-bubble-msg { font-size: 14px; }
   .dodo-bubble-name { font-size: 12px; }
 }

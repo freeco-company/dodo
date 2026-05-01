@@ -4611,7 +4611,7 @@ function paintIslandCharacter() {
   // 2026-04-30 改：店員 = 朵朵 統一品牌
   const storeChar = $('#store-character');
   if (storeChar) {
-    storeChar.innerHTML = `<img src="/characters/dodo.png" alt="朵朵 dodo NPC" style="width:100%;height:100%;object-fit:contain;"/>`;
+    storeChar.innerHTML = `<img src="/characters/dodo-portrait.png" alt="朵朵 dodo NPC" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
   }
 }
 
@@ -4932,15 +4932,23 @@ async function logRecMeal(rec) {
   try {
     const hour = new Date().getHours();
     const meal_type = hour < 10 ? 'breakfast' : hour < 14 ? 'lunch' : hour < 21 ? 'dinner' : 'snack';
-    // /meals/text expects { description } per AiMealController validation
-    const description = rec.primary_item || rec.title || rec.items?.join('、') || '記錄一餐';
-    const r = await api('POST', '/meals/text', {
-      user_id: state.userId,
-      description,
+    // POST /meals — creates the actual meal record. Don't use /meals/text, which
+    // is AI text recognition and returns no xp_gained (XP is granted async via
+    // gamification webhook, so frontend can't show a definite number here).
+    const food_name = rec.primary_item || rec.title || rec.items?.join('、') || '記錄一餐';
+    const today = new Date();
+    const date = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const r = await api('POST', '/meals', {
+      date,
       meal_type,
+      food_name,
+      ...(rec.calories ? { calories: rec.calories } : {}),
+      ...(rec.protein_g ? { protein_g: rec.protein_g } : {}),
+      ...(rec.carbs_g ? { carbs_g: rec.carbs_g } : {}),
+      ...(rec.fat_g ? { fat_g: rec.fat_g } : {}),
     });
     window.sfx?.play('meal_logged');
-    toast(`已記錄！+${r.xp_gained} XP`, { emoji: '🎉' });
+    toast('已記錄！分數會在背景計算 ✨', { emoji: '🎉' });
     const unlocks = collectUnlockRewards(r);
     for (const u of unlocks) enqueueReward(u);
     if (!unlocks.length) confetti();
