@@ -45,5 +45,10 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <!-- HIBP rule fails-open on network error, but tests should never go
+             out to api.pwnedpasswords.com. Keep this off; the dedicated HIBP
+             test toggles it back on with Http::fake(). -->
+        <env name="HIBP_CHECK_ENABLED" value="false"/>
+        <env name="SENTRY_LARAVEL_DSN" value=""/>
     </php>
 </phpunit>

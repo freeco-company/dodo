@@ -580,45 +580,25 @@ button { font-family: inherit; letter-spacing: 0.04em; }
   z-index: 4;
   filter: drop-shadow(0 2px 3px rgba(45,36,32,.15));
 }
-/* Outfits carefully sized to NOT cover facial features on 200x200 char */
-.of-scarf      { width: 46px; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 3; }
-.of-glasses    { width: 64px; top: 33%; left: 50%; transform: translate(-50%, -50%); opacity: .92; }
-.of-headphones { width: 80px; top: -10px; left: 50%; transform: translateX(-50%); }
-.of-devil      { width: 48px; top: -16px; left: 50%; transform: translateX(-50%); z-index: 5; }
-.of-halo       { width: 64px; top: -22px; left: 50%; transform: translateX(-50%); z-index: 5; }
+/* Legacy 5 outfit cosmetic-only (positioning moved to character.js inline styles) */
+.of-glasses    { opacity: .92; }
+/* of-scarf, of-headphones, of-devil-horns, of-halo: positioning via inline style */
 .char-outfit-emoji.of-hat    { font-size: 46px; top: -18px; left: 50%; transform: translateX(-50%); line-height: 1; }
 .char-outfit-emoji.of-wings  {
   font-size: 68px; top: 28%; left: 50%; transform: translate(-50%, -50%);
   z-index: 1; opacity: .75;
 }
 
-/* New overlays (PR #98 + #102 + #103) — body-positioned variants
- * 2026-05-01 v2 — adjusted per bear screenshots; eye/neck/torso landmarks
- * for chibi PNGs roughly: 眼睛 ~42%, 鼻子 ~50%, 下巴/脖子 ~58%, 胸 ~66%, 腰 ~72%.
- * Cross-species precision will need a per-animal anchor metadata pass.
- */
-/* HEAD-TOP overlays (z-index 5 to sit above .char-body but below .char-accessory level reward) */
-.of-ribbon          { width: 56px; top: -4px;  left: 50%; transform: translateX(-50%); z-index: 5; }
-.of-witch-hat       { width: 78px; top: -32px; left: 50%; transform: translateX(-50%); z-index: 5; }
-.of-fp-crown        { width: 64px; top: -18px; left: 50%; transform: translateX(-50%); z-index: 5; }
-.of-fp-chef         { width: 70px; top: -28px; left: 50%; transform: translateX(-50%); z-index: 5; }
-.of-straw-hat       { width: 88px; top: -10px; left: 50%; transform: translateX(-50%); z-index: 5; }
-.of-sakura          { width: 76px; top: -2px;  left: 50%; transform: translateX(-50%); z-index: 5; }
-
-/* FACE overlays — eyes ~32% on bear (bigger head ratio than I assumed earlier).
-   2026-05-01 v3: corrected after bear screenshot — eyes are at ~32%, NOT 42%. */
-.of-sunglasses      { width: 60px; top: 32%; left: 50%; transform: translate(-50%, -50%); opacity: .94; z-index: 4; }
-
-/* NECK overlays — just above bowtie/chest, ~50% on bear */
-.of-winter-scarf    { width: 72px; top: 52%;  left: 50%; transform: translate(-50%, -50%); z-index: 3; }
-
-/* TORSO overlays — chest/upper belly ~62% on bear */
-.of-chef-apron       { width: 84px; top: 62%; left: 50%; transform: translate(-50%, -50%); z-index: 3; }
-.of-fp-apron-premium { width: 84px; top: 62%; left: 50%; transform: translate(-50%, -50%); z-index: 3; }
-
-/* BACK overlays (z-index 1 → sits behind .char-body silhouette; wider than body) */
-.of-angel-wings     { width: 200px; top: 36%; left: 50%; transform: translate(-50%, -50%); z-index: 1; opacity: .9; }
-.of-starry-cape     { width: 180px; top: 56%; left: 50%; transform: translate(-50%, -50%); z-index: 1; opacity: .92; }
+/* New overlays (PR #98 + #102 + #103 + #107) — body-positioned variants.
+ * 2026-05-01 v4 — positioning moved to per-animal anchor system in character.js
+ * (ANIMAL_ANCHORS + OUTFIT_ANCHOR drive inline styles). CSS rules below kept for
+ * cosmetic-only properties (opacity legacy etc.); inline style attr overrides. */
+/* Cosmetic legacy fallbacks — only retained for backward compat with any
+ * non-renderCharacter call sites still using class-only positioning.
+ * Inline style from outfitRender() takes precedence. */
+.of-sunglasses      { opacity: .94; }
+.of-angel-wings     { opacity: .9; }
+.of-starry-cape     { opacity: .92; }
 
 /* Rarity label at bottom */
 .char-rarity {

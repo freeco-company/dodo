@@ -2,7 +2,7 @@
   "name": "dodo-frontend",
   "version": "0.1.0",
   "private": true,
-  "description": "朵朵 Dodo 前端 — Capacitor + iOS shell + 純 web bundle (從 ai-game/ 複製過來，等遷移完成後從 ai-game/ 刪除)",
+  "description": "潘朵拉飲食 frontend — Capacitor iOS shell + vanilla JS web bundle (前身 ai-game/, 2026-04-29 改名 pandora-meal/)",
   "scripts": {
     "cap:sync:ios": "npx cap sync ios",
     "cap:open:ios": "npx cap open ios",
@@ -11,7 +11,12 @@
     "serve": "npx http-server public -p 5173 -c-1",
     "sync:design-svg": "node node_modules/@freeco-company/pandora-design-svg/tools/copy-to-public.js public/svg",
     "preserve": "npm run sync:design-svg",
-    "presync:cap:sync:ios": "npm run sync:design-svg"
+    "presync:cap:sync:ios": "npm run sync:design-svg",
+    "build:tailwind": "npx tailwindcss -i src/tailwind-input.css -o public/tailwind.css --minify",
+    "watch:tailwind": "npx tailwindcss -i src/tailwind-input.css -o public/tailwind.css --watch",
+    "minify:js": "terser public/app.js -o public/app.min.js -c drop_console=true,passes=2 -m",
+    "minify:css": "cleancss public/style.css -o public/style.min.css && cleancss public/tailwind.css -o public/tailwind.min.css",
+    "build:prod": "npm run build:tailwind && npm run minify:js && npm run minify:css"
   },
   "dependencies": {
     "@capacitor-community/in-app-purchases": "^7.0.0",
@@ -21,6 +26,9 @@
   "devDependencies": {
     "@capacitor/cli": "^6.2.1",
     "@freeco-company/pandora-design-svg": "^0.3.1",
-    "http-server": "^14.1.1"
+    "clean-css-cli": "^5.6.3",
+    "http-server": "^14.1.1",
+    "tailwindcss": "^3.4.13",
+    "terser": "^5.36.0"
   }
 }

@@ -66,7 +66,7 @@ class AccountDeletionService
     {
         $users = User::whereNotNull('hard_delete_after')
             ->where('hard_delete_after', '<', Carbon::now())
-            ->get(['id', 'pandora_user_uuid']);
+            ->get(['id', 'pandora_user_uuid', 'apple_id', 'line_id']);
 
         if ($users->isEmpty()) {
             return 0;
@@ -74,7 +74,41 @@ class AccountDeletionService
 
         $uuids = $users->pluck('pandora_user_uuid')->filter()->all();
 
-        return DB::transaction(function () use ($users, $uuids) {
+        // Trial-fraud guard: copy OAuth provider ids to oauth_trial_blacklist
+        // before wiping the user row so a re-registration via the same Apple /
+        // LINE id can't mint a fresh 7-day trial. See TrialService::start.
+        $blacklistRows = [];
+        $now = Carbon::now();
+        foreach ($users as $u) {
+            if (! empty($u->apple_id)) {
+                $blacklistRows[] = [
+                    'provider' => 'apple',
+                    'provider_sub' => $u->apple_id,
+                    'blacklisted_at' => $now,
+                    'reason' => 'account_deleted',
+                ];
+            }
+            if (! empty($u->line_id)) {
+                $blacklistRows[] = [
+                    'provider' => 'line',
+                    'provider_sub' => $u->line_id,
+                    'blacklisted_at' => $now,
+                    'reason' => 'account_deleted',
+                ];
+            }
+        }
+
+        return DB::transaction(function () use ($users, $uuids, $blacklistRows) {
+            if (! empty($blacklistRows)) {
+                // upsert avoids unique-key violation if same provider_sub somehow
+                // re-enters the pipeline (e.g. user re-registers, deletes again).
+                DB::table('oauth_trial_blacklist')->upsert(
+                    $blacklistRows,
+                    ['provider', 'provider_sub'],
+                    ['blacklisted_at', 'reason'],
+                );
+            }
+
             // Wipe the dodo_users mirror first; if CASCADE is added later this
             // still works (no-op on already-deleted rows).
             if (! empty($uuids)) {

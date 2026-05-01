@@ -45,8 +45,8 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Add structured fields to every reported exception so ops can grep
-        // by request_id / user / route. Sentry plug-in (when wired) can
-        // pick this up via its Laravel integration's ContextRepository.
+        // by request_id / user / route. Sentry plug-in picks this up via its
+        // Laravel integration's ContextRepository (auto-discovered).
         $exceptions->context(function (\Throwable $e) {
             $context = [];
             if (function_exists('app') && app()->bound(LogContext::class)) {
@@ -57,5 +57,17 @@ return Application::configure(basePath: dirname(__DIR__))
             $context['exception_class'] = get_class($e);
 
             return $context;
+        });
+
+        // Forward to Sentry (no-op when SENTRY_LARAVEL_DSN unset / APP_ENV not
+        // production|staging — see config/sentry.php). The package auto-binds
+        // captureUnhandledException via service provider; this is an explicit
+        // belt-and-braces reportable() hook for future custom routing.
+        $exceptions->reportable(function (\Throwable $e) {
+            // Forward only when SDK bound (composer-installed) AND DSN configured.
+            // Empty DSN = Sentry self-disables internally; this guard short-circuits earlier.
+            if (app()->bound('sentry') && config('sentry.dsn') !== null && config('sentry.dsn') !== '') {
+                \Sentry\Laravel\Integration::captureUnhandledException($e);
+            }
         });
     })->create();

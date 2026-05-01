@@ -70,9 +70,62 @@
 }
 </script>
 
-<script src="https://cdn.tailwindcss.com"></script>
+<!-- Apple App Store policy: no remote JS execution. Tailwind is now self-hosted
+     (built from ./src/tailwind-input.css via `npm run build:tailwind`). The
+     prior <script src="https://cdn.tailwindcss.com"></script> was removed. -->
+<link rel="stylesheet" href="/tailwind.css?v=1" />
 <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=Kosugi+Maru&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Shippori+Mincho+B1:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Zen+Maru+Gothic:wght@400;500;700;900&family=Yusei+Magic&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css?v=41" />
+
+<!-- Sentry browser SDK — config-driven. Set window.__SENTRY_DSN__ in a prod
+     bootstrap snippet (e.g. via nginx sub_filter or build-time injection)
+     to enable. If undefined, the wrapper does nothing and the SDK is never
+     loaded — keeps local / dev / TestFlight clean. -->
+<script>
+(function () {
+  var dsn = window.__SENTRY_DSN__;
+  if (!dsn) return;
+  var s = document.createElement('script');
+  s.src = 'https://browser.sentry-cdn.com/7.119.2/bundle.tracing.min.js';
+  s.crossOrigin = 'anonymous';
+  s.integrity = ''; // set in prod with subresource integrity hash if pinning
+  s.onload = function () {
+    if (!window.Sentry) return;
+    window.Sentry.init({
+      dsn: dsn,
+      environment: window.__SENTRY_ENV__ || 'production',
+      release: window.__SENTRY_RELEASE__ || undefined,
+      tracesSampleRate: 0.0,
+      // Drop PII before sending (mirror of backend BeforeSendScrubber).
+      beforeSend: function (event) {
+        try {
+          if (event.request) {
+            ['Cookie', 'Authorization', 'X-Api-Key'].forEach(function (h) {
+              if (event.request.headers) delete event.request.headers[h];
+            });
+            if (event.request.data && typeof event.request.data === 'object') {
+              ['password', 'email', 'phone', 'apple_id', 'line_id', 'token', 'id_token', 'identity_token'].forEach(function (k) {
+                if (k in event.request.data) event.request.data[k] = '[Filtered]';
+              });
+            }
+          }
+          if (event.user) event.user = { id: event.user.id };
+        } catch (_) {}
+        return event;
+      },
+    });
+    // Hook global error handlers (Sentry init already does, but be explicit
+    // for our vanilla-JS app + Capacitor WKWebView context).
+    window.addEventListener('error', function (e) {
+      if (window.Sentry && e && e.error) window.Sentry.captureException(e.error);
+    });
+    window.addEventListener('unhandledrejection', function (e) {
+      if (window.Sentry && e && e.reason) window.Sentry.captureException(e.reason);
+    });
+  };
+  document.head.appendChild(s);
+})();
+</script>
 </head>
 <body>
 <div id="app" class="max-w-md mx-auto">

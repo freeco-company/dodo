@@ -49,6 +49,18 @@ parameters:
 			path: app/Http/Resources/UserResource.php
 
 		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Rules/HibpUncompromisedPassword.php
+
+		-
+			message: '#^Called ''env'' outside of the config directory which returns null when the config is cached, use ''config''\.$#'
+			identifier: larastan.noEnvCallsOutsideOfConfig
+			count: 1
+			path: app/Rules/HibpUncompromisedPassword.php
+
+		-
 			message: '#^Cannot call method isPast\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 1
@@ -130,6 +142,12 @@ parameters:
 			message: '#^Call to static method fromUTC\(\) on an unknown class Lcobucci\\Clock\\SystemClock\.$#'
 			identifier: class.notFound
 			count: 1
+			path: app/Services/Identity/AppleIdTokenVerifier.php
+
+		-
+			message: '#^Call to static method fromUTC\(\) on an unknown class Lcobucci\\Clock\\SystemClock\.$#'
+			identifier: class.notFound
+			count: 1
 			path: app/Services/Identity/PlatformJwtVerifier.php
 
 		-
@@ -199,6 +217,18 @@ parameters:
 			path: app/Services/TrialService.php
 
 		-
+			message: '#^Call to function is_array\(\) with array\<string, mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Support/Sentry/BeforeSendScrubber.php
+
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Support/Sentry/BeforeSendScrubber.php
+
+		-
 			message: '#^Using nullsafe method call on non\-nullable type Illuminate\\Console\\Command\. Use \-\> instead\.$#'
 			identifier: nullsafe.neverNull
 			count: 4
@@ -223,46 +253,16 @@ parameters:
 			path: tests/Feature/Api/AccountDeletionTest.php
 
 		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Feature/Api/AccountDeletionTest.php
+
+		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
 			identifier: method.notFound
 			count: 3
 			path: tests/Feature/Api/AchievementCatalogParityTest.php
-
-		-
-			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Feature/Api/DataExportTest.php
-
-		-
-			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Feature/Api/DataExportTest.php
-
-		-
-			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Feature/Api/RateLimitTest.php
-
-		-
-			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
-			identifier: method.notFound
-			count: 4
-			path: tests/Feature/Api/RateLimitTest.php
-
-		-
-			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: tests/Feature/Api/RateLimitTest.php
-
-		-
-			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
-			identifier: method.notFound
-			count: 3
-			path: tests/Feature/Api/AccountDeletionTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
@@ -329,6 +329,12 @@ parameters:
 			identifier: method.notFound
 			count: 2
 			path: tests/Feature/Api/AnalyticsTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 11
+			path: tests/Feature/Api/AppleSignInTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
@@ -457,6 +463,18 @@ parameters:
 			path: tests/Feature/Api/DailyLogTest.php
 
 		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/DataExportTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/DataExportTest.php
+
+		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
 			identifier: method.notFound
 			count: 4
@@ -577,6 +595,12 @@ parameters:
 			path: tests/Feature/Api/KnowledgeTest.php
 
 		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 10
+			path: tests/Feature/Api/LineSignInTest.php
+
+		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
 			identifier: method.notFound
 			count: 3
@@ -647,6 +671,24 @@ parameters:
 			identifier: method.notFound
 			count: 2
 			path: tests/Feature/Api/QuestTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/RateLimitTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/RateLimitTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Feature/Api/RateLimitTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'

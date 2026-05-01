@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Translated from ai-game/src/services/trial.ts.
@@ -17,33 +18,67 @@ class TrialService
 {
     public const DEFAULT_TRIAL_DAYS = 7;
 
+    /**
+     * Start (or no-op) a trial.
+     *
+     * Trial-fraud guard: if this user signed up via Apple / LINE OAuth and
+     * the same provider `sub` was previously hard-deleted (recorded in
+     * oauth_trial_blacklist by AccountDeletionService::purge), we silently
+     * skip the trial — same effect as "trial already expired" — so the user
+     * can still use the free tier but can't farm 7-day windows by
+     * delete+re-register.
+     *
+     * Returns the trial expiry, or `now` when the trial was denied (caller
+     * usually doesn't care — entitlements code reads `trial_expires_at`).
+     */
     public function start(User $user, int $days = self::DEFAULT_TRIAL_DAYS): Carbon
     {
-        // Pre-launch security TODO: trial-fraud blacklist.
-        //
-        // Risk: a user can delete their account, re-register with a new email
-        // and the same Apple ID / device, and farm an unlimited 7-day trial.
-        //
-        // Proper fix needs Apple Sign-In to be wired (Task C above —
-        // OAuth flow PR) so we can match on the verified Apple
-        // `original_transaction_id` (Apple's own per-user identifier that
-        // survives re-install) and refuse to mint a fresh trial for the
-        // same OTID. We also need a `trial_blacklist` table populated by
-        // AccountDeletionService::purge().
-        //
-        // Today: no Apple OAuth + register rejects raw apple_id (Task C),
-        // so there is no reliable cross-account identifier. Leaving this
-        // unguarded for the launch and treating trial farming as a minor
-        // pre-launch acceptable cost.
-        //
-        // @todo OAuth wiring PR — add OTID-based trial blacklist check here.
-
         $now = Carbon::now();
+
+        if ($this->isOAuthIdBlacklisted($user)) {
+            // Mark trial as never granted — leave fields null so analytics can
+            // distinguish "denied for fraud" from "expired naturally".
+            return $now;
+        }
+
         $expires = $now->copy()->addDays($days);
         $user->trial_started_at = $now;
         $user->trial_expires_at = $expires;
         $user->save();
         return $expires;
+    }
+
+    /**
+     * Look up oauth_trial_blacklist for this user's provider id.
+     * Uses raw DB to avoid creating a model just for the lookup.
+     */
+    private function isOAuthIdBlacklisted(User $user): bool
+    {
+        $checks = [];
+        if (! empty($user->apple_id)) {
+            $checks[] = ['apple', $user->apple_id];
+        }
+        if (! empty($user->line_id)) {
+            $checks[] = ['line', $user->line_id];
+        }
+        if (empty($checks)) {
+            return false;
+        }
+
+        $query = DB::table('oauth_trial_blacklist');
+        foreach ($checks as $i => [$provider, $sub]) {
+            if ($i === 0) {
+                $query->where(function ($q) use ($provider, $sub) {
+                    $q->where('provider', $provider)->where('provider_sub', $sub);
+                });
+            } else {
+                $query->orWhere(function ($q) use ($provider, $sub) {
+                    $q->where('provider', $provider)->where('provider_sub', $sub);
+                });
+            }
+        }
+
+        return $query->exists();
     }
 
     /** Extend by N days. If currently active, extend from current expiry; else from now. */

@@ -193,3 +193,20 @@ npx cap sync ios
 ```
 
 > TestFlight 有 build 後可直接 Promote 到 App Store（同一 build），不用重 build。
+
+---
+
+## Sentry crash reporting (browser SDK in WKWebView)
+
+Backend uses `SENTRY_LARAVEL_DSN`. Frontend uses a **separate** Sentry project
+(different platform = different fingerprint groups).
+
+- [ ] 在 Sentry org 建立新 project (platform: `JavaScript / Browser`)，命名 `pandora-meal-ios`
+- [ ] 取得 DSN（格式：`https://<key>@<org>.ingest.sentry.io/<project>`）
+- [ ] 將 DSN 注入 `frontend/public/index.html` 的 `window.__SENTRY_DSN__`：
+      建議做法是在 deploy build 時用 sed 替換 placeholder，或在 nginx
+      `sub_filter` 注入。**不要 commit 真實 DSN 到 repo**。
+- [ ] 確認 PII scrub 生效：`beforeSend` hook 已過濾 password / email / token / apple_id / line_id
+- [ ] iOS native 層 crash（Swift / Objective-C）若需要，另外加 sentry-cocoa SDK；
+      目前 WKWebView JS 錯誤已涵蓋 95% case，先跳過 native SDK
+- [ ] 每次 release 在 deploy script 設 `window.__SENTRY_RELEASE__` = git sha 方便追溯
