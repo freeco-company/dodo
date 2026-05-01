@@ -525,6 +525,8 @@ button { font-family: inherit; letter-spacing: 0.04em; }
 .char-body {
   width: 100%; height: 100%;
   display: block;
+  position: relative;
+  z-index: 2;
   filter: drop-shadow(0 6px 10px rgba(45,36,32,.12));
   user-select: none; -webkit-user-drag: none;
 }
@@ -589,6 +591,29 @@ button { font-family: inherit; letter-spacing: 0.04em; }
   font-size: 68px; top: 28%; left: 50%; transform: translate(-50%, -50%);
   z-index: 1; opacity: .75;
 }
+
+/* New overlays (PR #98 + #102) — body-positioned variants */
+/* HEAD-TOP overlays (z-index 5 to sit above .char-body but below .char-accessory level reward) */
+.of-ribbon          { width: 60px; top: -2px;  left: 50%; transform: translateX(-50%); z-index: 5; }
+.of-witch-hat       { width: 70px; top: -38px; left: 50%; transform: translateX(-50%); z-index: 5; }
+.of-fp-crown        { width: 70px; top: -22px; left: 50%; transform: translateX(-50%); z-index: 5; }
+.of-fp-chef         { width: 70px; top: -28px; left: 50%; transform: translateX(-50%); z-index: 5; }
+.of-straw-hat       { width: 90px; top: -14px; left: 50%; transform: translateX(-50%); z-index: 5; }
+.of-sakura          { width: 80px; top: 4px;   left: 50%; transform: translateX(-50%); z-index: 5; }
+
+/* FACE overlays */
+.of-sunglasses      { width: 72px; top: 36%; left: 50%; transform: translate(-50%, -50%); opacity: .94; z-index: 4; }
+
+/* NECK overlays */
+.of-winter-scarf    { width: 78px; top: 56%;  left: 50%; transform: translate(-50%, -50%); z-index: 3; }
+
+/* TORSO overlays */
+.of-chef-apron       { width: 88px; top: 62%; left: 50%; transform: translate(-50%, -50%); z-index: 3; }
+.of-fp-apron-premium { width: 88px; top: 62%; left: 50%; transform: translate(-50%, -50%); z-index: 3; }
+
+/* BACK overlays (z-index 1 → sits behind .char-body silhouette; wider than body) */
+.of-angel-wings     { width: 220px; top: 32%; left: 50%; transform: translate(-50%, -50%); z-index: 1; opacity: .92; }
+.of-starry-cape     { width: 200px; top: 60%; left: 50%; transform: translate(-50%, -50%); z-index: 1; opacity: .95; }
 
 /* Rarity label at bottom */
 .char-rarity {

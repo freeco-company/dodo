@@ -40,25 +40,30 @@ function accessoryAsset(level) {
 
 // Outfit — mostly Fluent assets; a few use emoji-text overlays
 function outfitRender(outfit) {
-  if (!outfit || outfit === 'none') return '';
+  if (!outfit || outfit === 'none' || outfit === 'basic') return '';
   const imgMap = {
-    scarf:      { src: 'scarf.svg',      className: 'of-scarf' },
-    glasses:    { src: 'glasses.svg',    className: 'of-glasses' },
-    headphones: { src: 'headphone.svg',  className: 'of-headphones' },
-    devil_horns:{ src: 'devil.svg',      className: 'of-devil' },
-    halo:       { src: 'halo.svg',       className: 'of-halo' },
+    // Legacy 5 (kept for backward compat)
+    scarf:            { src: 'scarf.svg',                       className: 'of-scarf' },
+    glasses:          { src: 'glasses.svg',                     className: 'of-glasses' },
+    headphones:       { src: 'headphone.svg',                   className: 'of-headphones' },
+    devil_horns:      { src: 'devil.svg',                       className: 'of-devil' },
+    halo:             { src: 'halo.svg',                        className: 'of-halo' },
+    // New overlays (PR #98 + #102) — character-body variants (transparent bg, no animation)
+    ribbon:           { src: 'outfit_ribbon_overlay.svg',           className: 'of-ribbon' },
+    chef_apron:       { src: 'outfit_chef_apron_overlay.svg',       className: 'of-chef-apron' },
+    witch_hat:        { src: 'outfit_witch_hat_overlay.svg',        className: 'of-witch-hat' },
+    starry_cape:      { src: 'outfit_starry_cape_overlay.svg',      className: 'of-starry-cape' },
+    sunglasses:       { src: 'outfit_sunglasses_overlay.svg',       className: 'of-sunglasses' },
+    sakura:           { src: 'outfit_sakura_overlay.svg',           className: 'of-sakura' },
+    winter_scarf:     { src: 'outfit_winter_scarf_overlay.svg',     className: 'of-winter-scarf' },
+    angel_wings:      { src: 'outfit_angel_wings_overlay.svg',      className: 'of-angel-wings' },
+    fp_crown:         { src: 'outfit_fp_crown_overlay.svg',         className: 'of-fp-crown' },
+    fp_chef:          { src: 'outfit_fp_chef_overlay.svg',          className: 'of-fp-chef' },
+    fp_apron_premium: { src: 'outfit_fp_apron_premium_overlay.svg', className: 'of-fp-apron-premium' },
+    straw_hat:        { src: 'outfit_straw_hat_overlay.svg',        className: 'of-straw-hat' },
   };
   if (imgMap[outfit]) {
     return `<img class="char-outfit ${imgMap[outfit].className}" src="/characters/${imgMap[outfit].src}" alt=""/>`;
-  }
-  // Fallback: emoji text overlays for those we don't have flat-Fluent assets for
-  const emojiMap = {
-    straw_hat: { char: '👒', className: 'of-hat' },
-    chef_hat:  { char: '👨‍🍳', className: 'of-hat' },
-    angel_wings: { char: '👼', className: 'of-wings' },
-  };
-  if (emojiMap[outfit]) {
-    return `<span class="char-outfit-emoji ${emojiMap[outfit].className}">${emojiMap[outfit].char}</span>`;
   }
   return '';
 }
