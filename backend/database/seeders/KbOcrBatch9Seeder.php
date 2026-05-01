@@ -40,7 +40,7 @@ class KbOcrBatch9Seeder extends Seeder
             [
                 'slug' => 'sugar-free-yogurt-5g-rule',
                 'title' => '無糖優格／優酪乳怎麼挑（每 100 糖 ≤ 5g）',
-                'category' => 'macros',
+                'category' => 'other',
                 'tags' => ['優格', '優酪乳', '糖', '營養標示'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '挑無糖優格 / 優酪乳的關鍵：看「每 100 公克」糖量不超過 5 克優質。市售很多「無加糖」其實還是 11g+/100g（牛奶天然乳糖 + 添加碳水）。',

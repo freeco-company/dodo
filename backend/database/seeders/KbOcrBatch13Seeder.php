@@ -14,7 +14,7 @@ class KbOcrBatch13Seeder extends Seeder
             [
                 'slug' => 'menstrual-yoga-stretches',
                 'title' => '生理期適合的伸展瑜珈動作（5 式）',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['生理期', '瑜珈', '伸展'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '5 個適合生理期的瑜珈動作：蝴蝶式 / 仰臥手拉腳趾式 / 仰臥蝴蝶式 / 嬰兒式 / 坐角式。幫助緩解痙攣和疼痛、減少焦慮和抑鬱情緒。',
@@ -27,7 +27,7 @@ class KbOcrBatch13Seeder extends Seeder
             [
                 'slug' => 'menstrual-cycle-weight-loss-myths',
                 'title' => '生理期體重管理的 2 個迷思（女生都該知道）',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['生理期', '體重管理', '迷思'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '迷思 1：生理期體重管理 = 在生理期間體重管理？❌ 是配合女性生理週期身體變化進行飲食運動調理。迷思 2：生理期間大吃大喝不會胖？❌ 攝取過多熱量還是會胖。正確：飲食 + 運動 + 生活型態 = 真正體態管理力。',
@@ -40,7 +40,7 @@ class KbOcrBatch13Seeder extends Seeder
             [
                 'slug' => 'menstrual-cycle-4-phases-diet',
                 'title' => '生理週期 4 階段飲食 / 運動建議',
-                'category' => 'wellness',
+                'category' => 'lifestyle',
                 'tags' => ['生理週期', '飲食', '運動'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '生理期：代謝差不要節食，營養均衡；月經結束期：雌激素旺盛，運動強度可拉高 + 補蛋白質體態管理日常運動搭配；排卵後期：延續體態管理但避免過度疲勞；月經前期：黃體素高峰想大吃，可適度放縱但別吃只有熱量沒營養的食物。',
@@ -53,7 +53,7 @@ class KbOcrBatch13Seeder extends Seeder
             [
                 'slug' => 'chia-seeds-4-ways',
                 'title' => '奇亞籽怎麼吃？4 種簡單吃法',
-                'category' => 'macros',
+                'category' => 'other',
                 'tags' => ['奇亞籽', '高纖', '滿足感'],
                 'audience' => ['retail', 'franchisee'],
                 'summary' => '奇亞籽 4 種吃法：1. 奇亞籽泡水（1 湯匙 + 250ml + 泡 10-15 分鐘，幫助腸道蠕動 + 增加滿足感）2. 奇亞籽飲品（檸檬奇亞籽水、綠茶奇亞籽飲，促進代謝穩定血糖）3. 奇亞籽優格（無糖優格 + 水果，富含蛋白富含膳食纖維）4. 奇亞籽燕麥（隔夜燕麥 + 鮮奶或豆漿，穩定血糖）。',

@@ -44,7 +44,11 @@ class AiCostGuardService
         return UsageLog::create([
             'user_id' => $user->id,
             'pandora_user_uuid' => $user->pandora_user_uuid,
-            'date' => Carbon::now()->toDateString(),
+            // Asia/Taipei to match the month-boundary computation in
+            // monthlyCostUsd(). Using the app default (UTC) caused rows
+            // written in the 8h window before UTC midnight to fall outside
+            // the Taipei month range and silently undercount spend.
+            'date' => Carbon::now('Asia/Taipei')->toDateString(),
             'kind' => $kind,
             'model' => $model,
             'tokens' => $inputTokens + $outputTokens,

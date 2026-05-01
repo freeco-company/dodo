@@ -128,7 +128,10 @@ async function playDialog(lines, opts = {}) {
 
   // Paint portraits — prefer a Fluent animal avatar (avoids the scary human emoji)
   const npcEl = $('#dialog-char-npc-emoji');
-  if (opts.npcAnimal && window.animalImg) {
+  if (opts.npcImgUrl) {
+    // Direct image override (e.g. 朵朵 NPC for store dialogs — group-naming-and-voice.md)
+    npcEl.innerHTML = `<img class="animal-img npc-animal" src="${opts.npcImgUrl}" alt="${(opts.npc && opts.npc.name) || 'NPC'}" draggable="false"/>`;
+  } else if (opts.npcAnimal && window.animalImg) {
     npcEl.innerHTML = window.animalImg(opts.npcAnimal, 'npc-animal');
   } else {
     const npcIconName = (cfg('npc_icon_map', NPC_EMOJI_ICON_FALLBACK) || {})[npc.emoji];
@@ -4497,34 +4500,6 @@ function paintIslandCharacter() {
   }
 }
 
-// Per-store NPC animal — anchor v2 11 species. Server `store_npc_animal` config wins.
-const STORE_NPC_ANIMAL = {
-  familymart: 'bear',
-  seven_eleven: 'penguin',
-  pxmart: 'sheep',     // 倉鼠 → 綿羊（積攢 → 安撫）
-  mcdonalds: 'fox',
-  kfc: 'dog',          // 柴犬 → 狗（陪伴）
-  starbucks: 'cat',    // 賓士 → 貓
-  night_market: 'dinosaur',
-  bubble_tea: 'cat',
-  sushi_box: 'rabbit',
-  healthy_box: 'sheep',
-  fp_shop: 'bear',
-  fp_base: 'fox',
-  ai_kitchen: 'robot',
-  spicy_pot: 'tiger',
-  bbq: 'pig',
-};
-function npcAnimalFor(storeKey) {
-  const picks = ['rabbit','cat','tiger','penguin','bear','dog','fox','dinosaur','sheep','pig','robot'];
-  const userAnimal = normalizeSpecies(state.animal || 'rabbit');
-  const serverMap = cfg('store_npc_animal', STORE_NPC_ANIMAL) || {};
-  const preferred = serverMap[storeKey] || 'bear';
-  if (preferred !== userAnimal) return preferred;
-  // Collision: pick first alternative that isn't the user's
-  return picks.find((p) => p !== userAnimal) || 'bear';
-}
-
 function paintIslandQuest() {
   // Count unique stores visited this week (rough — based on scenes that have
   // at least one visited_today hotspot over the past 7 days client-side)
@@ -4702,8 +4677,9 @@ async function enterStore(scene) {
     mapView.classList.add('hidden');
     storeView.classList.remove('hidden');
     await playDialog(storeData.dialog, {
-      npc: storeData.npc || { emoji: '🧑', name: '店員' },
-      npcAnimal: npcAnimalFor(scene.key),
+      // 店員固定朵朵 NPC（集團導師），不用每店不同動物 — group-naming-and-voice.md
+      npc: { emoji: '🧑', name: '朵朵' },
+      npcImgUrl: '/characters/dodo.png',
       backdrop: scene.backdrop || storeData.backdrop,
     });
   }
