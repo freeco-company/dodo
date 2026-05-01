@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\GooglePubSubController;
 use App\Http\Controllers\Api\GrowthController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\IapController;
+use App\Http\Controllers\Api\FranchiseWebhookController;
 use App\Http\Controllers\Api\IdentityWebhookController;
 use App\Http\Controllers\Api\InteractController;
 use App\Http\Controllers\Api\IslandController;
@@ -244,3 +245,8 @@ Route::post('/internal/gamification/webhook', [\App\Http\Controllers\Api\Gamific
 // (HMAC + nonce idempotency 由 middleware 驗；route 後直接呼叫 LifecycleClient::forget)
 Route::post('/internal/lifecycle/invalidate', [\App\Http\Controllers\Api\LifecycleInvalidateController::class, 'handle'])
     ->middleware('lifecycle.invalidate');
+
+// 母艦 (pandora-js-store) → 朵朵 加盟身份同步 webhook
+// franchisee.activated → User/DodoUser is_franchisee=true; franchisee.deactivated → false
+Route::post('/internal/franchisee/webhook', FranchiseWebhookController::class)
+    ->middleware('franchisee.webhook');

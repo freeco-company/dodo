@@ -97,6 +97,36 @@ parameters:
 			path: app/Services/EntitlementsService.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\DodoUser\:\:\$franchise_verified_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/FranchiseSyncService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\DodoUser\:\:\$is_franchisee\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/FranchiseSyncService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$franchise_verified_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/FranchiseSyncService.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$is_franchisee\.$#'
+			identifier: property.notFound
+			count: 1
+			path: app/Services/FranchiseSyncService.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>pandora_user_uuid" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: app/Services/FranchiseSyncService.php
+
+		-
 			message: '#^Call to static method fromUTC\(\) on an unknown class Lcobucci\\Clock\\SystemClock\.$#'
 			identifier: class.notFound
 			count: 1
@@ -407,6 +437,30 @@ parameters:
 			identifier: method.notFound
 			count: 1
 			path: tests/Feature/Api/FoodSearchTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\DodoUser\:\:\$franchise_verified_at\.$#'
+			identifier: property.notFound
+			count: 1
+			path: tests/Feature/Api/FranchiseWebhookTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\DodoUser\:\:\$is_franchisee\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/Api/FranchiseWebhookTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$franchise_verified_at\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/Api/FranchiseWebhookTest.php
+
+		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$is_franchisee\.$#'
+			identifier: property.notFound
+			count: 3
+			path: tests/Feature/Api/FranchiseWebhookTest.php
 
 		-
 			message: '#^Access to an undefined property Pest\\Mixins\\Expectation\<mixed\>\:\:\$not\.$#'

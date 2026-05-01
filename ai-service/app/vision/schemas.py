@@ -22,6 +22,7 @@ class VisionRecognizeResponse(BaseModel):
     cost_usd: float
     safety_flags: list[str] = []
     stub_mode: bool = False
+    is_food: bool = True
 
 
 VisionMealType = Literal["breakfast", "lunch", "dinner", "snack"]

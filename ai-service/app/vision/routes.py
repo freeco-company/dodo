@@ -79,12 +79,19 @@ async def vision_recognize(
         min_meal=settings.min_kcal_per_meal,
     )
     safety_flags = list(kcal_check.flags)
-    if manual_required:
+    if not result.is_food:
+        # User uploaded a non-food image. Force manual_required so caller
+        # short-circuits the celebration / meal-record path; surface a
+        # `not_food` flag so analytics can throttle abusive uploaders.
+        manual_required = True
+        safety_flags.append("not_food")
+    elif manual_required:
         safety_flags.append("low_confidence_manual_input_required")
 
-    # Always append disclaimer to feedback.
-    feedback = append_disclaimer(result.ai_feedback)
-    if manual_required:
+    # Always append disclaimer to feedback (skipped on not_food — message is
+    # already user-facing UI guidance, disclaimer would feel jarring).
+    feedback = result.ai_feedback if not result.is_food else append_disclaimer(result.ai_feedback)
+    if manual_required and result.is_food:
         feedback = (
             "辨識信心偏低，請手動修正項目以確保正確紀錄。\n\n" + feedback
         )
@@ -108,7 +115,14 @@ async def vision_recognize(
         cost_usd=record.cost_usd,
         safety_flags=safety_flags,
         stub_mode=settings.stub_mode,
+        is_food=result.is_food,
     )
+
+    # Skip Laravel persistence on not_food — there's nothing legitimate to
+    # record; we already burned the AI cost (which is the abuser-deterrent
+    # already in place — they don't get a free retry).
+    if not result.is_food:
+        return response
 
     # Best-effort persist via Laravel internal callback.
     try:

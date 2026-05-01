@@ -58,6 +58,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | 母艦 (pandora-js-store) 加盟身份同步
+    |--------------------------------------------------------------------------
+    | 母艦是「誰是加盟夥伴」的 source of truth — 朵朵收 webhook 同步 is_franchisee。
+    | 簽章機制與 pandora_core webhook 一致（HMAC SHA256 over {ts}.{event_id}.{body}）
+    | 但用獨立 secret 與獨立 nonce 表，避免兩個來源 event_id 撞車或 secret 一條外洩
+    | 同時影響身份 + 加盟。
+    */
+    'mothership' => [
+        'franchise_webhook_secret' => env('MOTHERSHIP_FRANCHISE_WEBHOOK_SECRET'),
+        'webhook_window_seconds' => (int) env('MOTHERSHIP_WEBHOOK_WINDOW_SECONDS', 300),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Pandora Core Conversion Service (ADR-003)
     |--------------------------------------------------------------------------
     | py-service 加盟轉換漏斗。沒設 base_url / shared_secret 時 publisher 進入

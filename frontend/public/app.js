@@ -1532,7 +1532,22 @@ function capturePhoto() {
   state.selectedFood = null;
 }
 
+// Pre-checks for the camera/picker handoff. Backend caps base64 at 5MB
+// (≈3.75MB raw) so we reject large files client-side with a friendly
+// message rather than uploading and getting a generic 422 back.
+const MAX_PHOTO_BYTES = 3_700_000;
+const ALLOWED_PHOTO_MIME = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/gif'];
+
 function handleFilePicked(file) {
+  if (!file) return;
+  if (file.size > MAX_PHOTO_BYTES) {
+    toast(`檔案太大囉，請拍小一點（${(file.size / 1_000_000).toFixed(1)} MB）`, { emoji: '📦' });
+    return;
+  }
+  if (file.type && !ALLOWED_PHOTO_MIME.includes(file.type)) {
+    toast(`目前只支援 JPG / PNG / WebP / HEIC / GIF（你選的是 ${file.type || '未知'}）`, { emoji: '🖼️' });
+    return;
+  }
   const reader = new FileReader();
   reader.onload = (e) => {
     stopCamera();
@@ -1540,6 +1555,7 @@ function handleFilePicked(file) {
     $('#preview-wrap').classList.remove('hidden');
     $('#preview-img').src = e.target.result;
     state.capturedBase64 = e.target.result.split(',')[1];
+    state.capturedMime = file.type || 'image/jpeg';
     $('#btn-start-cam').classList.remove('hidden');
     $('#btn-capture').classList.add('hidden');
     $('#btn-retake').classList.remove('hidden');
@@ -1588,6 +1604,7 @@ async function logMeal() {
   const body = { user_id: state.userId, meal_type };
   if (state.capturedBase64) {
     body.photo_base64 = state.capturedBase64;
+    if (state.capturedMime) body.content_type = state.capturedMime;
   } else if (state.selectedFood) {
     body.food_name = state.selectedFood.name;
   } else {
@@ -1598,6 +1615,15 @@ async function logMeal() {
   $('#btn-log-meal').textContent = '分析中...';
   try {
     const r = await api('POST', endpoint, body);
+    // not_food short-circuit — ai-service rejected the photo as non-food.
+    // No meal/discovery created (server-side already skipped persistence);
+    // surface the AI's friendly message and reset the capture without
+    // celebrating or burning stamina.
+    if (r && r.is_food === false) {
+      toast(r.ai_feedback || '看起來不是食物喔，幫我拍張清楚的食物照吧 ✨', { emoji: '🤔' });
+      resetCapture();
+      return;
+    }
     showScanResult(r);
     // Queue up full Pandora-box ceremonies for all meaningful unlocks
     const unlocks = collectUnlockRewards(r);

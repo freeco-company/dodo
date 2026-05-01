@@ -5,6 +5,7 @@ use App\Http\Middleware\PandoraJwtAuth;
 use App\Http\Middleware\RequestContextLogger;
 use App\Http\Middleware\SanctumOrPandoraJwt;
 use App\Http\Middleware\VerifyEcommerceWebhookSignature;
+use App\Http\Middleware\VerifyFranchiseeWebhookSignature;
 use App\Http\Middleware\VerifyGamificationWebhookSignature;
 use App\Http\Middleware\VerifyIdentityWebhookSignature;
 use App\Http\Middleware\VerifyLifecycleInvalidateSignature;
@@ -38,6 +39,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'lifecycle.invalidate' => VerifyLifecycleInvalidateSignature::class,
             // 婕樂纖 → 朵朵 ecommerce/order webhook 簽章驗證
             'ecommerce.webhook' => VerifyEcommerceWebhookSignature::class,
+            // 母艦 → 朵朵 franchisee 身份同步 webhook (HMAC, 獨立 secret + nonce 表)
+            'franchisee.webhook' => VerifyFranchiseeWebhookSignature::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
