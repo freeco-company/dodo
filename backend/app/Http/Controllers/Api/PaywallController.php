@@ -65,9 +65,9 @@ class PaywallController extends Controller
                 [
                     'key' => 'app_yearly',
                     'label' => '年訂閱',
-                    'price_twd' => 2890,
-                    'period_label' => '一年（每月約 NT$241）',
-                    'highlights' => ['省 NT$588（17% off）', '專屬年度徽章'],
+                    'price_twd' => 2490,
+                    'period_label' => '一年（每月約 NT$208）',
+                    'highlights' => ['省 NT$990（28% off）', '專屬年度徽章'],
                     'cta' => '開始 7 天免費試用',
                     'badge' => '最划算',
                 ],

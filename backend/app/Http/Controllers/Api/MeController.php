@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Achievement;
 use App\Models\DailyLog;
+use App\Models\FoodDiscovery;
 use App\Models\Meal;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * /api/me/* — current-user-scoped endpoints.
@@ -158,6 +160,84 @@ class MeController extends Controller
             'tasks' => [],                              // @todo Phase F: aggregate daily quests
             'last7' => $last7,
             'achievements' => $achievements,
+        ]);
+    }
+
+    /**
+     * GET /api/me/data-export — 個資法 §10 right-to-access.
+     *
+     * Returns the caller's full pandora-meal dataset as a downloadable JSON
+     * file. This is intentionally a one-shot endpoint (no pagination) — by
+     * design the user keeps the export themselves; the server doesn't
+     * persist it. Throttled to 3/hour per user (route-level) so a malicious
+     * client can't use this as an unbounded read amplifier.
+     *
+     * Note: PII (email / phone / address) lives in Pandora Core, not here.
+     * The `profile` block deliberately excludes those — users requesting
+     * cross-app PII go through the group-level export endpoint (TODO,
+     * post-Identity Phase 5). This endpoint covers everything pandora-meal
+     * itself stores.
+     */
+    public function dataExport(Request $request): Response
+    {
+        $user = $request->user();
+        $uuid = $user->pandora_user_uuid;
+
+        $payload = [
+            'exported_at' => now()->toIso8601String(),
+            'app' => 'pandora-meal',
+            'profile' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'avatar_animal' => $user->avatar_animal,
+                'avatar_species' => $user->avatar_species,
+                'height_cm' => $user->height_cm,
+                'current_weight_kg' => $user->current_weight_kg,
+                'target_weight_kg' => $user->target_weight_kg,
+                'start_weight_kg' => $user->start_weight_kg,
+                // birth_date cast → Carbon|null but PHPStan reads the schema as
+                // string|null. Use Carbon::parse defensively to keep both happy.
+                'birth_date' => $user->birth_date
+                    ? \Carbon\Carbon::parse((string) $user->birth_date)->toDateString()
+                    : null,
+                'gender' => $user->gender,
+                'activity_level' => $user->activity_level,
+                'dietary_type' => $user->dietary_type,
+                'allergies' => $user->allergies,
+                'dislike_foods' => $user->dislike_foods,
+                'favorite_foods' => $user->favorite_foods,
+                'membership_tier' => $user->membership_tier,
+                'subscription_type' => $user->subscription_type,
+                'created_at' => $user->created_at?->toIso8601String(),
+            ],
+            'meals' => Meal::where('pandora_user_uuid', $uuid)
+                ->orderBy('date')
+                ->orderBy('id')
+                ->get()
+                ->map(fn ($m) => $m->toArray())
+                ->all(),
+            'daily_logs' => DailyLog::where('pandora_user_uuid', $uuid)
+                ->orderBy('date')
+                ->get()
+                ->map(fn ($d) => $d->toArray())
+                ->all(),
+            'achievements' => Achievement::where('pandora_user_uuid', $uuid)
+                ->orderByDesc('unlocked_at')
+                ->get(['achievement_key', 'achievement_name', 'unlocked_at'])
+                ->map(fn ($a) => $a->toArray())
+                ->all(),
+            'food_discoveries' => FoodDiscovery::where('pandora_user_uuid', $uuid)
+                ->orderBy('first_seen_at')
+                ->get()
+                ->map(fn ($f) => $f->toArray())
+                ->all(),
+        ];
+
+        $filename = 'pandora-meal-export-'.now()->format('Y-m-d').'.json';
+
+        return response()->json($payload, 200, [
+            'Content-Type' => 'application/json',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
 

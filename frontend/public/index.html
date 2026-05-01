@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 
 <!-- Primary SEO -->
-<title>潘朵拉飲食 · 減脂夥伴 — 遊戲化陪你每天做一件小事</title>
-<meta name="description" content="潘朵拉飲食是結合遊戲化養成、AI 陪跑對話與拍照食物辨識的減脂 App，專為想好好吃飯的你而做。養成習慣，不用再靠意志力 🫶" />
-<meta name="keywords" content="減脂, 減肥 App, 拍照熱量, 食物辨識, 習慣養成, AI 減脂, 台灣減脂 App, 潘朵拉飲食" />
+<title>潘朵拉飲食 · 跟朵朵養成好好吃飯的習慣</title>
+<meta name="description" content="AI 拍照辨識食物、記錄飲食、跟朵朵 NPC 一起養成健康習慣的遊戲化 App" />
+<meta name="keywords" content="飲食記錄, 卡路里計算, 食物辨識, 健康習慣, 飲食追蹤, 朵朵, 潘朵拉飲食" />
 <meta name="author" content="Fairy Pandora" />
 <meta name="robots" content="index, follow, max-image-preview:large" />
 <link rel="canonical" href="https://meal-api.js-store.com.tw/" />
@@ -15,15 +15,15 @@
 <!-- Open Graph (Facebook / LINE / Threads) -->
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="潘朵拉飲食" />
-<meta property="og:title" content="潘朵拉飲食 · 減脂夥伴" />
-<meta property="og:description" content="遊戲化 + AI 陪跑 + 拍照食物辨識，專為想好好吃飯的人做的減脂 App。" />
+<meta property="og:title" content="潘朵拉飲食 · 跟朵朵養成好好吃飯的習慣" />
+<meta property="og:description" content="遊戲化 + AI 陪跑 + 拍照食物辨識，跟朵朵一起養成好好吃飯的習慣。" />
 <meta property="og:url" content="https://meal-api.js-store.com.tw/" />
 <meta property="og:image" content="https://meal-api.js-store.com.tw/og.png" />
 <meta property="og:locale" content="zh_TW" />
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="潘朵拉飲食 · 減脂夥伴" />
+<meta name="twitter:title" content="潘朵拉飲食 · 跟朵朵養成好好吃飯的習慣" />
 <meta name="twitter:description" content="遊戲化 + AI 陪跑 + 拍照食物辨識。" />
 <meta name="twitter:image" content="https://meal-api.js-store.com.tw/og.png" />
 
@@ -44,7 +44,7 @@
       "alternateName": "Pandora Meal",
       "applicationCategory": "HealthApplication",
       "operatingSystem": "iOS, Android",
-      "description": "結合遊戲化養成、AI 陪跑對話與拍照食物辨識的減脂 App，專為 25-40 歲台灣女性設計。",
+      "description": "結合遊戲化養成、AI 陪跑對話與拍照食物辨識的飲食習慣 App，專為想好好吃飯的人設計。",
       "inLanguage": "zh-Hant",
       "offers": {
         "@type": "Offer",
@@ -81,7 +81,7 @@
   <section id="screen-welcome" class="p-6 pt-8">
     <div class="brand-head">Fairy Pandora</div>
     <h1 class="welcome-title">潘朵拉的盒子<br/>為你開啟</h1>
-    <p class="welcome-sub">從盒中走出的 9 位精靈，每一位都能陪你走一段減脂旅程。<br/>選一位，遇見你命定的那位夥伴。</p>
+    <p class="welcome-sub">從盒中走出的 9 位精靈，每一位都能陪你養成好好吃飯的習慣。<br/>選一位，遇見你命定的那位夥伴。</p>
 
     <div class="character-stage mb-3" id="welcome-char"></div>
     <div id="welcome-spirit-label" class="spirit-label"></div>
@@ -108,22 +108,23 @@
         <input name="name" class="input" placeholder="Amy（2-20 字）" maxlength="20" value="Chris"/>
         <div class="field-err" data-for="name"></div>
       </div>
+      <div class="text-[11px] text-muted -mt-1 mb-1">以下都選填，之後也能在「我的」設定中補上 ✨</div>
       <div class="grid grid-cols-2 gap-3">
         <div class="field">
-          <label class="label">身高 (cm)</label>
-          <input name="height_cm" type="number" inputmode="decimal" class="input" placeholder="162" min="100" max="250" value="173"/>
+          <label class="label">身高 (cm)<span class="text-muted text-[10px]">（選填）</span></label>
+          <input name="height_cm" type="number" inputmode="decimal" class="input" placeholder="162" min="100" max="250"/>
           <div class="field-err" data-for="height_cm"></div>
         </div>
         <div class="field">
-          <label class="label">體重 (kg)</label>
-          <input name="current_weight_kg" type="number" inputmode="decimal" step="0.1" class="input" placeholder="62" min="30" max="250" value="71.5"/>
+          <label class="label">體重 (kg)<span class="text-muted text-[10px]">（選填）</span></label>
+          <input name="current_weight_kg" type="number" inputmode="decimal" step="0.1" class="input" placeholder="62" min="30" max="250"/>
           <div class="field-err" data-for="current_weight_kg"></div>
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div class="field">
-          <label class="label">目標 (kg)</label>
-          <input name="target_weight_kg" type="number" inputmode="decimal" step="0.1" class="input" placeholder="57（選填）" min="30" max="250" value="65"/>
+          <label class="label">目標 (kg)<span class="text-muted text-[10px]">（選填）</span></label>
+          <input name="target_weight_kg" type="number" inputmode="decimal" step="0.1" class="input" placeholder="57" min="30" max="250"/>
           <div class="field-err" data-for="target_weight_kg"></div>
         </div>
         <div>
@@ -138,10 +139,11 @@
       </div>
       <input type="hidden" name="gender" value="male"/>
       <input type="hidden" name="avatar_animal" value="cat"/>
-      <div class="field">
-        <label class="label">FP 會員代碼（選填）</label>
-        <input name="fp_ref_code" class="input" placeholder="FP-xxx（加盟）/ JR-xxx（零售）" maxlength="40" autocomplete="off"/>
-        <div class="text-[11px] text-muted mt-1">有婕樂纖會員代碼填這裡，可解鎖專屬內容</div>
+      <button type="button" id="reg-toggle-invite" class="text-xs text-muted underline mt-1" style="background:none;border:none;padding:0;cursor:pointer;">我有邀請碼</button>
+      <div class="field hidden" id="reg-invite-wrap">
+        <label class="label">邀請碼（選填）</label>
+        <input name="fp_ref_code" class="input" placeholder="輸入邀請碼" maxlength="40" autocomplete="off"/>
+        <div class="text-[11px] text-muted mt-1">有邀請碼可解鎖專屬內容</div>
       </div>
       <button type="submit" class="btn-primary w-full">開始旅程 ✨</button>
 
@@ -786,7 +788,7 @@
 
       <!-- Membership / subscribe status card -->
       <div class="card p-4" id="tier-status-card">
-        <div class="text-sm font-bold mb-1">💎 會員權益</div>
+        <div class="text-sm font-bold mb-1">💎 夥伴權益</div>
         <div id="tier-status-summary" class="text-xs text-muted mb-2">載入中...</div>
         <div class="flex flex-col gap-2" id="tier-actions-wrap">
           <!-- Dynamically filled -->
@@ -921,7 +923,7 @@
       </div>
 
       <div class="card p-4" id="tier-redeem-card">
-        <div class="text-sm font-bold mb-1">🎟️ 會員代碼</div>
+        <div class="text-sm font-bold mb-1">🎟️ 兌換代碼</div>
         <p class="text-xs text-muted mb-2">輸入 FP / 訂閱代碼</p>
         <div class="flex gap-2">
           <input id="tier-redeem-input" class="input flex-1" placeholder="FP-xxx 或 APP-xxx" maxlength="40"/>
@@ -1040,7 +1042,7 @@
     <!-- Option A: FP web signup (preferred path — free app unlock) -->
     <div class="paywall-option paywall-option-fp">
       <div class="paywall-option-ribbon">✨ 最划算</div>
-      <div class="paywall-option-title">👑 加入 FP 婕樂纖會員</div>
+      <div class="paywall-option-title">👑 加入 FP 團隊</div>
       <div class="paywall-option-price">買產品 = 永久解鎖</div>
       <ul class="paywall-option-perks">
         <li>🏝️ 無限島嶼探險（每家店 × 每個 intent）</li>
@@ -1063,22 +1065,42 @@
       <div class="paywall-option-perks-row">
         <button class="paywall-cta paywall-cta-sub" id="paywall-sub-monthly">
           <div class="sub-label">月訂</div>
-          <div class="sub-price">NT$99</div>
+          <div class="sub-price">NT$290</div>
           <div class="sub-note">每月</div>
         </button>
         <button class="paywall-cta paywall-cta-sub paywall-cta-best" id="paywall-sub-yearly">
-          <div class="sub-badge">省 33%</div>
+          <div class="sub-badge">省 28%</div>
           <div class="sub-label">年訂</div>
-          <div class="sub-price">NT$790</div>
-          <div class="sub-note">≈ NT$66/月</div>
+          <div class="sub-price">NT$2,490</div>
+          <div class="sub-note">≈ NT$208/月</div>
         </button>
       </div>
       <div class="paywall-option-sub">僅解鎖島嶼無限探險</div>
+
+      <!-- Apple §3.1.2(a) auto-renewal disclosure (required) -->
+      <div class="paywall-renewal-disclosure" style="margin-top:12px;padding:10px 12px;background:#FFF6EE;border-radius:8px;font-size:11px;line-height:1.6;color:#7a5a40;">
+        <div style="font-weight:700;margin-bottom:4px;">⚠️ 訂閱說明</div>
+        <ul style="list-style:none;padding:0;margin:0;">
+          <li>• 月費：每月 NT$290，自動續訂</li>
+          <li>• 年費：每年 NT$2,490，自動續訂</li>
+          <li>• 訂閱於到期前 24 小時自動續訂，可隨時於 Apple ID 設定取消</li>
+          <li style="margin-top:4px;">
+            <a href="/terms" target="_blank" rel="noopener" style="text-decoration:underline;color:#7a5a40;">使用條款</a>
+            ｜
+            <a href="/privacy" target="_blank" rel="noopener" style="text-decoration:underline;color:#7a5a40;">隱私權政策</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Restore Purchases button (Apple §3.1.1 required for non-consumable / subscription) -->
+      <button id="paywall-restore" class="btn-secondary" type="button" style="margin-top:10px;width:100%;">
+        🔄 還原購買 / Restore Purchases
+      </button>
     </div>
 
     <!-- Redeem code entry -->
     <div class="paywall-redeem">
-      <div class="paywall-redeem-label">已有會員代碼？</div>
+      <div class="paywall-redeem-label">已有兌換代碼？</div>
       <div class="paywall-redeem-row">
         <input id="paywall-code-input" class="input" placeholder="FP-xxx / APP-xxx" maxlength="40"/>
         <button id="paywall-code-btn" class="btn-secondary">兌換</button>
@@ -1134,7 +1156,7 @@
   <!-- Top header (tier/quota badge + close) -->
   <div class="island-top">
     <div class="island-top-left">
-      <div class="island-tier-badge" id="island-tier-display">公開會員</div>
+      <div class="island-tier-badge" id="island-tier-display">公開夥伴</div>
       <div class="island-quota-badge" id="island-quota-display"></div>
     </div>
     <button class="island-close" id="island-close" aria-label="離開島嶼">←</button>

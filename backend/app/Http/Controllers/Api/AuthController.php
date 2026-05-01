@@ -19,12 +19,27 @@ class AuthController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:80'],
             'email' => ['nullable', 'email', 'unique:users,email'],
-            'password' => ['nullable', 'string', 'min:8'],
-            'line_id' => ['nullable', 'string', 'unique:users,line_id'],
-            'apple_id' => ['nullable', 'string', 'unique:users,apple_id'],
+            // Pre-launch hardening: 10-char min + mixed-case + numbers.
+            // HIBP `uncompromised()` rule omitted on purpose — needs network call
+            // to api.pwnedpasswords.com which can flake / leak in offline CI.
+            // Re-evaluate post-launch with HIBP cache layer.
+            'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(10)->mixedCase()->numbers()],
+            // Pre-launch security: register MUST NOT accept raw OAuth ids — there
+            // is no signed-token verification yet, so any client could claim
+            // arbitrary apple_id / line_id and hijack a future OAuth login.
+            // Once AppleSignInController / LineSignInController land (separate
+            // PR), those flows will mint these fields after verifying signed
+            // tokens from Apple / LINE and the `prohibited` rule moves there.
+            // @todo OAuth wiring PR — remove `prohibited`, add controller path.
+            'line_id' => ['nullable', 'prohibited'],
+            'apple_id' => ['nullable', 'prohibited'],
 
-            'height_cm' => ['required', 'numeric', 'between:100,250'],
-            'current_weight_kg' => ['required', 'numeric', 'between:30,250'],
+            // 2026-05-01 — onboarding fields demoted to optional so first-run flow
+            // can defer height/weight prompts to a step-2 screen post-ceremony
+            // (App Store first-impression UX; ux-research audit). TargetCalculator
+            // falls back to averages when missing.
+            'height_cm' => ['nullable', 'numeric', 'between:100,250'],
+            'current_weight_kg' => ['nullable', 'numeric', 'between:30,250'],
             'target_weight_kg' => ['nullable', 'numeric', 'between:30,250'],
             'birth_date' => ['nullable', 'date_format:Y-m-d'],
             'gender' => ['nullable', 'in:female,male,other'],
@@ -41,9 +56,15 @@ class AuthController extends Controller
             ? (int) Carbon::parse($data['birth_date'])->age
             : 30;
 
+        // Use sensible defaults when height/weight not provided at signup
+        // (deferred to post-ceremony step-2 screen). 60kg / 160cm are population
+        // medians for Taiwan adults; user updates them later via /me/settings.
+        $weightKg = $data['current_weight_kg'] ?? 60;
+        $heightCm = $data['height_cm'] ?? 160;
+
         $targets = TargetCalculator::compute([
-            'weight_kg' => $data['current_weight_kg'],
-            'height_cm' => $data['height_cm'],
+            'weight_kg' => $weightKg,
+            'height_cm' => $heightCm,
             'age' => $age,
             'gender' => $data['gender'] ?? 'female',
             'activity_level' => $data['activity_level'] ?? 'light',
@@ -57,9 +78,9 @@ class AuthController extends Controller
             'line_id' => $data['line_id'] ?? null,
             'apple_id' => $data['apple_id'] ?? null,
 
-            'height_cm' => $data['height_cm'],
-            'current_weight_kg' => $data['current_weight_kg'],
-            'start_weight_kg' => $data['current_weight_kg'],
+            'height_cm' => $data['height_cm'] ?? null,
+            'current_weight_kg' => $data['current_weight_kg'] ?? null,
+            'start_weight_kg' => $data['current_weight_kg'] ?? null,
             'target_weight_kg' => $data['target_weight_kg'] ?? null,
             'birth_date' => $data['birth_date'] ?? null,
             'gender' => $data['gender'] ?? null,

@@ -22,47 +22,34 @@ use Illuminate\Http\Request;
  */
 class AchievementController extends Controller
 {
-    /** @var list<array{key:string, name:string, description:string}> */
-    private const CATALOG = [
-        // 起步 (onboarding)
-        ['key' => 'first_meal', 'name' => '第一餐', 'description' => '記錄第一次餐點'],
-        ['key' => 'first_water', 'name' => '第一杯水', 'description' => '記錄第一次喝水'],
-        ['key' => 'first_weight', 'name' => '第一次量體重', 'description' => '完成第一次體重紀錄'],
+    /**
+     * Catalog mirrors py-service `ACHIEVEMENT_CATALOG` keys exactly
+     * (see py-service/app/gamification/catalog.py §5.2). Keys MUST stay in
+     * sync — frontend renders a curated grid of these and py-service
+     * AchievementMirror writes inbound webhook awards into `achievements`
+     * keyed by the same code. Mismatched keys = grey-forever curated cards
+     * + orphaned awarded rows with empty descriptions.
+     *
+     * Drop / add only when the py-service catalog changes; bump
+     * AchievementCatalogParityTest in lockstep.
+     *
+     * @var list<array{key:string, name:string, description:string}>
+     */
+    public const CATALOG = [
+        // ── meal (潘朵拉飲食) ──
+        ['key' => 'meal.first_meal', 'name' => '第一餐', 'description' => '記錄了第一筆餐食'],
+        ['key' => 'meal.streak_7', 'name' => '一週有你', 'description' => '連續 7 天打卡'],
+        ['key' => 'meal.streak_30', 'name' => '一個月的陪伴', 'description' => '連續 30 天打卡'],
+        ['key' => 'meal.foodie_10', 'name' => '美食探索家', 'description' => '圖鑑收集 10 種食物'],
 
-        // 連勝 (streaks)
-        ['key' => 'streak_3', 'name' => '三日連勝', 'description' => '連續三天打卡'],
-        ['key' => 'streak_7', 'name' => '一週有你', 'description' => '連續七天打卡'],
-        ['key' => 'streak_14', 'name' => '雙週鐵粉', 'description' => '連續 14 天打卡'],
-        ['key' => 'streak_30', 'name' => '滿月達人', 'description' => '連續 30 天打卡'],
+        // ── jerosse (婕樂纖) ──
+        ['key' => 'jerosse.first_browse', 'name' => '好奇探索家', 'description' => '第一次逛婕樂纖'],
+        ['key' => 'jerosse.first_order', 'name' => '首購達成', 'description' => '第一筆婕樂纖訂單'],
+        ['key' => 'jerosse.spend_10k', 'name' => '金級夥伴', 'description' => '累積消費滿 1 萬'],
 
-        // 飲食記錄
-        ['key' => 'foodie_10', 'name' => '美食家 10', 'description' => '收集 10 種食物'],
-        ['key' => 'foodie_30', 'name' => '美食家 30', 'description' => '收集 30 種食物'],
-        ['key' => 'foodie_50', 'name' => '美食家 50', 'description' => '收集 50 種食物'],
-        ['key' => 'shiny_first', 'name' => '初次閃光', 'description' => '解鎖第一個閃光食物 ✨'],
-
-        // 評分 / 品質
-        ['key' => 'perfect_day', 'name' => '完美一日', 'description' => '單日飲食評分 80 分以上'],
-        ['key' => 'perfect_week', 'name' => '完美一週', 'description' => '累積 7 個完美日'],
-        ['key' => 'perfect_month', 'name' => '完美一月', 'description' => '累積 30 個完美日'],
-
-        // 卡牌 / 知識
-        ['key' => 'card_first_correct', 'name' => '初試身手', 'description' => '答對第一張知識卡'],
-        ['key' => 'card_streak_5', 'name' => '答題連發', 'description' => '連續答對 5 張卡'],
-        ['key' => 'kb_explorer', 'name' => '知識探險', 'description' => '閱讀 10 篇知識文章'],
-
-        // 等級 / 進化
-        ['key' => 'level_5', 'name' => 'LV.5 新手出師', 'description' => '練到第 5 級'],
-        ['key' => 'level_10', 'name' => 'LV.10 進階夥伴', 'description' => '練到第 10 級'],
-        ['key' => 'level_20', 'name' => 'LV.20 高手', 'description' => '練到第 20 級'],
-
-        // 體重旅程
-        ['key' => 'weight_minus_3', 'name' => '減 3 公斤', 'description' => '從起點減去 3 公斤'],
-        ['key' => 'weight_minus_5', 'name' => '減 5 公斤', 'description' => '從起點減去 5 公斤'],
-
-        // 社群 / 旅程
-        ['key' => 'journey_day_7', 'name' => '旅程第 7 天', 'description' => '21 天旅程走到第 7 天'],
-        ['key' => 'journey_day_21', 'name' => '完成 21 天旅程', 'description' => '走完一輪 21 天'],
+        // ── group (cross-app) ──
+        ['key' => 'group.multi_app_explorer', 'name' => '跨界探索家', 'description' => '體驗 3 個以上潘朵拉系列 App'],
+        ['key' => 'group.full_constellation', 'name' => '潘朵拉全收', 'description' => '集滿所有潘朵拉系列 App 的首次成就'],
     ];
 
     public function index(Request $request): JsonResponse

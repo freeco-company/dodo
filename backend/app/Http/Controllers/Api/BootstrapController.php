@@ -67,6 +67,16 @@ class BootstrapController extends Controller
                 'push_templates' => $this->config->get('push_templates'),
                 'tier_limits' => $this->config->get('tier_limits'),
             ],
+            // Pre-launch kill switch — client compares own build to min_*; if
+            // below it MUST force upgrade (block the app). recommended_* is a
+            // soft nag. Defaults to 1 in config/services.php so an unset env
+            // never accidentally locks anyone out.
+            'app_version' => [
+                'min_ios_build' => (int) config('services.app.min_ios_build'),
+                'recommended_ios_build' => (int) config('services.app.recommended_ios_build'),
+                'min_android_build' => (int) config('services.app.min_android_build'),
+                'recommended_android_build' => (int) config('services.app.recommended_android_build'),
+            ],
             'entitlements' => $user ? $this->entitlements->get($user) : null,
             'user' => $user ? [
                 'id' => $user->id,

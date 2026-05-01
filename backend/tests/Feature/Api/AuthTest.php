@@ -10,7 +10,7 @@ it('registers a new user with profile and computes targets', function () {
     $response = $this->postJson('/api/auth/register', [
         'name' => '小明',
         'email' => 'xiaoming@example.com',
-        'password' => 'sup3r-pass-1',
+        'password' => 'Sup3r-Pass-1',
         'height_cm' => 165,
         'current_weight_kg' => 70,
         'target_weight_kg' => 60,
@@ -28,6 +28,40 @@ it('registers a new user with profile and computes targets', function () {
         ->and($user->daily_calorie_target)->toBeGreaterThan(1200)
         ->and($user->daily_protein_target_g)->toBeGreaterThan(0)
         ->and($user->onboarded_at)->not->toBeNull();
+});
+
+it('rejects register with raw apple_id until OAuth is wired', function () {
+    $response = $this->postJson('/api/auth/register', [
+        'name' => 'attacker',
+        'apple_id' => 'victim-apple-id-001',
+        'height_cm' => 165,
+        'current_weight_kg' => 60,
+    ]);
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors('apple_id');
+});
+
+it('rejects register with raw line_id until OAuth is wired', function () {
+    $response = $this->postJson('/api/auth/register', [
+        'name' => 'attacker',
+        'line_id' => 'victim-line-id-001',
+        'height_cm' => 165,
+        'current_weight_kg' => 60,
+    ]);
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors('line_id');
+});
+
+it('enforces 10-char mixed-case + digits password policy on register', function () {
+    $response = $this->postJson('/api/auth/register', [
+        'name' => 'weak',
+        'email' => 'weak@example.com',
+        'password' => 'short',
+        'height_cm' => 165,
+        'current_weight_kg' => 60,
+    ]);
+    $response->assertStatus(422)
+        ->assertJsonValidationErrors('password');
 });
 
 it('rejects register with invalid weight', function () {
