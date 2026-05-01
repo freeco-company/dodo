@@ -2329,12 +2329,14 @@ async function openFoodDetail(foodId, isUnlocked) {
   try {
     const d = await api('GET', `/pokedex/${foodId}`);
     if (!d.unlocked) {
+      // 灰卡保持神祕 — 不暴露名字 / 分類，避免「外面 ? 內裡看名字」的矛盾。
+      // 視覺上是「未拆封的禮物盒」，鼓勵用戶記錄一餐去解鎖。
       body.innerHTML = `
         <div class="food-detail-locked">
-          <div class="food-detail-emoji">🔒</div>
-          <div class="food-detail-name">${escapeHtml(d.name_zh || '???')}</div>
-          <div class="food-detail-cat">${escapeHtml(d.category || '')}</div>
-          <div class="food-detail-hint">${escapeHtml(d.hint || '還沒發現過～記錄一餐就能解鎖')}</div>
+          <div class="food-detail-emoji">🎁</div>
+          <div class="food-detail-name">？？？</div>
+          <div class="food-detail-cat">未發現的食物</div>
+          <div class="food-detail-hint">${escapeHtml(d.hint || '記錄一餐遇到這個食物就能解鎖 ✨')}</div>
         </div>`;
       return;
     }
