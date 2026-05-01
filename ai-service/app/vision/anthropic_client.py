@@ -27,14 +27,20 @@ class VisionResult:
     model: str
     input_tokens: int
     output_tokens: int
+    is_food: bool = True
 
 
 _VISION_PROMPT = (
     "請辨識照片中的食物，輸出 JSON：\n"
-    '{"items":[{"name":"...","estimated_kcal":整數,"confidence":0-1}],'
+    '{"is_food":true/false,"items":[{"name":"...","estimated_kcal":整數,"confidence":0-1}],'
     '"overall_confidence":0-1,"feedback":"一句鼓勵或建議"}\n'
     "規則：\n"
     "- 只輸出 JSON，不要 markdown。\n"
+    "- 若照片不是食物（例：人臉、寵物、風景、文字截圖、空盤、模糊到無法辨識），\n"
+    "  回："
+    '{"is_food":false,"items":[],"overall_confidence":0,'
+    '"feedback":"看起來不是食物喔，幫我拍張清楚的食物照吧 ✨"}。\n'
+    "- 飲料、湯、甜點、水果、加工食品都算食物（is_food:true）。\n"
     "- 不確定就把 confidence 拉低，不要硬猜。\n"
     "- feedback 用繁體中文，1-2 句，溫暖正向。\n"
     "- 不可建議單餐 < 800 大卡或全日 < 1200 大卡的方案。\n"
@@ -129,6 +135,22 @@ class AnthropicVisionClient:
                 output_tokens=getattr(resp.usage, "output_tokens", 0),
             )
 
+        # is_food gate — when the model marks the image as not-food, return early
+        # with empty items so the caller can short-circuit (no Laravel callback,
+        # graceful UI message). Default true for back-compat with old prompts.
+        is_food = bool(payload.get("is_food", True))
+        if not is_food:
+            return VisionResult(
+                items=[],
+                overall_confidence=0.0,
+                ai_feedback=str(payload.get("feedback", "")).strip()
+                or "看起來不是食物喔，幫我拍張清楚的食物照吧 ✨",
+                model=model,
+                input_tokens=getattr(resp.usage, "input_tokens", 0),
+                output_tokens=getattr(resp.usage, "output_tokens", 0),
+                is_food=False,
+            )
+
         items_raw = payload.get("items") or []
         items: list[RecognizedItem] = []
         for it in items_raw:
@@ -153,4 +175,5 @@ class AnthropicVisionClient:
             model=model,
             input_tokens=getattr(resp.usage, "input_tokens", 0),
             output_tokens=getattr(resp.usage, "output_tokens", 0),
+            is_food=True,
         )
