@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+  <defs>
+    <radialGradient id="oa-bg" cx="0.5" cy="0.42" r="0.7">
+      <stop offset="0%" stop-color="#FFFFFF"/><stop offset="55%" stop-color="#FCF0F8"/><stop offset="100%" stop-color="#E8C8E0" stop-opacity="0.45"/>
+    </radialGradient>
+    <linearGradient id="oa-wing" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/><stop offset="55%" stop-color="#FCEFF5"/><stop offset="100%" stop-color="#E0C8D8"/>
+    </linearGradient>
+    <radialGradient id="oa-halo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#FFF5C8" stop-opacity="0"/><stop offset="60%" stop-color="#F5C46E" stop-opacity="0.95"/><stop offset="100%" stop-color="#C09850" stop-opacity="0.95"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="48" cy="90" rx="24" ry="2.4" fill="#A86840" opacity="0.16"/>
+  <circle cx="48" cy="48" r="40" fill="url(#oa-bg)"/>
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -2; 0 0" dur="5.5s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+    <path d="M 44 56 Q 28 56 18 44 Q 14 36 18 30 Q 24 34 30 36 Q 22 30 22 22 Q 30 28 38 32 Q 34 24 38 18 Q 44 26 46 36 Q 46 48 44 56 Z" fill="url(#oa-wing)" stroke="#C8A8C0" stroke-width="1" stroke-linejoin="round"/>
+    <path d="M 52 56 Q 68 56 78 44 Q 82 36 78 30 Q 72 34 66 36 Q 74 30 74 22 Q 66 28 58 32 Q 62 24 58 18 Q 52 26 50 36 Q 50 48 52 56 Z" fill="url(#oa-wing)" stroke="#C8A8C0" stroke-width="1" stroke-linejoin="round"/>
+    <path d="M 28 36 Q 26 42 26 46" stroke="#C8A8C0" stroke-width="0.6" fill="none" opacity="0.7"/>
+    <path d="M 36 32 Q 36 40 36 46" stroke="#C8A8C0" stroke-width="0.6" fill="none" opacity="0.7"/>
+    <path d="M 60 32 Q 60 40 60 46" stroke="#C8A8C0" stroke-width="0.6" fill="none" opacity="0.7"/>
+    <path d="M 68 36 Q 70 42 70 46" stroke="#C8A8C0" stroke-width="0.6" fill="none" opacity="0.7"/>
+    <ellipse cx="48" cy="50" rx="6" ry="9" fill="#FFFFFF" opacity="0.5"/>
+  </g>
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -1; 0 0" dur="4s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+    <ellipse cx="48" cy="22" rx="14" ry="3" fill="none" stroke="url(#oa-halo)" stroke-width="2.4"/>
+    <ellipse cx="48" cy="22" rx="14" ry="3" fill="none" stroke="#FFF5C8" stroke-width="0.8" opacity="0.8"/>
+    <circle cx="34" cy="22" r="1" fill="#FFF8F2">
+      <animate attributeName="opacity" values="0.95;0.4;0.95" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="62" cy="22" r="1" fill="#FFF8F2">
+      <animate attributeName="opacity" values="0.95;0.4;0.95" dur="3.6s" begin="0.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>

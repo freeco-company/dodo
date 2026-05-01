@@ -2619,8 +2619,10 @@ function openCalDayModal(d) {
 
 // === Wardrobe ===
 let wardrobeEquippedKey = 'none'; // track real equipped to revert preview
-// 2026-04-30 — Outfit key → /characters/*.svg accessory mapping
-const OUTFIT_SVG = {
+// 2026-05-01 — prefer backend-provided svg_path (wardrobe-grade SVG icon
+// per badge v5 style guide). Fallback: legacy /characters/*.svg accessory
+// mapping (used when backend is older). Final fallback: emoji.
+const OUTFIT_SVG_LEGACY = {
   scarf: '/characters/scarf.svg',
   glasses: '/characters/glasses.svg',
   headphones: '/characters/headphone.svg',
@@ -2628,9 +2630,12 @@ const OUTFIT_SVG = {
   fp_crown: '/characters/crown.svg',
 };
 function outfitVisual(o) {
-  const svg = OUTFIT_SVG[o.key];
-  if (svg) {
-    return `<img src="${svg}" alt="" class="w-svg" loading="lazy"/>`;
+  if (o.svg_path) {
+    return `<img src="${o.svg_path}" alt="" class="w-svg" loading="lazy"/>`;
+  }
+  const legacy = OUTFIT_SVG_LEGACY[o.key];
+  if (legacy) {
+    return `<img src="${legacy}" alt="" class="w-svg" loading="lazy"/>`;
   }
   return `<span class="w-emoji-fallback">${o.emoji}</span>`;
 }

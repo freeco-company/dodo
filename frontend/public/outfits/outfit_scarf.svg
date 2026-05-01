@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+  <defs>
+    <radialGradient id="os-bg" cx="0.5" cy="0.42" r="0.65">
+      <stop offset="0%" stop-color="#FFF8F2"/><stop offset="60%" stop-color="#FFE0D8"/><stop offset="100%" stop-color="#F5B5C5" stop-opacity="0.5"/>
+    </radialGradient>
+    <linearGradient id="os-scarf" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5A8A0"/><stop offset="55%" stop-color="#E07868"/><stop offset="100%" stop-color="#B04838"/>
+    </linearGradient>
+    <linearGradient id="os-scarf2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5B5C5"/><stop offset="100%" stop-color="#D07888"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="48" cy="90" rx="24" ry="2.4" fill="#A86840" opacity="0.16"/>
+  <circle cx="48" cy="48" r="40" fill="url(#os-bg)"/>
+  <g>
+    <animateTransform attributeName="transform" type="rotate" values="-2 48 50; 2 48 50; -2 48 50" dur="6.5s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+    <path d="M 18 44 Q 48 32 78 44 Q 76 52 70 53 Q 60 50 48 50 Q 36 50 26 53 Q 20 52 18 44 Z" fill="url(#os-scarf)" stroke="#8A3A2C" stroke-width="1" stroke-linejoin="round"/>
+    <path d="M 22 46 Q 26 49 30 47" stroke="#FFE5C8" stroke-width="0.8" fill="none" opacity="0.6"/>
+    <path d="M 66 47 Q 70 49 74 46" stroke="#FFE5C8" stroke-width="0.8" fill="none" opacity="0.6"/>
+    <path d="M 38 50 Q 36 64 32 74 L 28 70 L 30 78 L 26 76 L 34 82 Q 40 66 42 52 Z" fill="url(#os-scarf2)" stroke="#8A3A4A" stroke-width="0.9" stroke-linejoin="round"/>
+    <path d="M 58 50 Q 60 64 64 74 L 68 70 L 66 78 L 70 76 L 62 82 Q 56 66 54 52 Z" fill="url(#os-scarf2)" stroke="#8A3A4A" stroke-width="0.9" stroke-linejoin="round"/>
+    <ellipse cx="48" cy="42" rx="14" ry="4" fill="#FFFFFF" opacity="0.25"/>
+  </g>
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -2.5; 0 0" dur="4.5s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+    <path d="M 24 24 C 23 22 21 22 21 24 C 21 26 24 28 24 28 C 24 28 27 26 27 24 C 27 22 25 22 24 24 Z" fill="#F5B5C5" opacity="0.85"/>
+    <path d="M 74 22 C 73 20 71 20 71 22 C 71 24 74 26 74 26 C 74 26 77 24 77 22 C 77 20 75 20 74 22 Z" fill="#F5B5C5" opacity="0.75"/>
+    <path d="M 78 60 C 77.5 59 76 59 76 60 C 76 61.5 78 63 78 63 C 78 63 80 61.5 80 60 C 80 59 78.5 59 78 60 Z" fill="#F5B5C5" opacity="0.7"/>
+  </g>
+</svg>

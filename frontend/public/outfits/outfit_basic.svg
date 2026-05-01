@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+  <defs>
+    <radialGradient id="ob-bg" cx="0.5" cy="0.42" r="0.65">
+      <stop offset="0%" stop-color="#FFF8F2"/><stop offset="60%" stop-color="#FFE8D5"/><stop offset="100%" stop-color="#F5C8A8" stop-opacity="0.55"/>
+    </radialGradient>
+    <radialGradient id="ob-bubble" cx="0.35" cy="0.35" r="0.7">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95"/><stop offset="60%" stop-color="#FCE8DC" stop-opacity="0.85"/><stop offset="100%" stop-color="#F0B080" stop-opacity="0.7"/>
+    </radialGradient>
+  </defs>
+  <ellipse cx="48" cy="90" rx="22" ry="2.2" fill="#A86840" opacity="0.15"/>
+  <circle cx="48" cy="48" r="40" fill="url(#ob-bg)"/>
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -2; 0 0" dur="6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+    <circle cx="48" cy="50" r="20" fill="url(#ob-bubble)" stroke="#F0B080" stroke-width="1.2" opacity="0.85"/>
+    <ellipse cx="42" cy="42" rx="5" ry="3" fill="#FFFFFF" opacity="0.85"/>
+    <circle cx="40" cy="40" r="1.6" fill="#FFFFFF"/>
+  </g>
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -3; 0 0" dur="4.5s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+    <circle cx="22" cy="34" r="5" fill="url(#ob-bubble)" stroke="#F5C8A8" stroke-width="0.8" opacity="0.75"/>
+    <circle cx="74" cy="30" r="4" fill="url(#ob-bubble)" stroke="#F5C8A8" stroke-width="0.8" opacity="0.7"/>
+    <circle cx="78" cy="62" r="3" fill="url(#ob-bubble)" stroke="#F5C8A8" stroke-width="0.8" opacity="0.65"/>
+  </g>
+  <g fill="#F5C46E">
+    <path d="M 26 20 L 27.5 24 L 31.5 25 L 27.5 26 L 26 30 L 24.5 26 L 20.5 25 L 24.5 24 Z" opacity="0.9">
+      <animate attributeName="opacity" values="0.95;0.5;0.95" dur="3.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+    </path>
+    <path d="M 70 70 L 71 73 L 74 74 L 71 75 L 70 78 L 69 75 L 66 74 L 69 73 Z" opacity="0.85">
+      <animate attributeName="opacity" values="0.9;0.45;0.9" dur="4.2s" begin="0.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+    </path>
+  </g>
+</svg>

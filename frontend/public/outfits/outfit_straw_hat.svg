@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+  <defs>
+    <radialGradient id="osh-bg" cx="0.5" cy="0.42" r="0.7">
+      <stop offset="0%" stop-color="#FFFCEC"/><stop offset="55%" stop-color="#FFF0C8"/><stop offset="100%" stop-color="#F5C46E" stop-opacity="0.5"/>
+    </radialGradient>
+    <linearGradient id="osh-brim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5DCA8"/><stop offset="55%" stop-color="#E0B870"/><stop offset="100%" stop-color="#A87838"/>
+    </linearGradient>
+    <linearGradient id="osh-crown" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5DCA8"/><stop offset="100%" stop-color="#C09850"/>
+    </linearGradient>
+    <linearGradient id="osh-ribbon" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5B5C5"/><stop offset="100%" stop-color="#C07888"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="48" cy="90" rx="26" ry="2.5" fill="#A86840" opacity="0.18"/>
+  <circle cx="48" cy="48" r="40" fill="url(#osh-bg)"/>
+  <g stroke="#F5C46E" stroke-width="1.2" stroke-linecap="round" opacity="0.7">
+    <animateTransform attributeName="transform" type="rotate" values="0 48 48; 6 48 48; 0 48 48" dur="8s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+    <line x1="48" y1="10" x2="48" y2="16"/>
+    <line x1="22" y1="22" x2="26" y2="26"/>
+    <line x1="74" y1="22" x2="70" y2="26"/>
+    <line x1="14" y1="48" x2="20" y2="48"/>
+    <line x1="82" y1="48" x2="76" y2="48"/>
+  </g>
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -1.5; 0 0" dur="6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+    <ellipse cx="48" cy="60" rx="34" ry="8" fill="url(#osh-brim)" stroke="#7A4825" stroke-width="1"/>
+    <ellipse cx="48" cy="58" rx="32" ry="6" fill="none" stroke="#FFE5C8" stroke-width="0.8" opacity="0.6"/>
+    <path d="M 30 58 Q 48 38 66 58 Q 64 56 62 56 Q 48 42 34 56 Q 32 56 30 58 Z" fill="url(#osh-crown)" stroke="#7A4825" stroke-width="1"/>
+    <path d="M 30 58 Q 48 56 66 58" stroke="url(#osh-ribbon)" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M 64 58 L 70 64 L 66 62 L 70 68 L 62 62 Z" fill="url(#osh-ribbon)" stroke="#8A3A4A" stroke-width="0.6" stroke-linejoin="round"/>
+    <path d="M 38 46 L 38 56 M 48 44 L 48 56 M 58 46 L 58 56" stroke="#7A4825" stroke-width="0.5" opacity="0.4"/>
+  </g>
+</svg>
