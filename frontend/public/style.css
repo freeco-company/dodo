@@ -6357,3 +6357,78 @@ body:has(.dialog-overlay:not(.hidden)) .dodo-mentor-bubble {
   0%, 60%, 100% { background-position: -140% -140%; }
   80% { background-position: 240% 240%; }
 }
+
+/* Pokedex 灰卡 + 點擊互動（2026-05-01 圖鑑重設計） */
+.poke-card { cursor: pointer; border: none; text-align: center; font-family: inherit; transition: transform .15s ease, box-shadow .15s ease; }
+.poke-card:active { transform: scale(.96); }
+.poke-card.locked { opacity: .55; filter: grayscale(.8); cursor: pointer; background: #FAF5EE; }
+.poke-card.locked:hover { opacity: .75; filter: grayscale(.6); }
+.poke-card .poke-icon { display: flex; align-items: center; justify-content: center; min-height: 40px; }
+.poke-card .poke-q { font-size: 28px; font-weight: 700; color: #C9B8A0; line-height: 1; }
+.poke-card.locked .poke-name { color: #B8A695; }
+.poke-card.locked .poke-meta { color: #C9B8A0; }
+
+/* Pokedex food detail modal */
+.food-detail-modal { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; }
+.food-detail-modal.hidden { display: none; }
+.food-detail-backdrop { position: absolute; inset: 0; background: rgba(50, 35, 25, .55); backdrop-filter: blur(4px); }
+.food-detail-sheet { position: relative; width: min(420px, 92vw); max-height: 88vh; overflow-y: auto; background: #FFFBF5; border-radius: 22px; padding: 22px; box-shadow: 0 20px 60px rgba(80,50,30,.32); animation: fdIn .22s ease-out; }
+@keyframes fdIn { from { opacity: 0; transform: translateY(16px) scale(.96); } to { opacity: 1; transform: none; } }
+.food-detail-close { position: absolute; top: 10px; right: 14px; background: none; border: none; font-size: 26px; color: var(--muted); cursor: pointer; line-height: 1; padding: 4px 8px; }
+.food-detail-close:hover { color: var(--ink); }
+.food-detail-loading, .food-detail-error { text-align: center; padding: 40px 0; color: var(--muted); font-size: 14px; }
+.food-detail-head { text-align: center; margin-bottom: 16px; }
+.food-detail-emoji { font-size: 42px; line-height: 1; margin-bottom: 6px; }
+.food-detail-emoji.shiny { filter: drop-shadow(0 0 12px rgba(255,200,80,.6)); }
+.food-detail-emoji img.poke-food-svg { width: 56px; height: 56px; }
+.food-detail-name { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.food-detail-cat { font-size: 12px; color: var(--muted); }
+.food-detail-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0; padding: 12px; background: #FFF6E8; border-radius: 14px; }
+.fd-stat { text-align: center; }
+.fd-stat b { display: block; font-size: 16px; color: var(--ink); font-weight: 700; }
+.fd-stat span { font-size: 10px; color: var(--muted); }
+.food-detail-nutri { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed #E8D8C4; }
+.food-detail-card { background: linear-gradient(135deg, #FFF8F2, #FFE8DC); border: 1.5px solid rgba(232,159,122,.25); border-radius: 16px; padding: 14px; margin-top: 10px; }
+.fd-card-label { font-size: 11px; color: var(--peach-deep); font-weight: 700; margin-bottom: 6px; letter-spacing: .03em; }
+.fd-card-q { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 10px; line-height: 1.5; }
+.fd-card-choices { display: flex; flex-direction: column; gap: 6px; }
+.fd-choice { background: white; padding: 10px 12px; border-radius: 10px; font-size: 12.5px; color: var(--ink); position: relative; border: 1px solid transparent; }
+.fd-choice.correct { border-color: #8FBE8F; background: #F2FBF2; }
+.fd-choice.user-picked { border-color: #E89F7A; }
+.fd-choice.user-picked.correct { border-color: #6FB46F; background: #E8F8E8; }
+.fd-pick-tag, .fd-correct-tag { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 5px; margin-left: 4px; vertical-align: middle; }
+.fd-pick-tag { background: var(--peach); color: var(--peach-deep); }
+.fd-correct-tag { background: #8FBE8F; color: white; }
+.fd-fb { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+.fd-card-explain { font-size: 11.5px; color: var(--muted); margin-top: 10px; padding-top: 10px; border-top: 1px dashed #E8D8C4; line-height: 1.6; }
+.food-detail-locked { text-align: center; padding: 28px 0; }
+.food-detail-locked .food-detail-emoji { color: #C9B8A0; opacity: .7; }
+.food-detail-hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+/* 我的 tab 區段標題 + svg icon (2026-05-01 重設計) */
+.me-section-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--peach-deep);
+  letter-spacing: 0.05em;
+  margin: 18px 4px 6px;
+  opacity: 0.85;
+}
+.me-section-label:first-of-type { margin-top: 8px; }
+.me-entry-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #FFF6E8, #FFE8D8);
+  border-radius: 10px;
+  padding: 4px;
+}
+.me-entry-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}

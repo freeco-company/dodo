@@ -16,6 +16,7 @@ class FoodDiscovery extends Model
     protected $fillable = [
         'legacy_id', 'user_id', 'pandora_user_uuid', 'food_id',
         'first_seen_at', 'times_eaten', 'best_score', 'is_shiny',
+        'unlocked_via_card_play_id',
     ];
 
     protected function casts(): array

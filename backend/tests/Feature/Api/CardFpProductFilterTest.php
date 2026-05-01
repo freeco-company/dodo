@@ -41,7 +41,8 @@ it('exposes fp_recipe cards when flag is on', function () {
     Artisan::call('db:seed', ['--force' => true]);
     config(['services.fp_product_content.enabled' => true]);
 
-    $user = User::factory()->create(['current_streak' => 0, 'membership_tier' => 'fp_franchise']);
+    // is_franchisee=true required by CardService FP gate (in addition to compliance flag).
+    $user = User::factory()->create(['current_streak' => 0, 'membership_tier' => 'fp_franchise', 'is_franchisee' => true]);
 
     $sawFp = false;
     for ($i = 0; $i < 60; $i++) {

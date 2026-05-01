@@ -38,7 +38,7 @@ class AiMealController extends Controller
                 'url',
                 'max:2048',
             ],
-            'content_type' => ['nullable', 'string', Rule::in(['image/jpeg', 'image/png', 'image/webp', 'image/heic'])],
+            'content_type' => ['nullable', 'string', Rule::in(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/gif'])],
             'meal_type' => ['nullable', 'string', Rule::in(['breakfast', 'lunch', 'dinner', 'snack', 'late_night'])],
             'context' => ['nullable', 'array'],
         ]);

@@ -65,6 +65,27 @@ class CardService
         return $cards;
     }
 
+    /**
+     * 「FP（婕樂纖）相關」卡牌：tier_required = fp_franchise、
+     * category = fp_recipe / franchise、或 franchise_only=true。
+     * 只給已加盟用戶（is_franchisee=true）看到。
+     *
+     * @param  array<string,mixed>  $card
+     */
+    public function isFranchiseOnlyCard(array $card): bool
+    {
+        $tier = (string) ($card['tier_required'] ?? '');
+        if ($tier === 'fp_franchise') {
+            return true;
+        }
+        $category = (string) ($card['category'] ?? '');
+        if (in_array($category, ['fp_recipe', 'franchise'], true)) {
+            return true;
+        }
+
+        return (bool) ($card['franchise_only'] ?? false);
+    }
+
     private function countPlaysToday(User $user): int
     {
         // Phase D Wave 2: read by uuid (legacy user_id retained on row by trait)
@@ -157,6 +178,16 @@ class CardService
             ->pluck('card_id')
             ->all();
         $seen = array_flip($seenIds);
+
+        // FP-only cards filtered out for non-franchisees so they're never drawn.
+        $isFranchisee = (bool) ($user->is_franchisee ?? false);
+        $deck = array_values(array_filter(
+            $deck,
+            fn ($c) => $isFranchisee || ! $this->isFranchiseOnlyCard($c),
+        ));
+        if (empty($deck)) {
+            abort(409, 'NO_CARDS_AVAILABLE');
+        }
 
         $unseen = array_values(array_filter(
             $deck,
@@ -324,7 +355,15 @@ class CardService
 
     public function collection(User $user): array
     {
-        $deck = $this->deck();
+        $isFranchisee = (bool) ($user->is_franchisee ?? false);
+
+        // FP-only cards filtered out for non-franchisees so 圖鑑 doesn't even
+        // hint at their existence (no greyed-out FP slots).
+        $deck = array_values(array_filter(
+            $this->deck(),
+            fn ($c) => $isFranchisee || ! $this->isFranchiseOnlyCard($c),
+        ));
+
         $eventCardIds = [];
         foreach ($deck as $c) {
             if (($c['type'] ?? null) === 'event') {
@@ -334,9 +373,11 @@ class CardService
 
         $plays = CardPlay::where('pandora_user_uuid', $user->pandora_user_uuid)
             ->whereNotNull('answered_at')
-            ->get(['card_id', 'card_type', 'rarity', 'correct']);
+            ->orderBy('answered_at')
+            ->get(['id', 'card_id', 'card_type', 'rarity', 'correct', 'choice_idx', 'answered_at']);
 
         $playByCardId = [];
+        $latestPlayByCardId = [];
         foreach ($plays as $p) {
             $cid = (string) $p->card_id;
             if (! isset($playByCardId[$cid])) {
@@ -346,6 +387,7 @@ class CardService
             if ($p->correct) {
                 $playByCardId[$cid]['correct']++;
             }
+            $latestPlayByCardId[$cid] = $p;
         }
 
         $userTier = (string) ($user->membership_tier ?? 'free');
@@ -397,23 +439,40 @@ class CardService
             ];
 
             if ($collected) {
+                $publicChoices = array_map(
+                    fn ($ch) => [
+                        'text' => $ch['text'] ?? '',
+                        'correct' => (bool) ($ch['correct'] ?? false),
+                        'feedback' => $ch['feedback'] ?? null,
+                        'hint' => $ch['hint'] ?? null,
+                    ],
+                    (array) ($c['choices'] ?? []),
+                );
+                $latest = $latestPlayByCardId[$cid] ?? null;
                 $collectedCards[] = $cardMeta + [
+                    'choices' => $publicChoices,
+                    'explain' => $c['explain'] ?? null,
                     'stats' => [
                         'plays' => $playStat['plays'],
                         'correct' => $playStat['correct'],
                         'mastered' => $playStat['correct'] >= 3,
+                        'times_seen' => $playStat['plays'],
+                        'times_correct' => $playStat['correct'],
+                        'last_chosen_idx' => $latest?->choice_idx,
+                        'last_seen_at' => $latest?->answered_at,
                     ],
                 ];
             } else {
                 $tierLocked = ! $this->tierSatisfies($userTier, $c['tier_required'] ?? null);
                 $minLevel = isset($c['min_level']) ? (int) $c['min_level'] : null;
                 $levelLocked = $minLevel !== null && $userLevel < $minLevel;
-                if ($tierLocked || $levelLocked) {
-                    $lockedCards[] = $cardMeta + [
-                        'min_level' => $minLevel,
-                        'lock_reason' => $tierLocked ? 'tier' : 'level',
-                    ];
-                }
+                $reason = $tierLocked ? 'tier' : ($levelLocked ? 'level' : 'undiscovered');
+                $lockedCards[] = $cardMeta + [
+                    'min_level' => $minLevel,
+                    'lock_reason' => $reason,
+                    // Hide question for undiscovered cards — surprise on unlock.
+                    'question' => '',
+                ];
             }
         }
 
@@ -550,6 +609,10 @@ class CardService
 
         if (! $this->tierSatisfies((string) $user->membership_tier, $card['tier_required'] ?? null)) {
             abort(403, 'TIER_LOCKED');
+        }
+
+        if ($this->isFranchiseOnlyCard($card) && ! ($user->is_franchisee ?? false)) {
+            abort(403, 'FRANCHISE_LOCKED');
         }
 
         // Optional level gating: when the seed flags a min_level for the

@@ -337,6 +337,12 @@ parameters:
 			path: tests/Feature/Api/CardFpProductFilterTest.php
 
 		-
+			message: '#^Access to an undefined property App\\Models\\User\:\:\$is_franchisee\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/Feature/Api/CardFranchiseGatingTest.php
+
+		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
 			identifier: method.notFound
 			count: 7
@@ -507,6 +513,12 @@ parameters:
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
 			identifier: method.notFound
+			count: 4
+			path: tests/Feature/Api/OutfitFranchiseGatingTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
 			count: 2
 			path: tests/Feature/Api/PaywallTest.php
 
@@ -515,6 +527,18 @@ parameters:
 			identifier: method.notFound
 			count: 1
 			path: tests/Feature/Api/PaywallTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 6
+			path: tests/Feature/Api/PokedexControllerTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/Api/PokedexControllerTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'

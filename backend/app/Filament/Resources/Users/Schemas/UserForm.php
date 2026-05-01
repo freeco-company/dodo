@@ -6,6 +6,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
 class UserForm
@@ -131,6 +132,14 @@ class UserForm
                 TextInput::make('fp_ref_code')
                     ->default(null),
                 DateTimePicker::make('tier_verified_at'),
+                Toggle::make('is_franchisee')
+                    ->label('已加盟（FP 團隊夥伴）')
+                    ->helperText('勾起 = 解鎖 fp_recipe / franchise 卡牌、FP 皇冠 / 主廚裝、FP 食物圖鑑。客服 / 業務手動勾選；母艦 webhook 整合後會自動同步。')
+                    ->afterStateUpdated(fn ($state, $set) => $state ? $set('franchise_verified_at', now()->toDateTimeString()) : null)
+                    ->live(),
+                DateTimePicker::make('franchise_verified_at')
+                    ->label('加盟驗證時間')
+                    ->helperText('勾選 is_franchisee 時自動填上現在時間'),
                 TextInput::make('island_visits_used')
                     ->required()
                     ->numeric()
