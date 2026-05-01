@@ -29,6 +29,17 @@ return [
         'recommended_android_build' => (int) env('RECOMMENDED_ANDROID_BUILD', 1),
     ],
 
+    /*
+    | Filament /admin/content dashboard — locates SVG / icon assets across the
+    | sister repos (pandora-design-svg + pandora-meal frontend) so the content
+    | audit page can preview real files without coupling Filament to file paths.
+    */
+    'content_dashboard' => [
+        'design_svg_path' => env('PANDORA_DESIGN_SVG_PATH'),
+        'frontend_public_path' => env('PANDORA_FRONTEND_PUBLIC_PATH'),
+        'frontend_url' => env('PANDORA_FRONTEND_URL', ''),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],

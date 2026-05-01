@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\ContentDashboard;
 use App\Filament\Pages\FunnelDashboard;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -73,6 +74,7 @@ class AdminPanelProvider extends PanelProvider
                 '使用者',
                 '飲食紀錄',
                 '食物資料',
+                '內容',
                 '漏斗',
                 '系統',
             ])
@@ -92,6 +94,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Dashboard::class,
+                ContentDashboard::class,
                 FunnelDashboard::class,
             ])
 

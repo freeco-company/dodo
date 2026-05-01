@@ -102,7 +102,7 @@ class ContentDashboard extends Page
         $stats = DB::table('card_plays')
             ->select('card_id',
                 DB::raw('COUNT(*) as plays'),
-                DB::raw('SUM(CASE WHEN answered_correctly = 1 THEN 1 ELSE 0 END) as correct'))
+                DB::raw('SUM(CASE WHEN `correct` = 1 THEN 1 ELSE 0 END) as correct'))
             ->whereNotNull('answered_at')
             ->groupBy('card_id')
             ->get()
@@ -195,7 +195,7 @@ class ContentDashboard extends Page
     private function designSvgPath(string $sub): ?string
     {
         $candidates = [
-            env('PANDORA_DESIGN_SVG_PATH'),
+            config('services.content_dashboard.design_svg_path'),
             base_path('../../pandora-design-svg'),
             base_path('../pandora-design-svg'),
             '/Users/chris/freeco/pandora/pandora-design-svg',
@@ -212,7 +212,7 @@ class ContentDashboard extends Page
     private function frontendPublicPath(string $sub): ?string
     {
         $candidates = [
-            env('PANDORA_FRONTEND_PUBLIC_PATH'),
+            config('services.content_dashboard.frontend_public_path'),
             base_path('../frontend/public'),
             base_path('../../pandora-meal/frontend/public'),
         ];
@@ -227,7 +227,7 @@ class ContentDashboard extends Page
 
     private function frontendPublicUrl(string $rel): string
     {
-        $base = env('PANDORA_FRONTEND_URL', '');
+        $base = (string) config('services.content_dashboard.frontend_url', '');
 
         return $base ? rtrim($base, '/') . '/' . ltrim($rel, '/') : '/' . ltrim($rel, '/');
     }
