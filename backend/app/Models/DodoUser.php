@@ -117,6 +117,7 @@ class DodoUser extends Model
         // subscription / tier mirror
         'subscription_expires_at', 'subscription_expires_at_iso', 'subscription_type',
         'membership_tier', 'tier_verified_at', 'fp_ref_code',
+        'is_franchisee', 'franchise_verified_at',
         'trial_started_at', 'trial_expires_at',
 
         // journey
@@ -159,6 +160,8 @@ class DodoUser extends Model
         'subscription_expires_at' => 'datetime',
         'subscription_expires_at_iso' => 'datetime',
         'tier_verified_at' => 'datetime',
+        'is_franchisee' => 'boolean',
+        'franchise_verified_at' => 'datetime',
         'trial_started_at' => 'datetime',
         'trial_expires_at' => 'datetime',
 

@@ -119,6 +119,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/rating-prompt', [RatingPromptController::class, 'view']);
 
     Route::get('/pokedex', [PokedexController::class, 'index']);
+    Route::get('/pokedex/{food_id}', [PokedexController::class, 'show'])->whereNumber('food_id');
     Route::get('/achievements', [AchievementController::class, 'index']);
     Route::get('/entitlements', [EntitlementsController::class, 'show']);
 

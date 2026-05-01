@@ -2241,30 +2241,119 @@ function elementEmoji(e) {
 }
 
 async function loadPokedex() {
-  const list = await api('GET', `/pokedex`);
-  const totalDb = 120; // 食物資料庫規模（seed）
-  const shinyCount = list.filter((d) => d.is_shiny).length;
-  $('#pokedex-total').textContent = `${list.length} / ${totalDb}`;
+  // 2026-05-01 重構：圖鑑回傳 ALL foods（含未發現），未發現的標 unlocked=false / 灰卡。
+  // 後端 shape：{ entries:[{food_id, name_zh, category, element, brand, unlocked, ...}], total, unlocked_count, shiny_count }
+  const r = await api('GET', `/pokedex`);
+  const entries = Array.isArray(r) ? r : (r.entries || r.discoveries || []);
+  const total = r.total ?? entries.length;
+  const unlockedCount = r.unlocked_count ?? entries.filter((e) => e.unlocked || e.first_seen_at).length;
+  const shinyCount = r.shiny_count ?? entries.filter((e) => e.is_shiny).length;
+
+  $('#pokedex-total').textContent = `${unlockedCount} / ${total}`;
   $('#pokedex-shiny').textContent = shinyCount;
 
-  // Tip card only when user has some items (explanatory hint above grid)
-  const intro = list.length > 0
-    ? `<div class="pokedex-intro">
-        📖 收集 <b>${list.length}</b> 種食物囉～單餐 <b>90 分</b>以上會升級成閃光版 🌟
-      </div>` : '';
+  if (entries.length === 0) {
+    $('#pokedex-list').innerHTML = `
+      <div class="col-span-3 empty-state">
+        <div class="es-emoji">📖</div>
+        <div class="es-title">圖鑑還是空白</div>
+        <div class="es-hint">記錄第一餐就會解鎖第一格 ✨</div>
+      </div>`;
+    return;
+  }
 
-  $('#pokedex-list').innerHTML = intro + (list.length ? list.map((d) => `
-    <div class="poke-card ${d.is_shiny ? 'shiny' : ''}">
-      <div class="text-2xl">${foodIconFor(d)}</div>
-      <div class="poke-name">${d.name_zh}</div>
-      <div class="poke-meta">x${d.times_eaten} · 最佳 ${d.best_score ?? '-'}</div>
-    </div>
-  `).join('') : `
-    <div class="col-span-3 empty-state">
-      <div class="es-emoji">📖</div>
-      <div class="es-title">圖鑑還是空白</div>
-      <div class="es-hint">記錄第一餐就會解鎖第一格 ✨</div>
-    </div>`);
+  const intro = `<div class="pokedex-intro">
+      📖 已收集 <b>${unlockedCount}</b> / ${total} 種食物～單餐 <b>90 分</b>以上會升級成閃光版 🌟
+      <br/><span style="font-size:11px;color:var(--muted)">灰色的還沒發現過～點擊已收集的看當初解鎖紀錄</span>
+    </div>`;
+
+  $('#pokedex-list').innerHTML = intro + entries.map((d) => {
+    const unlocked = d.unlocked || d.first_seen_at;
+    const cls = ['poke-card'];
+    if (d.is_shiny) cls.push('shiny');
+    if (!unlocked) cls.push('locked');
+    return `
+      <button type="button" class="${cls.join(' ')}" data-food-id="${d.food_id}" data-unlocked="${unlocked ? '1' : '0'}">
+        <div class="poke-icon">${unlocked ? foodIconFor(d) : '<div class="poke-q">?</div>'}</div>
+        <div class="poke-name">${unlocked ? escapeHtml(d.name_zh || '?') : '???'}</div>
+        <div class="poke-meta">${unlocked ? `x${d.times_eaten ?? 0} · 最佳 ${d.best_score ?? '-'}` : '還沒發現'}</div>
+      </button>
+    `;
+  }).join('');
+
+  $$('#pokedex-list .poke-card').forEach((el) => {
+    el.addEventListener('click', () => {
+      const fid = el.dataset.foodId;
+      const isUnlocked = el.dataset.unlocked === '1';
+      if (!fid) return;
+      openFoodDetail(fid, isUnlocked);
+    });
+  });
+}
+
+async function openFoodDetail(foodId, isUnlocked) {
+  const modal = $('#food-detail-modal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  const body = $('#food-detail-body');
+  body.innerHTML = `<div class="food-detail-loading">📖 翻開圖鑑中…</div>`;
+  try {
+    const d = await api('GET', `/pokedex/${foodId}`);
+    if (!d.unlocked) {
+      body.innerHTML = `
+        <div class="food-detail-locked">
+          <div class="food-detail-emoji">🔒</div>
+          <div class="food-detail-name">${escapeHtml(d.name_zh || '???')}</div>
+          <div class="food-detail-cat">${escapeHtml(d.category || '')}</div>
+          <div class="food-detail-hint">${escapeHtml(d.hint || '還沒發現過～記錄一餐就能解鎖')}</div>
+        </div>`;
+      return;
+    }
+    const date = d.first_seen_at ? new Date(d.first_seen_at) : null;
+    const dateStr = date ? `${date.getFullYear()}/${String(date.getMonth()+1).padStart(2,'0')}/${String(date.getDate()).padStart(2,'0')}` : '';
+    let html = `
+      <div class="food-detail-head">
+        <div class="food-detail-emoji ${d.is_shiny ? 'shiny' : ''}">${foodIconFor(d)}</div>
+        <div class="food-detail-name">${escapeHtml(d.name_zh)}${d.is_shiny ? ' 🌟' : ''}</div>
+        <div class="food-detail-cat">${escapeHtml(d.category || '')}${d.brand ? ` · ${escapeHtml(d.brand)}` : ''}</div>
+      </div>
+      <div class="food-detail-stats">
+        <div class="fd-stat"><b>${d.times_eaten ?? 0}</b><span>記錄次數</span></div>
+        <div class="fd-stat"><b>${d.best_score ?? '-'}</b><span>最佳分數</span></div>
+        <div class="fd-stat"><b>${dateStr || '—'}</b><span>初次發現</span></div>
+      </div>
+      ${d.calories ? `<div class="food-detail-nutri">${d.calories} 卡 · 蛋白 ${d.protein_g ?? 0}g · 碳水 ${d.carbs_g ?? 0}g · 脂肪 ${d.fat_g ?? 0}g</div>` : ''}
+    `;
+    if (d.unlocked_via) {
+      const u = d.unlocked_via;
+      const choices = (u.choices || []).map((ch, i) => {
+        const isUserPick = u.chosen_idx === i;
+        const cls = ['fd-choice'];
+        if (ch.correct) cls.push('correct');
+        if (isUserPick) cls.push('user-picked');
+        return `<div class="${cls.join(' ')}">
+          ${escapeHtml(ch.text)}
+          ${isUserPick ? '<span class="fd-pick-tag">你選的</span>' : ''}
+          ${ch.correct ? '<span class="fd-correct-tag">✓ 正解</span>' : ''}
+          ${ch.feedback ? `<div class="fd-fb">${escapeHtml(ch.feedback)}</div>` : ''}
+        </div>`;
+      }).join('');
+      html += `
+        <div class="food-detail-card">
+          <div class="fd-card-label">🎴 解鎖時的題目</div>
+          <div class="fd-card-q">${escapeHtml(u.question || '')}</div>
+          <div class="fd-card-choices">${choices}</div>
+          ${u.explain ? `<div class="fd-card-explain">📚 ${escapeHtml(u.explain)}</div>` : ''}
+        </div>`;
+    }
+    body.innerHTML = html;
+  } catch (e) {
+    body.innerHTML = `<div class="food-detail-error">載入失敗：${escapeHtml(e.message)}</div>`;
+  }
+}
+
+function closeFoodDetail() {
+  $('#food-detail-modal')?.classList.add('hidden');
 }
 
 // === Suggest next meal ===

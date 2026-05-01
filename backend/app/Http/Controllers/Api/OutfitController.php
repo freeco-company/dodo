@@ -24,8 +24,8 @@ class OutfitController extends Controller
         ['key' => 'headphones', 'name' => '玫瑰耳機', 'description' => '音樂愛好者', 'emoji' => '🎧', 'unlock_type' => 'level', 'unlock_value' => 12, 'unlock_hint' => 'LV.12 解鎖'],
         ['key' => 'straw_hat', 'name' => '草帽', 'description' => '夏日陽光', 'emoji' => '👒', 'unlock_type' => 'streak', 'unlock_value' => 7, 'unlock_hint' => '連續 7 天達標'],
         ['key' => 'angel_wings', 'name' => '天使翅膀', 'description' => '療癒系代表', 'emoji' => '👼', 'unlock_type' => 'level', 'unlock_value' => 20, 'unlock_hint' => 'LV.20 解鎖'],
-        ['key' => 'fp_crown', 'name' => 'FP 皇冠', 'description' => '只有 FP 永久會員戴得起', 'emoji' => '👑', 'unlock_type' => 'fp_lifetime', 'unlock_hint' => '加入 FP 網站會員解鎖', 'fp_exclusive' => true],
-        ['key' => 'fp_chef', 'name' => 'FP 主廚裝', 'description' => '婕樂纖營養師同款', 'emoji' => '🧑‍🍳', 'unlock_type' => 'fp_lifetime', 'unlock_hint' => '加入 FP 網站會員解鎖', 'fp_exclusive' => true],
+        ['key' => 'fp_crown', 'name' => 'FP 皇冠', 'description' => 'FP 團隊夥伴的專屬光環', 'emoji' => '👑', 'unlock_type' => 'franchise', 'unlock_hint' => '加入 FP 團隊解鎖', 'fp_exclusive' => true],
+        ['key' => 'fp_chef', 'name' => 'FP 主廚裝', 'description' => '婕樂纖團隊同款', 'emoji' => '🧑‍🍳', 'unlock_type' => 'franchise', 'unlock_hint' => '加入 FP 團隊解鎖', 'fp_exclusive' => true],
     ];
 
     public function index(Request $request): JsonResponse
@@ -34,16 +34,16 @@ class OutfitController extends Controller
         $owned = (array) ($user->outfits_owned ?? ['none']);
         $level = (int) ($user->level ?? 1);
         $longest = (int) ($user->longest_streak ?? 0);
-        $isFpLifetime = $user->membership_tier === 'fp_lifetime';
+        $isFranchisee = (bool) ($user->is_franchisee ?? false);
 
-        $list = array_map(function ($o) use ($owned, $level, $longest, $isFpLifetime) {
+        $list = array_map(function ($o) use ($owned, $level, $longest, $isFranchisee) {
             $unlocked = in_array($o['key'], $owned, true);
             if (! $unlocked) {
                 $unlocked = match ($o['unlock_type']) {
                     'default' => true,
                     'level' => $level >= (int) $o['unlock_value'],
                     'streak' => $longest >= (int) $o['unlock_value'],
-                    default => $isFpLifetime,
+                    default => $isFranchisee,
                 };
             }
 
@@ -71,12 +71,12 @@ class OutfitController extends Controller
         // Trust the catalog state — must be unlocked. Re-derive instead of
         // trusting the client (don't allow front-end to grant outfits).
         $owned = (array) ($user->outfits_owned ?? ['none']);
-        $isFp = $user->membership_tier === 'fp_lifetime';
+        $isFranchisee = (bool) ($user->is_franchisee ?? false);
         $unlocked = in_array($data['outfit_key'], $owned, true)
             || $valid['unlock_type'] === 'default'
             || ($valid['unlock_type'] === 'level' && (int) ($user->level ?? 1) >= (int) ($valid['unlock_value'] ?? 999))
             || ($valid['unlock_type'] === 'streak' && (int) ($user->longest_streak ?? 0) >= (int) ($valid['unlock_value'] ?? 999))
-            || ($valid['unlock_type'] === 'fp_lifetime' && $isFp);
+            || ($valid['unlock_type'] === 'franchise' && $isFranchisee);
 
         if (! $unlocked) {
             return response()->json(['message' => 'outfit is locked'], 403);

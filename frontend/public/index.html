@@ -695,7 +695,7 @@
       <div class="card p-4">
         <div class="flex justify-between items-baseline mb-2">
           <div class="text-sm font-bold">食物圖鑑 📖</div>
-          <div class="text-xs text-muted">共 <span class="num" id="pokedex-total">0</span> · 閃光 <span class="num" id="pokedex-shiny">0</span> 🌟</div>
+          <div class="text-xs text-muted">已收 <span class="num" id="pokedex-total">0/0</span> · 閃光 <span class="num" id="pokedex-shiny">0</span> 🌟</div>
         </div>
         <div id="pokedex-list" class="grid grid-cols-3 gap-2"></div>
       </div>
@@ -852,7 +852,78 @@
         </label>
       </div>
 
-      <!-- Daily goals editor -->
+      <!-- ===== 收藏 / 圖鑑 ===== -->
+      <div class="me-section-label">📚 收藏 · 圖鑑</div>
+
+      <button class="me-entry card" data-go="pokedex">
+        <div class="me-entry-icon"><img src="/svg/icons/icon_food_fruit.svg" alt="" loading="lazy"/></div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">食物圖鑑</div>
+          <div class="me-entry-sub">灰色的還沒收集～點開看當初解鎖的紀錄</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+
+      <button class="me-entry card" data-go="cards-codex">
+        <div class="me-entry-emoji">🎴</div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">卡牌圖鑑</div>
+          <div class="me-entry-sub">收集過的知識卡，點擊看當初作答的題目 ✨</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+
+      <button class="me-entry card" data-go="wardrobe">
+        <div class="me-entry-icon"><img src="/characters/crown.svg" alt="" loading="lazy"/></div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">衣櫃</div>
+          <div class="me-entry-sub" id="wardrobe-sub">解鎖更多裝扮，幫夥伴換上你最愛的造型</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+
+      <button class="me-entry card" data-go="achievements">
+        <div class="me-entry-icon"><img src="/svg/badges/badge_milestone_gold.svg" alt="" loading="lazy"/></div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">成就徽章</div>
+          <div class="me-entry-sub">完成挑戰，留下屬於你的旅程記號</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+
+      <!-- ===== 紀錄 / 學習 ===== -->
+      <div class="me-section-label">📖 紀錄 · 學習</div>
+
+      <button class="me-entry card" data-go="calendar">
+        <div class="me-entry-icon"><img src="/svg/icons/icon_period_calendar.svg" alt="" loading="lazy"/></div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">打卡日曆</div>
+          <div class="me-entry-sub">看看這週連了幾天、完成幾個完美日</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+
+      <button class="me-entry card" data-go="report">
+        <div class="me-entry-emoji">📮</div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">本週週報</div>
+          <div class="me-entry-sub" id="report-sub">每週一封信，給這週的你</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+
+      <button class="me-entry card" data-go="knowledge">
+        <div class="me-entry-icon"><img src="/svg/icons/icon_course_book.svg" alt="" loading="lazy"/></div>
+        <div class="me-entry-text">
+          <div class="me-entry-title">營養知識庫</div>
+          <div class="me-entry-sub">14 主題分類 + 我的收藏，朵朵幫妳整理過了</div>
+        </div>
+        <div class="me-entry-chev">›</div>
+      </button>
+
+      <!-- ===== 設定 ===== -->
+      <div class="me-section-label">⚙️ 設定</div>
+
       <div class="card p-4" id="goals-settings-card">
         <div class="text-sm font-bold mb-2">🎯 每日目標</div>
         <label class="block text-xs text-muted mb-1">喝水目標（ml）</label>
@@ -863,7 +934,6 @@
         <div class="text-[11px] text-muted mt-1">建議 2000–4000 ml；預設 3000 ml</div>
       </div>
 
-      <!-- Redeem code entry -->
       <div class="card p-4" id="tier-redeem-card">
         <div class="text-sm font-bold mb-1">🎟️ 會員代碼</div>
         <p class="text-xs text-muted mb-2">輸入 FP / 訂閱代碼</p>
@@ -872,56 +942,6 @@
           <button id="tier-redeem-btn" class="btn-primary">兌換</button>
         </div>
       </div>
-      <button class="me-entry card" data-go="calendar">
-        <div class="me-entry-emoji">📅</div>
-        <div class="me-entry-text">
-          <div class="me-entry-title">打卡日曆</div>
-          <div class="me-entry-sub">看看這週連了幾天、完成幾個完美日</div>
-        </div>
-        <div class="me-entry-chev">›</div>
-      </button>
-
-      <button class="me-entry card" data-go="wardrobe">
-        <div class="me-entry-emoji">👗</div>
-        <div class="me-entry-text">
-          <div class="me-entry-title">衣櫃</div>
-          <div class="me-entry-sub" id="wardrobe-sub">解鎖更多裝扮，幫夥伴換上你最愛的造型</div>
-        </div>
-        <div class="me-entry-chev">›</div>
-      </button>
-      <button class="me-entry card" data-go="pokedex">
-        <div class="me-entry-emoji">📖</div>
-        <div class="me-entry-text">
-          <div class="me-entry-title">食物圖鑑</div>
-          <div class="me-entry-sub">每記一種新食物就多一頁，閃光餐特別珍貴</div>
-        </div>
-        <div class="me-entry-chev">›</div>
-      </button>
-
-      <button class="me-entry card" data-go="cards-codex">
-        <div class="me-entry-emoji">🎴</div>
-        <div class="me-entry-text">
-          <div class="me-entry-title">卡牌圖鑑</div>
-          <div class="me-entry-sub">收集過的知識卡與情境卡，隨時回來複習 ✨</div>
-        </div>
-        <div class="me-entry-chev">›</div>
-      </button>
-      <button class="me-entry card" data-go="knowledge">
-        <div class="me-entry-emoji">📚</div>
-        <div class="me-entry-text">
-          <div class="me-entry-title">營養知識庫</div>
-          <div class="me-entry-sub">14 主題分類 + 我的收藏，朵朵幫妳整理過了</div>
-        </div>
-        <div class="me-entry-chev">›</div>
-      </button>
-      <button class="me-entry card" data-go="achievements">
-        <div class="me-entry-emoji">🏅</div>
-        <div class="me-entry-text">
-          <div class="me-entry-title">成就徽章</div>
-          <div class="me-entry-sub">完成挑戰，留下屬於你的旅程記號</div>
-        </div>
-        <div class="me-entry-chev">›</div>
-      </button>
       <!-- Legal / disclaimer footer — tiny but always accessible -->
       <div class="me-disclaimer-footer">
         <p><b>本服務非醫療建議</b>。潘朵拉飲食提供一般性健康資訊，不能取代醫師 / 營養師 / 心理師的專業判斷。</p>
@@ -939,14 +959,6 @@
         <div class="me-entry-chev">›</div>
       </button>
 
-      <button class="me-entry card" data-go="report">
-        <div class="me-entry-emoji">📮</div>
-        <div class="me-entry-text">
-          <div class="me-entry-title">本週週報</div>
-          <div class="me-entry-sub" id="report-sub">每週一封信，給這週的你</div>
-        </div>
-        <div class="me-entry-chev">›</div>
-      </button>
     </div>
   </section>
 </div>
@@ -1361,6 +1373,15 @@
 </div>
 
 <!-- ===== Card Review Modal (from codex) ===== -->
+<!-- Pokedex food detail modal (2026-05-01) -->
+<div id="food-detail-modal" class="food-detail-modal hidden" role="dialog" aria-hidden="true">
+  <div class="food-detail-backdrop" onclick="closeFoodDetail()"></div>
+  <div class="food-detail-sheet">
+    <button class="food-detail-close" onclick="closeFoodDetail()" aria-label="關閉">×</button>
+    <div id="food-detail-body"></div>
+  </div>
+</div>
+
 <div id="card-review-modal" class="card-review-modal hidden" role="dialog" aria-hidden="true">
   <div class="card-review-backdrop"></div>
   <div class="card-review-sheet">
@@ -1406,7 +1427,7 @@
 <script src="/icons.js?v=2"></script>
 <script src="/sound.js?v=4"></script>
 <script src="/character.js?v=9"></script>
-<script src="/app.js?v=42"></script>
+<script src="/app.js?v=43"></script>
 <script>
 // 朵朵浮窗：關閉 + 隨機輪播語錄 (preview only)
 (function() {
