@@ -187,11 +187,30 @@
   <h2>10. 第三方服務揭露</h2>
   <p>為提供完整服務，本 App 整合下列第三方服務，部分資料將傳輸至該服務提供者：</p>
   <ul>
-    <li><strong>Anthropic Claude Vision</strong>（美國）：你拍攝的食物照片會傳送至 Anthropic API 進行辨識，僅用於回傳食物名稱與營養推估，<strong>不會用於 AI 模型訓練</strong>。</li>
+    <li><strong>Anthropic Claude Vision</strong>（美國）：見下方「AI 訓練條款」專章說明</li>
     <li><strong>Apple In-App Purchase</strong>：訂閱付款與收據驗證，遵循 Apple 隱私權政策</li>
     <li><strong>ECPay 綠界科技</strong>：母艦官網信用卡／行動支付（App 內以 Apple IAP 為主）</li>
     <li><strong>Apple Push Notification Service / Firebase Cloud Messaging</strong>：推送通知傳遞</li>
+    <li><strong>Sentry</strong>（如啟用）：錯誤追蹤；我們已啟用 PII Scrub 機制，自動清除 email / 密碼 / token / 個人識別碼，僅保留錯誤堆疊與匿名 ID</li>
     <li><strong>PostHog</strong>（如啟用）：使用者行為統計，採匿名化 ID，不含 PII</li>
+  </ul>
+
+  <h2>10-A. AI 服務與訓練資料條款</h2>
+  <div class="callout">
+    我們承諾：你的個人資料、飲食紀錄與上傳的食物照片，<strong>絕不</strong>用於訓練我們自有或第三方的 AI 模型。
+  </div>
+  <p><strong>關於 Anthropic Claude Vision API（食物辨識）</strong>：</p>
+  <ul>
+    <li>我們透過 <strong>Anthropic API</strong>（非消費者版 Claude.ai 介面）呼叫食物辨識服務</li>
+    <li>依據 Anthropic 商業 API 條款（commercial API terms），<strong>API 流量資料不會用於訓練其 AI 模型</strong>，亦不會用於改進 Anthropic 任何產品</li>
+    <li>食物照片於 API 回傳辨識結果後即不再保留於 Anthropic 端（短期 trust & safety review 例外，最長 30 天）</li>
+    <li>我們僅儲存辨識「結果」（食物名稱、卡路里推估）於台灣境內伺服器；<strong>原始照片不會儲存於我們的資料庫</strong>，僅暫存於記憶體傳輸期間</li>
+  </ul>
+  <p><strong>關於我們自有的 AI / 統計</strong>：</p>
+  <ul>
+    <li>朵朵 NPC 的對白、知識卡內容由人類編輯撰寫並通過食安法／健康食品管理法合規審查（見 §11）</li>
+    <li>個人飲食趨勢分析（如「你這週多吃 200 大卡」）為服務端規則計算，<strong>非機器學習模型</strong></li>
+    <li>未來若導入 AI 模型訓練功能（例如個人化飲食建議），將另行明確同意（opt-in），不以本政策概括授權替代</li>
   </ul>
 
   <h2>11. 健康資訊免責聲明</h2>
@@ -199,11 +218,21 @@
     本 App 僅作為飲食記錄與健康習慣養成工具，<strong>不提供醫療診斷、治療或健康食品療效宣稱</strong>。AI 食物辨識結果、營養成分推估與朵朵知識卡內容僅供參考，不構成醫療建議。任何健康問題、特殊飲食需求或疾病管理，請諮詢合格醫療專業人員。
   </div>
 
-  <h2>12. 未成年人保護</h2>
+  <h2>12. 未成年人保護（COPPA / 民法 §77）</h2>
+  <p>本 App 內含飲食追蹤、體重紀錄、付費訂閱等功能，依民法第 77 條與 Apple App Store 4+ 評級規範，特訂定未成年保護條款：</p>
   <ul>
-    <li>未滿 13 歲之兒童不得使用本 App</li>
-    <li>13 歲以上未滿 18 歲之未成年人，使用本 App 須經法定代理人（家長或監護人）同意</li>
-    <li>若我們得知未經同意蒐集到未成年人資料，將儘速刪除</li>
+    <li><strong>13 歲以下兒童禁止使用</strong>。註冊時若年齡資訊顯示為 13 歲以下將無法完成註冊流程；若用戶未提供生日，預設視為成年。</li>
+    <li><strong>13–18 歲（未成年）使用須經法定代理人同意</strong>：
+      <ul>
+        <li>同意方式：法定代理人應於 App 內勾選「我已取得家長／監護人同意」（首次註冊時出現）</li>
+        <li>家長／監護人得隨時來信 <a href="mailto:legal@freeco.cc">legal@freeco.cc</a> 申請：(a) 查詢未成年人資料 (b) 停止資料蒐集 (c) 刪除未成年人帳號全部資料</li>
+        <li>未成年人帳號：不會被納入個人化行銷推送、不被用於行為剖析（profiling）</li>
+        <li>付費訂閱：未滿 20 歲之未成年訂閱由 Apple App Store 處理（Apple 提供家長控管機制 Family Sharing）</li>
+      </ul>
+    </li>
+    <li><strong>美國 COPPA 對齊</strong>：13 歲以下美國兒童禁止註冊；如 IP 地理區辨識為美國且年齡 &lt;13，將拒絕完成註冊並依 COPPA §312.5 處理</li>
+    <li><strong>誤蒐集處理</strong>：若我們發現未取得同意而蒐集到未成年人資料，將於 7 個工作日內刪除帳號與相關紀錄，並通知家長／監護人（若可聯繫）</li>
+    <li><strong>申訴管道</strong>：若家長／監護人對未成年人資料處理有疑問，得向台灣個人資料保護委員會（PDPC）或公平交易委員會申訴</li>
   </ul>
 
   <h2>13. 政策變更通知</h2>
@@ -211,10 +240,13 @@
 
   <h2>14. 聯絡方式</h2>
   <ul>
+    <li><strong>服務提供者</strong>：FP 團隊 / Fairy Pandora（婕樂纖企業有限公司）</li>
     <li><strong>個資保護專責聯絡人</strong>：FP 團隊 法務窗口</li>
-    <li><strong>電子郵件</strong>：<a href="mailto:legal@freeco.cc">legal@freeco.cc</a></li>
-    <li><strong>公司地址</strong>：台北市（詳細地址依公司登記資料，將於正式上線前更新）</li>
-    <li><strong>客訴處理</strong>：來信後 7 個工作日內回覆</li>
+    <li><strong>電子郵件</strong>：<a href="mailto:legal@freeco.cc">legal@freeco.cc</a>（首選）</li>
+    <li><strong>公司地址</strong>：台北市（公司登記中；詳細登記地址依商業司資料，將於正式上線前以本頁更新並通知用戶）</li>
+    <li><strong>個資權利申請</strong>：請於信件主旨註明「個資申請」並說明欲行使之權利（§9）</li>
+    <li><strong>客訴處理時程</strong>：來信後 7 個工作日內首次回覆，重大個資事件依個資法 §12 於 72 小時內通報主管機關</li>
+    <li><strong>主管機關</strong>：個人資料保護委員會（PDPC）— 若對本服務個資處理有疑慮，得向 PDPC 申訴</li>
   </ul>
 
   <div class="footer">
