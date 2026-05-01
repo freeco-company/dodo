@@ -74,6 +74,9 @@ it('returns achievements catalog with unlocked flag', function () {
     expect($body['total'])->toBeGreaterThan(0);
     expect($body['unlocked'])->toBe(0);
     expect($body['achievements'][0]['unlocked'])->toBeFalse();
+    // Catalog must use py-service namespaced keys (regression guard for PR #99).
+    $keys = array_column($body['achievements'], 'key');
+    expect($keys)->toContain('meal.first_meal');
 });
 it('rejects /achievements without auth', function () {
     $this->getJson('/api/achievements')->assertUnauthorized();

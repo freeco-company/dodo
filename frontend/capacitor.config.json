@@ -15,5 +15,10 @@
     "contentInset": "automatic",
     "scrollEnabled": true,
     "backgroundColor": "#FFF5F5"
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
   }
 }

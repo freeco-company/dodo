@@ -45,9 +45,13 @@ return [
     | considered expired. This will override any values set in the token's
     | "expires_at" attribute, but first-party sessions are not affected.
     |
+    | Pre-launch security: 30-day rolling window. Mobile app refreshes via
+    | /api/bootstrap which keeps active users' tokens fresh; abandoned tokens
+    | (lost device, uninstalled app) age out and the daily
+    | `sanctum:prune-expired` schedule physically deletes them.
     */
 
-    'expiration' => null,
+    'expiration' => 60 * 24 * 30,
 
     /*
     |--------------------------------------------------------------------------

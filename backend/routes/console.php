@@ -32,3 +32,33 @@ Schedule::command('compliance:audit', ['--apply'])
     ->withoutOverlapping()
     ->onOneServer()
     ->appendOutputTo(storage_path('logs/compliance-audit.log'));
+
+// Pre-launch security: prune expired Sanctum personal access tokens daily.
+// Pairs with sanctum.expiration = 30d. Without this the personal_access_tokens
+// table grows unbounded and revoked / aged tokens linger for grep on breach.
+Schedule::command('sanctum:prune-expired --hours=24')
+    ->dailyAt('05:00')
+    ->withoutOverlapping()
+    ->onOneServer();
+
+// Pre-launch security: prune webhook nonce rows older than 30 days.
+// Replay window is 5 minutes; we keep 30 days for ops debugging / audit.
+// Cheap delete: each table has a unique index on event_id (or nonce) and a
+// timestamp column; a single DELETE … WHERE received_at < cutoff is fine.
+Schedule::call(function () {
+    $cutoff = now()->subDays(30);
+    foreach ([
+        'identity_webhook_nonces',
+        'gamification_webhook_nonces',
+        'lifecycle_invalidate_nonces',
+        'franchisee_webhook_nonces',
+    ] as $table) {
+        \Illuminate\Support\Facades\DB::table($table)
+            ->where('received_at', '<', $cutoff)
+            ->delete();
+    }
+})
+    ->name('webhook-nonce-prune')
+    ->dailyAt('05:30')
+    ->withoutOverlapping()
+    ->onOneServer();

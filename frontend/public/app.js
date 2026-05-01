@@ -332,7 +332,11 @@ async function api(method, path, body) {
   }
   // 4xx / 5xx
   const msg = (json && (json.message || (json.error && json.error.message))) || `HTTP ${res.status}`;
-  throw new Error(msg);
+  const err = new Error(msg);
+  // Surface error_code (Laravel returns top-level `error_code` or nested `error.code`)
+  err.error_code = (json && (json.error_code || (json.error && json.error.code))) || null;
+  err.status = res.status;
+  throw err;
 }
 
 // Number tween (count-up animation) for key stats
@@ -640,6 +644,21 @@ async function openPaywall(trigger) {
       </div>
       <div class="paywall-tiers">${tiersHtml}</div>
       <div class="paywall-trust">${c.trust_strip.map((t) => `<span>✓ ${t}</span>`).join('')}</div>
+      <!-- Apple §3.1.2(a) auto-renewal disclosure -->
+      <div class="paywall-renewal-disclosure" style="margin:12px 0;padding:10px 12px;background:#FFF6EE;border-radius:8px;font-size:11px;line-height:1.6;color:#7a5a40;">
+        <div style="font-weight:700;margin-bottom:4px;">⚠️ 訂閱說明</div>
+        <ul style="list-style:none;padding:0;margin:0;">
+          <li>• 月費：每月 NT$290，自動續訂</li>
+          <li>• 年費：每年 NT$2,490，自動續訂</li>
+          <li>• 訂閱於到期前 24 小時自動續訂，可隨時於 Apple ID 設定取消</li>
+          <li style="margin-top:4px;">
+            <a href="/terms" target="_blank" rel="noopener" style="text-decoration:underline;color:#7a5a40;">使用條款</a>
+            ｜
+            <a href="/privacy" target="_blank" rel="noopener" style="text-decoration:underline;color:#7a5a40;">隱私權政策</a>
+          </li>
+        </ul>
+      </div>
+      <button id="paywall-restore-dyn" class="btn-secondary" type="button" style="width:100%;margin-bottom:8px;">🔄 還原購買 / Restore Purchases</button>
       <p class="paywall-legal">${c.legal_footnote}</p>
     </div>
   `;
@@ -651,6 +670,10 @@ async function openPaywall(trigger) {
   };
   overlay.querySelector('#paywall-close').addEventListener('click', () => close('dismissed'));
   overlay.querySelector('.paywall-backdrop').addEventListener('click', () => close('dismissed'));
+  overlay.querySelector('#paywall-restore-dyn')?.addEventListener('click', () => {
+    if (window.restorePurchases) window.restorePurchases();
+    else toast('尚未支援，請洽客服', { emoji: 'ℹ️' });
+  });
   overlay.querySelectorAll('.paywall-tier').forEach((btn) => {
     btn.addEventListener('click', () => {
       const tier = btn.dataset.tier;
@@ -664,6 +687,40 @@ async function openPaywall(trigger) {
   });
 }
 window.openPaywall = openPaywall;
+
+// =========================================================
+// IAP frontend stubs — wired to native Capacitor IAP plugin (set up by iOS shell agent)
+// These call into window.IAPPlugin if running on native platform; web/dev shows guidance toast.
+// Backend validates the receipt via /iap/verify (Apple StoreKit verification).
+// =========================================================
+window.purchaseSubscription = async (productId) => {
+  if (window.Capacitor?.isNativePlatform?.() && window.IAPPlugin) {
+    try {
+      const result = await window.IAPPlugin.purchase({ productId });
+      await api('POST', '/iap/verify', { receipt: result.receipt, product_id: productId });
+      toast('購買成功！', { emoji: '🎉' });
+      await loadTierInfo();
+    } catch (e) {
+      toast(e.message || '購買失敗', { emoji: '⚠️' });
+    }
+  } else {
+    toast('請於 iOS App 內購買', { emoji: 'ℹ️' });
+  }
+};
+window.restorePurchases = async () => {
+  if (window.Capacitor?.isNativePlatform?.() && window.IAPPlugin) {
+    try {
+      const restored = await window.IAPPlugin.restore();
+      await api('POST', '/iap/restore', { receipts: restored });
+      toast('購買已還原', { emoji: '✅' });
+      await loadTierInfo();
+    } catch (e) {
+      toast(e.message || '還原失敗', { emoji: '⚠️' });
+    }
+  } else {
+    toast('請於 iOS App 內還原', { emoji: 'ℹ️' });
+  }
+};
 
 // Hook 429 USAGE_LIMIT responses → auto-open paywall with the trigger reason
 const _origApi = api;
@@ -767,7 +824,7 @@ async function openReferralPanel() {
   document.body.appendChild(overlay);
   overlay.querySelector('#ref-share').addEventListener('click', async () => {
     const shareUrl = `${location.origin}/?ref=${stats.code}`;
-    const shareText = `我在用「潘朵拉飲食」減脂 App，輸入我的邀請碼 ${stats.code}，雙方各得 7 天免費試用 🫶`;
+    const shareText = `我在用「潘朵拉飲食」養成好好吃飯的習慣，輸入我的邀請碼 ${stats.code}，雙方各得 7 天免費試用 🫶`;
     trackEvent('referral_share_clicked');
     if (navigator.share) {
       try { await navigator.share({ title: '潘朵拉飲食', text: shareText, url: shareUrl }); }
@@ -907,7 +964,7 @@ const FRANCHISE_CTA_COPY = {
     link: '看看試算',
   },
   franchisee_self_use: {
-    title: '想擴大經營？仙女學院有經營者課程，有興趣再點',
+    title: '想擴大經營？潘朵拉學院有經營者課程，有興趣再點',
     sub: '不打擾，僅供參考',
     link: '了解課程',
   },
@@ -1063,10 +1120,36 @@ async function patchSettings(patch) {
 }
 
 // --- First-run gates: disclaimer before onboarding, onboarding before island ---
+// Fail-closed: if showDisclaimerModal throws, block onboarding (no silent ack).
+// Legal posture: 健康食品管理法 §14 / 食安法 §28 require explicit user ack
+// before serving recommendations; auto-ack on UI failure is legally fragile.
 async function runFirstRunGates() {
   const s = state.settings || {};
   if (!s.disclaimer_ack_at) {
-    await showDisclaimerModal();
+    try {
+      await showDisclaimerModal();
+    } catch (err) {
+      console.error('[first-run] disclaimer modal failed:', err);
+      // Block onboarding with retry option — never silent-ack
+      const retry = await new Promise((resolve) => {
+        const overlay = document.createElement('div');
+        overlay.className = 'first-run-overlay';
+        overlay.innerHTML = `
+          <div class="first-run-card">
+            <div class="first-run-icon">⚠️</div>
+            <div class="first-run-title">載入失敗</div>
+            <div class="first-run-body"><p>使用聲明無法顯示，請重試。<br/>必須閱讀並同意聲明後才能使用 App。</p></div>
+            <button class="first-run-btn" type="button" id="first-run-retry">重試</button>
+          </div>`;
+        document.body.appendChild(overlay);
+        overlay.querySelector('#first-run-retry').addEventListener('click', () => {
+          overlay.remove();
+          resolve(true);
+        });
+      });
+      if (retry) return runFirstRunGates();
+      return;
+    }
     try { await patchSettings({ disclaimer_ack: true }); } catch {}
   }
   if (!s.onboarded_at) {
@@ -1640,7 +1723,11 @@ async function logMeal() {
       window.sfx?.play('notify');
     }, 600);
   } catch (e) {
-    toast('失敗：' + e.message, { emoji: '⚠️' });
+    if (e.error_code === 'AI_SERVICE_DOWN' || e.error_code === 'AI_SERVICE_TIMEOUT') {
+      toast('朵朵在補充能量～請稍後再試 ✨', { emoji: '🌙' });
+    } else {
+      toast('失敗：' + e.message, { emoji: '⚠️' });
+    }
   } finally {
     $('#btn-log-meal').disabled = false;
     $('#btn-log-meal').textContent = '再記錄一餐';
@@ -1920,7 +2007,7 @@ let kbCurrentSlug = null;
 const KB_CATEGORY_LABEL = {
   protein: '蛋白質', carb: '碳水', fiber: '纖維', fat: '油脂',
   water: '水分', micronutrient: '微量元素', product_match: '產品搭配',
-  meal_timing: '餐次安排', cutting: '減脂期', maintenance: '維持期',
+  meal_timing: '餐次安排', cutting: '飲食調整期', maintenance: '維持期',
   qna: '常見 Q&A', myth_busting: '謬誤澄清', lifestyle: '生活作息', other: '其他',
 };
 async function loadKnowledgeDaily() {
@@ -2952,26 +3039,44 @@ async function init() {
     else { field?.classList.remove('invalid'); if (errEl) errEl.textContent = ''; }
   }
   function validateRegForm(fd) {
+    // App Store first-impression: height/weight/target are now OPTIONAL at signup.
+    // Users can fill them in post-ceremony or via Me-tab settings later.
+    // Only `name` is mandatory; other fields validated only if user supplied a value.
     let firstBad = null;
     ['name', 'height_cm', 'current_weight_kg', 'target_weight_kg'].forEach((n) => setFieldError(n, ''));
     const name = (fd.name || '').trim();
     if (name.length < 2) { setFieldError('name', '名字至少 2 個字'); firstBad = firstBad || 'name'; }
     else if (name.length > 20) { setFieldError('name', '名字最多 20 個字'); firstBad = firstBad || 'name'; }
-    const h = Number(fd.height_cm);
-    if (!Number.isFinite(h)) { setFieldError('height_cm', '請輸入身高'); firstBad = firstBad || 'height_cm'; }
-    else if (h < 100) { setFieldError('height_cm', '身高不能小於 100 公分'); firstBad = firstBad || 'height_cm'; }
-    else if (h > 250) { setFieldError('height_cm', '身高不能大於 250 公分'); firstBad = firstBad || 'height_cm'; }
-    const w = Number(fd.current_weight_kg);
-    if (!Number.isFinite(w)) { setFieldError('current_weight_kg', '請輸入體重'); firstBad = firstBad || 'current_weight_kg'; }
-    else if (w < 30) { setFieldError('current_weight_kg', '體重不能小於 30 公斤'); firstBad = firstBad || 'current_weight_kg'; }
-    else if (w > 250) { setFieldError('current_weight_kg', '體重不能大於 250 公斤'); firstBad = firstBad || 'current_weight_kg'; }
+    if (fd.height_cm) {
+      const h = Number(fd.height_cm);
+      if (!Number.isFinite(h) || h < 100 || h > 250) {
+        setFieldError('height_cm', '身高需介於 100-250 公分'); firstBad = firstBad || 'height_cm';
+      }
+    }
+    if (fd.current_weight_kg) {
+      const w = Number(fd.current_weight_kg);
+      if (!Number.isFinite(w) || w < 30 || w > 250) {
+        setFieldError('current_weight_kg', '體重需介於 30-250 公斤'); firstBad = firstBad || 'current_weight_kg';
+      }
+    }
     if (fd.target_weight_kg) {
       const t = Number(fd.target_weight_kg);
+      const w = Number(fd.current_weight_kg);
       if (t < 30 || t > 250) { setFieldError('target_weight_kg', '目標體重 30-250 公斤之間'); firstBad = firstBad || 'target_weight_kg'; }
-      else if (t > w + 5) { setFieldError('target_weight_kg', '目標體重不能比現在多太多'); firstBad = firstBad || 'target_weight_kg'; }
+      else if (Number.isFinite(w) && t > w + 5) { setFieldError('target_weight_kg', '目標體重不能比現在多太多'); firstBad = firstBad || 'target_weight_kg'; }
     }
     return firstBad;
   }
+
+  // Invite code field — hidden by default, expand on click (Apple §3.1.1 / 5.6 sensitivity)
+  $('#reg-toggle-invite')?.addEventListener('click', () => {
+    const wrap = $('#reg-invite-wrap');
+    const btn = $('#reg-toggle-invite');
+    if (!wrap || !btn) return;
+    wrap.classList.toggle('hidden');
+    btn.classList.toggle('hidden');
+    if (!wrap.classList.contains('hidden')) wrap.querySelector('input')?.focus();
+  });
 
   $('#reg-form').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -2985,13 +3090,16 @@ async function init() {
     }
     const payload = {
       name: fd.name.trim(),
-      height_cm: Number(fd.height_cm),
-      current_weight_kg: Number(fd.current_weight_kg),
+      height_cm: fd.height_cm ? Number(fd.height_cm) : undefined,
+      current_weight_kg: fd.current_weight_kg ? Number(fd.current_weight_kg) : undefined,
       target_weight_kg: fd.target_weight_kg ? Number(fd.target_weight_kg) : undefined,
       activity_level: fd.activity_level,
       gender: fd.gender,
       avatar_animal: state.animal,
     };
+    // Pull invite code if user expanded the field
+    const fpRef = (fd.fp_ref_code || '').trim();
+    if (fpRef) payload.fp_ref_code = fpRef;
     // Pull pending invite code (set when arriving via /?ref=XXXX)
     const pendingRef = sessionStorage.getItem('doudou.pendingRefCode');
     if (pendingRef) payload.referral_code = pendingRef;
@@ -3189,6 +3297,10 @@ async function init() {
   $('#paywall-sub-monthly')?.addEventListener('click', () => handleSubscribe('app_monthly'));
   $('#paywall-sub-yearly')?.addEventListener('click', () => handleSubscribe('app_yearly'));
   $('#paywall-code-btn')?.addEventListener('click', handlePaywallRedeem);
+  $('#paywall-restore')?.addEventListener('click', () => {
+    if (window.restorePurchases) window.restorePurchases();
+    else toast('尚未支援，請洽客服', { emoji: 'ℹ️' });
+  });
 
   // Tier redeem
   $('#tier-redeem-btn')?.addEventListener('click', redeemTierCode);
@@ -3974,7 +4086,7 @@ function renderCodex() {
       el.innerHTML = `
         <div class="codex-card-emoji">🔒</div>
         <div class="codex-card-cat">${categoryLabel(c.category)}</div>
-        <div class="codex-card-q">FP 會員專屬</div>
+        <div class="codex-card-q">FP 夥伴專屬</div>
         <div class="codex-card-fp-cta">加入解鎖 →</div>
       `;
       el.addEventListener('click', () => window.open('https://pandora.js-store.com.tw/join', '_blank'));
@@ -4036,7 +4148,7 @@ function closeCardReview() {
 function categoryLabel(c) {
   return ({
     basics: '營養基礎',
-    weightloss: '減脂原理',
+    weightloss: '飲食調整原理',
     exercise: '運動心法',
     mindset: '心魔攻略',
     social: '社交情境',
@@ -4197,7 +4309,7 @@ const GOAL_CHEERS_FALLBACK = {
     { title: '動起來了！', sub: '每天 30 分，堅持的人最迷人。繼續！' },
     { title: '汗水達標', sub: '身體感謝你、心情也會謝謝你。' },
     { title: '運動魂上線', sub: '肌肉有在聽，明天會比今天更強。' },
-    { title: '燃脂完成', sub: '這樣練下去，體態變化真的是看得見的。' },
+    { title: '運動完成', sub: '這樣練下去，體態變化真的是看得見的。' },
     { title: '活力全開', sub: '動得開心比什麼都重要，今天做到了！' },
     { title: '堅持的人', sub: '你不是在運動，你是在幫未來的自己存錢。' },
   ],
@@ -4480,7 +4592,7 @@ function renderIslandChapters() {
       e.stopPropagation();
       const action = btn.dataset.fpAction;
       if (action === 'enter') {
-        // FP 會員 → 進入 fp_shop / fp_base 直接從 scenes 找
+        // FP 夥伴 → 進入 fp_shop / fp_base 直接從 scenes 找
         const fpStore = (islandState.data?.scenes || []).find(s => s.key === 'fp_shop' || s.key === 'fp_base');
         if (fpStore && fpStore.unlocked) {
           enterStore(fpStore);
@@ -4686,7 +4798,7 @@ function renderIslandMap() {
   const quotaEl = $('#island-quota-display');
   if (ent.unlimited_island) {
     quotaEl.className = 'island-quota-badge unlimited';
-    quotaEl.textContent = ent.subscription !== 'none' ? '📱 已訂閱' : '♾️ 永久會員';
+    quotaEl.textContent = ent.subscription !== 'none' ? '📱 已訂閱' : '♾️ 永久夥伴';
   } else {
     const cls = ent.island_quota_remaining <= 1 ? 'island-quota-badge low' : 'island-quota-badge';
     quotaEl.className = cls;
@@ -5080,8 +5192,8 @@ function backToChapters() {
 
 function tierLabel(tier) {
   return ({
-    public: '公開會員',
-    fp_lifetime: 'FP 永久會員',
+    public: '公開夥伴',
+    fp_lifetime: 'FP 永久夥伴',
   })[tier] || tier;
 }
 function tierBadge(tier) {
@@ -5107,7 +5219,7 @@ async function loadTierInfo() {
     if (summary && actions) {
       let lines = [];
       if (ent.tier === 'fp_lifetime') {
-        lines.push('👑 FP 永久會員（最高權限）');
+        lines.push('👑 FP 永久夥伴（最高權限）');
         lines.push('♾️ 島嶼無限探險 · 🎴 FP 專屬卡片 · ⚡ XP 1.5×');
       } else if (ent.subscription === 'app_monthly' || ent.subscription === 'app_yearly') {
         lines.push(`📱 ${ent.subscription === 'app_monthly' ? 'App 月訂中' : 'App 年訂中'}`);
@@ -5127,7 +5239,7 @@ async function loadTierInfo() {
       if (ent.tier !== 'fp_lifetime') {
         const fpBtn = document.createElement('button');
         fpBtn.className = 'btn-primary';
-        fpBtn.innerHTML = '🌟 加入 FP 網站會員（永久解鎖）';
+        fpBtn.innerHTML = '🌟 加入 FP 團隊（永久解鎖）';
         fpBtn.addEventListener('click', () => window.open(ent.fp_web_signup_url, '_blank'));
         actions.appendChild(fpBtn);
       }

@@ -53,9 +53,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/health', HealthController::class);
 
 // ----- Public -----
+// Pre-launch security: credential stuffing rate limits.
+//   /auth/login → 5/min IP + per-(email,IP) `login` named limiter
+//   /auth/register → 10/hour IP (registration is heavier and rarer)
 Route::prefix('auth')->group(function () {
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register'])
+        ->middleware('throttle:10,60');
+    Route::post('/login', [AuthController::class, 'login'])
+        ->middleware(['throttle:5,1', 'throttle:login']);
 });
 
 Route::post('/client-errors', [ClientErrorController::class, 'store'])->middleware('throttle:30,1');
@@ -74,7 +79,7 @@ Route::post('/ecpay/return', [EcpayCallbackController::class, 'returnUrl']);
 // /api/bootstrap — sanctum optional. Use the unauthenticated route; the
 // controller resolves the user via the Sanctum bearer token on a best-effort
 // basis (anon callers still get app_config without entitlements).
-Route::get('/bootstrap', BootstrapController::class);
+Route::get('/bootstrap', BootstrapController::class)->middleware('throttle:60,1');
 
 // ----- Admin (X-Admin-Token) -----
 Route::middleware('admin.token')->prefix('admin')->group(function () {
@@ -105,6 +110,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me/dashboard', [MeController::class, 'dashboard']);
     Route::get('/me/settings', [MeController::class, 'getSettings']);
     Route::patch('/me/settings', [MeController::class, 'patchSettings']);
+    // 個資法 §10 right-to-access. Heavy endpoint — throttle to 3/hour.
+    Route::get('/me/data-export', [MeController::class, 'dataExport'])
+        ->middleware('throttle:3,60');
     Route::get('/me/growth/timeseries', [GrowthController::class, 'timeseries']);
     Route::get('/me/growth/weekly-review', [GrowthController::class, 'weeklyReview']);
 
@@ -223,7 +231,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/subscribe/mock', [TierController::class, 'mockSubscribe']);
 
     // ----- Phase E: real IAP receipt verify (auth'd; called by RN App after purchase) -----
-    Route::post('/iap/verify', [IapController::class, 'verify']);
+    Route::post('/iap/verify', [IapController::class, 'verify'])
+        ->middleware('throttle:20,1');
+    // Apple §3.1.1 — Restore Purchases (Capacitor IAP plugin → batch verify)
+    Route::post('/iap/restore', [IapController::class, 'restore'])
+        ->middleware('throttle:10,1');
 
     // ----- Batch E: AI (stub 503 until Python service is wired) -----
     Route::post('/meals/scan', [AiMealController::class, 'scan']);

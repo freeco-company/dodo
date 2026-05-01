@@ -19,6 +19,25 @@ class TrialService
 
     public function start(User $user, int $days = self::DEFAULT_TRIAL_DAYS): Carbon
     {
+        // Pre-launch security TODO: trial-fraud blacklist.
+        //
+        // Risk: a user can delete their account, re-register with a new email
+        // and the same Apple ID / device, and farm an unlimited 7-day trial.
+        //
+        // Proper fix needs Apple Sign-In to be wired (Task C above —
+        // OAuth flow PR) so we can match on the verified Apple
+        // `original_transaction_id` (Apple's own per-user identifier that
+        // survives re-install) and refuse to mint a fresh trial for the
+        // same OTID. We also need a `trial_blacklist` table populated by
+        // AccountDeletionService::purge().
+        //
+        // Today: no Apple OAuth + register rejects raw apple_id (Task C),
+        // so there is no reliable cross-account identifier. Leaving this
+        // unguarded for the launch and treating trial farming as a minor
+        // pre-launch acceptable cost.
+        //
+        // @todo OAuth wiring PR — add OTID-based trial blacklist check here.
+
         $now = Carbon::now();
         $expires = $now->copy()->addDays($days);
         $user->trial_started_at = $now;

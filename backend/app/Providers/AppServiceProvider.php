@@ -10,7 +10,10 @@ use App\Models\Subscription;
 use App\Models\User;
 use App\Observers\SubscriptionObserver;
 use App\Observers\UserObserver;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -40,5 +43,14 @@ class AppServiceProvider extends ServiceProvider
         // 朵朵 repo 為了兩條 listener 多生一個 provider 檔。
         Event::listen(ConversionEventPublished::class, RecordFranchiseLead::class);
         Event::listen(UserOptedOutFranchiseCta::class, SilenceFranchiseLeads::class);
+
+        // Pre-launch security hardening — credential stuffing throttle.
+        // `login` limiter keys on email + IP so a single bad actor across
+        // many emails AND a botnet against one email both get throttled.
+        RateLimiter::for('login', function (Request $request) {
+            $email = (string) $request->input('email', '');
+
+            return Limit::perMinute(5)->by($email.'|'.$request->ip());
+        });
     }
 }

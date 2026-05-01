@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\DodoUser;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -46,6 +47,25 @@ it('admin purge wipes accounts past their cooldown', function () {
 
     expect(User::find($expired->id))->toBeNull();
     expect(User::find($live->id))->not->toBeNull();
+});
+
+it('admin purge also wipes the dodo_users mirror row (Apple 5.1.1 right-to-erasure)', function () {
+    config(['app.admin_token' => 'test-secret']);
+    $expired = User::factory()->create([
+        'deletion_requested_at' => now()->subDays(10),
+        'hard_delete_after' => now()->subDay(),
+    ]);
+    $uuid = $expired->pandora_user_uuid;
+    expect($uuid)->not->toBeNull();
+    // UserObserver should have ensured the mirror exists.
+    expect(DodoUser::find($uuid))->not->toBeNull();
+
+    $this->postJson('/api/admin/account/purge-expired', [], ['X-Admin-Token' => 'test-secret'])
+        ->assertOk()
+        ->assertJsonPath('purged', 1);
+
+    expect(User::find($expired->id))->toBeNull();
+    expect(DodoUser::find($uuid))->toBeNull();
 });
 
 it('rejects admin purge without token', function () {

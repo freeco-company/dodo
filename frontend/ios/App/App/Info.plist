@@ -2,10 +2,19 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!--
+	  潘朵拉飲食 Info.plist
+	  - CFBundleShortVersionString / CFBundleVersion are driven by Xcode build settings
+	    (MARKETING_VERSION / CURRENT_PROJECT_VERSION). Bump for each TestFlight upload:
+	      * Marketing version = user-visible (e.g. 1.0.0)
+	      * Build number = monotonically increasing per upload (1, 2, 3, ...)
+	  - CFBundleName stays as $(PRODUCT_NAME) placeholder — Xcode injects the target name "App".
+	    User-visible label is CFBundleDisplayName below.
+	-->
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
+	<string>zh-Hant</string>
 	<key>CFBundleDisplayName</key>
-        <string>潘朵拉飲食</string>
+	<string>潘朵拉飲食</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -20,21 +29,38 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+
+	<!-- Localizations declared so App Store shows zh-Hant primary -->
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>zh-Hant</string>
+		<string>en</string>
+	</array>
+
+	<!-- Permission usage descriptions (App Store will reject without these if entitlement is used) -->
+	<key>NSCameraUsageDescription</key>
+	<string>潘朵拉飲食 需要相機權限來拍下食物照片，幫朵朵辨識卡路里。不會自動上傳，妳按下分析後才送出。</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>從相簿選食物照片給朵朵辨識，僅在妳主動選取時讀取。</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>儲存朵朵卡牌截圖到相簿。</string>
+
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+
+	<!-- Modern iOS = arm64 only. armv7 removed (32-bit no longer supported). -->
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
-		<string>armv7</string>
+		<string>arm64</string>
 	</array>
+
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
@@ -45,5 +71,14 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+
+	<!--
+	  TODO (when Sign in with Apple is enabled):
+	  - If LINE Login (or any third-party social login) ships, App Store §4.8 requires
+	    Sign in with Apple to be offered alongside.
+	  - Add capability "Sign in with Apple" in Xcode Signing & Capabilities, then add
+	    @capacitor-community/apple-sign-in to package.json.
+	  - No Info.plist key is required for Sign in with Apple itself.
+	-->
 </dict>
 </plist>

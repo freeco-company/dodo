@@ -58,7 +58,16 @@ class FranchiseWebhookController extends Controller
 
         if ($type === 'franchisee.activated') {
             $verifiedAtRaw = is_string($data['verified_at'] ?? null) ? $data['verified_at'] : null;
-            $verifiedAt = $verifiedAtRaw !== null ? CarbonImmutable::parse($verifiedAtRaw) : null;
+            $verifiedAt = null;
+            if ($verifiedAtRaw !== null) {
+                try {
+                    $verifiedAt = CarbonImmutable::parse($verifiedAtRaw);
+                } catch (\Throwable $e) {
+                    return response()->json([
+                        'error' => 'invalid verified_at: not a parseable timestamp',
+                    ], 422);
+                }
+            }
             $result = $this->sync->markFranchisee($identifier, $kind, $verifiedAt, $context);
         } else {
             $result = $this->sync->unmarkFranchisee($identifier, $kind, $context);

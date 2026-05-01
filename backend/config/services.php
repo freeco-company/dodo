@@ -14,6 +14,21 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | App version handshake (BootstrapController kill-switch)
+    |--------------------------------------------------------------------------
+    | Returned in /api/bootstrap so the client can decide whether to force
+    | upgrade (build < min_*) or nag (build < recommended_*). Defaults to 1
+    | so a fresh deploy never accidentally locks users out.
+    */
+    'app' => [
+        'min_ios_build' => (int) env('MIN_IOS_BUILD', 1),
+        'recommended_ios_build' => (int) env('RECOMMENDED_IOS_BUILD', 1),
+        'min_android_build' => (int) env('MIN_ANDROID_BUILD', 1),
+        'recommended_android_build' => (int) env('RECOMMENDED_ANDROID_BUILD', 1),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],

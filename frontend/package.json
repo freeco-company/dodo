@@ -14,6 +14,7 @@
     "presync:cap:sync:ios": "npm run sync:design-svg"
   },
   "dependencies": {
+    "@capacitor-community/in-app-purchases": "^7.0.0",
     "@capacitor/core": "^6.2.1",
     "@capacitor/ios": "^6.2.1"
   },

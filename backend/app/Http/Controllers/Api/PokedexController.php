@@ -168,10 +168,22 @@ class PokedexController extends Controller
         ];
     }
 
-    /** @return list<string> */
+    /**
+     * Brand-name fragments that mark a food as franchise-only (婕樂纖 brand
+     * gated to is_franchisee=true users).
+     *
+     * Pre-launch fix (2026-05-01): dropped 2-letter `'FP'` because it
+     * false-positives on imported brands containing those letters in random
+     * positions (e.g. SKU codes, English brand subwords). Future-proofing:
+     * if we ever need a stricter match consider adding an explicit
+     * `is_franchise_only` boolean column on `food_database` rather than
+     * widening this list back.
+     *
+     * @return list<string>
+     */
     public static function franchiseBrandMarkers(): array
     {
-        return ['婕樂纖', 'FP', 'Fairy Pandora'];
+        return ['婕樂纖', 'Fairy Pandora'];
     }
 
     public static function isFranchiseBrand(string $brand): bool
