@@ -15,7 +15,6 @@ frontend/
 │   ├── index.html
 │   ├── config.js           ← 解析 window.DODO_API_BASE（單一 source of truth）
 │   ├── app.js              ← 主 entry，所有 fetch 都走 const API
-│   ├── dev-smoke.html      ← 開發用：每個 endpoint 一個按鈕的 smoke test
 │   ├── character.js / icons.js / sound.js / style.css
 │   └── ...
 └── ios/                    ← Capacitor iOS Xcode 專案（user 之後 cap sync）
@@ -58,7 +57,9 @@ npx http-server public -p 5173 -c-1
 
 # 瀏覽器
 open http://localhost:5173/                 # 主 app
-open http://localhost:5173/dev-smoke.html   # API smoke test
+# API smoke test (dev-only, NOT served in prod — moved out of public/):
+#   開另一個 terminal: npx http-server frontend/dev -p 5174 -c-1
+#   open http://localhost:5174/dev-smoke.html
 # 想覆寫 base：http://localhost:5173/?api=http://localhost:9000/api
 ```
 

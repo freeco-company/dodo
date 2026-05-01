@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AchievementController;
 use App\Http\Controllers\Api\AiMealController;
 use App\Http\Controllers\Api\AnalyticsController;
 use App\Http\Controllers\Api\AppleNotificationController;
+use App\Http\Controllers\Api\AppleSignInController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BootstrapController;
 use App\Http\Controllers\Api\CalendarController;
@@ -27,6 +28,7 @@ use App\Http\Controllers\Api\InteractController;
 use App\Http\Controllers\Api\IslandController;
 use App\Http\Controllers\Api\JourneyController;
 use App\Http\Controllers\Api\KnowledgeController;
+use App\Http\Controllers\Api\LineSignInController;
 use App\Http\Controllers\Api\MeController;
 use App\Http\Controllers\Api\MealController;
 use App\Http\Controllers\Api\MePreferencesController;
@@ -61,6 +63,14 @@ Route::prefix('auth')->group(function () {
         ->middleware('throttle:10,60');
     Route::post('/login', [AuthController::class, 'login'])
         ->middleware(['throttle:5,1', 'throttle:login']);
+    // OAuth sign-in: identity_token / id_token are signature-verified server-side
+    // (AppleIdTokenVerifier hits Apple JWKS; LineIdTokenVerifier hits LINE verify
+    // endpoint). Throttle is looser than /login because OAuth tokens are not
+    // password-guessable, but tight enough to blunt scripted abuse.
+    Route::post('/apple', [AppleSignInController::class, 'signin'])
+        ->middleware('throttle:10,60');
+    Route::post('/line', [LineSignInController::class, 'signin'])
+        ->middleware('throttle:10,60');
 });
 
 Route::post('/client-errors', [ClientErrorController::class, 'store'])->middleware('throttle:30,1');

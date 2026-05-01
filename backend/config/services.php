@@ -133,6 +133,41 @@ return [
         'enabled' => filter_var(env('PANDORA_FP_PRODUCT_CONTENT_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Apple Sign-In (POST /api/auth/apple)
+    |--------------------------------------------------------------------------
+    | client_id  : Apple Service ID / app bundle ID matching the JWT `aud`.
+    | team_id    : Apple Developer Team ID (used when we exchange auth code).
+    | key_id     : Sign-in key ID from Apple Developer Console.
+    | private_key: Apple-issued p8 private key contents (server-side token
+    |              exchange — not yet wired; reserved for refresh-token flow).
+    | stub_mode  : true → AppleIdTokenVerifier accepts hand-crafted unsigned
+    |              tokens for tests. NEVER enable in prod (forgery risk).
+    */
+    'apple' => [
+        'client_id' => env('APPLE_CLIENT_ID', 'com.jerosse.pandora.meal'),
+        'team_id' => env('APPLE_TEAM_ID'),
+        'key_id' => env('APPLE_KEY_ID'),
+        'private_key' => env('APPLE_PRIVATE_KEY'),
+        'stub_mode' => filter_var(env('APPLE_AUTH_STUB_MODE', false), FILTER_VALIDATE_BOOLEAN),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | LINE Login (POST /api/auth/line)
+    |--------------------------------------------------------------------------
+    | channel_id    : LINE Channel ID matching the JWT `aud`.
+    | channel_secret: Used for /v2.1/token exchange (not yet wired).
+    | stub_mode     : true → LineIdTokenVerifier accepts hand-crafted tokens
+    |                 without hitting api.line.me. NEVER enable in prod.
+    */
+    'line' => [
+        'channel_id' => env('LINE_CHANNEL_ID'),
+        'channel_secret' => env('LINE_CHANNEL_SECRET'),
+        'stub_mode' => filter_var(env('LINE_AUTH_STUB_MODE', false), FILTER_VALIDATE_BOOLEAN),
+    ],
+
     'meal_ai_service' => [
         'base_url' => env('MEAL_AI_SERVICE_BASE_URL'),
         'shared_secret' => env('MEAL_AI_SERVICE_SHARED_SECRET'),

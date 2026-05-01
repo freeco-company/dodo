@@ -3,6 +3,7 @@
 use App\Models\DodoUser;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -66,6 +67,23 @@ it('admin purge also wipes the dodo_users mirror row (Apple 5.1.1 right-to-erasu
 
     expect(User::find($expired->id))->toBeNull();
     expect(DodoUser::find($uuid))->toBeNull();
+});
+
+it('admin purge populates oauth_trial_blacklist for apple_id and line_id', function () {
+    config(['app.admin_token' => 'test-secret']);
+    User::factory()->create([
+        'apple_id' => 'apple-sub-deleted-x',
+        'line_id' => 'line-sub-deleted-x',
+        'deletion_requested_at' => now()->subDays(10),
+        'hard_delete_after' => now()->subDay(),
+    ]);
+
+    $this->postJson('/api/admin/account/purge-expired', [], ['X-Admin-Token' => 'test-secret'])
+        ->assertOk()
+        ->assertJsonPath('purged', 1);
+
+    expect(DB::table('oauth_trial_blacklist')->where('provider', 'apple')->where('provider_sub', 'apple-sub-deleted-x')->exists())->toBeTrue();
+    expect(DB::table('oauth_trial_blacklist')->where('provider', 'line')->where('provider_sub', 'line-sub-deleted-x')->exists())->toBeTrue();
 });
 
 it('rejects admin purge without token', function () {

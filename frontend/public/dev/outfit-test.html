@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Outfit × Animal anchor visual QA</title>
+<link rel="stylesheet" href="/style.css" />
+<style>
+  body { background: #FBF7F0; padding: 20px; font-family: -apple-system, "Noto Sans TC", sans-serif; }
+  h1 { font-size: 18px; margin: 0 0 6px; color: #5C4E46; }
+  .hint { font-size: 12px; color: #8A7A6F; margin-bottom: 16px; }
+  table { border-collapse: collapse; }
+  th, td { border: 1px solid #E5DCCB; padding: 4px 6px; vertical-align: top; text-align: center; }
+  th { background: #F5ECD9; font-size: 11px; color: #5C4E46; position: sticky; top: 0; }
+  th.row { position: sticky; left: 0; background: #F5ECD9; z-index: 1; }
+  .cell { width: 130px; height: 150px; position: relative; }
+  .cell .char-root { transform: scale(0.55); transform-origin: center; }
+  .cell .char-rarity { display: none; }
+  .label { font-size: 10px; color: #8A7A6F; margin-top: -8px; }
+  .legend { font-size: 11px; color: #5C4E46; margin: 12px 0; }
+  code { background: #FFF; padding: 1px 4px; border-radius: 3px; }
+</style>
+</head>
+<body>
+  <h1>Outfit × Animal Anchor Test Grid</h1>
+  <div class="hint">每格顯示 (animal × outfit)。視覺檢查每件衣服是否落在合理位置 — 若 obvious 偏掉，調整 character.js 的 ANIMAL_ANCHORS / OUTFIT_ANCHOR。</div>
+  <div class="legend">
+    Anchors: <code>head_top</code> (-px above head) / <code>eye_y</code> / <code>neck_y</code> / <code>chest_y</code> / <code>back_y</code>
+  </div>
+  <div id="grid"></div>
+  <script src="/character.js"></script>
+  <script>
+    const ANIMALS = ['rabbit','cat','tiger','penguin','bear','dog','fox','dinosaur','sheep','pig','robot'];
+    const OUTFITS = [
+      'none','ribbon','witch_hat','fp_crown','fp_chef','straw_hat','sakura',
+      'glasses','sunglasses','winter_scarf','scarf',
+      'chef_apron','fp_apron_premium','angel_wings','starry_cape',
+      'headphones','devil_horns','halo'
+    ];
+
+    const tbl = document.createElement('table');
+    let html = '<thead><tr><th class="row">animal \\ outfit</th>';
+    for (const o of OUTFITS) html += `<th>${o}</th>`;
+    html += '</tr></thead><tbody>';
+    for (const a of ANIMALS) {
+      html += `<tr><th class="row">${a}</th>`;
+      for (const o of OUTFITS) {
+        const meta = window.OUTFIT_ANCHOR[o];
+        const anchorLabel = meta ? meta.anchor : '-';
+        html += `<td><div class="cell">${renderCharacter({ animal: a, level: 1, mood: 'happy', outfit: o })}</div><div class="label">${anchorLabel}</div></td>`;
+      }
+      html += '</tr>';
+    }
+    html += '</tbody>';
+    tbl.innerHTML = html;
+    document.getElementById('grid').appendChild(tbl);
+  </script>
+</body>
+</html>

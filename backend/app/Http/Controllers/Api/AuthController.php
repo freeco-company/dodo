@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Rules\HibpUncompromisedPassword;
 use App\Services\TargetCalculator;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -19,18 +20,22 @@ class AuthController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:80'],
             'email' => ['nullable', 'email', 'unique:users,email'],
-            // Pre-launch hardening: 10-char min + mixed-case + numbers.
-            // HIBP `uncompromised()` rule omitted on purpose — needs network call
-            // to api.pwnedpasswords.com which can flake / leak in offline CI.
-            // Re-evaluate post-launch with HIBP cache layer.
-            'password' => ['nullable', 'string', \Illuminate\Validation\Rules\Password::min(10)->mixedCase()->numbers()],
-            // Pre-launch security: register MUST NOT accept raw OAuth ids — there
-            // is no signed-token verification yet, so any client could claim
-            // arbitrary apple_id / line_id and hijack a future OAuth login.
-            // Once AppleSignInController / LineSignInController land (separate
-            // PR), those flows will mint these fields after verifying signed
-            // tokens from Apple / LINE and the `prohibited` rule moves there.
-            // @todo OAuth wiring PR — remove `prohibited`, add controller path.
+            // Pre-launch hardening: 10-char min + mixed-case + numbers + HIBP breach check.
+            // HIBP rule wraps api.pwnedpasswords.com k-anonymity API behind a 24h cache
+            // (Cache::remember per SHA-1 prefix). Fail-open on network error so HIBP
+            // outages don't block registration. Toggle via HIBP_CHECK_ENABLED in CI.
+            'password' => [
+                'nullable',
+                'string',
+                \Illuminate\Validation\Rules\Password::min(10)->mixedCase()->numbers(),
+                new HibpUncompromisedPassword(threshold: 1),
+            ],
+            // The email/password register flow MUST NOT accept raw OAuth ids.
+            // apple_id / line_id are minted only after signed-token verification
+            // by AppleSignInController (POST /api/auth/apple) and
+            // LineSignInController (POST /api/auth/line). Allowing them here
+            // would let an attacker pre-claim a victim's provider id and
+            // hijack a future OAuth sign-in.
             'line_id' => ['nullable', 'prohibited'],
             'apple_id' => ['nullable', 'prohibited'],
 
