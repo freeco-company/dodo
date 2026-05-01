@@ -1,0 +1,14 @@
+<svg width="70" height="80" viewBox="0 0 70 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="ch1" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E8E2D2"/>
+    </radialGradient>
+  </defs>
+  <path d="M14 50 C 6 50, 6 30, 16 28 C 14 16, 30 10, 35 18 C 40 10, 56 16, 54 28 C 64 30, 64 50, 56 50 Z" fill="url(#ch1)" stroke="#A89B7A" stroke-width="1.3" stroke-linejoin="round"/>
+  <rect x="14" y="48" width="42" height="14" rx="2" fill="#FFFDF7" stroke="#A89B7A" stroke-width="1.3"/>
+  <path d="M22 36 Q 26 30 30 36" stroke="#C9B999" stroke-width="1" fill="none" opacity=".8"/>
+  <path d="M40 32 Q 44 26 48 32" stroke="#C9B999" stroke-width="1" fill="none" opacity=".8"/>
+  <path d="M30 40 Q 34 34 38 40" stroke="#C9B999" stroke-width="1" fill="none" opacity=".8"/>
+  <text x="35" y="60" font-family="serif" font-size="7" font-weight="bold" fill="#C9B999" text-anchor="middle">FP</text>
+</svg>
