@@ -26,8 +26,8 @@ return [
     'send_default_pii' => false,
 
     // Performance / tracing — 預設關閉，省 quota；要追慢 query 再打開。
-    'traces_sample_rate' => env('SENTRY_TRACES_SAMPLE_RATE', 0.0),
-    'profiles_sample_rate' => env('SENTRY_PROFILES_SAMPLE_RATE', 0.0),
+    'traces_sample_rate' => (float) env('SENTRY_TRACES_SAMPLE_RATE', 0.0),
+    'profiles_sample_rate' => (float) env('SENTRY_PROFILES_SAMPLE_RATE', 0.0),
 
     // breadcrumbs：sql / query log 容易夾帶 email / token，全關。
     'breadcrumbs' => [
