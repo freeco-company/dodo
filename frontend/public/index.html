@@ -852,44 +852,30 @@
         </label>
       </div>
 
-      <!-- ===== 收藏 / 圖鑑 ===== -->
+      <!-- ===== 收藏 / 圖鑑 — 2x2 grid 主打視覺 (2026-05-01) ===== -->
       <div class="me-section-label">📚 收藏 · 圖鑑</div>
-
-      <button class="me-entry card" data-go="pokedex">
-        <div class="me-entry-icon"><img src="/svg/icons/icon_food_fruit.svg" alt="" loading="lazy"/></div>
-        <div class="me-entry-text">
-          <div class="me-entry-title">食物圖鑑</div>
-          <div class="me-entry-sub">灰色的還沒收集～點開看當初解鎖的紀錄</div>
-        </div>
-        <div class="me-entry-chev">›</div>
-      </button>
-
-      <button class="me-entry card" data-go="cards-codex">
-        <div class="me-entry-emoji">🎴</div>
-        <div class="me-entry-text">
-          <div class="me-entry-title">卡牌圖鑑</div>
-          <div class="me-entry-sub">收集過的知識卡，點擊看當初作答的題目 ✨</div>
-        </div>
-        <div class="me-entry-chev">›</div>
-      </button>
-
-      <button class="me-entry card" data-go="wardrobe">
-        <div class="me-entry-icon"><img src="/characters/crown.svg" alt="" loading="lazy"/></div>
-        <div class="me-entry-text">
-          <div class="me-entry-title">衣櫃</div>
-          <div class="me-entry-sub" id="wardrobe-sub">解鎖更多裝扮，幫夥伴換上你最愛的造型</div>
-        </div>
-        <div class="me-entry-chev">›</div>
-      </button>
-
-      <button class="me-entry card" data-go="achievements">
-        <div class="me-entry-icon"><img src="/svg/badges/badge_milestone_gold.svg" alt="" loading="lazy"/></div>
-        <div class="me-entry-text">
-          <div class="me-entry-title">成就徽章</div>
-          <div class="me-entry-sub">完成挑戰，留下屬於你的旅程記號</div>
-        </div>
-        <div class="me-entry-chev">›</div>
-      </button>
+      <div class="me-grid-2">
+        <button class="me-tile card" data-go="pokedex">
+          <div class="me-tile-icon"><img src="/svg/icons/icon_food_fruit.svg" alt="" loading="lazy"/></div>
+          <div class="me-tile-title">食物圖鑑</div>
+          <div class="me-tile-sub">灰色還沒收集 ✨</div>
+        </button>
+        <button class="me-tile card" data-go="cards-codex">
+          <div class="me-tile-icon">🎴</div>
+          <div class="me-tile-title">卡牌圖鑑</div>
+          <div class="me-tile-sub">收集過的知識卡</div>
+        </button>
+        <button class="me-tile card" data-go="wardrobe">
+          <div class="me-tile-icon"><img src="/outfits/outfit_fp_crown.svg" alt="" loading="lazy"/></div>
+          <div class="me-tile-title">衣櫃</div>
+          <div class="me-tile-sub" id="wardrobe-sub">幫夥伴換造型</div>
+        </button>
+        <button class="me-tile card" data-go="achievements">
+          <div class="me-tile-icon"><img src="/svg/badges/badge_milestone_gold.svg" alt="" loading="lazy"/></div>
+          <div class="me-tile-title">成就徽章</div>
+          <div class="me-tile-sub">留下旅程記號</div>
+        </button>
+      </div>
 
       <!-- ===== 紀錄 / 學習 ===== -->
       <div class="me-section-label">📖 紀錄 · 學習</div>

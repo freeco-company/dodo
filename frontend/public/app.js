@@ -556,7 +556,10 @@ async function tryResume() {
     localStorage.removeItem('doudou_user');
     localStorage.removeItem('doudou_token');
     state.userId = null; state.token = null;
-    // welcome is the default; don't re-toggle to avoid hiding live #main
+    // init() 預先 hide 了 welcome（避免 reload 閃選角畫面）；resume 失敗要把 welcome
+    // 還原回來，並把 main 藏起來，讓使用者重新登入 / 註冊。
+    $('#main')?.classList.add('hidden');
+    $('#screen-welcome')?.classList.remove('hidden');
     return false;
   }
 }
@@ -2476,8 +2479,15 @@ async function loadWeekly() {
   $('#rh-dates').textContent = `${r.week_start.slice(5)} – ${r.week_end.slice(5)}`;
   $('#rh-avg').textContent = r.avg_score.toFixed(1);
   $('#rh-perfect').textContent = r.perfect_days;
+  // weight_change null/undefined → 用戶還沒量過體重；不要顯示「undefined kg」
   const wc = r.weight_change;
-  $('#rh-weight').textContent = wc === 0 ? '持平' : `${wc > 0 ? '+' : ''}${wc} kg`;
+  if (wc == null || Number.isNaN(Number(wc))) {
+    $('#rh-weight').textContent = '—';
+  } else if (Number(wc) === 0) {
+    $('#rh-weight').textContent = '持平';
+  } else {
+    $('#rh-weight').textContent = `${wc > 0 ? '+' : ''}${wc} kg`;
+  }
   const trend = r.avg_score > r.prev_avg_score ? '↑ 比上週進步' : r.avg_score < r.prev_avg_score ? '↓ 比上週略降' : '— 與上週持平';
   $('#rh-trend').textContent = trend + `　紀錄 ${r.logged_days} 天 · 共 ${r.meals_total} 餐`;
 
@@ -2903,6 +2913,13 @@ function spawnParticlesInto(selector, n = 20) {
 
 // === Init ===
 async function init() {
+  // 2026-05-01 — 重整不要每次都閃過選角畫面：若 localStorage 有 token，
+  // 假設可以 resume，先把 welcome 藏起來、main 顯示。tryResume 失敗時會 reload
+  // 顯示真正的 welcome（讓 race-condition fallback 仍正確）。
+  if (state.userId && state.token) {
+    $('#screen-welcome')?.classList.add('hidden');
+    $('#main')?.classList.remove('hidden');
+  }
   paintWelcome();
   // Swap [data-icon] elements to custom SVG immediately on load (tab nav, paywall, etc.)
   if (window.icon) swapDataIcons();
@@ -4799,7 +4816,7 @@ async function enterStore(scene) {
     await playDialog(storeData.dialog, {
       // 店員固定朵朵 NPC（集團導師），不用每店不同動物 — group-naming-and-voice.md
       npc: { emoji: '🧑', name: '朵朵' },
-      npcImgUrl: '/characters/dodo.png',
+      npcImgUrl: '/characters/dodo-full.png',
       backdrop: scene.backdrop || storeData.backdrop,
     });
   }
