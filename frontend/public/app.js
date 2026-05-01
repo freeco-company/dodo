@@ -3013,7 +3013,8 @@ async function init() {
     if (b.dataset.tab === 'island') { openIsland(); return; }
     switchTab(b.dataset.tab);
   }));
-  $$('.me-entry').forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.go)));
+  // me-entry (list rows) + me-tile (2x2 grid 2026-05-01) 兩種都用 data-go 切 tab
+  $$('.me-entry, .me-tile').forEach((b) => b.addEventListener('click', () => switchTab(b.dataset.go)));
 
   // Character tap-to-pet
   $('#char-stage').addEventListener('click', petCharacter);
@@ -3147,7 +3148,7 @@ async function init() {
   // toggles themselves, and disabled controls.
   document.addEventListener('click', (e) => {
     const t = e.target.closest(
-      'button, [role="button"], a, label.cursor-pointer, .sp-btn, .me-entry, .qa-btn, .tab, .codex-filter, .hc-row, .codex-card, .food-result'
+      'button, [role="button"], a, label.cursor-pointer, .sp-btn, .me-entry, .me-tile, .qa-btn, .tab, .codex-filter, .hc-row, .codex-card, .food-result'
     );
     if (!t) return;
     if (t.disabled || t.getAttribute('aria-disabled') === 'true') return;
