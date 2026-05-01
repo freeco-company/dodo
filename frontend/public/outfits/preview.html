@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>Outfit Icons v1 — preview · 潘朵拉飲食 wardrobe</title>
+<style>
+  body { margin:0; padding:32px; background:#FFF8F2; font-family:-apple-system,"PingFang TC",sans-serif; color:#4A3F35; }
+  h1 { font-weight:500; letter-spacing:1px; margin:0 0 6px; }
+  .sub { color:#7A6A5A; margin-bottom:32px; font-size:14px; line-height:1.6; }
+  .grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:24px; max-width:960px; }
+  .card { background:#fff; border-radius:18px; padding:20px; text-align:center; box-shadow:0 2px 10px rgba(168,137,116,.12); }
+  .card.fp { background:linear-gradient(180deg,#FFF8F2 0%,#FFF0DC 100%); box-shadow:0 2px 12px rgba(245,196,110,.25); }
+  .card img { width:96px; height:96px; display:block; margin:0 auto 10px; }
+  .card .name { font-size:14px; font-weight:600; color:#4A3F35; }
+  .card .key { font-size:11px; color:#A88974; margin-top:2px; font-family:ui-monospace,monospace; }
+  .card .hint { font-size:11px; color:#7A6A5A; margin-top:6px; }
+  .scale { margin-top:48px; padding:24px; background:#fff; border-radius:18px; box-shadow:0 2px 10px rgba(168,137,116,.1); }
+  .scale h3 { margin:0 0 16px; font-weight:500; font-size:14px; color:#7A6A5A; }
+  .scale-row { display:flex; gap:24px; align-items:flex-end; flex-wrap:wrap; }
+  .scale-row .item { text-align:center; }
+  .scale-row .item .px { font-size:11px; color:#A88974; margin-top:4px; }
+  .locked-demo { margin-top:24px; padding:24px; background:#fff; border-radius:18px; box-shadow:0 2px 10px rgba(168,137,116,.1); }
+  .locked-demo .row { display:flex; gap:24px; align-items:center; }
+  .locked-demo img { width:80px; height:80px; }
+  .locked-demo .lk { filter:grayscale(1); opacity:.5; }
+  .locked-demo .lbl { font-size:13px; color:#7A6A5A; }
+</style>
+</head>
+<body>
+
+<h1>👗 Outfit Icons v1 — wardrobe</h1>
+<p class="sub">
+  8 個朵朵衣櫥裝扮 SVG，取代原 emoji（✨🧣👓🎧👒👼👑🧑‍🍳）。viewBox 0 0 96 96，純手刻 SVG，可直接進 production。<br>
+  風格對齊集團 SVG style guide v1（badge v5 風格）— 軟漸層 + 地面陰影 + 3-6s ease-in-out 微動態。鎖定狀態走 CSS <code>filter:grayscale</code>（外層處理）。
+</p>
+
+<div class="grid">
+  <div class="card"><img src="outfit_basic.svg"><div class="name">基本造型</div><div class="key">none</div><div class="hint">預設 · 泡泡 + sparkle</div></div>
+  <div class="card"><img src="outfit_scarf.svg"><div class="name">溫暖圍巾</div><div class="key">scarf</div><div class="hint">LV.5 · 玫瑰漸層 + 飄心</div></div>
+  <div class="card"><img src="outfit_glasses.svg"><div class="name">圓框眼鏡</div><div class="key">glasses</div><div class="hint">LV.8 · 文青木框</div></div>
+  <div class="card"><img src="outfit_headphones.svg"><div class="name">玫瑰耳機</div><div class="key">headphones</div><div class="hint">LV.12 · 飄音符</div></div>
+  <div class="card"><img src="outfit_straw_hat.svg"><div class="name">草帽</div><div class="key">straw_hat</div><div class="hint">7 day streak · 太陽光線</div></div>
+  <div class="card"><img src="outfit_angel_wings.svg"><div class="name">天使翅膀</div><div class="key">angel_wings</div><div class="hint">LV.20 · halo 光環</div></div>
+  <div class="card fp"><img src="outfit_fp_crown.svg"><div class="name">FP 皇冠</div><div class="key">fp_crown</div><div class="hint">FP 團隊專屬 · 金色寶石</div></div>
+  <div class="card fp"><img src="outfit_fp_chef.svg"><div class="name">FP 主廚裝</div><div class="key">fp_chef</div><div class="hint">FP 團隊專屬 · 廚師帽 + 圍裙</div></div>
+</div>
+
+<div class="scale">
+  <h3>實際使用尺寸（48 / 64 / 80 / 96 px）— wardrobe grid 大概顯示 64-80px</h3>
+  <div class="scale-row">
+    <div class="item"><img src="outfit_fp_crown.svg" width="48" height="48"><div class="px">48</div></div>
+    <div class="item"><img src="outfit_fp_crown.svg" width="64" height="64"><div class="px">64</div></div>
+    <div class="item"><img src="outfit_fp_crown.svg" width="80" height="80"><div class="px">80</div></div>
+    <div class="item"><img src="outfit_fp_crown.svg" width="96" height="96"><div class="px">96</div></div>
+  </div>
+</div>
+
+<div class="locked-demo">
+  <h3 style="margin:0 0 16px;font-weight:500;font-size:14px;color:#7A6A5A;">鎖定 vs 解鎖（外層 CSS 控制）</h3>
+  <div class="row">
+    <div class="item"><img src="outfit_angel_wings.svg" class="lk"><div class="lbl">鎖定（grayscale + opacity）</div></div>
+    <div class="item"><img src="outfit_angel_wings.svg"><div class="lbl">解鎖（原色 + 動畫）</div></div>
+  </div>
+</div>
+
+</body>
+</html>

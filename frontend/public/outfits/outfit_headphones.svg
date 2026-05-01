@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96">
+  <defs>
+    <radialGradient id="oh-bg" cx="0.5" cy="0.42" r="0.65">
+      <stop offset="0%" stop-color="#FFF8F2"/><stop offset="60%" stop-color="#FCE0E8"/><stop offset="100%" stop-color="#E098A8" stop-opacity="0.45"/>
+    </radialGradient>
+    <linearGradient id="oh-cup" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F5B5C5"/><stop offset="55%" stop-color="#D07888"/><stop offset="100%" stop-color="#A04858"/>
+    </linearGradient>
+    <linearGradient id="oh-band" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F0A8B8"/><stop offset="100%" stop-color="#B05868"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="48" cy="90" rx="24" ry="2.4" fill="#A86840" opacity="0.16"/>
+  <circle cx="48" cy="48" r="40" fill="url(#oh-bg)"/>
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -1.5; 0 0" dur="5.2s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+    <path d="M 22 52 Q 22 26 48 26 Q 74 26 74 52" stroke="url(#oh-band)" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M 22 52 Q 22 28 48 28 Q 74 28 74 52" stroke="#FFFFFF" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.45"/>
+    <rect x="14" y="46" width="16" height="22" rx="6" fill="url(#oh-cup)" stroke="#7A2838" stroke-width="1"/>
+    <rect x="66" y="46" width="16" height="22" rx="6" fill="url(#oh-cup)" stroke="#7A2838" stroke-width="1"/>
+    <ellipse cx="22" cy="57" rx="5" ry="7" fill="#5A1828" opacity="0.55"/>
+    <ellipse cx="74" cy="57" rx="5" ry="7" fill="#5A1828" opacity="0.55"/>
+    <ellipse cx="20" cy="51" rx="2.5" ry="1.8" fill="#FFFFFF" opacity="0.7"/>
+    <ellipse cx="72" cy="51" rx="2.5" ry="1.8" fill="#FFFFFF" opacity="0.7"/>
+  </g>
+  <g fill="#7AB058">
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 0 -3; 0 0" dur="3.8s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+      <path d="M 38 22 L 38 14 L 46 12 L 46 20 Z" fill="#7AB058"/>
+      <ellipse cx="36" cy="22" rx="3" ry="2.2" fill="#5A8B3A"/>
+      <ellipse cx="44" cy="20" rx="3" ry="2.2" fill="#5A8B3A"/>
+    </g>
+    <g>
+      <animateTransform attributeName="transform" type="translate" values="0 0; 0 -2; 0 0" dur="4.6s" begin="0.5s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+      <path d="M 60 18 L 60 12 L 66 10 L 66 16 Z" fill="#7AB058" opacity="0.85"/>
+      <ellipse cx="58.5" cy="18" rx="2.5" ry="1.8" fill="#5A8B3A" opacity="0.85"/>
+    </g>
+  </g>
+</svg>
