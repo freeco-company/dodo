@@ -30,6 +30,28 @@ it('all seed JSON files are clean of forbidden terms', function () {
     expect($offenders)->toBe([], '違規詞請先 sanitize 再提交。Hits: ' . json_encode($offenders, JSON_UNESCAPED_UNICODE));
 });
 
+it('seed JSONs and KB seeders have no adjacent dupes of sanitized values', function () {
+    // Pandora\Shared\Compliance\LegalContentSanitizer::dedupeSanitizedTerms() guards
+    // 「體態管理體態管理」並列重複現象。本 test 防止 reggression。
+    $vals = array_unique(array_filter(array_values(\Pandora\Shared\Compliance\LegalContentSanitizer::REPLACEMENTS), fn ($v) => $v !== ''));
+    usort($vals, fn ($a, $b) => mb_strlen($b) <=> mb_strlen($a));
+    $files = array_merge(
+        glob(database_path('seed/*.json')) ?: [],
+        glob(database_path('seeders/KbOcrBatch*Seeder.php')) ?: [],
+    );
+    $offenders = [];
+    foreach ($files as $f) {
+        $c = (string) file_get_contents($f);
+        foreach ($vals as $v) {
+            $q = preg_quote($v, '/');
+            if (preg_match('/' . $q . $q . '/u', $c, $m)) {
+                $offenders[basename($f)][] = $m[0];
+            }
+        }
+    }
+    expect($offenders)->toBe([], '出現 sanitizer-output 詞並列重複，請跑 sanitizeText 修復。Hits: ' . json_encode($offenders, JSON_UNESCAPED_UNICODE));
+});
+
 it('all KB OCR seeder files are clean of forbidden terms', function () {
     $sanitizer = new LegalContentSanitizer;
     $files = glob(database_path('seeders/KbOcrBatch*Seeder.php')) ?: [];

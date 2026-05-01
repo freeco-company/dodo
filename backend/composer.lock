@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "679c2b715b1a671483bfc77757cbd91f",
+    "content-hash": "5d92c2155669f7fedc6927cd031d2c39",
     "packages": [
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -1413,16 +1413,16 @@
         },
         {
             "name": "freeco/pandora-shared",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/freeco-company/pandora-shared.git",
-                "reference": "efa982e333ee32be120a34caec9fcb944b20b20c"
+                "reference": "90795f37a9f282ac471227def030e5a02225d763"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/freeco-company/pandora-shared/zipball/efa982e333ee32be120a34caec9fcb944b20b20c",
-                "reference": "efa982e333ee32be120a34caec9fcb944b20b20c",
+                "url": "https://api.github.com/repos/freeco-company/pandora-shared/zipball/90795f37a9f282ac471227def030e5a02225d763",
+                "reference": "90795f37a9f282ac471227def030e5a02225d763",
                 "shasum": ""
             },
             "require": {
@@ -1447,10 +1447,10 @@
             ],
             "description": "Pandora 集團共用基礎設施與 domain services — ECPay, IndexNow, Discord, LINE Messaging, Google Ads, Achievement, Outfit, Serendipity. Pure PHP.",
             "support": {
-                "source": "https://github.com/freeco-company/pandora-shared/tree/v0.1.0",
+                "source": "https://github.com/freeco-company/pandora-shared/tree/v0.1.1",
                 "issues": "https://github.com/freeco-company/pandora-shared/issues"
             },
-            "time": "2026-04-30T19:10:36+00:00"
+            "time": "2026-05-01T00:56:36+00:00"
         },
         {
             "name": "fruitcake/php-cors",
