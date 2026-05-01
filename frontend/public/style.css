@@ -582,7 +582,7 @@ button { font-family: inherit; letter-spacing: 0.04em; }
 }
 /* Outfits carefully sized to NOT cover facial features on 200x200 char */
 .of-scarf      { width: 46px; bottom: 8px; left: 50%; transform: translateX(-50%); z-index: 3; }
-.of-glasses    { width: 70px; top: 38%; left: 50%; transform: translate(-50%, -50%); opacity: .92; }
+.of-glasses    { width: 64px; top: 33%; left: 50%; transform: translate(-50%, -50%); opacity: .92; }
 .of-headphones { width: 80px; top: -10px; left: 50%; transform: translateX(-50%); }
 .of-devil      { width: 48px; top: -16px; left: 50%; transform: translateX(-50%); z-index: 5; }
 .of-halo       { width: 64px; top: -22px; left: 50%; transform: translateX(-50%); z-index: 5; }
@@ -605,19 +605,20 @@ button { font-family: inherit; letter-spacing: 0.04em; }
 .of-straw-hat       { width: 88px; top: -10px; left: 50%; transform: translateX(-50%); z-index: 5; }
 .of-sakura          { width: 76px; top: -2px;  left: 50%; transform: translateX(-50%); z-index: 5; }
 
-/* FACE overlays — eyes around 42% of body for chibi PNGs */
-.of-sunglasses      { width: 64px; top: 42%; left: 50%; transform: translate(-50%, -50%); opacity: .94; z-index: 4; }
+/* FACE overlays — eyes ~32% on bear (bigger head ratio than I assumed earlier).
+   2026-05-01 v3: corrected after bear screenshot — eyes are at ~32%, NOT 42%. */
+.of-sunglasses      { width: 60px; top: 32%; left: 50%; transform: translate(-50%, -50%); opacity: .94; z-index: 4; }
 
-/* NECK overlays — chin/upper-chest area */
-.of-winter-scarf    { width: 72px; top: 60%;  left: 50%; transform: translate(-50%, -50%); z-index: 3; }
+/* NECK overlays — just above bowtie/chest, ~50% on bear */
+.of-winter-scarf    { width: 72px; top: 52%;  left: 50%; transform: translate(-50%, -50%); z-index: 3; }
 
-/* TORSO overlays — center belly area */
-.of-chef-apron       { width: 84px; top: 68%; left: 50%; transform: translate(-50%, -50%); z-index: 3; }
-.of-fp-apron-premium { width: 84px; top: 68%; left: 50%; transform: translate(-50%, -50%); z-index: 3; }
+/* TORSO overlays — chest/upper belly ~62% on bear */
+.of-chef-apron       { width: 84px; top: 62%; left: 50%; transform: translate(-50%, -50%); z-index: 3; }
+.of-fp-apron-premium { width: 84px; top: 62%; left: 50%; transform: translate(-50%, -50%); z-index: 3; }
 
 /* BACK overlays (z-index 1 → sits behind .char-body silhouette; wider than body) */
-.of-angel-wings     { width: 200px; top: 38%; left: 50%; transform: translate(-50%, -50%); z-index: 1; opacity: .9; }
-.of-starry-cape     { width: 180px; top: 62%; left: 50%; transform: translate(-50%, -50%); z-index: 1; opacity: .92; }
+.of-angel-wings     { width: 200px; top: 36%; left: 50%; transform: translate(-50%, -50%); z-index: 1; opacity: .9; }
+.of-starry-cape     { width: 180px; top: 56%; left: 50%; transform: translate(-50%, -50%); z-index: 1; opacity: .92; }
 
 /* Rarity label at bottom */
 .char-rarity {
