@@ -60,12 +60,20 @@ it('rejects /pokedex without auth', function () {
 });
 
 // ----- /api/achievements -----
-it('returns achievements with locked + unlocked split', function () {
+it('returns achievements catalog with unlocked flag', function () {
     $user = User::factory()->create();
-    $this->actingAs($user, 'sanctum')
+    $body = $this->actingAs($user, 'sanctum')
         ->getJson('/api/achievements')
         ->assertOk()
-        ->assertJsonStructure(['unlocked', 'locked']);
+        ->assertJsonStructure([
+            'achievements' => [['key', 'name', 'description', 'unlocked']],
+            'unlocked',
+            'total',
+        ])
+        ->json();
+    expect($body['total'])->toBeGreaterThan(0);
+    expect($body['unlocked'])->toBe(0);
+    expect($body['achievements'][0]['unlocked'])->toBeFalse();
 });
 it('rejects /achievements without auth', function () {
     $this->getJson('/api/achievements')->assertUnauthorized();

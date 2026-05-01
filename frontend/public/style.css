@@ -5159,7 +5159,9 @@ body.time-night .island-ground .island-grass { background: linear-gradient(180de
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .dialog-char-frame {
-  width: 220px; height: 240px;
+  /* 2026-05-01 — frame 放大讓朵朵 / 寵物 立繪有更多視覺份量
+     （原 220x240 在大螢幕顯小，user feedback「朵朵跟寵物比起來太小了」）。 */
+  width: 280px; height: 340px;
   background: transparent;
   border: none;
   box-shadow: none;
@@ -5486,7 +5488,17 @@ body.time-night .island-ground .island-grass { background: linear-gradient(180de
 /* Animal img helper (Fluent Emoji PNG/SVG) */
 .animal-img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .store-character .animal-img { padding: 4px; }
-.dialog-char-emoji .animal-img { width: 160px; height: 160px; }
+.dialog-char-emoji .animal-img { width: 220px; height: 220px; }
+/* 朵朵 NPC 用 dodo-full.png（trimmed 全身），讓圖片填滿整個 frame
+   讓朵朵跟寵物視覺份量對等 — user feedback 2026-05-01。
+   object-fit: contain + height 100% 讓全身完整呈現，不裁切。 */
+.dialog-char-emoji .animal-img.npc-animal {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
 
 /* Disclaimer footer on the Me tab */
 .me-disclaimer-footer {
@@ -6439,4 +6451,54 @@ body:has(#tab-achievements:not(.hidden)) .dodo-mentor-bubble {
   height: 100%;
   object-fit: contain;
   display: block;
+}
+
+/* 我的 tab 主打 2x2 grid (2026-05-01 重組)
+   把「食物圖鑑 / 卡牌圖鑑 / 衣櫃 / 成就徽章」4 個遊戲化收藏項目用方格呈現，
+   視覺份量大於下方紀錄/學習 list。每格 1:1 比例配大 icon + 標題 + 一行 sub。 */
+.me-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 4px 0;
+}
+.me-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  padding: 18px 12px 16px;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease;
+  min-height: 124px;
+}
+.me-tile:active { transform: scale(.97); }
+.me-tile:hover { box-shadow: 0 6px 14px rgba(160,126,96,.16); }
+.me-tile-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  line-height: 1;
+}
+.me-tile-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.me-tile-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.me-tile-sub {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
 }
