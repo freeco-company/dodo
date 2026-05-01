@@ -1,1318 +1,1318 @@
 {
-  "version": 1,
-  "meta": {
-    "note": "Store decision-tree data: user picks an intent → gets 3 curated recs with nutrition + quiz link.",
-    "authored_by": "FP team v1"
-  },
-  "stores": {
-    "seven_eleven": {
-      "intents": [
-        {
-          "key": "breakfast",
-          "emoji": "☕",
-          "label": "吃早餐",
-          "prompt_line": "綠招牌的早餐組合，蛋白至少 15g",
-          "recommendations": [
-            {
-              "title": "經典組合",
-              "items": [
-                "茶葉蛋 ×2",
-                "無糖豆漿",
-                "地瓜"
-              ],
-              "primary_item": "雙蛋豆漿地瓜早餐",
-              "calories": 360,
-              "protein_g": 24,
-              "carbs_g": 42,
-              "fat_g": 12,
-              "stars": 5,
-              "why": "雙蛋+豆漿蛋白雙達標",
-              "quiz_card_id": "fm-egg"
-            },
-            {
-              "title": "City Café 派",
-              "items": [
-                "美式咖啡",
-                "茶葉蛋",
-                "香蕉"
-              ],
-              "primary_item": "美式+茶葉蛋+香蕉",
-              "calories": 200,
-              "protein_g": 10,
-              "carbs_g": 28,
-              "fat_g": 5,
-              "stars": 4,
-              "why": "極簡早餐、低熱量",
-              "quiz_card_id": "k024"
-            },
-            {
-              "title": "素食方案",
-              "items": [
-                "無糖豆漿",
-                "御飯糰（梅子）"
-              ],
-              "primary_item": "豆漿+御飯糰",
-              "calories": 340,
-              "protein_g": 15,
-              "carbs_g": 52,
-              "fat_g": 6,
-              "stars": 3,
-              "why": "方便但碳水偏高",
-              "quiz_card_id": "fm-egg"
-            }
-          ]
-        },
-        {
-          "key": "late_night",
-          "emoji": "🌙",
-          "label": "宵夜",
-          "prompt_line": "晚上 9 點後的聰明宵夜",
-          "recommendations": [
-            {
-              "title": "最安全",
-              "items": [
-                "關東煮（白蘿蔔+豆腐）"
-              ],
-              "primary_item": "關東煮蔬菜組",
-              "calories": 130,
-              "protein_g": 10,
-              "carbs_g": 12,
-              "fat_g": 4,
-              "stars": 5,
-              "why": "湯底熱量低、暖胃不脹",
-              "quiz_card_id": "fm-oden"
-            },
-            {
-              "title": "蛋白補充",
-              "items": [
-                "無糖優酪乳",
-                "茶葉蛋"
-              ],
-              "primary_item": "優酪乳+茶葉蛋",
-              "calories": 180,
-              "protein_g": 18,
-              "carbs_g": 10,
-              "fat_g": 8,
-              "stars": 4,
-              "why": "好消化、睡前不脹氣",
-              "quiz_card_id": "px-yogurt"
-            },
-            {
-              "title": "想吃甜",
-              "items": [
-                "香蕉 ×1",
-                "美式咖啡"
-              ],
-              "primary_item": "香蕉+咖啡",
-              "calories": 100,
-              "protein_g": 1,
-              "carbs_g": 25,
-              "fat_g": 0,
-              "stars": 3,
-              "why": "注意咖啡因可能影響睡眠",
-              "quiz_card_id": "k024"
-            }
-          ]
-        }
-      ]
+    "version": 1,
+    "meta": {
+        "note": "Store decision-tree data: user picks an intent → gets 3 curated recs with nutrition + quiz link.",
+        "authored_by": "FP team v1"
     },
-    "kfc": {
-      "intents": [
-        {
-          "key": "lunch",
-          "emoji": "🍱",
-          "label": "解決午餐",
-          "prompt_line": "炸雞連鎖店的聰明選擇",
-          "recommendations": [
-            {
-              "title": "最低熱量",
-              "items": [
-                "紙包烤雞腿",
-                "涼拌蔬菜絲",
-                "無糖紅茶"
-              ],
-              "primary_item": "肯德基烤雞腿餐",
-              "calories": 350,
-              "protein_g": 30,
-              "carbs_g": 18,
-              "fat_g": 12,
-              "stars": 5,
-              "why": "蛋白足、走烤不炸",
-              "quiz_card_id": "mc-grilled"
-            },
-            {
-              "title": "想吃炸",
-              "items": [
-                "原味炸雞 1 塊",
-                "涼拌蔬菜絲"
-              ],
-              "primary_item": "原味炸雞+蔬菜絲",
-              "calories": 430,
-              "protein_g": 25,
-              "carbs_g": 14,
-              "fat_g": 26,
-              "stars": 3,
-              "why": "去皮可以再省 80 卡",
-              "quiz_card_id": "mc-fries"
-            },
-            {
-              "title": "爆卡警告",
-              "items": [
-                "咔啦雞腿堡套餐",
-                "薯條",
-                "可樂"
-              ],
-              "primary_item": "肯德基雞腿堡套餐",
-              "calories": 1100,
-              "protein_g": 32,
-              "carbs_g": 120,
-              "fat_g": 52,
-              "stars": 0,
-              "why": "超過一日熱量一半",
-              "quiz_card_id": "mc-fries"
-            }
-          ]
+    "stores": {
+        "seven_eleven": {
+            "intents": [
+                {
+                    "key": "breakfast",
+                    "emoji": "☕",
+                    "label": "吃早餐",
+                    "prompt_line": "綠招牌的早餐組合，蛋白至少 15g",
+                    "recommendations": [
+                        {
+                            "title": "經典組合",
+                            "items": [
+                                "茶葉蛋 ×2",
+                                "無糖豆漿",
+                                "地瓜"
+                            ],
+                            "primary_item": "雙蛋豆漿地瓜早餐",
+                            "calories": 360,
+                            "protein_g": 24,
+                            "carbs_g": 42,
+                            "fat_g": 12,
+                            "stars": 5,
+                            "why": "雙蛋+豆漿蛋白雙達標",
+                            "quiz_card_id": "fm-egg"
+                        },
+                        {
+                            "title": "City Café 派",
+                            "items": [
+                                "美式咖啡",
+                                "茶葉蛋",
+                                "香蕉"
+                            ],
+                            "primary_item": "美式+茶葉蛋+香蕉",
+                            "calories": 200,
+                            "protein_g": 10,
+                            "carbs_g": 28,
+                            "fat_g": 5,
+                            "stars": 4,
+                            "why": "極簡早餐、低熱量",
+                            "quiz_card_id": "k024"
+                        },
+                        {
+                            "title": "素食方案",
+                            "items": [
+                                "無糖豆漿",
+                                "御飯糰（梅子）"
+                            ],
+                            "primary_item": "豆漿+御飯糰",
+                            "calories": 340,
+                            "protein_g": 15,
+                            "carbs_g": 52,
+                            "fat_g": 6,
+                            "stars": 3,
+                            "why": "方便但碳水偏高",
+                            "quiz_card_id": "fm-egg"
+                        }
+                    ]
+                },
+                {
+                    "key": "late_night",
+                    "emoji": "🌙",
+                    "label": "宵夜",
+                    "prompt_line": "晚上 9 點後的聰明宵夜",
+                    "recommendations": [
+                        {
+                            "title": "最安全",
+                            "items": [
+                                "關東煮（白蘿蔔+豆腐）"
+                            ],
+                            "primary_item": "關東煮蔬菜組",
+                            "calories": 130,
+                            "protein_g": 10,
+                            "carbs_g": 12,
+                            "fat_g": 4,
+                            "stars": 5,
+                            "why": "湯底熱量低、暖胃不脹",
+                            "quiz_card_id": "fm-oden"
+                        },
+                        {
+                            "title": "蛋白補充",
+                            "items": [
+                                "無糖優酪乳",
+                                "茶葉蛋"
+                            ],
+                            "primary_item": "優酪乳+茶葉蛋",
+                            "calories": 180,
+                            "protein_g": 18,
+                            "carbs_g": 10,
+                            "fat_g": 8,
+                            "stars": 4,
+                            "why": "好消化、睡前不脹氣",
+                            "quiz_card_id": "px-yogurt"
+                        },
+                        {
+                            "title": "想吃甜",
+                            "items": [
+                                "香蕉 ×1",
+                                "美式咖啡"
+                            ],
+                            "primary_item": "香蕉+咖啡",
+                            "calories": 100,
+                            "protein_g": 1,
+                            "carbs_g": 25,
+                            "fat_g": 0,
+                            "stars": 3,
+                            "why": "注意咖啡因可能影響睡眠",
+                            "quiz_card_id": "k024"
+                        }
+                    ]
+                }
+            ]
         },
-        {
-          "key": "cheat_day",
-          "emoji": "🎉",
-          "label": "今天就是要吃炸",
-          "prompt_line": "放飛也要有戰略",
-          "recommendations": [
-            {
-              "title": "分享裝精選",
-              "items": [
-                "原味炸雞 2 塊",
-                "涼拌蔬菜絲"
-              ],
-              "primary_item": "兩塊原味炸雞+蔬菜",
-              "calories": 620,
-              "protein_g": 45,
-              "carbs_g": 16,
-              "fat_g": 42,
-              "stars": 3,
-              "why": "去皮去裹粉可控在 500 卡",
-              "quiz_card_id": "mc-fries"
-            },
-            {
-              "title": "甜點限定",
-              "items": [
-                "葡式蛋塔 ×1"
-              ],
-              "primary_item": "肯德基葡式蛋塔",
-              "calories": 220,
-              "protein_g": 4,
-              "carbs_g": 26,
-              "fat_g": 10,
-              "stars": 3,
-              "why": "可以但別整盒吃完",
-              "quiz_card_id": "mc-mcflurry"
-            },
-            {
-              "title": "超級放飛",
-              "items": [
-                "全家餐分享桶"
-              ],
-              "primary_item": "肯德基全家餐分享桶",
-              "calories": 2200,
-              "protein_g": 80,
-              "carbs_g": 180,
-              "fat_g": 130,
-              "stars": 0,
-              "why": "一週額度就在這一餐 😱",
-              "quiz_card_id": "mc-fries"
-            }
-          ]
-        }
-      ]
-    },
-    "starbucks": {
-      "intents": [
-        {
-          "key": "coffee",
-          "emoji": "☕",
-          "label": "點咖啡",
-          "prompt_line": "咖啡也能被糖分背刺",
-          "recommendations": [
-            {
-              "title": "零負擔",
-              "items": [
-                "美式咖啡中杯"
-              ],
-              "primary_item": "星巴克美式",
-              "calories": 10,
-              "protein_g": 0,
-              "carbs_g": 2,
-              "fat_g": 0,
-              "stars": 5,
-              "why": "10 卡而已、提神首選",
-              "quiz_card_id": "k007"
-            },
-            {
-              "title": "想喝奶",
-              "items": [
-                "低脂拿鐵中杯"
-              ],
-              "primary_item": "星巴克低脂拿鐵",
-              "calories": 130,
-              "protein_g": 10,
-              "carbs_g": 14,
-              "fat_g": 4,
-              "stars": 4,
-              "why": "低脂版 130 卡 vs 全脂 180 卡",
-              "quiz_card_id": "k003"
-            },
-            {
-              "title": "甜飲陷阱",
-              "items": [
-                "焦糖瑪奇朵 Grande"
-              ],
-              "primary_item": "星巴克焦糖瑪奇朵",
-              "calories": 320,
-              "protein_g": 10,
-              "carbs_g": 45,
-              "fat_g": 12,
-              "stars": 1,
-              "why": "等於吃了一個麵包",
-              "quiz_card_id": "k007"
-            }
-          ]
+        "kfc": {
+            "intents": [
+                {
+                    "key": "lunch",
+                    "emoji": "🍱",
+                    "label": "解決午餐",
+                    "prompt_line": "炸雞連鎖店的聰明選擇",
+                    "recommendations": [
+                        {
+                            "title": "最低熱量",
+                            "items": [
+                                "紙包烤雞腿",
+                                "涼拌蔬菜絲",
+                                "無糖紅茶"
+                            ],
+                            "primary_item": "肯德基烤雞腿餐",
+                            "calories": 350,
+                            "protein_g": 30,
+                            "carbs_g": 18,
+                            "fat_g": 12,
+                            "stars": 5,
+                            "why": "蛋白足、走烤不炸",
+                            "quiz_card_id": "mc-grilled"
+                        },
+                        {
+                            "title": "想吃炸",
+                            "items": [
+                                "原味炸雞 1 塊",
+                                "涼拌蔬菜絲"
+                            ],
+                            "primary_item": "原味炸雞+蔬菜絲",
+                            "calories": 430,
+                            "protein_g": 25,
+                            "carbs_g": 14,
+                            "fat_g": 26,
+                            "stars": 3,
+                            "why": "去皮可以再省 80 卡",
+                            "quiz_card_id": "mc-fries"
+                        },
+                        {
+                            "title": "爆卡警告",
+                            "items": [
+                                "咔啦雞腿堡套餐",
+                                "薯條",
+                                "可樂"
+                            ],
+                            "primary_item": "肯德基雞腿堡套餐",
+                            "calories": 1100,
+                            "protein_g": 32,
+                            "carbs_g": 120,
+                            "fat_g": 52,
+                            "stars": 0,
+                            "why": "超過一日熱量一半",
+                            "quiz_card_id": "mc-fries"
+                        }
+                    ]
+                },
+                {
+                    "key": "cheat_day",
+                    "emoji": "🎉",
+                    "label": "今天就是要吃炸",
+                    "prompt_line": "放飛也要有戰略",
+                    "recommendations": [
+                        {
+                            "title": "分享裝精選",
+                            "items": [
+                                "原味炸雞 2 塊",
+                                "涼拌蔬菜絲"
+                            ],
+                            "primary_item": "兩塊原味炸雞+蔬菜",
+                            "calories": 620,
+                            "protein_g": 45,
+                            "carbs_g": 16,
+                            "fat_g": 42,
+                            "stars": 3,
+                            "why": "去皮去裹粉可控在 500 卡",
+                            "quiz_card_id": "mc-fries"
+                        },
+                        {
+                            "title": "甜點限定",
+                            "items": [
+                                "葡式蛋塔 ×1"
+                            ],
+                            "primary_item": "肯德基葡式蛋塔",
+                            "calories": 220,
+                            "protein_g": 4,
+                            "carbs_g": 26,
+                            "fat_g": 10,
+                            "stars": 3,
+                            "why": "可以但別整盒吃完",
+                            "quiz_card_id": "mc-mcflurry"
+                        },
+                        {
+                            "title": "超級放飛",
+                            "items": [
+                                "全家餐分享桶"
+                            ],
+                            "primary_item": "肯德基全家餐分享桶",
+                            "calories": 2200,
+                            "protein_g": 80,
+                            "carbs_g": 180,
+                            "fat_g": 130,
+                            "stars": 0,
+                            "why": "一週額度就在這一餐 😱",
+                            "quiz_card_id": "mc-fries"
+                        }
+                    ]
+                }
+            ]
         },
-        {
-          "key": "snack",
-          "emoji": "🥐",
-          "label": "配點心",
-          "prompt_line": "櫥窗甜點怎麼挑",
-          "recommendations": [
-            {
-              "title": "輕食首選",
-              "items": [
-                "煙燻雞胸三明治"
-              ],
-              "primary_item": "星巴克雞胸三明治",
-              "calories": 280,
-              "protein_g": 20,
-              "carbs_g": 30,
-              "fat_g": 8,
-              "stars": 4,
-              "why": "蛋白高、不油",
-              "quiz_card_id": "fm-salad"
-            },
-            {
-              "title": "分食方案",
-              "items": [
-                "蔓越莓司康（切半）"
-              ],
-              "primary_item": "司康半個",
-              "calories": 180,
-              "protein_g": 3,
-              "carbs_g": 28,
-              "fat_g": 6,
-              "stars": 3,
-              "why": "整個吃熱量翻倍",
-              "quiz_card_id": "k007"
-            },
-            {
-              "title": "甜點放飛",
-              "items": [
-                "巧克力慕斯蛋糕"
-              ],
-              "primary_item": "星巴克慕斯蛋糕",
-              "calories": 420,
-              "protein_g": 6,
-              "carbs_g": 52,
-              "fat_g": 22,
-              "stars": 1,
-              "why": "一片 = 兩餐熱量",
-              "quiz_card_id": "k007"
-            }
-          ]
-        }
-      ]
-    },
-    "night_market": {
-      "intents": [
-        {
-          "key": "snack",
-          "emoji": "🏮",
-          "label": "逛夜市",
-          "prompt_line": "吃幾樣不爆？",
-          "recommendations": [
-            {
-              "title": "蛋白派",
-              "items": [
-                "滷味（雞胸肉+青菜）",
-                "綠茶"
-              ],
-              "primary_item": "夜市滷味蛋白組",
-              "calories": 280,
-              "protein_g": 28,
-              "carbs_g": 14,
-              "fat_g": 8,
-              "stars": 5,
-              "why": "夜市最安全的蛋白來源",
-              "quiz_card_id": "s015"
-            },
-            {
-              "title": "台灣魂",
-              "items": [
-                "蚵仔煎 1 份"
-              ],
-              "primary_item": "夜市蚵仔煎",
-              "calories": 480,
-              "protein_g": 14,
-              "carbs_g": 45,
-              "fat_g": 28,
-              "stars": 2,
-              "why": "油量高但經典台味",
-              "quiz_card_id": "s015"
-            },
-            {
-              "title": "炸物危機",
-              "items": [
-                "大雞排",
-                "鹽酥雞"
-              ],
-              "primary_item": "夜市雞排炸物組",
-              "calories": 900,
-              "protein_g": 35,
-              "carbs_g": 60,
-              "fat_g": 55,
-              "stars": 0,
-              "why": "炸物吸油量驚人",
-              "quiz_card_id": "s015"
-            }
-          ]
+        "starbucks": {
+            "intents": [
+                {
+                    "key": "coffee",
+                    "emoji": "☕",
+                    "label": "點咖啡",
+                    "prompt_line": "咖啡也能被糖分背刺",
+                    "recommendations": [
+                        {
+                            "title": "零負擔",
+                            "items": [
+                                "美式咖啡中杯"
+                            ],
+                            "primary_item": "星巴克美式",
+                            "calories": 10,
+                            "protein_g": 0,
+                            "carbs_g": 2,
+                            "fat_g": 0,
+                            "stars": 5,
+                            "why": "10 卡而已、提神首選",
+                            "quiz_card_id": "k007"
+                        },
+                        {
+                            "title": "想喝奶",
+                            "items": [
+                                "低脂拿鐵中杯"
+                            ],
+                            "primary_item": "星巴克低脂拿鐵",
+                            "calories": 130,
+                            "protein_g": 10,
+                            "carbs_g": 14,
+                            "fat_g": 4,
+                            "stars": 4,
+                            "why": "低脂版 130 卡 vs 全脂 180 卡",
+                            "quiz_card_id": "k003"
+                        },
+                        {
+                            "title": "甜飲陷阱",
+                            "items": [
+                                "焦糖瑪奇朵 Grande"
+                            ],
+                            "primary_item": "星巴克焦糖瑪奇朵",
+                            "calories": 320,
+                            "protein_g": 10,
+                            "carbs_g": 45,
+                            "fat_g": 12,
+                            "stars": 1,
+                            "why": "等於吃了一個麵包",
+                            "quiz_card_id": "k007"
+                        }
+                    ]
+                },
+                {
+                    "key": "snack",
+                    "emoji": "🥐",
+                    "label": "配點心",
+                    "prompt_line": "櫥窗甜點怎麼挑",
+                    "recommendations": [
+                        {
+                            "title": "輕食首選",
+                            "items": [
+                                "煙燻雞胸三明治"
+                            ],
+                            "primary_item": "星巴克雞胸三明治",
+                            "calories": 280,
+                            "protein_g": 20,
+                            "carbs_g": 30,
+                            "fat_g": 8,
+                            "stars": 4,
+                            "why": "蛋白高、不油",
+                            "quiz_card_id": "fm-salad"
+                        },
+                        {
+                            "title": "分食方案",
+                            "items": [
+                                "蔓越莓司康（切半）"
+                            ],
+                            "primary_item": "司康半個",
+                            "calories": 180,
+                            "protein_g": 3,
+                            "carbs_g": 28,
+                            "fat_g": 6,
+                            "stars": 3,
+                            "why": "整個吃熱量翻倍",
+                            "quiz_card_id": "k007"
+                        },
+                        {
+                            "title": "甜點放飛",
+                            "items": [
+                                "巧克力慕斯蛋糕"
+                            ],
+                            "primary_item": "星巴克慕斯蛋糕",
+                            "calories": 420,
+                            "protein_g": 6,
+                            "carbs_g": 52,
+                            "fat_g": 22,
+                            "stars": 1,
+                            "why": "一片 = 兩餐熱量",
+                            "quiz_card_id": "k007"
+                        }
+                    ]
+                }
+            ]
         },
-        {
-          "key": "summer",
-          "emoji": "🍧",
-          "label": "想吃冰",
-          "prompt_line": "夏天的冰品戰爭",
-          "recommendations": [
-            {
-              "title": "水果冰",
-              "items": [
-                "芒果牛奶冰（小份）"
-              ],
-              "primary_item": "夜市芒果冰小份",
-              "calories": 320,
-              "protein_g": 6,
-              "carbs_g": 58,
-              "fat_g": 8,
-              "stars": 3,
-              "why": "一大份 600+ 卡，改小份好",
-              "quiz_card_id": "k004"
-            },
-            {
-              "title": "清爽派",
-              "items": [
-                "仙草凍（無糖）"
-              ],
-              "primary_item": "無糖仙草凍",
-              "calories": 60,
-              "protein_g": 1,
-              "carbs_g": 14,
-              "fat_g": 0,
-              "stars": 5,
-              "why": "最安全的夜市甜點",
-              "quiz_card_id": "k004"
-            },
-            {
-              "title": "爆糖警告",
-              "items": [
-                "雪花冰全配（煉乳+奶油）"
-              ],
-              "primary_item": "雪花冰全配",
-              "calories": 780,
-              "protein_g": 10,
-              "carbs_g": 120,
-              "fat_g": 28,
-              "stars": 0,
-              "why": "一碗冰 = 一天糖量 × 3",
-              "quiz_card_id": "k004"
-            }
-          ]
-        }
-      ]
-    },
-    "bubble_tea": {
-      "intents": [
-        {
-          "key": "order",
-          "emoji": "🧋",
-          "label": "今天想喝一杯",
-          "prompt_line": "手搖店訂單心理學",
-          "recommendations": [
-            {
-              "title": "無罪惡感",
-              "items": [
-                "無糖綠茶大杯"
-              ],
-              "primary_item": "無糖綠茶",
-              "calories": 0,
-              "protein_g": 0,
-              "carbs_g": 0,
-              "fat_g": 0,
-              "stars": 5,
-              "why": "解癮、零熱量",
-              "quiz_card_id": "k007"
-            },
-            {
-              "title": "聰明折中",
-              "items": [
-                "半糖烏龍拿鐵（無珍珠）"
-              ],
-              "primary_item": "半糖烏龍拿鐵",
-              "calories": 180,
-              "protein_g": 4,
-              "carbs_g": 28,
-              "fat_g": 6,
-              "stars": 3,
-              "why": "比全糖珍奶少 500 卡",
-              "quiz_card_id": "k007"
-            },
-            {
-              "title": "經典放飛",
-              "items": [
-                "全糖珍奶大杯"
-              ],
-              "primary_item": "珍珠奶茶全糖大杯",
-              "calories": 650,
-              "protein_g": 8,
-              "carbs_g": 100,
-              "fat_g": 22,
-              "stars": 0,
-              "why": "液體熱量最狡猾",
-              "quiz_card_id": "k007"
-            }
-          ]
-        }
-      ]
-    },
-    "sushi_box": {
-      "intents": [
-        {
-          "key": "lunch",
-          "emoji": "🍣",
-          "label": "日式午餐",
-          "prompt_line": "壽司怎麼選不爆",
-          "recommendations": [
-            {
-              "title": "高蛋白",
-              "items": [
-                "生魚片丼（鮭魚）",
-                "味噌湯"
-              ],
-              "primary_item": "鮭魚生魚片丼",
-              "calories": 480,
-              "protein_g": 38,
-              "carbs_g": 50,
-              "fat_g": 12,
-              "stars": 5,
-              "why": "蛋白達標、油脂好",
-              "quiz_card_id": "k001"
-            },
-            {
-              "title": "精選握壽司",
-              "items": [
-                "鮭魚握壽司 ×3",
-                "茶碗蒸"
-              ],
-              "primary_item": "鮭魚握壽司+茶碗蒸",
-              "calories": 420,
-              "protein_g": 22,
-              "carbs_g": 50,
-              "fat_g": 10,
-              "stars": 4,
-              "why": "份量剛好、魚油夠",
-              "quiz_card_id": "k001"
-            },
-            {
-              "title": "炸物陷阱",
-              "items": [
-                "天婦羅套餐（蝦/地瓜/茄子）"
-              ],
-              "primary_item": "天婦羅套餐",
-              "calories": 720,
-              "protein_g": 20,
-              "carbs_g": 58,
-              "fat_g": 42,
-              "stars": 1,
-              "why": "外層吸油翻倍熱量",
-              "quiz_card_id": "mc-fries"
-            }
-          ]
-        }
-      ]
-    },
-    "healthy_box": {
-      "intents": [
-        {
-          "key": "lunch",
-          "emoji": "🥗",
-          "label": "健康午餐",
-          "prompt_line": "別被「健康」兩個字騙了",
-          "recommendations": [
-            {
-              "title": "真健康",
-              "items": [
-                "舒肥雞胸餐盒（糙米+蔬菜）"
-              ],
-              "primary_item": "舒肥雞胸便當",
-              "calories": 480,
-              "protein_g": 40,
-              "carbs_g": 45,
-              "fat_g": 10,
-              "stars": 5,
-              "why": "蛋白 40g、CP 值高",
-              "quiz_card_id": "px-chicken"
-            },
-            {
-              "title": "大沙拉派",
-              "items": [
-                "沙拉碗（雞肉+酪梨+堅果）",
-                "油醋醬半份"
-              ],
-              "primary_item": "大份雞肉沙拉碗",
-              "calories": 520,
-              "protein_g": 28,
-              "carbs_g": 24,
-              "fat_g": 32,
-              "stars": 4,
-              "why": "堅果好但熱量不低",
-              "quiz_card_id": "fm-salad"
-            },
-            {
-              "title": "偽健康",
-              "items": [
-                "號稱蔬食餐盒（大量醬汁+油炸豆皮）"
-              ],
-              "primary_item": "醬味蔬食餐盒",
-              "calories": 650,
-              "protein_g": 15,
-              "carbs_g": 80,
-              "fat_g": 28,
-              "stars": 2,
-              "why": "醬油炸豆皮吸油量驚人",
-              "quiz_card_id": "px-yogurt"
-            }
-          ]
-        }
-      ]
-    },
-    "familymart": {
-      "intents": [
-        {
-          "key": "breakfast",
-          "emoji": "☕",
-          "label": "吃早餐",
-          "prompt_line": "給你 350 卡內、蛋白質夠的早餐組合",
-          "recommendations": [
-            {
-              "title": "蛋白起手組",
-              "items": [
-                "茶葉蛋 ×1",
-                "無糖豆漿 450ml",
-                "地瓜 1 份"
-              ],
-              "primary_item": "茶葉蛋 + 無糖豆漿 + 地瓜",
-              "calories": 320,
-              "protein_g": 20,
-              "carbs_g": 42,
-              "fat_g": 8,
-              "stars": 5,
-              "why": "完整蛋白 + 慢澱粉，飽足 4 小時不餓",
-              "quiz_card_id": "fm-egg"
-            },
-            {
-              "title": "素食好選擇",
-              "items": [
-                "無糖豆漿 450ml",
-                "地瓜 1 份",
-                "香蕉 1 根"
-              ],
-              "primary_item": "無糖豆漿 + 地瓜 + 香蕉",
-              "calories": 330,
-              "protein_g": 15,
-              "carbs_g": 55,
-              "fat_g": 4,
-              "stars": 4,
-              "why": "植物蛋白、高纖、高鉀，適合素食者",
-              "quiz_card_id": "fm-soy-milk"
-            },
-            {
-              "title": "懶人快速解",
-              "items": [
-                "御飯糰（鮪魚）",
-                "茶葉蛋 ×1"
-              ],
-              "primary_item": "鮪魚御飯糰 + 茶葉蛋",
-              "calories": 290,
-              "protein_g": 16,
-              "carbs_g": 35,
-              "fat_g": 8,
-              "stars": 3,
-              "why": "最快解，但蛋白稍低、建議加豆漿",
-              "quiz_card_id": "fm-egg"
-            }
-          ]
+        "night_market": {
+            "intents": [
+                {
+                    "key": "snack",
+                    "emoji": "🏮",
+                    "label": "逛夜市",
+                    "prompt_line": "吃幾樣不爆？",
+                    "recommendations": [
+                        {
+                            "title": "蛋白派",
+                            "items": [
+                                "滷味（雞胸肉+青菜）",
+                                "綠茶"
+                            ],
+                            "primary_item": "夜市滷味蛋白組",
+                            "calories": 280,
+                            "protein_g": 28,
+                            "carbs_g": 14,
+                            "fat_g": 8,
+                            "stars": 5,
+                            "why": "夜市最安全的蛋白來源",
+                            "quiz_card_id": "s015"
+                        },
+                        {
+                            "title": "台灣魂",
+                            "items": [
+                                "蚵仔煎 1 份"
+                            ],
+                            "primary_item": "夜市蚵仔煎",
+                            "calories": 480,
+                            "protein_g": 14,
+                            "carbs_g": 45,
+                            "fat_g": 28,
+                            "stars": 2,
+                            "why": "油量高但經典台味",
+                            "quiz_card_id": "s015"
+                        },
+                        {
+                            "title": "炸物危機",
+                            "items": [
+                                "大雞排",
+                                "鹽酥雞"
+                            ],
+                            "primary_item": "夜市雞排炸物組",
+                            "calories": 900,
+                            "protein_g": 35,
+                            "carbs_g": 60,
+                            "fat_g": 55,
+                            "stars": 0,
+                            "why": "炸物吸油量驚人",
+                            "quiz_card_id": "s015"
+                        }
+                    ]
+                },
+                {
+                    "key": "summer",
+                    "emoji": "🍧",
+                    "label": "想吃冰",
+                    "prompt_line": "夏天的冰品戰爭",
+                    "recommendations": [
+                        {
+                            "title": "水果冰",
+                            "items": [
+                                "芒果牛奶冰（小份）"
+                            ],
+                            "primary_item": "夜市芒果冰小份",
+                            "calories": 320,
+                            "protein_g": 6,
+                            "carbs_g": 58,
+                            "fat_g": 8,
+                            "stars": 3,
+                            "why": "一大份 600+ 卡，改小份好",
+                            "quiz_card_id": "k004"
+                        },
+                        {
+                            "title": "清爽派",
+                            "items": [
+                                "仙草凍（無糖）"
+                            ],
+                            "primary_item": "無糖仙草凍",
+                            "calories": 60,
+                            "protein_g": 1,
+                            "carbs_g": 14,
+                            "fat_g": 0,
+                            "stars": 5,
+                            "why": "最安全的夜市甜點",
+                            "quiz_card_id": "k004"
+                        },
+                        {
+                            "title": "爆糖警告",
+                            "items": [
+                                "雪花冰全配（煉乳+奶油）"
+                            ],
+                            "primary_item": "雪花冰全配",
+                            "calories": 780,
+                            "protein_g": 10,
+                            "carbs_g": 120,
+                            "fat_g": 28,
+                            "stars": 0,
+                            "why": "一碗冰 = 一天糖量 × 3",
+                            "quiz_card_id": "k004"
+                        }
+                    ]
+                }
+            ]
         },
-        {
-          "key": "lunch",
-          "emoji": "🍱",
-          "label": "解決午餐",
-          "prompt_line": "依你目前剩餘熱量調整的午餐",
-          "recommendations": [
-            {
-              "title": "最佳組合",
-              "items": [
-                "烤雞胸生菜沙拉",
-                "茶葉蛋 ×1",
-                "無糖茶"
-              ],
-              "primary_item": "烤雞胸沙拉 + 茶葉蛋",
-              "calories": 330,
-              "protein_g": 32,
-              "carbs_g": 10,
-              "fat_g": 14,
-              "stars": 5,
-              "why": "蛋白質達標、低碳水、吃完不昏",
-              "quiz_card_id": "fm-salad"
-            },
-            {
-              "title": "熱食組合",
-              "items": [
-                "關東煮（白蘿蔔+雞腿肉+豆腐）",
-                "地瓜 1 份"
-              ],
-              "primary_item": "關東煮雞腿肉 + 地瓜",
-              "calories": 420,
-              "protein_g": 28,
-              "carbs_g": 45,
-              "fat_g": 10,
-              "stars": 4,
-              "why": "暖胃、高蛋白、纖維足",
-              "quiz_card_id": "fm-oden"
-            },
-            {
-              "title": "快速方案",
-              "items": [
-                "御飯糰（鮭魚）",
-                "無糖豆漿 450ml"
-              ],
-              "primary_item": "鮭魚御飯糰 + 無糖豆漿",
-              "calories": 380,
-              "protein_g": 18,
-              "carbs_g": 48,
-              "fat_g": 10,
-              "stars": 3,
-              "why": "省時間但蛋白略低",
-              "quiz_card_id": "fm-egg"
-            }
-          ]
+        "bubble_tea": {
+            "intents": [
+                {
+                    "key": "order",
+                    "emoji": "🧋",
+                    "label": "今天想喝一杯",
+                    "prompt_line": "手搖店訂單心理學",
+                    "recommendations": [
+                        {
+                            "title": "無罪惡感",
+                            "items": [
+                                "無糖綠茶大杯"
+                            ],
+                            "primary_item": "無糖綠茶",
+                            "calories": 0,
+                            "protein_g": 0,
+                            "carbs_g": 0,
+                            "fat_g": 0,
+                            "stars": 5,
+                            "why": "解癮、零熱量",
+                            "quiz_card_id": "k007"
+                        },
+                        {
+                            "title": "聰明折中",
+                            "items": [
+                                "半糖烏龍拿鐵（無珍珠）"
+                            ],
+                            "primary_item": "半糖烏龍拿鐵",
+                            "calories": 180,
+                            "protein_g": 4,
+                            "carbs_g": 28,
+                            "fat_g": 6,
+                            "stars": 3,
+                            "why": "比全糖珍奶少 500 卡",
+                            "quiz_card_id": "k007"
+                        },
+                        {
+                            "title": "經典放飛",
+                            "items": [
+                                "全糖珍奶大杯"
+                            ],
+                            "primary_item": "珍珠奶茶全糖大杯",
+                            "calories": 650,
+                            "protein_g": 8,
+                            "carbs_g": 100,
+                            "fat_g": 22,
+                            "stars": 0,
+                            "why": "液體熱量最狡猾",
+                            "quiz_card_id": "k007"
+                        }
+                    ]
+                }
+            ]
         },
-        {
-          "key": "late_night",
-          "emoji": "🌙",
-          "label": "想吃宵夜",
-          "prompt_line": "餓也要聰明餓 — 選這些",
-          "recommendations": [
-            {
-              "title": "最安全組合",
-              "items": [
-                "茶葉蛋 ×1",
-                "無糖豆漿 450ml"
-              ],
-              "primary_item": "茶葉蛋 + 無糖豆漿",
-              "calories": 200,
-              "protein_g": 20,
-              "carbs_g": 8,
-              "fat_g": 10,
-              "stars": 5,
-              "why": "200 卡內、高蛋白、不影響睡眠",
-              "quiz_card_id": "fm-egg"
-            },
-            {
-              "title": "想吃熱的",
-              "items": [
-                "關東煮（白蘿蔔+豆腐+海帶）"
-              ],
-              "primary_item": "關東煮蔬菜組",
-              "calories": 150,
-              "protein_g": 12,
-              "carbs_g": 10,
-              "fat_g": 6,
-              "stars": 4,
-              "why": "熱湯暖胃、熱量低",
-              "quiz_card_id": "fm-oden"
-            },
-            {
-              "title": "想要甜一點",
-              "items": [
-                "無糖優格",
-                "香蕉 1 根"
-              ],
-              "primary_item": "無糖優格 + 香蕉",
-              "calories": 230,
-              "protein_g": 8,
-              "carbs_g": 42,
-              "fat_g": 3,
-              "stars": 3,
-              "why": "解甜慾但糖分不算低，偶爾可",
-              "quiz_card_id": "fm-egg"
-            }
-          ]
+        "sushi_box": {
+            "intents": [
+                {
+                    "key": "lunch",
+                    "emoji": "🍣",
+                    "label": "日式午餐",
+                    "prompt_line": "壽司怎麼選不爆",
+                    "recommendations": [
+                        {
+                            "title": "富含蛋白",
+                            "items": [
+                                "生魚片丼（鮭魚）",
+                                "味噌湯"
+                            ],
+                            "primary_item": "鮭魚生魚片丼",
+                            "calories": 480,
+                            "protein_g": 38,
+                            "carbs_g": 50,
+                            "fat_g": 12,
+                            "stars": 5,
+                            "why": "蛋白達標、油脂好",
+                            "quiz_card_id": "k001"
+                        },
+                        {
+                            "title": "精選握壽司",
+                            "items": [
+                                "鮭魚握壽司 ×3",
+                                "茶碗蒸"
+                            ],
+                            "primary_item": "鮭魚握壽司+茶碗蒸",
+                            "calories": 420,
+                            "protein_g": 22,
+                            "carbs_g": 50,
+                            "fat_g": 10,
+                            "stars": 4,
+                            "why": "份量剛好、魚油夠",
+                            "quiz_card_id": "k001"
+                        },
+                        {
+                            "title": "炸物陷阱",
+                            "items": [
+                                "天婦羅套餐（蝦/地瓜/茄子）"
+                            ],
+                            "primary_item": "天婦羅套餐",
+                            "calories": 720,
+                            "protein_g": 20,
+                            "carbs_g": 58,
+                            "fat_g": 42,
+                            "stars": 1,
+                            "why": "外層吸油翻倍熱量",
+                            "quiz_card_id": "mc-fries"
+                        }
+                    ]
+                }
+            ]
+        },
+        "healthy_box": {
+            "intents": [
+                {
+                    "key": "lunch",
+                    "emoji": "🥗",
+                    "label": "健康午餐",
+                    "prompt_line": "別被「健康」兩個字騙了",
+                    "recommendations": [
+                        {
+                            "title": "真健康",
+                            "items": [
+                                "舒肥雞胸餐盒（糙米+蔬菜）"
+                            ],
+                            "primary_item": "舒肥雞胸便當",
+                            "calories": 480,
+                            "protein_g": 40,
+                            "carbs_g": 45,
+                            "fat_g": 10,
+                            "stars": 5,
+                            "why": "蛋白 40g、CP 值高",
+                            "quiz_card_id": "px-chicken"
+                        },
+                        {
+                            "title": "大沙拉派",
+                            "items": [
+                                "沙拉碗（雞肉+酪梨+堅果）",
+                                "油醋醬半份"
+                            ],
+                            "primary_item": "大份雞肉沙拉碗",
+                            "calories": 520,
+                            "protein_g": 28,
+                            "carbs_g": 24,
+                            "fat_g": 32,
+                            "stars": 4,
+                            "why": "堅果好但熱量不低",
+                            "quiz_card_id": "fm-salad"
+                        },
+                        {
+                            "title": "偽健康",
+                            "items": [
+                                "號稱蔬食餐盒（大量醬汁+油炸豆皮）"
+                            ],
+                            "primary_item": "醬味蔬食餐盒",
+                            "calories": 650,
+                            "protein_g": 15,
+                            "carbs_g": 80,
+                            "fat_g": 28,
+                            "stars": 2,
+                            "why": "醬油炸豆皮吸油量驚人",
+                            "quiz_card_id": "px-yogurt"
+                        }
+                    ]
+                }
+            ]
+        },
+        "familymart": {
+            "intents": [
+                {
+                    "key": "breakfast",
+                    "emoji": "☕",
+                    "label": "吃早餐",
+                    "prompt_line": "給你 350 卡內、蛋白質夠的早餐組合",
+                    "recommendations": [
+                        {
+                            "title": "蛋白起手組",
+                            "items": [
+                                "茶葉蛋 ×1",
+                                "無糖豆漿 450ml",
+                                "地瓜 1 份"
+                            ],
+                            "primary_item": "茶葉蛋 + 無糖豆漿 + 地瓜",
+                            "calories": 320,
+                            "protein_g": 20,
+                            "carbs_g": 42,
+                            "fat_g": 8,
+                            "stars": 5,
+                            "why": "完整蛋白 + 慢澱粉，飽足 4 小時不餓",
+                            "quiz_card_id": "fm-egg"
+                        },
+                        {
+                            "title": "素食好選擇",
+                            "items": [
+                                "無糖豆漿 450ml",
+                                "地瓜 1 份",
+                                "香蕉 1 根"
+                            ],
+                            "primary_item": "無糖豆漿 + 地瓜 + 香蕉",
+                            "calories": 330,
+                            "protein_g": 15,
+                            "carbs_g": 55,
+                            "fat_g": 4,
+                            "stars": 4,
+                            "why": "植物蛋白、高纖、高鉀，適合素食者",
+                            "quiz_card_id": "fm-soy-milk"
+                        },
+                        {
+                            "title": "懶人快速解",
+                            "items": [
+                                "御飯糰（鮪魚）",
+                                "茶葉蛋 ×1"
+                            ],
+                            "primary_item": "鮪魚御飯糰 + 茶葉蛋",
+                            "calories": 290,
+                            "protein_g": 16,
+                            "carbs_g": 35,
+                            "fat_g": 8,
+                            "stars": 3,
+                            "why": "最快解，但蛋白稍低、建議加豆漿",
+                            "quiz_card_id": "fm-egg"
+                        }
+                    ]
+                },
+                {
+                    "key": "lunch",
+                    "emoji": "🍱",
+                    "label": "解決午餐",
+                    "prompt_line": "依你目前剩餘熱量調整的午餐",
+                    "recommendations": [
+                        {
+                            "title": "優質組合",
+                            "items": [
+                                "烤雞胸生菜沙拉",
+                                "茶葉蛋 ×1",
+                                "無糖茶"
+                            ],
+                            "primary_item": "烤雞胸沙拉 + 茶葉蛋",
+                            "calories": 330,
+                            "protein_g": 32,
+                            "carbs_g": 10,
+                            "fat_g": 14,
+                            "stars": 5,
+                            "why": "蛋白質達標、低碳水、吃完不昏",
+                            "quiz_card_id": "fm-salad"
+                        },
+                        {
+                            "title": "熱食組合",
+                            "items": [
+                                "關東煮（白蘿蔔+雞腿肉+豆腐）",
+                                "地瓜 1 份"
+                            ],
+                            "primary_item": "關東煮雞腿肉 + 地瓜",
+                            "calories": 420,
+                            "protein_g": 28,
+                            "carbs_g": 45,
+                            "fat_g": 10,
+                            "stars": 4,
+                            "why": "暖胃、富含蛋白、纖維足",
+                            "quiz_card_id": "fm-oden"
+                        },
+                        {
+                            "title": "快速方案",
+                            "items": [
+                                "御飯糰（鮭魚）",
+                                "無糖豆漿 450ml"
+                            ],
+                            "primary_item": "鮭魚御飯糰 + 無糖豆漿",
+                            "calories": 380,
+                            "protein_g": 18,
+                            "carbs_g": 48,
+                            "fat_g": 10,
+                            "stars": 3,
+                            "why": "省時間但蛋白略低",
+                            "quiz_card_id": "fm-egg"
+                        }
+                    ]
+                },
+                {
+                    "key": "late_night",
+                    "emoji": "🌙",
+                    "label": "想吃宵夜",
+                    "prompt_line": "餓也要聰明餓 — 選這些",
+                    "recommendations": [
+                        {
+                            "title": "最安全組合",
+                            "items": [
+                                "茶葉蛋 ×1",
+                                "無糖豆漿 450ml"
+                            ],
+                            "primary_item": "茶葉蛋 + 無糖豆漿",
+                            "calories": 200,
+                            "protein_g": 20,
+                            "carbs_g": 8,
+                            "fat_g": 10,
+                            "stars": 5,
+                            "why": "200 卡內、富含蛋白、不影響睡眠",
+                            "quiz_card_id": "fm-egg"
+                        },
+                        {
+                            "title": "想吃熱的",
+                            "items": [
+                                "關東煮（白蘿蔔+豆腐+海帶）"
+                            ],
+                            "primary_item": "關東煮蔬菜組",
+                            "calories": 150,
+                            "protein_g": 12,
+                            "carbs_g": 10,
+                            "fat_g": 6,
+                            "stars": 4,
+                            "why": "熱湯暖胃、熱量低",
+                            "quiz_card_id": "fm-oden"
+                        },
+                        {
+                            "title": "想要甜一點",
+                            "items": [
+                                "無糖優格",
+                                "香蕉 1 根"
+                            ],
+                            "primary_item": "無糖優格 + 香蕉",
+                            "calories": 230,
+                            "protein_g": 8,
+                            "carbs_g": 42,
+                            "fat_g": 3,
+                            "stars": 3,
+                            "why": "解甜慾但糖分不算低，偶爾可",
+                            "quiz_card_id": "fm-egg"
+                        }
+                    ]
+                }
+            ]
+        },
+        "pxmart": {
+            "intents": [
+                {
+                    "key": "weekly_prep",
+                    "emoji": "📋",
+                    "label": "週末備餐",
+                    "prompt_line": "買這些可以煮 3-5 餐的體態管理食材",
+                    "recommendations": [
+                        {
+                            "title": "蛋白質鐵三角",
+                            "items": [
+                                "舒肥雞胸 3 包",
+                                "雞蛋 10 入",
+                                "嫩豆腐 2 盒"
+                            ],
+                            "primary_item": "週末蛋白備餐組",
+                            "calories": 0,
+                            "protein_g": 0,
+                            "carbs_g": 0,
+                            "fat_g": 0,
+                            "stars": 5,
+                            "why": "5 天早/中/晚蛋白輪替、加熱即食",
+                            "quiz_card_id": "px-chicken"
+                        },
+                        {
+                            "title": "蔬菜儲備",
+                            "items": [
+                                "青花菜 2 朵",
+                                "花椰菜 1 朵",
+                                "高麗菜 1 顆"
+                            ],
+                            "primary_item": "一週蔬菜補給",
+                            "calories": 0,
+                            "protein_g": 0,
+                            "carbs_g": 0,
+                            "fat_g": 0,
+                            "stars": 4,
+                            "why": "主食切配都能用、耐放 5-7 天",
+                            "quiz_card_id": "px-broccoli"
+                        },
+                        {
+                            "title": "早餐快備組",
+                            "items": [
+                                "無糖燕麥 1 包",
+                                "希臘優格 4 盒",
+                                "莓果綜合 1 盒"
+                            ],
+                            "primary_item": "早餐快備組",
+                            "calories": 0,
+                            "protein_g": 0,
+                            "carbs_g": 0,
+                            "fat_g": 0,
+                            "stars": 5,
+                            "why": "5 分鐘早餐，蛋白+纖維+碳水全配齊",
+                            "quiz_card_id": "px-oats"
+                        }
+                    ]
+                },
+                {
+                    "key": "dinner",
+                    "emoji": "🍲",
+                    "label": "今晚開煮",
+                    "prompt_line": "一餐能吃飽的體態管理晚餐",
+                    "recommendations": [
+                        {
+                            "title": "最低熱量版",
+                            "items": [
+                                "舒肥雞胸 1 份",
+                                "青花菜+玉米筍",
+                                "地瓜 1 個"
+                            ],
+                            "primary_item": "雞胸蔬菜地瓜餐",
+                            "calories": 420,
+                            "protein_g": 35,
+                            "carbs_g": 40,
+                            "fat_g": 6,
+                            "stars": 5,
+                            "why": "經典體態管理餐、3 分鐘組裝",
+                            "quiz_card_id": "px-chicken"
+                        },
+                        {
+                            "title": "日式豆腐丼",
+                            "items": [
+                                "嫩豆腐 1 盒",
+                                "糙米飯半碗",
+                                "毛豆 1 包"
+                            ],
+                            "primary_item": "豆腐糙米毛豆丼",
+                            "calories": 450,
+                            "protein_g": 28,
+                            "carbs_g": 52,
+                            "fat_g": 12,
+                            "stars": 4,
+                            "why": "素食選項，植物蛋白完整",
+                            "quiz_card_id": "px-tofu"
+                        },
+                        {
+                            "title": "快煮炒飯",
+                            "items": [
+                                "糙米飯",
+                                "雞蛋 2 顆",
+                                "高麗菜"
+                            ],
+                            "primary_item": "高麗菜炒飯",
+                            "calories": 520,
+                            "protein_g": 22,
+                            "carbs_g": 58,
+                            "fat_g": 14,
+                            "stars": 3,
+                            "why": "豐盛感、但碳水偏高、當運動日吃",
+                            "quiz_card_id": "px-broccoli"
+                        }
+                    ]
+                },
+                {
+                    "key": "healthy_snack",
+                    "emoji": "🥗",
+                    "label": "下午嘴饞",
+                    "prompt_line": "零食區怎麼選不爆？",
+                    "recommendations": [
+                        {
+                            "title": "無糖優格派",
+                            "items": [
+                                "希臘優格 150g",
+                                "莓果少許"
+                            ],
+                            "primary_item": "希臘優格加莓果",
+                            "calories": 120,
+                            "protein_g": 15,
+                            "carbs_g": 10,
+                            "fat_g": 2,
+                            "stars": 5,
+                            "why": "蛋白質解嘴饞神器、最低罪惡感",
+                            "quiz_card_id": "px-yogurt"
+                        },
+                        {
+                            "title": "堅果派",
+                            "items": [
+                                "綜合堅果 20g（小包）"
+                            ],
+                            "primary_item": "無糖綜合堅果",
+                            "calories": 120,
+                            "protein_g": 4,
+                            "carbs_g": 6,
+                            "fat_g": 10,
+                            "stars": 4,
+                            "why": "好脂肪 + 耐吃、但別吃整罐",
+                            "quiz_card_id": "px-yogurt"
+                        },
+                        {
+                            "title": "水果派",
+                            "items": [
+                                "芭樂 1/2 顆"
+                            ],
+                            "primary_item": "芭樂半顆",
+                            "calories": 50,
+                            "protein_g": 1,
+                            "carbs_g": 12,
+                            "fat_g": 0,
+                            "stars": 4,
+                            "why": "超低熱量、高纖、高維 C",
+                            "quiz_card_id": "px-broccoli"
+                        }
+                    ]
+                }
+            ]
+        },
+        "mcdonalds": {
+            "intents": [
+                {
+                    "key": "breakfast",
+                    "emoji": "🍳",
+                    "label": "早餐來麥當勞",
+                    "prompt_line": "麥當勞早餐哪個地雷少？",
+                    "recommendations": [
+                        {
+                            "title": "最安全組合",
+                            "items": [
+                                "滿福堡（不加起司）",
+                                "美式咖啡"
+                            ],
+                            "primary_item": "滿福堡 + 美式",
+                            "calories": 320,
+                            "protein_g": 17,
+                            "carbs_g": 28,
+                            "fat_g": 14,
+                            "stars": 5,
+                            "why": "麥當勞早餐最均衡、熱量有控制",
+                            "quiz_card_id": "mc-mcmuffin"
+                        },
+                        {
+                            "title": "簡單版",
+                            "items": [
+                                "麥香雞",
+                                "無糖紅茶"
+                            ],
+                            "primary_item": "麥香雞早餐組",
+                            "calories": 370,
+                            "protein_g": 15,
+                            "carbs_g": 35,
+                            "fat_g": 18,
+                            "stars": 3,
+                            "why": "方便但蛋白略低、可以",
+                            "quiz_card_id": "mc-mcmuffin"
+                        },
+                        {
+                            "title": "爆卡警告",
+                            "items": [
+                                "經典早餐套餐"
+                            ],
+                            "primary_item": "麥當勞經典早餐",
+                            "calories": 700,
+                            "protein_g": 22,
+                            "carbs_g": 75,
+                            "fat_g": 32,
+                            "stars": 1,
+                            "why": "一餐吃掉半日熱量、偶爾放飛再選",
+                            "quiz_card_id": "mc-mcmuffin"
+                        }
+                    ]
+                },
+                {
+                    "key": "lunch",
+                    "emoji": "🍔",
+                    "label": "麥當勞午餐",
+                    "prompt_line": "速食也能體態管理？選這些",
+                    "recommendations": [
+                        {
+                            "title": "最低熱量組",
+                            "items": [
+                                "烤雞沙拉（醬料另拿一半）",
+                                "無糖茶"
+                            ],
+                            "primary_item": "麥當勞烤雞沙拉",
+                            "calories": 230,
+                            "protein_g": 22,
+                            "carbs_g": 14,
+                            "fat_g": 8,
+                            "stars": 5,
+                            "why": "速食店的蔬菜王、蛋白達標",
+                            "quiz_card_id": "mc-grilled"
+                        },
+                        {
+                            "title": "漢堡派",
+                            "items": [
+                                "雙層牛肉堡",
+                                "無糖紅茶"
+                            ],
+                            "primary_item": "雙層牛肉堡",
+                            "calories": 430,
+                            "protein_g": 25,
+                            "carbs_g": 34,
+                            "fat_g": 22,
+                            "stars": 3,
+                            "why": "蛋白有到、去薯條就 OK",
+                            "quiz_card_id": "mc-fries"
+                        },
+                        {
+                            "title": "爆卡警告",
+                            "items": [
+                                "大麥克",
+                                "大薯",
+                                "中杯可樂"
+                            ],
+                            "primary_item": "大麥克套餐",
+                            "calories": 1200,
+                            "protein_g": 30,
+                            "carbs_g": 130,
+                            "fat_g": 55,
+                            "stars": 0,
+                            "why": "一餐吃掉整日熱量 + 53g 糖",
+                            "quiz_card_id": "mc-coke"
+                        }
+                    ]
+                },
+                {
+                    "key": "cheat_day",
+                    "emoji": "🎉",
+                    "label": "今天就是要放飛",
+                    "prompt_line": "欸，來控制一下傷害",
+                    "recommendations": [
+                        {
+                            "title": "聰明放飛",
+                            "items": [
+                                "麥克雞塊 6 塊",
+                                "小薯",
+                                "零卡可樂"
+                            ],
+                            "primary_item": "麥克雞塊小薯組",
+                            "calories": 580,
+                            "protein_g": 22,
+                            "carbs_g": 48,
+                            "fat_g": 32,
+                            "stars": 3,
+                            "why": "爽感有、但控制在一餐內",
+                            "quiz_card_id": "mc-fries"
+                        },
+                        {
+                            "title": "甜點限定",
+                            "items": [
+                                "霜淇淋 1 球"
+                            ],
+                            "primary_item": "麥當勞霜淇淋單球",
+                            "calories": 150,
+                            "protein_g": 3,
+                            "carbs_g": 22,
+                            "fat_g": 5,
+                            "stars": 4,
+                            "why": "想甜的最小傷害選擇",
+                            "quiz_card_id": "mc-mcflurry"
+                        },
+                        {
+                            "title": "全都要",
+                            "items": [
+                                "大麥克套餐 + 冰炫風"
+                            ],
+                            "primary_item": "麥當勞全放飛",
+                            "calories": 1650,
+                            "protein_g": 33,
+                            "carbs_g": 180,
+                            "fat_g": 70,
+                            "stars": 0,
+                            "why": "記得明天清淡一天 💛",
+                            "quiz_card_id": "mc-mcflurry"
+                        }
+                    ]
+                }
+            ]
+        },
+        "fp_shop": {
+            "intents": [
+                {
+                    "key": "morning_boost",
+                    "emoji": "🌅",
+                    "label": "早上輕食",
+                    "prompt_line": "纖纖家族怎麼搭？",
+                    "recommendations": [
+                        {
+                            "title": "黃金輕食組",
+                            "items": [
+                                "厚焙奶茶 1 包",
+                                "水煮蛋 1 顆"
+                            ],
+                            "primary_item": "厚焙奶茶 + 水煮蛋",
+                            "calories": 250,
+                            "protein_g": 18,
+                            "carbs_g": 22,
+                            "fat_g": 8,
+                            "stars": 5,
+                            "why": "輕食 + 完整蛋白，FP 家族早餐首選",
+                            "quiz_card_id": "fp-milk-tea"
+                        },
+                        {
+                            "title": "斷糖模式",
+                            "items": [
+                                "雪花紫纖飲 1 杯",
+                                "無糖美式"
+                            ],
+                            "primary_item": "雪花紫纖飲 + 美式",
+                            "calories": 100,
+                            "protein_g": 3,
+                            "carbs_g": 18,
+                            "fat_g": 0,
+                            "stars": 4,
+                            "why": "低熱量、風味清爽、適合輕斷食日",
+                            "quiz_card_id": "fp-fiber-drink-x"
+                        },
+                        {
+                            "title": "纖維暴擊",
+                            "items": [
+                                "纖纖飲 X（飯前）",
+                                "地瓜 1 條"
+                            ],
+                            "primary_item": "纖纖飲 X + 地瓜早餐",
+                            "calories": 200,
+                            "protein_g": 4,
+                            "carbs_g": 40,
+                            "fat_g": 1,
+                            "stars": 4,
+                            "why": "纖維+慢澱粉、上班不餓",
+                            "quiz_card_id": "fp-fiber-drink-x"
+                        }
+                    ]
+                },
+                {
+                    "key": "afternoon_replace",
+                    "emoji": "☕",
+                    "label": "下午斷糖",
+                    "prompt_line": "手搖癮發作時用這些擋",
+                    "recommendations": [
+                        {
+                            "title": "奶茶替身",
+                            "items": [
+                                "厚焙奶茶 1 包"
+                            ],
+                            "primary_item": "厚焙奶茶替珍奶",
+                            "calories": 180,
+                            "protein_g": 12,
+                            "carbs_g": 18,
+                            "fat_g": 4,
+                            "stars": 5,
+                            "why": "代替珍奶省 470 卡、蛋白質還多",
+                            "quiz_card_id": "fp-milk-tea"
+                        },
+                        {
+                            "title": "果汁替身",
+                            "items": [
+                                "雪花紫纖飲 1 杯"
+                            ],
+                            "primary_item": "雪花紫纖飲下午茶",
+                            "calories": 100,
+                            "protein_g": 2,
+                            "carbs_g": 20,
+                            "fat_g": 0,
+                            "stars": 5,
+                            "why": "蔓越莓風味、零添加糖",
+                            "quiz_card_id": "fp-fiber-drink-x"
+                        },
+                        {
+                            "title": "飽足點心",
+                            "items": [
+                                "爆纖錠（餐前）",
+                                "無糖豆漿"
+                            ],
+                            "primary_item": "爆纖錠 + 豆漿下午茶",
+                            "calories": 150,
+                            "protein_g": 13,
+                            "carbs_g": 10,
+                            "fat_g": 6,
+                            "stars": 4,
+                            "why": "大餐前用、防晚餐爆",
+                            "quiz_card_id": "fp-burst-fiber"
+                        }
+                    ]
+                }
+            ]
+        },
+        "fp_base": {
+            "intents": [
+                {
+                    "key": "franchise_coaching",
+                    "emoji": "📣",
+                    "label": "教練話術練習",
+                    "prompt_line": "加盟主顧客溝通技巧",
+                    "recommendations": [
+                        {
+                            "title": "新客試用期話術",
+                            "items": [
+                                "7 天回訪劇本",
+                                "3 大問題模板"
+                            ],
+                            "primary_item": "FP 新客試用期話術包",
+                            "calories": 0,
+                            "protein_g": 0,
+                            "carbs_g": 0,
+                            "fat_g": 0,
+                            "stars": 5,
+                            "why": "新客不感覺 = 90% 流失，這組話術救回 60%",
+                            "quiz_card_id": "fp-coach-talk"
+                        },
+                        {
+                            "title": "回購誘因設計",
+                            "items": [
+                                "月訂制度",
+                                "組合優惠",
+                                "升級路徑"
+                            ],
+                            "primary_item": "FP 回購設計模組",
+                            "calories": 0,
+                            "protein_g": 0,
+                            "carbs_g": 0,
+                            "fat_g": 0,
+                            "stars": 5,
+                            "why": "讓客戶從「買一次」變「月訂」",
+                            "quiz_card_id": "fp-coach-talk"
+                        },
+                        {
+                            "title": "加盟認證測驗",
+                            "items": [
+                                "產品知識 20 題"
+                            ],
+                            "primary_item": "FP 加盟認證測驗",
+                            "calories": 0,
+                            "protein_g": 0,
+                            "carbs_g": 0,
+                            "fat_g": 0,
+                            "stars": 5,
+                            "why": "沒過這關不能接客戶",
+                            "quiz_card_id": "fp-cert-exam"
+                        }
+                    ]
+                },
+                {
+                    "key": "advanced_combo",
+                    "emoji": "🎓",
+                    "label": "進階產品搭配",
+                    "prompt_line": "客戶情境推薦組合",
+                    "recommendations": [
+                        {
+                            "title": "早午晚黃金組",
+                            "items": [
+                                "早：厚焙奶茶",
+                                "午：纖纖飲X",
+                                "晚：水光錠"
+                            ],
+                            "primary_item": "FP 全日搭配方案",
+                            "calories": 0,
+                            "protein_g": 0,
+                            "carbs_g": 0,
+                            "fat_g": 0,
+                            "stars": 5,
+                            "why": "一日三時段代言產品、複購優質方案",
+                            "quiz_card_id": "fp-combo-morning"
+                        },
+                        {
+                            "title": "體態管理衝刺組",
+                            "items": [
+                                "纖纖飲X（餐前）",
+                                "爆纖錠（大餐前）"
+                            ],
+                            "primary_item": "FP 體態管理衝刺組",
+                            "calories": 0,
+                            "protein_g": 0,
+                            "carbs_g": 0,
+                            "fat_g": 0,
+                            "stars": 5,
+                            "why": "給想 30 天見效的客戶",
+                            "quiz_card_id": "fp-combo-afternoon"
+                        },
+                        {
+                            "title": "夜間修復組",
+                            "items": [
+                                "水光錠",
+                                "植萃纖酵宿"
+                            ],
+                            "primary_item": "FP 夜間修復組",
+                            "calories": 0,
+                            "protein_g": 0,
+                            "carbs_g": 0,
+                            "fat_g": 0,
+                            "stars": 5,
+                            "why": "客戶反饋『睡著變漂亮』就是這組",
+                            "quiz_card_id": "fp-combo-night"
+                        }
+                    ]
+                }
+            ]
         }
-      ]
-    },
-    "pxmart": {
-      "intents": [
-        {
-          "key": "weekly_prep",
-          "emoji": "📋",
-          "label": "週末備餐",
-          "prompt_line": "買這些可以煮 3-5 餐的減脂食材",
-          "recommendations": [
-            {
-              "title": "蛋白質鐵三角",
-              "items": [
-                "舒肥雞胸 3 包",
-                "雞蛋 10 入",
-                "嫩豆腐 2 盒"
-              ],
-              "primary_item": "週末蛋白備餐組",
-              "calories": 0,
-              "protein_g": 0,
-              "carbs_g": 0,
-              "fat_g": 0,
-              "stars": 5,
-              "why": "5 天早/中/晚蛋白輪替、加熱即食",
-              "quiz_card_id": "px-chicken"
-            },
-            {
-              "title": "蔬菜儲備",
-              "items": [
-                "青花菜 2 朵",
-                "花椰菜 1 朵",
-                "高麗菜 1 顆"
-              ],
-              "primary_item": "一週蔬菜補給",
-              "calories": 0,
-              "protein_g": 0,
-              "carbs_g": 0,
-              "fat_g": 0,
-              "stars": 4,
-              "why": "主食切配都能用、耐放 5-7 天",
-              "quiz_card_id": "px-broccoli"
-            },
-            {
-              "title": "早餐快備組",
-              "items": [
-                "無糖燕麥 1 包",
-                "希臘優格 4 盒",
-                "莓果綜合 1 盒"
-              ],
-              "primary_item": "早餐快備組",
-              "calories": 0,
-              "protein_g": 0,
-              "carbs_g": 0,
-              "fat_g": 0,
-              "stars": 5,
-              "why": "5 分鐘早餐，蛋白+纖維+碳水全配齊",
-              "quiz_card_id": "px-oats"
-            }
-          ]
-        },
-        {
-          "key": "dinner",
-          "emoji": "🍲",
-          "label": "今晚開煮",
-          "prompt_line": "一餐能吃飽的減脂晚餐",
-          "recommendations": [
-            {
-              "title": "最低熱量版",
-              "items": [
-                "舒肥雞胸 1 份",
-                "青花菜+玉米筍",
-                "地瓜 1 個"
-              ],
-              "primary_item": "雞胸蔬菜地瓜餐",
-              "calories": 420,
-              "protein_g": 35,
-              "carbs_g": 40,
-              "fat_g": 6,
-              "stars": 5,
-              "why": "經典減脂餐、3 分鐘組裝",
-              "quiz_card_id": "px-chicken"
-            },
-            {
-              "title": "日式豆腐丼",
-              "items": [
-                "嫩豆腐 1 盒",
-                "糙米飯半碗",
-                "毛豆 1 包"
-              ],
-              "primary_item": "豆腐糙米毛豆丼",
-              "calories": 450,
-              "protein_g": 28,
-              "carbs_g": 52,
-              "fat_g": 12,
-              "stars": 4,
-              "why": "素食選項，植物蛋白完整",
-              "quiz_card_id": "px-tofu"
-            },
-            {
-              "title": "快煮炒飯",
-              "items": [
-                "糙米飯",
-                "雞蛋 2 顆",
-                "高麗菜"
-              ],
-              "primary_item": "高麗菜炒飯",
-              "calories": 520,
-              "protein_g": 22,
-              "carbs_g": 58,
-              "fat_g": 14,
-              "stars": 3,
-              "why": "豐盛感、但碳水偏高、當運動日吃",
-              "quiz_card_id": "px-broccoli"
-            }
-          ]
-        },
-        {
-          "key": "healthy_snack",
-          "emoji": "🥗",
-          "label": "下午嘴饞",
-          "prompt_line": "零食區怎麼選不爆？",
-          "recommendations": [
-            {
-              "title": "無糖優格派",
-              "items": [
-                "希臘優格 150g",
-                "莓果少許"
-              ],
-              "primary_item": "希臘優格加莓果",
-              "calories": 120,
-              "protein_g": 15,
-              "carbs_g": 10,
-              "fat_g": 2,
-              "stars": 5,
-              "why": "蛋白質解嘴饞神器、最低罪惡感",
-              "quiz_card_id": "px-yogurt"
-            },
-            {
-              "title": "堅果派",
-              "items": [
-                "綜合堅果 20g（小包）"
-              ],
-              "primary_item": "無糖綜合堅果",
-              "calories": 120,
-              "protein_g": 4,
-              "carbs_g": 6,
-              "fat_g": 10,
-              "stars": 4,
-              "why": "好脂肪 + 耐吃、但別吃整罐",
-              "quiz_card_id": "px-yogurt"
-            },
-            {
-              "title": "水果派",
-              "items": [
-                "芭樂 1/2 顆"
-              ],
-              "primary_item": "芭樂半顆",
-              "calories": 50,
-              "protein_g": 1,
-              "carbs_g": 12,
-              "fat_g": 0,
-              "stars": 4,
-              "why": "超低熱量、高纖、高維 C",
-              "quiz_card_id": "px-broccoli"
-            }
-          ]
-        }
-      ]
-    },
-    "mcdonalds": {
-      "intents": [
-        {
-          "key": "breakfast",
-          "emoji": "🍳",
-          "label": "早餐來麥當勞",
-          "prompt_line": "麥當勞早餐哪個地雷少？",
-          "recommendations": [
-            {
-              "title": "最安全組合",
-              "items": [
-                "滿福堡（不加起司）",
-                "美式咖啡"
-              ],
-              "primary_item": "滿福堡 + 美式",
-              "calories": 320,
-              "protein_g": 17,
-              "carbs_g": 28,
-              "fat_g": 14,
-              "stars": 5,
-              "why": "麥當勞早餐最均衡、熱量有控制",
-              "quiz_card_id": "mc-mcmuffin"
-            },
-            {
-              "title": "簡單版",
-              "items": [
-                "麥香雞",
-                "無糖紅茶"
-              ],
-              "primary_item": "麥香雞早餐組",
-              "calories": 370,
-              "protein_g": 15,
-              "carbs_g": 35,
-              "fat_g": 18,
-              "stars": 3,
-              "why": "方便但蛋白略低、可以",
-              "quiz_card_id": "mc-mcmuffin"
-            },
-            {
-              "title": "爆卡警告",
-              "items": [
-                "經典早餐套餐"
-              ],
-              "primary_item": "麥當勞經典早餐",
-              "calories": 700,
-              "protein_g": 22,
-              "carbs_g": 75,
-              "fat_g": 32,
-              "stars": 1,
-              "why": "一餐吃掉半日熱量、偶爾放飛再選",
-              "quiz_card_id": "mc-mcmuffin"
-            }
-          ]
-        },
-        {
-          "key": "lunch",
-          "emoji": "🍔",
-          "label": "麥當勞午餐",
-          "prompt_line": "速食也能減脂？選這些",
-          "recommendations": [
-            {
-              "title": "最低熱量組",
-              "items": [
-                "烤雞沙拉（醬料另拿一半）",
-                "無糖茶"
-              ],
-              "primary_item": "麥當勞烤雞沙拉",
-              "calories": 230,
-              "protein_g": 22,
-              "carbs_g": 14,
-              "fat_g": 8,
-              "stars": 5,
-              "why": "速食店的蔬菜王、蛋白達標",
-              "quiz_card_id": "mc-grilled"
-            },
-            {
-              "title": "漢堡派",
-              "items": [
-                "雙層牛肉堡",
-                "無糖紅茶"
-              ],
-              "primary_item": "雙層牛肉堡",
-              "calories": 430,
-              "protein_g": 25,
-              "carbs_g": 34,
-              "fat_g": 22,
-              "stars": 3,
-              "why": "蛋白有到、去薯條就 OK",
-              "quiz_card_id": "mc-fries"
-            },
-            {
-              "title": "爆卡警告",
-              "items": [
-                "大麥克",
-                "大薯",
-                "中杯可樂"
-              ],
-              "primary_item": "大麥克套餐",
-              "calories": 1200,
-              "protein_g": 30,
-              "carbs_g": 130,
-              "fat_g": 55,
-              "stars": 0,
-              "why": "一餐吃掉整日熱量 + 53g 糖",
-              "quiz_card_id": "mc-coke"
-            }
-          ]
-        },
-        {
-          "key": "cheat_day",
-          "emoji": "🎉",
-          "label": "今天就是要放飛",
-          "prompt_line": "欸，來控制一下傷害",
-          "recommendations": [
-            {
-              "title": "聰明放飛",
-              "items": [
-                "麥克雞塊 6 塊",
-                "小薯",
-                "零卡可樂"
-              ],
-              "primary_item": "麥克雞塊小薯組",
-              "calories": 580,
-              "protein_g": 22,
-              "carbs_g": 48,
-              "fat_g": 32,
-              "stars": 3,
-              "why": "爽感有、但控制在一餐內",
-              "quiz_card_id": "mc-fries"
-            },
-            {
-              "title": "甜點限定",
-              "items": [
-                "霜淇淋 1 球"
-              ],
-              "primary_item": "麥當勞霜淇淋單球",
-              "calories": 150,
-              "protein_g": 3,
-              "carbs_g": 22,
-              "fat_g": 5,
-              "stars": 4,
-              "why": "想甜的最小傷害選擇",
-              "quiz_card_id": "mc-mcflurry"
-            },
-            {
-              "title": "全都要",
-              "items": [
-                "大麥克套餐 + 冰炫風"
-              ],
-              "primary_item": "麥當勞全放飛",
-              "calories": 1650,
-              "protein_g": 33,
-              "carbs_g": 180,
-              "fat_g": 70,
-              "stars": 0,
-              "why": "記得明天清淡一天 💛",
-              "quiz_card_id": "mc-mcflurry"
-            }
-          ]
-        }
-      ]
-    },
-    "fp_shop": {
-      "intents": [
-        {
-          "key": "morning_boost",
-          "emoji": "🌅",
-          "label": "早上代餐",
-          "prompt_line": "纖纖家族怎麼搭？",
-          "recommendations": [
-            {
-              "title": "黃金代餐組",
-              "items": [
-                "厚焙奶茶 1 包",
-                "水煮蛋 1 顆"
-              ],
-              "primary_item": "厚焙奶茶 + 水煮蛋",
-              "calories": 250,
-              "protein_g": 18,
-              "carbs_g": 22,
-              "fat_g": 8,
-              "stars": 5,
-              "why": "代餐 + 完整蛋白，FP 家族早餐首選",
-              "quiz_card_id": "fp-milk-tea"
-            },
-            {
-              "title": "斷糖模式",
-              "items": [
-                "雪花紫纖飲 1 杯",
-                "無糖美式"
-              ],
-              "primary_item": "雪花紫纖飲 + 美式",
-              "calories": 100,
-              "protein_g": 3,
-              "carbs_g": 18,
-              "fat_g": 0,
-              "stars": 4,
-              "why": "低熱量、風味清爽、適合輕斷食日",
-              "quiz_card_id": "fp-fiber-drink-x"
-            },
-            {
-              "title": "纖維暴擊",
-              "items": [
-                "纖纖飲 X（飯前）",
-                "地瓜 1 條"
-              ],
-              "primary_item": "纖纖飲 X + 地瓜早餐",
-              "calories": 200,
-              "protein_g": 4,
-              "carbs_g": 40,
-              "fat_g": 1,
-              "stars": 4,
-              "why": "纖維+慢澱粉、上班不餓",
-              "quiz_card_id": "fp-fiber-drink-x"
-            }
-          ]
-        },
-        {
-          "key": "afternoon_replace",
-          "emoji": "☕",
-          "label": "下午斷糖",
-          "prompt_line": "手搖癮發作時用這些擋",
-          "recommendations": [
-            {
-              "title": "奶茶替身",
-              "items": [
-                "厚焙奶茶 1 包"
-              ],
-              "primary_item": "厚焙奶茶替珍奶",
-              "calories": 180,
-              "protein_g": 12,
-              "carbs_g": 18,
-              "fat_g": 4,
-              "stars": 5,
-              "why": "代替珍奶省 470 卡、蛋白質還多",
-              "quiz_card_id": "fp-milk-tea"
-            },
-            {
-              "title": "果汁替身",
-              "items": [
-                "雪花紫纖飲 1 杯"
-              ],
-              "primary_item": "雪花紫纖飲下午茶",
-              "calories": 100,
-              "protein_g": 2,
-              "carbs_g": 20,
-              "fat_g": 0,
-              "stars": 5,
-              "why": "蔓越莓風味、零添加糖",
-              "quiz_card_id": "fp-fiber-drink-x"
-            },
-            {
-              "title": "飽足點心",
-              "items": [
-                "爆纖錠（餐前）",
-                "無糖豆漿"
-              ],
-              "primary_item": "爆纖錠 + 豆漿下午茶",
-              "calories": 150,
-              "protein_g": 13,
-              "carbs_g": 10,
-              "fat_g": 6,
-              "stars": 4,
-              "why": "大餐前用、防晚餐爆",
-              "quiz_card_id": "fp-burst-fiber"
-            }
-          ]
-        }
-      ]
-    },
-    "fp_base": {
-      "intents": [
-        {
-          "key": "franchise_coaching",
-          "emoji": "📣",
-          "label": "教練話術練習",
-          "prompt_line": "加盟主顧客溝通技巧",
-          "recommendations": [
-            {
-              "title": "新客試用期話術",
-              "items": [
-                "7 天回訪劇本",
-                "3 大問題模板"
-              ],
-              "primary_item": "FP 新客試用期話術包",
-              "calories": 0,
-              "protein_g": 0,
-              "carbs_g": 0,
-              "fat_g": 0,
-              "stars": 5,
-              "why": "新客不感覺 = 90% 流失，這組話術救回 60%",
-              "quiz_card_id": "fp-coach-talk"
-            },
-            {
-              "title": "回購誘因設計",
-              "items": [
-                "月訂制度",
-                "組合優惠",
-                "升級路徑"
-              ],
-              "primary_item": "FP 回購設計模組",
-              "calories": 0,
-              "protein_g": 0,
-              "carbs_g": 0,
-              "fat_g": 0,
-              "stars": 5,
-              "why": "讓客戶從「買一次」變「月訂」",
-              "quiz_card_id": "fp-coach-talk"
-            },
-            {
-              "title": "加盟認證測驗",
-              "items": [
-                "產品知識 20 題"
-              ],
-              "primary_item": "FP 加盟認證測驗",
-              "calories": 0,
-              "protein_g": 0,
-              "carbs_g": 0,
-              "fat_g": 0,
-              "stars": 5,
-              "why": "沒過這關不能接客戶",
-              "quiz_card_id": "fp-cert-exam"
-            }
-          ]
-        },
-        {
-          "key": "advanced_combo",
-          "emoji": "🎓",
-          "label": "進階產品搭配",
-          "prompt_line": "客戶情境推薦組合",
-          "recommendations": [
-            {
-              "title": "早午晚黃金組",
-              "items": [
-                "早：厚焙奶茶",
-                "午：纖纖飲X",
-                "晚：水光錠"
-              ],
-              "primary_item": "FP 全日搭配方案",
-              "calories": 0,
-              "protein_g": 0,
-              "carbs_g": 0,
-              "fat_g": 0,
-              "stars": 5,
-              "why": "一日三時段代言產品、複購最強方案",
-              "quiz_card_id": "fp-combo-morning"
-            },
-            {
-              "title": "減脂衝刺組",
-              "items": [
-                "纖纖飲X（餐前）",
-                "爆纖錠（大餐前）"
-              ],
-              "primary_item": "FP 減脂衝刺組",
-              "calories": 0,
-              "protein_g": 0,
-              "carbs_g": 0,
-              "fat_g": 0,
-              "stars": 5,
-              "why": "給想 30 天見效的客戶",
-              "quiz_card_id": "fp-combo-afternoon"
-            },
-            {
-              "title": "夜間修復組",
-              "items": [
-                "水光錠",
-                "植萃纖酵宿"
-              ],
-              "primary_item": "FP 夜間修復組",
-              "calories": 0,
-              "protein_g": 0,
-              "carbs_g": 0,
-              "fat_g": 0,
-              "stars": 5,
-              "why": "客戶反饋『睡著變漂亮』就是這組",
-              "quiz_card_id": "fp-combo-night"
-            }
-          ]
-        }
-      ]
     }
-  }
 }

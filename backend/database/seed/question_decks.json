@@ -1,831 +1,1900 @@
 {
-  "version": 2,
-  "meta": {
-    "note": "v2: 40 base + 2 events + 15 island public + 5 retail FP + 5 franchise FP = 67 cards",
-    "themes": ["basics", "weightloss", "exercise", "mindset", "social", "emotion", "temptation", "store", "fp_recipe"]
-  },
-  "cards": [
-    {
-      "id": "k001",
-      "type": "knowledge",
-      "category": "basics",
-      "rarity": "common",
-      "emoji": "🍚",
-      "question": "一碗普通白飯（約 200g）大概多少卡？",
-      "hint": "想想一個拳頭大小的澱粉",
-      "choices": [
-        {"text": "約 130 卡", "correct": false, "feedback": "這大概只有半碗喔～"},
-        {"text": "約 280 卡", "correct": true, "feedback": "答對！記住這個數字很實用 ✨"},
-        {"text": "約 450 卡", "correct": false, "feedback": "這已經是滷肉飯等級了～"}
-      ],
-      "explain": "白飯的熱量密度大約 1.4 卡/克，減脂期建議一餐控制在半碗到一碗，搭配蛋白質與蔬菜更有飽足感。"
+    "version": 2,
+    "meta": {
+        "note": "v2: 40 base + 2 events + 15 island public + 5 retail FP + 5 franchise FP = 67 cards",
+        "themes": [
+            "basics",
+            "weightloss",
+            "exercise",
+            "mindset",
+            "social",
+            "emotion",
+            "temptation",
+            "store",
+            "fp_recipe"
+        ]
     },
-    {
-      "id": "k002",
-      "type": "knowledge",
-      "category": "basics",
-      "rarity": "common",
-      "emoji": "🥚",
-      "question": "一顆中型雞蛋含多少蛋白質？",
-      "choices": [
-        {"text": "約 3g", "correct": false, "feedback": "這比較接近一片起司～"},
-        {"text": "約 7g", "correct": true, "feedback": "正確！雞蛋是最 CP 值的蛋白質之一 🥚"},
-        {"text": "約 15g", "correct": false, "feedback": "那得吃兩顆才有～"}
-      ],
-      "explain": "一顆蛋約 70 卡、7g 蛋白質，且含有完整必需胺基酸，是減脂期的好朋友。一天 2-3 顆無需擔心膽固醇。"
-    },
-    {
-      "id": "k003",
-      "type": "knowledge",
-      "category": "basics",
-      "rarity": "common",
-      "emoji": "🥛",
-      "question": "無糖豆漿 vs 低脂牛奶（各 240ml），誰的蛋白質比較多？",
-      "choices": [
-        {"text": "豆漿明顯較多", "correct": false, "feedback": "差不多，但其實牛奶稍微多一點～"},
-        {"text": "牛奶稍微多一點", "correct": true, "feedback": "沒錯！牛奶約 8g、豆漿約 7g"},
-        {"text": "完全一樣", "correct": false, "feedback": "其實有小差距喔"}
-      ],
-      "explain": "牛奶 240ml 約 8g 蛋白質，無糖豆漿 240ml 約 7g。兩者都是優質蛋白，差別在於牛奶含鈣較多、豆漿則含植物性雌激素與較低飽和脂肪。"
-    },
-    {
-      "id": "k004",
-      "type": "knowledge",
-      "category": "basics",
-      "rarity": "common",
-      "emoji": "🍌",
-      "question": "以下哪個水果的糖分（每 100g）最高？",
-      "choices": [
-        {"text": "蘋果", "correct": false, "feedback": "蘋果約 10g，不是最高喔"},
-        {"text": "香蕉", "correct": true, "feedback": "香蕉約 12-15g，水果中的高糖選手 🍌"},
-        {"text": "芭樂", "correct": false, "feedback": "芭樂只有約 5g，超低！"}
-      ],
-      "explain": "香蕉（12-15g）> 蘋果（10g）> 芭樂（5g）。水果都不是壞東西，但減脂期建議一天 2 份、優先選糖分低的如芭樂、莓果、奇異果。"
-    },
-    {
-      "id": "k005",
-      "type": "knowledge",
-      "category": "basics",
-      "rarity": "common",
-      "emoji": "🧈",
-      "question": "下列哪個是飽和脂肪最多的？",
-      "choices": [
-        {"text": "橄欖油", "correct": false, "feedback": "橄欖油以單元不飽和脂肪為主～"},
-        {"text": "奶油", "correct": true, "feedback": "答對！奶油超過 60% 是飽和脂肪"},
-        {"text": "酪梨", "correct": false, "feedback": "酪梨是好油脂代表 🥑"}
-      ],
-      "explain": "奶油 > 椰子油 > 豬油 > 牛油，都是高飽和脂肪。建議烹調以橄欖油、苦茶油、酪梨油為主，每週動物性飽和脂肪攝取不過度即可。"
-    },
-    {
-      "id": "k006",
-      "type": "knowledge",
-      "category": "basics",
-      "rarity": "rare",
-      "emoji": "🍠",
-      "question": "想補膳食纖維，以下哪個最給力（同重量 150g）？",
-      "choices": [
-        {"text": "白吐司", "correct": false, "feedback": "白吐司只有約 2g，很少喔"},
-        {"text": "白飯", "correct": false, "feedback": "白飯只有約 0.4g，幾乎沒有"},
-        {"text": "地瓜", "correct": true, "feedback": "正確！地瓜 150g 約 4-5g 纖維 🍠"}
-      ],
-      "explain": "同樣是澱粉，地瓜的纖維量是白飯的 10 倍以上，升糖指數也較低。早餐用地瓜替代白麵包，對腸胃和飽足感都有感。"
-    },
-    {
-      "id": "k007",
-      "type": "knowledge",
-      "category": "basics",
-      "rarity": "rare",
-      "emoji": "🧋",
-      "question": "一杯 700cc 全糖珍珠奶茶大約多少卡？",
-      "choices": [
-        {"text": "約 350 卡", "correct": false, "feedback": "樂觀了～其實不止"},
-        {"text": "約 650 卡", "correct": true, "feedback": "答對！約等於一個便當 😵"},
-        {"text": "約 900 卡", "correct": false, "feedback": "接近但沒這麼誇張，但也不遠了"}
-      ],
-      "explain": "珍珠奶茶 700cc 全糖 ≈ 650 卡，其中糖約 62g、珍珠本身也是澱粉。改成無糖 + 少珍珠可省下 300-400 卡，一週省 3 杯 = 約半公斤脂肪。"
-    },
-    {
-      "id": "k008",
-      "type": "knowledge",
-      "category": "basics",
-      "rarity": "common",
-      "emoji": "🍱",
-      "question": "一份雞腿便當大約多少卡？",
-      "choices": [
-        {"text": "約 500 卡", "correct": false, "feedback": "低估了～飯加炸雞不只這樣"},
-        {"text": "約 850 卡", "correct": true, "feedback": "正確！約等於日需熱量一半 🍗"},
-        {"text": "約 1300 卡", "correct": false, "feedback": "太多了，除非超大份"}
-      ],
-      "explain": "雞腿便當約 800-900 卡（炸雞腿 450+白飯 280+配菜 150）。若要減脂，可以換烤雞腿飯（省 150 卡）或只吃一半飯。"
-    },
-    {
-      "id": "k009",
-      "type": "knowledge",
-      "category": "weightloss",
-      "rarity": "common",
-      "emoji": "⚖️",
-      "question": "健康減脂速度建議是？",
-      "choices": [
-        {"text": "每週 0.5-1 公斤", "correct": true, "feedback": "正確！這是永續的節奏 👏"},
-        {"text": "每週 2-3 公斤", "correct": false, "feedback": "太快了，大多是水和肌肉"},
-        {"text": "不重要只要瘦就好", "correct": false, "feedback": "太快會反彈、掉肌肉"}
-      ],
-      "explain": "一週 0.5-1kg ≈ 每日熱量赤字 500-1000 卡。掉太快的通常是水分與肌肉，復胖機率高。慢慢來反而比較快。"
-    },
-    {
-      "id": "k010",
-      "type": "knowledge",
-      "category": "weightloss",
-      "rarity": "rare",
-      "emoji": "🔥",
-      "question": "要減掉 1 公斤純脂肪，需要大約多少熱量赤字？",
-      "choices": [
-        {"text": "約 3000 卡", "correct": false, "feedback": "這是 1 斤左右，不是 1 公斤"},
-        {"text": "約 7700 卡", "correct": true, "feedback": "答對！記這個數字很有用"},
-        {"text": "約 15000 卡", "correct": false, "feedback": "這是 2 公斤的量了"}
-      ],
-      "explain": "1kg 脂肪 ≈ 7700 卡。若每日赤字 500 卡（少吃+多動），約 15 天減一公斤，這就是健康速度的由來。"
-    },
-    {
-      "id": "k011",
-      "type": "knowledge",
-      "category": "weightloss",
-      "rarity": "common",
-      "emoji": "🌙",
-      "question": "不吃晚餐是減脂最快的方法？",
-      "choices": [
-        {"text": "對，完全不吃最快", "correct": false, "feedback": "短期有效，但容易反撲"},
-        {"text": "錯，容易暴食、代謝降", "correct": true, "feedback": "沒錯！減脂是總量遊戲"},
-        {"text": "只要早餐吃很多就可以", "correct": false, "feedback": "早餐吃多但晚餐斷食不平衡"}
-      ],
-      "explain": "斷晚餐短期體重會掉（主要水分），但容易造成夜間暴食、代謝適應、肌肉流失。關鍵是「一天總熱量」，晚餐可以吃少或吃輕，但不建議完全不吃。"
-    },
-    {
-      "id": "k012",
-      "type": "knowledge",
-      "category": "weightloss",
-      "rarity": "common",
-      "emoji": "🍎",
-      "question": "只吃水果減肥，最主要的風險是？",
-      "choices": [
-        {"text": "糖分太低沒力氣", "correct": false, "feedback": "其實水果糖分不低喔"},
-        {"text": "蛋白質不足、掉肌肉", "correct": true, "feedback": "答對！這是最致命的"},
-        {"text": "完全沒風險啊", "correct": false, "feedback": "有很多風險～"}
-      ],
-      "explain": "水果幾乎沒蛋白質，缺乏蛋白質會讓身體「燒肌肉換能量」，基礎代謝下降，一恢復正常飲食就反彈。減脂期每公斤體重至少 1.2g 蛋白質。"
-    },
-    {
-      "id": "k013",
-      "type": "knowledge",
-      "category": "weightloss",
-      "rarity": "rare",
-      "emoji": "🧊",
-      "question": "喝冰水可以「燃燒脂肪」嗎？",
-      "choices": [
-        {"text": "效果顯著", "correct": false, "feedback": "流傳很廣但不成立"},
-        {"text": "幾乎可以忽略", "correct": true, "feedback": "正確！連 10 卡都不到"},
-        {"text": "反而會變胖", "correct": false, "feedback": "也不會啦 😅"}
-      ],
-      "explain": "500ml 冰水加熱到體溫，約消耗 17 卡，一天喝 2L 冰水多燒 70 卡。對減脂幾乎沒差，但多喝水對代謝與飽足感仍有幫助。"
-    },
-    {
-      "id": "k014",
-      "type": "knowledge",
-      "category": "weightloss",
-      "rarity": "common",
-      "emoji": "📊",
-      "question": "體重在一天之內可以波動多少？",
-      "choices": [
-        {"text": "頂多 100-300g", "correct": false, "feedback": "低估了～人體是動態的"},
-        {"text": "1-2 公斤很正常", "correct": true, "feedback": "答對！所以別被單次數字嚇到"},
-        {"text": "超過 5 公斤", "correct": false, "feedback": "這通常是儀器有問題"}
-      ],
-      "explain": "一天體重波動 1-2kg 是常態（食物、水、糞便、肝糖）。建議早上空腹、同一時間量、看一週平均值，而不是單日數字。"
-    },
-    {
-      "id": "k015",
-      "type": "knowledge",
-      "category": "exercise",
-      "rarity": "common",
-      "emoji": "💪",
-      "question": "減脂期該做重訓還是只做有氧？",
-      "choices": [
-        {"text": "只做有氧最快", "correct": false, "feedback": "快是快，但會掉肌肉"},
-        {"text": "重訓為主，有氧輔助", "correct": true, "feedback": "這是近年科學共識 ✨"},
-        {"text": "都不用，少吃就好", "correct": false, "feedback": "沒運動容易掉肌肉"}
-      ],
-      "explain": "重訓保留肌肉、維持代謝；有氧增加熱量消耗。減脂期理想：重訓 2-3 次/週 + 每日 6000-8000 步或 2-3 次輕有氧。光做有氧會變成「瘦但鬆垮」。"
-    },
-    {
-      "id": "k016",
-      "type": "knowledge",
-      "category": "exercise",
-      "rarity": "common",
-      "emoji": "🚶‍♀️",
-      "question": "快走 30 分鐘大約燃燒多少卡？（60kg 女性）",
-      "choices": [
-        {"text": "約 80 卡", "correct": false, "feedback": "這比較像散步的量"},
-        {"text": "約 180 卡", "correct": true, "feedback": "答對！大概一顆蘋果"},
-        {"text": "約 400 卡", "correct": false, "feedback": "那得快跑才有"}
-      ],
-      "explain": "60kg 女性快走（6km/h）30 分鐘約 180 卡。運動燒的熱量常被高估、飲食補償常被低估——這是很多人運動沒瘦的原因。"
-    },
-    {
-      "id": "k017",
-      "type": "knowledge",
-      "category": "exercise",
-      "rarity": "rare",
-      "emoji": "⏰",
-      "question": "運動「最燃脂」的黃金時段是？",
-      "choices": [
-        {"text": "早上空腹", "correct": false, "feedback": "有點效果但差異不大"},
-        {"text": "運動結束後 2 小時", "correct": false, "feedback": "後燃效應存在但有限"},
-        {"text": "其實整天都在燃", "correct": true, "feedback": "答對！別被話術騙了"}
-      ],
-      "explain": "人體 24 小時都在消耗熱量，沒有什麼「黃金燃脂時段」。最重要的是「一天總消耗 vs 總攝取」。挑你能「長期做」的時段，才是真的有效。"
-    },
-    {
-      "id": "k018",
-      "type": "knowledge",
-      "category": "exercise",
-      "rarity": "common",
-      "emoji": "🍗",
-      "question": "運動後馬上吃東西會讓努力白費？",
-      "choices": [
-        {"text": "對，會直接變胖", "correct": false, "feedback": "這是減肥最大誤會之一"},
-        {"text": "錯，30 分內補蛋白反而好", "correct": true, "feedback": "答對！肌肉更新的黃金期 💪"},
-        {"text": "隨便啦沒差", "correct": false, "feedback": "其實有差～運動後吃對很重要"}
-      ],
-      "explain": "運動後 30-60 分鐘補充蛋白質（20-30g）與少量碳水，有助於肌肉修復與合成，這段時間叫「同化窗口」。不吃反而浪費努力。"
-    },
-    {
-      "id": "k019",
-      "type": "knowledge",
-      "category": "exercise",
-      "rarity": "rare",
-      "emoji": "🤸‍♀️",
-      "question": "每天做 100 個仰臥起坐可以瘦肚子？",
-      "choices": [
-        {"text": "可以，局部燃脂很有效", "correct": false, "feedback": "局部減脂是迷思"},
-        {"text": "不行，脂肪是全身一起減", "correct": true, "feedback": "正確！肚子先胖通常也最後瘦"},
-        {"text": "只要做夠多就可以", "correct": false, "feedback": "會變結實但不會局部變瘦"}
-      ],
-      "explain": "脂肪燃燒是全身性的，無法靠局部訓練消除。仰臥起坐練到的是腹肌（肚子裡的肌肉），但外面的脂肪要靠全身熱量赤字才會消。"
-    },
-    {
-      "id": "k020",
-      "type": "knowledge",
-      "category": "mindset",
-      "rarity": "common",
-      "emoji": "😔",
-      "question": "情緒性進食最常見的觸發原因是？",
-      "choices": [
-        {"text": "真的肚子餓", "correct": false, "feedback": "那是生理性飢餓"},
-        {"text": "壓力與情緒", "correct": true, "feedback": "答對！占情緒性進食的 70%"},
-        {"text": "只是看到食物", "correct": false, "feedback": "那是環境誘發"}
-      ],
-      "explain": "壓力會讓皮質醇升高，身體渴望高糖高脂食物來「安撫」。下次想暴吃前，先問：是肚子還是心情？喝口水、深呼吸 5 次，常常就過了。"
-    },
-    {
-      "id": "k021",
-      "type": "knowledge",
-      "category": "mindset",
-      "rarity": "rare",
-      "emoji": "⚖️",
-      "question": "每天量體重，是好習慣還是壞習慣？",
-      "choices": [
-        {"text": "絕對是好的，要量", "correct": false, "feedback": "看心態，對某些人反而有害"},
-        {"text": "不要量最好", "correct": false, "feedback": "不量也可能失去方向"},
-        {"text": "看你能不能接受波動", "correct": true, "feedback": "這是最成熟的答案 ✨"}
-      ],
-      "explain": "體重計是工具不是審判。能把每日波動當「資訊」的人，量了有幫助；一上升就情緒崩潰的人，量了反而會暴食。建議一週 2-3 次固定時間即可。"
-    },
-    {
-      "id": "k022",
-      "type": "knowledge",
-      "category": "mindset",
-      "rarity": "common",
-      "emoji": "😴",
-      "question": "睡不夠會變胖嗎？",
-      "choices": [
-        {"text": "完全沒關係", "correct": false, "feedback": "關係很大喔"},
-        {"text": "會，荷爾蒙被打亂", "correct": true, "feedback": "正確！睡眠是被忽略的關鍵"},
-        {"text": "反而會變瘦", "correct": false, "feedback": "短期掉水長期變胖"}
-      ],
-      "explain": "睡眠 <6 小時會讓飢餓素(ghrelin)上升、飽足素(leptin)下降，隔天平均多吃 300 卡。減脂期睡 7-8 小時和運動一樣重要。"
-    },
-    {
-      "id": "k023",
-      "type": "knowledge",
-      "category": "mindset",
-      "rarity": "legendary",
-      "emoji": "🧠",
-      "question": "減肥失敗最大的三個「心魔」是？",
-      "choices": [
-        {"text": "沒時間、太忙、太累", "correct": false, "feedback": "那是藉口層次，不是心魔"},
-        {"text": "完美主義、補償心理、放棄想法", "correct": true, "feedback": "答對！會救你無數次 💎"},
-        {"text": "別人誘惑我", "correct": false, "feedback": "責任不該外放"}
-      ],
-      "explain": "① 完美主義：吃一塊蛋糕就覺得「毀了」乾脆放棄 ② 補償心理：「我今天運動了，可以多吃」 ③ 放棄想法：「怎樣都瘦不下來」。識別它們就贏一半。"
-    },
-    {
-      "id": "k024",
-      "type": "knowledge",
-      "category": "mindset",
-      "rarity": "common",
-      "emoji": "🍽️",
-      "question": "吃飽的訊號從胃傳到大腦大約要多久？",
-      "choices": [
-        {"text": "立刻，一吃就知道", "correct": false, "feedback": "是有延遲的喔"},
-        {"text": "約 20 分鐘", "correct": true, "feedback": "答對！所以才要慢慢吃"},
-        {"text": "約 2 小時", "correct": false, "feedback": "這就太久了"}
-      ],
-      "explain": "飽足訊號約 15-20 分鐘才會傳達。快食者常常吃完「剛好飽」其實已經超飽。建議放慢速度、吃到 8 分飽就停、等 10 分鐘再決定要不要續。"
-    },
-    {
-      "id": "k025",
-      "type": "knowledge",
-      "category": "mindset",
-      "rarity": "rare",
-      "emoji": "🍲",
-      "question": "聚餐不想吃過量，最有效的順序是？",
-      "choices": [
-        {"text": "主食先吃完快走人", "correct": false, "feedback": "血糖飆快更容易餓"},
-        {"text": "湯→蔬菜→蛋白質→澱粉", "correct": true, "feedback": "完美策略！血糖也更穩"},
-        {"text": "甜點先吃避免沒位置", "correct": false, "feedback": "😅 這是甜點優先派哲學"}
-      ],
-      "explain": "先喝湯墊胃、吃蔬菜增加飽足、蛋白質穩血糖、澱粉最後。同樣的食物、不同順序，血糖曲線與飽足感差很多。"
-    },
-    {
-      "id": "s001",
-      "type": "scenario",
-      "category": "social",
-      "rarity": "common",
-      "emoji": "🧋",
-      "question": "下午三點同事揪飲料，你要？",
-      "choices": [
-        {"text": "全糖珍奶大杯加珍珠", "xp_mod": -2, "feedback": "這餐吃得開心就好，晚餐清淡一點就平衡 💛", "tag": "indulge"},
-        {"text": "無糖綠茶或美式", "xp_mod": 4, "feedback": "超棒選擇！省下 400 卡 ✨", "tag": "healthy"},
-        {"text": "半糖微冰改小杯", "xp_mod": 2, "feedback": "折中派，不用每次都完美 👏", "tag": "balanced"}
-      ],
-      "explain": "社交飲料是減脂最大漏洞之一。一週省 3 杯全糖 ≈ 2000 卡 ≈ 0.26kg 脂肪。不用每次都戒，但把「預設」換成無糖。"
-    },
-    {
-      "id": "s002",
-      "type": "scenario",
-      "category": "social",
-      "rarity": "rare",
-      "emoji": "🍲",
-      "question": "週五晚上朋友約麻辣鍋，你的策略？",
-      "choices": [
-        {"text": "去，但以蔬菜和肉片為主", "xp_mod": 4, "feedback": "完美社交+減脂平衡！", "tag": "healthy"},
-        {"text": "去，整場放飛、隔天補回來", "xp_mod": 0, "feedback": "記得隔天是清淡+多喝水，不要過度節食", "tag": "indulge"},
-        {"text": "編理由不去", "xp_mod": -1, "feedback": "偶爾可以，但長期會孤立自己", "tag": "avoid"}
-      ],
-      "explain": "社交是生活一部分，減脂不該犧牲關係。火鍋策略：湯底選清湯、優先肉片+菜、沾醬用蒜泥蔥花別用沙茶、白飯或冬粉擇一。"
-    },
-    {
-      "id": "s003",
-      "type": "scenario",
-      "category": "emotion",
-      "rarity": "rare",
-      "emoji": "🩸",
-      "question": "生理期前超想吃甜的，怎麼辦？",
-      "choices": [
-        {"text": "吃！這時候不吃才痛苦", "xp_mod": 1, "feedback": "生理期吃一點甜正常，選黑巧克力 70% 更好", "tag": "indulge"},
-        {"text": "換成水果或無糖優格", "xp_mod": 4, "feedback": "聰明替代！糖+蛋白質都有", "tag": "healthy"},
-        {"text": "忍住不吃", "xp_mod": -1, "feedback": "過度壓抑容易後面暴食", "tag": "avoid"}
-      ],
-      "explain": "經前黃體素上升會增加糖分渴望，是生理不是意志力問題。可以吃，但選對：黑巧克力、香蕉、無糖優格+莓果、地瓜。避免含糖飲料和精緻甜點。"
-    },
-    {
-      "id": "s004",
-      "type": "scenario",
-      "category": "temptation",
-      "rarity": "common",
-      "emoji": "🥐",
-      "question": "早上趕時間，家裡只有甜麵包和牛奶，你？",
-      "choices": [
-        {"text": "吃甜麵包配牛奶出門", "xp_mod": 0, "feedback": "有吃早餐贏過不吃，但蛋白質不足", "tag": "balanced"},
-        {"text": "只喝牛奶、路上買蛋", "xp_mod": 3, "feedback": "會加蛋的人減脂都很順 🥚", "tag": "healthy"},
-        {"text": "乾脆不吃", "xp_mod": -2, "feedback": "中午容易報復性大吃", "tag": "avoid"}
-      ],
-      "explain": "早餐沒蛋白質會讓整天血糖和食慾不穩。便利商店選項：茶葉蛋 +無糖豆漿、地瓜+茶葉蛋、優格+香蕉。30 秒的決定影響整天。"
-    },
-    {
-      "id": "s005",
-      "type": "scenario",
-      "category": "social",
-      "rarity": "legendary",
-      "emoji": "👩‍🍳",
-      "question": "媽媽煮一大桌還說「多吃一點」，你？",
-      "choices": [
-        {"text": "全吃完不然媽媽難過", "xp_mod": -1, "feedback": "孝順但不用用身體孝順", "tag": "indulge"},
-        {"text": "每道都吃一點、白飯減半", "xp_mod": 4, "feedback": "情商 MAX！媽媽開心你也沒爆 ✨", "tag": "healthy"},
-        {"text": "只吃蛋白質和菜，拒絕飯", "xp_mod": 1, "feedback": "有原則，但媽媽可能會念", "tag": "strict"}
-      ],
-      "explain": "家庭餐是華人減脂最難的一關。實戰心法：先滿盤蔬菜+肉、白飯半碗、每道嚐一口、嘴巴讚美「好好吃」讓媽媽有成就感，比拒絕有效 10 倍。"
-    },
-    {
-      "id": "s006",
-      "type": "scenario",
-      "category": "social",
-      "rarity": "rare",
-      "emoji": "🍻",
-      "question": "聚餐要喝酒，你？",
-      "choices": [
-        {"text": "啤酒無限暢飲", "xp_mod": -2, "feedback": "啤酒肚不是笑話，液體熱量最狡猾", "tag": "indulge"},
-        {"text": "改喝氣泡水或無糖茶", "xp_mod": 4, "feedback": "社交+健康兼顧，成熟大人", "tag": "healthy"},
-        {"text": "紅白酒一杯，慢慢喝", "xp_mod": 2, "feedback": "可以！記得別配炸物", "tag": "balanced"}
-      ],
-      "explain": "酒精是「空熱量」：1g = 7 卡，僅次於脂肪。啤酒一杯約 150 卡、紅酒一杯 120 卡、shots 更慘。減脂期 1-2 杯社交可以，別配炸物下酒菜。"
-    },
-    {
-      "id": "s007",
-      "type": "scenario",
-      "category": "temptation",
-      "rarity": "rare",
-      "emoji": "🌃",
-      "question": "加班到 11 點，餓得胃痛，怎麼吃宵夜？",
-      "choices": [
-        {"text": "泡麵+鹽酥雞", "xp_mod": -2, "feedback": "好懂，但明天會後悔", "tag": "indulge"},
-        {"text": "無糖豆漿+茶葉蛋", "xp_mod": 4, "feedback": "完美宵夜解，蛋白+少熱量", "tag": "healthy"},
-        {"text": "一大份水果", "xp_mod": 0, "feedback": "熱量不低還是會影響睡眠", "tag": "balanced"}
-      ],
-      "explain": "真的餓就吃，餓著睡更傷代謝。宵夜選擇：無糖豆漿、茶葉蛋、無糖優格、小份堅果 10g、清湯。避開油炸、辣、大份量澱粉。"
-    },
-    {
-      "id": "s008",
-      "type": "scenario",
-      "category": "temptation",
-      "rarity": "common",
-      "emoji": "💪",
-      "question": "健身房練完超餓，要吃什麼？",
-      "choices": [
-        {"text": "覺得練過了去吃吃到飽", "xp_mod": -3, "feedback": "補償心理，1 小時運動抵不過 2 小時大吃", "tag": "indulge"},
-        {"text": "茶葉蛋+香蕉+豆漿", "xp_mod": 4, "feedback": "教科書答案！蛋白+碳水都有 ✨", "tag": "healthy"},
-        {"text": "忍住不吃", "xp_mod": -1, "feedback": "錯過修復時機太可惜", "tag": "avoid"}
-      ],
-      "explain": "運動後 30-60 分是同化窗口。理想比例：20-30g 蛋白 + 30-50g 碳水。預算內：兩顆茶葉蛋+一根香蕉約 250 卡、蛋白質 15g、碳水 25g。"
-    },
-    {
-      "id": "s009",
-      "type": "scenario",
-      "category": "emotion",
-      "rarity": "legendary",
-      "emoji": "💔",
-      "question": "剛被分手／被罵，只想大吃一頓，你？",
-      "choices": [
-        {"text": "吃，一次吃爆", "xp_mod": 0, "feedback": "允許自己有這一餐，別自責就好", "tag": "indulge"},
-        {"text": "叫朋友出來，吃一點點就好", "xp_mod": 3, "feedback": "很高情商的選擇 💛", "tag": "healthy"},
-        {"text": "去運動或散步轉移", "xp_mod": 4, "feedback": "情緒的真正解藥不是食物 ✨", "tag": "heal"}
-      ],
-      "explain": "情緒性進食：食物是「麻醉劑」不是「解藥」。先允許自己有情緒，再試著把觸發→行為分開：感到悲傷≠必須吃。替代行為：散步、打給朋友、洗熱水澡、寫下來。"
-    },
-    {
-      "id": "s010",
-      "type": "scenario",
-      "category": "mindset",
-      "rarity": "rare",
-      "emoji": "🪨",
-      "question": "努力一週體重沒動（平台期），你？",
-      "choices": [
-        {"text": "直接放棄", "xp_mod": -3, "feedback": "這是心魔，不是體脂 💔", "tag": "avoid"},
-        {"text": "檢視並微調飲食／運動", "xp_mod": 4, "feedback": "成熟心態！平台期是常態 ✨", "tag": "healthy"},
-        {"text": "報復性大吃", "xp_mod": -2, "feedback": "會讓一週努力歸零", "tag": "indulge"}
-      ],
-      "explain": "平台期原因：代謝適應、水分波動、肌肉增加。解法：① 檢查是否熱量抓錯 ② 增加 NEAT（日常活動）③ 換運動模式 ④ 看體圍不看體重 ⑤ 給身體一週適應。"
-    },
-    {
-      "id": "s011",
-      "type": "scenario",
-      "category": "temptation",
-      "rarity": "common",
-      "emoji": "🛋️",
-      "question": "下班累爆，運動課預約了但只想癱在沙發，你？",
-      "choices": [
-        {"text": "取消課程直接廢", "xp_mod": -2, "feedback": "偶爾可以，常常就變習慣了", "tag": "avoid"},
-        {"text": "硬著頭皮去，做到一半算一半", "xp_mod": 4, "feedback": "這個才是真正的 mindset 贏家 💪", "tag": "healthy"},
-        {"text": "換輕運動（散步/瑜伽）", "xp_mod": 3, "feedback": "聰明！動比不動好", "tag": "balanced"}
-      ],
-      "explain": "運動習慣最大的敵人不是累，是「允許自己跳過」。心法：只要去，做 15 分鐘也算。80% 的狀況到了現場就做完了，剩下 20% 也比沒去好。"
-    },
-    {
-      "id": "s012",
-      "type": "scenario",
-      "category": "mindset",
-      "rarity": "common",
-      "emoji": "🎊",
-      "question": "連假吃喝玩樂多吃了 3 天，假期結束你？",
-      "choices": [
-        {"text": "連續斷食 2 天補回來", "xp_mod": -2, "feedback": "極端補償=下一輪暴食的開始", "tag": "indulge"},
-        {"text": "恢復正常飲食+多走路", "xp_mod": 4, "feedback": "完全正確！船要慢慢駛回正軌 ✨", "tag": "healthy"},
-        {"text": "乾脆爛到底", "xp_mod": -3, "feedback": "這就是放棄心魔的聲音", "tag": "avoid"}
-      ],
-      "explain": "3 天多吃大部分是水分與腸胃存量，不是真的胖 3 公斤。恢復正常飲食 3-5 天體重會回來。補償式節食只會啟動壓力荷爾蒙讓你更難減。"
-    },
-    {
-      "id": "s013",
-      "type": "scenario",
-      "category": "temptation",
-      "rarity": "common",
-      "emoji": "🍱",
-      "question": "買了特大份便當，吃到一半已經飽了，你？",
-      "choices": [
-        {"text": "捨不得浪費硬吃完", "xp_mod": -2, "feedback": "多吃的熱量比剩下的食物貴 💸", "tag": "indulge"},
-        {"text": "留下來下一餐吃", "xp_mod": 4, "feedback": "最省錢又不胖的答案！", "tag": "healthy"},
-        {"text": "吃完主食不吃配菜", "xp_mod": 1, "feedback": "主食反而熱量最高喔", "tag": "balanced"}
-      ],
-      "explain": "「不要浪費食物」vs「變胖」的經典矛盾。真相：多吃的熱量會儲存成脂肪（成本更高），剩的可以下餐吃或冰起來。下次一開始就跟老闆說「飯少一點」。"
-    },
-    {
-      "id": "s014",
-      "type": "scenario",
-      "category": "social",
-      "rarity": "rare",
-      "emoji": "💕",
-      "question": "約會吃法式高級餐廳，你要？",
-      "choices": [
-        {"text": "整套吃完不留遺憾", "xp_mod": 1, "feedback": "特殊日子可以，隔天回到軌道就好", "tag": "indulge"},
-        {"text": "前菜+主餐，省甜點", "xp_mod": 3, "feedback": "聰明策略！氛圍到位又不爆", "tag": "balanced"},
-        {"text": "點沙拉就好", "xp_mod": -1, "feedback": "太拘謹反而尷尬，偶爾享受也是生活", "tag": "strict"}
-      ],
-      "explain": "減脂不是苦行。把「每週節省的配額」留給真正重要的飲食場合。一頓高級料理不會毀掉一切，關鍵是隔天回到正軌，不是從此自暴自棄。"
-    },
-    {
-      "id": "e001",
-      "type": "scenario",
-      "category": "social",
-      "rarity": "rare",
-      "emoji": "📱",
-      "is_event": true,
-      "event_tags": ["afternoon_3pm", "weekday"],
-      "event_probability": 0.35,
-      "event_cooldown_days": 14,
-      "event_replayable": true,
-      "event_min_level": 1,
-      "event_ttl_minutes": 45,
-      "event_group": "social",
-      "question": "叮！同事傳 Line：「下午點飲料要嗎？請客☕️」",
-      "hint": "限時事件・2 小時內回答",
-      "choices": [
-        {"text": "「好啊珍奶大杯全糖！」", "xp_mod": -2, "feedback": "享受是享受了～明天記得清淡一天 💛", "tag": "indulge"},
-        {"text": "「謝謝～我帶水壺了，改天換我請」", "xp_mod": 5, "feedback": "拒絕+禮貌+給理由，完美社交 ✨", "tag": "healthy"},
-        {"text": "「謝謝，那我無糖綠就好」", "xp_mod": 3, "feedback": "折中派聰明！", "tag": "balanced"}
-      ],
-      "explain": "下午 3 點是減脂最危險時段之一 — 血糖低 + 同事揪 + 免費 = 三重誘惑。每天少一杯全糖飲，一年少 13 萬卡 ≈ 17 公斤脂肪。"
-    },
-    {
-      "id": "e002",
-      "type": "scenario",
-      "category": "social",
-      "rarity": "legendary",
-      "emoji": "🍲",
-      "is_event": true,
-      "event_tags": ["friday_night", "evening"],
-      "event_probability": 0.45,
-      "event_cooldown_days": 21,
-      "event_replayable": true,
-      "event_min_level": 3,
-      "event_ttl_minutes": 60,
-      "event_group": "social",
-      "question": "週五晚上 7 點！朋友訊息轟炸：「快來！麻辣鍋已經訂位了🔥」",
-      "hint": "限時事件・3 小時內回答",
-      "choices": [
-        {"text": "衝！整晚放飛不設限", "xp_mod": -1, "feedback": "偶爾放飛 OK，記得隔天清淡+多喝水 💧", "tag": "indulge"},
-        {"text": "去，但白飯不吃、湯底選清湯", "xp_mod": 6, "feedback": "完美火鍋策略！社交滿分、熱量 -40% ✨", "tag": "healthy"},
-        {"text": "編理由說加班不去", "xp_mod": -2, "feedback": "偶爾可以但長期會孤立自己", "tag": "avoid"}
-      ],
-      "explain": "週末社交餐是減脂最大破口，但逃避社交才是長期復胖的關鍵。關鍵是「去，但選對」：清湯底、菜+肉+豆腐優先、沾蒜泥蔥花不沾沙茶、白飯冬粉擇一。"
-    },
-    {
-      "id": "s015",
-      "type": "scenario",
-      "category": "temptation",
-      "rarity": "common",
-      "emoji": "🔥",
-      "question": "冬天冷到想吃燒烤/麻辣，你？",
-      "choices": [
-        {"text": "蔬菜串+肉串，少選加工品", "xp_mod": 4, "feedback": "燒烤達人！香腸甜不辣才是熱量陷阱", "tag": "healthy"},
-        {"text": "整場大吃大喝", "xp_mod": -1, "feedback": "記得這餐佔你兩天熱量", "tag": "indulge"},
-        {"text": "只喝湯不吃", "xp_mod": 0, "feedback": "湯鹽分超標，不一定比較好", "tag": "strict"}
-      ],
-      "explain": "燒烤熱量高的不是肉，是加工品：香腸、甜不辣、米血、百頁豆腐（吸油）。聰明選：牛肉、雞腿、青椒、杏鮑菇、秋葵。醬料選椒鹽比烤肉醬低 80% 熱量。"
-    },
-
-    {"id": "fm-egg", "type": "knowledge", "category": "store", "rarity": "common", "emoji": "🥚",
-      "question": "一顆全家茶葉蛋的熱量大概是？",
-      "choices": [
-        {"text": "約 40 卡", "correct": false, "feedback": "那是生蛋白"},
-        {"text": "約 70 卡", "correct": true, "feedback": "正確！高 CP 值蛋白 🥚"},
-        {"text": "約 150 卡", "correct": false, "feedback": "高估了～"}
-      ],
-      "explain": "茶葉蛋 ≈ 70 卡 / 7g 蛋白，是超商必備點心。建議搭無糖豆漿當早餐組合，250 卡 14g 蛋白，飽足到中午。"},
-    {"id": "fm-sweet-potato", "type": "knowledge", "category": "store", "rarity": "common", "emoji": "🍠",
-      "question": "全家地瓜一份（150g）大概多少卡？",
-      "choices": [
-        {"text": "約 80 卡", "correct": false, "feedback": "樂觀了～"},
-        {"text": "約 180 卡", "correct": true, "feedback": "正確！替代白飯很好"},
-        {"text": "約 350 卡", "correct": false, "feedback": "太多啦"}
-      ],
-      "explain": "地瓜熱量密度約 1.2 卡/克，150g ≈ 180 卡、5g 纖維。一餐吃半條可取代白飯，血糖穩定度高上兩倍。"},
-    {"id": "fm-soy-milk", "type": "knowledge", "category": "store", "rarity": "common", "emoji": "🥛",
-      "question": "超商 450ml 無糖豆漿蛋白質大約？",
-      "choices": [
-        {"text": "3g", "correct": false, "feedback": "太低"},
-        {"text": "13g", "correct": true, "feedback": "正確！相當於 2 顆蛋"},
-        {"text": "25g", "correct": false, "feedback": "那是乳清等級"}
-      ],
-      "explain": "450ml 無糖豆漿 ≈ 130 卡 + 13g 蛋白，幾乎等於兩顆蛋。減脂期建議一天喝一瓶（早或下午）。"},
-    {"id": "fm-salad", "type": "scenario", "category": "store", "rarity": "common", "emoji": "🥗",
-      "question": "全家架上三款沙拉，你選？",
-      "choices": [
-        {"text": "凱薩雞肉沙拉（含麵包丁）", "xp_mod": 1, "feedback": "不差，但沙拉醬熱量藏很多", "tag": "balanced"},
-        {"text": "烤雞胸生菜（和風醬另拿）", "xp_mod": 4, "feedback": "最佳選擇！230 卡 25g 蛋白 ✨", "tag": "healthy"},
-        {"text": "馬鈴薯蛋沙拉", "xp_mod": -1, "feedback": "美乃滋基底，熱量是前者 1.5 倍", "tag": "indulge"}
-      ],
-      "explain": "超商沙拉熱量差異 90% 來自醬料：凱薩醬 150 卡、和風醬 40 卡、千島醬 120 卡。醬另拿、只加一半，省 100 卡零成本。"},
-    {"id": "fm-oden", "type": "scenario", "category": "store", "rarity": "rare", "emoji": "🍢",
-      "question": "晚上 9 點進全家買關東煮當宵夜，選什麼？",
-      "choices": [
-        {"text": "白蘿蔔 + 豆腐 + 雞腿肉", "xp_mod": 5, "feedback": "完美！200 卡內高蛋白高纖 ✨", "tag": "healthy"},
-        {"text": "米血 + 甜不辣 + 貢丸", "xp_mod": -2, "feedback": "加工品三連發 😅 400 卡起跳", "tag": "indulge"},
-        {"text": "玉米筍 + 杏鮑菇 + 小香腸", "xp_mod": 2, "feedback": "蔬菜 OK 但香腸拉回來了", "tag": "balanced"}
-      ],
-      "explain": "關東煮地雷：米血（150 卡）、甜不辣（120 卡）、百頁豆腐（180 卡，吸油怪物）、貢丸（80 卡×3）。安全牌：白蘿蔔、杏鮑菇、雞腿肉、豆腐、海帶。"},
-
-    {"id": "px-chicken", "type": "knowledge", "category": "store", "rarity": "common", "emoji": "🍗",
-      "question": "超市舒肥雞胸（150g）熱量約？",
-      "choices": [
-        {"text": "約 90 卡", "correct": false, "feedback": "低估"},
-        {"text": "約 180 卡", "correct": true, "feedback": "正確！30g 蛋白質怪物"},
-        {"text": "約 350 卡", "correct": false, "feedback": "那是炸雞腿"}
-      ],
-      "explain": "150g 舒肥雞胸 ≈ 180 卡 + 33g 蛋白，減脂期最 CP 值蛋白來源。建議一次買 3 包分三天，切片加沙拉超快。"},
-    {"id": "px-tofu", "type": "knowledge", "category": "store", "rarity": "common", "emoji": "🧈",
-      "question": "嫩豆腐一盒（300g）蛋白質約？",
-      "choices": [
-        {"text": "5g", "correct": false, "feedback": "太低"},
-        {"text": "15g", "correct": true, "feedback": "正確！比你想的多"},
-        {"text": "30g", "correct": false, "feedback": "那是雞肉等級"}
-      ],
-      "explain": "一盒嫩豆腐 ≈ 150 卡 15g 蛋白，是素食與輕食的王者。加醬油蔥花微波 1 分鐘即可，懶人晚餐神物。"},
-    {"id": "px-broccoli", "type": "knowledge", "category": "store", "rarity": "common", "emoji": "🥦",
-      "question": "青花菜 100g 熱量大約？",
-      "choices": [
-        {"text": "約 30 卡", "correct": true, "feedback": "正確！超低熱量"},
-        {"text": "約 90 卡", "correct": false, "feedback": "高估了"},
-        {"text": "約 150 卡", "correct": false, "feedback": "太誇張"}
-      ],
-      "explain": "青花菜 100g 只有 30 卡、3g 蛋白、2.5g 纖維，還富含維生素 C。減脂期可以大量吃，吃到飽不怕爆。"},
-    {"id": "px-yogurt", "type": "scenario", "category": "store", "rarity": "common", "emoji": "🍶",
-      "question": "全聯優格區選哪一個？",
-      "choices": [
-        {"text": "無糖希臘優格 150g", "xp_mod": 5, "feedback": "減脂之王！15g 蛋白 🏆", "tag": "healthy"},
-        {"text": "水果優格加蜜桃 200g", "xp_mod": 0, "feedback": "糖分藏 15-20g，等於半杯可樂", "tag": "balanced"},
-        {"text": "布丁風味優格", "xp_mod": -2, "feedback": "那是甜點不是優格 😅", "tag": "indulge"}
-      ],
-      "explain": "無糖希臘優格是減脂期神品：150g ≈ 100 卡 + 15g 蛋白。加一點莓果就是完美下午茶。調味優格糖分是無糖的 4-6 倍。"},
-    {"id": "px-oats", "type": "knowledge", "category": "store", "rarity": "rare", "emoji": "🌾",
-      "question": "無糖燕麥片一碗（40g 乾）煮成粥後熱量？",
-      "choices": [
-        {"text": "約 80 卡", "correct": false, "feedback": "乾燕麥密度高"},
-        {"text": "約 150 卡", "correct": true, "feedback": "正確！飽足感爆棚"},
-        {"text": "約 300 卡", "correct": false, "feedback": "高估了"}
-      ],
-      "explain": "40g 乾燕麥 ≈ 150 卡 + 5g 蛋白 + 4g 纖維。煮成粥可膨脹 3 倍，飽足感超強。加杯無糖豆漿就是完整早餐 280 卡。"},
-
-    {"id": "mc-mcmuffin", "type": "scenario", "category": "store", "rarity": "common", "emoji": "🍳",
-      "question": "早上麥當勞，選？",
-      "choices": [
-        {"text": "滿福堡（不加起司）+ 美式咖啡", "xp_mod": 4, "feedback": "約 320 卡完美早餐", "tag": "healthy"},
-        {"text": "薯餅豬肉滿福堡 + 大冰奶", "xp_mod": -2, "feedback": "700+ 卡還沒出門就爆表", "tag": "indulge"},
-        {"text": "麥香雞", "xp_mod": 1, "feedback": "350 卡但缺蛋白質", "tag": "balanced"}
-      ],
-      "explain": "麥當勞早餐排行：滿福堡 300 卡（最佳）< 麥香雞 350 卡 < 經典早餐 700 卡。加起司 +50 卡、薯餅 +150 卡、大冰奶 +250 卡。"},
-    {"id": "mc-grilled", "type": "knowledge", "category": "store", "rarity": "common", "emoji": "🥪",
-      "question": "麥當勞烤雞沙拉（不加醬）熱量？",
-      "choices": [
-        {"text": "約 80 卡", "correct": false, "feedback": "低估"},
-        {"text": "約 180 卡", "correct": true, "feedback": "正確！輕食選項"},
-        {"text": "約 400 卡", "correct": false, "feedback": "那是套餐"}
-      ],
-      "explain": "烤雞沙拉 ≈ 180 卡 + 20g 蛋白。凱薩醬 +120 卡、千島醬 +110 卡、和風醬 +30 卡。醬料決定 40% 熱量。"},
-    {"id": "mc-fries", "type": "knowledge", "category": "store", "rarity": "common", "emoji": "🍟",
-      "question": "麥當勞大薯多少卡？",
-      "choices": [
-        {"text": "約 250 卡", "correct": false, "feedback": "那是小薯"},
-        {"text": "約 500 卡", "correct": true, "feedback": "正確 😱"},
-        {"text": "約 800 卡", "correct": false, "feedback": "還沒這麼誇張"}
-      ],
-      "explain": "麥當勞大薯 ≈ 500 卡 + 25g 脂肪。若真的想吃，改小薯（250 卡）省一半。沾番茄醬每包再加 20 卡。"},
-    {"id": "mc-mcflurry", "type": "scenario", "category": "store", "rarity": "common", "emoji": "🍦",
-      "question": "吃完麥當勞套餐還想加冰炫風？",
-      "choices": [
-        {"text": "加！人生苦短", "xp_mod": -3, "feedback": "冰炫風 450 卡 = 一餐主食", "tag": "indulge"},
-        {"text": "改點霜淇淋單球", "xp_mod": 0, "feedback": "150 卡折中選擇", "tag": "balanced"},
-        {"text": "算了喝無糖茶", "xp_mod": 4, "feedback": "剛強！今天贏了", "tag": "healthy"}
-      ],
-      "explain": "冰炫風 450 卡 = 3 個小籠包。甜點作為「餐後」通常是大腦的獎勵錯覺，不是真的餓。隔 20 分鐘再決定通常就不想了。"},
-    {"id": "mc-coke", "type": "knowledge", "category": "store", "rarity": "common", "emoji": "🥤",
-      "question": "中杯可樂（500ml）含糖量大約？",
-      "choices": [
-        {"text": "15g（3 顆方糖）", "correct": false, "feedback": "低估了"},
-        {"text": "53g（13 顆方糖）", "correct": true, "feedback": "對！一天建議糖量直接爆"},
-        {"text": "90g（22 顆方糖）", "correct": false, "feedback": "接近 XL 份量"}
-      ],
-      "explain": "中杯可樂 500ml = 53g 糖 ≈ 210 卡的液體熱量。WHO 一天建議糖 ≤ 25g。改無糖可樂可省 210 卡零痛感，一年省 12 公斤。"},
-
-    {"id": "fp-fiber-drink-x", "type": "fp_recipe", "category": "fp_recipe", "rarity": "rare", "emoji": "🥤",
-      "tier_required": "retail", "fp_product": "纖纖飲X",
-      "question": "【FP 搭配法】纖纖飲 X 最佳飲用時機？",
-      "choices": [
-        {"text": "飯前 30 分鐘，搭配 300ml 溫水", "xp_mod": 5, "feedback": "正解！飽足感先行 ✨", "tag": "healthy"},
-        {"text": "睡前空腹喝", "xp_mod": -1, "feedback": "不建議，纖維需要水幫助推進", "tag": "avoid"},
-        {"text": "餐中配飲料", "xp_mod": 0, "feedback": "效果打折", "tag": "balanced"}
-      ],
-      "explain": "纖纖飲 X 含多種膳食纖維，飯前 30 分鐘搭 300ml 溫水飲用能在胃中膨脹，降低後續用餐量 15-20%。SNQ 品質認證配方。"},
-    {"id": "fp-fiber-float", "type": "fp_recipe", "category": "fp_recipe", "rarity": "rare", "emoji": "💊",
-      "tier_required": "retail", "fp_product": "纖飄錠",
-      "question": "【FP 搭配法】纖飄錠每日建議量？",
-      "choices": [
-        {"text": "一天 2 次、每次 3 錠、隨餐吃", "xp_mod": 5, "feedback": "標準吃法 ✓", "tag": "healthy"},
-        {"text": "睡前 10 錠", "xp_mod": -3, "feedback": "過量！不是越多越好", "tag": "avoid"},
-        {"text": "想到才吃", "xp_mod": 0, "feedback": "效果不連續", "tag": "balanced"}
-      ],
-      "explain": "纖飄錠（健康食品認證）建議一天 2 次、每次 3 錠、隨餐服用。規律性比劑量重要。郭雪芙代言配方。"},
-    {"id": "fp-burst-fiber", "type": "fp_recipe", "category": "fp_recipe", "rarity": "rare", "emoji": "💥",
-      "tier_required": "retail", "fp_product": "爆纖錠",
-      "question": "【FP 搭配法】爆纖錠適合什麼狀況？",
-      "choices": [
-        {"text": "大餐前 30 分鐘吃 3 錠", "xp_mod": 5, "feedback": "完美！聚餐救星 ✨", "tag": "healthy"},
-        {"text": "空腹配咖啡", "xp_mod": -1, "feedback": "刺激腸胃，不建議", "tag": "avoid"},
-        {"text": "當零食吃", "xp_mod": -2, "feedback": "不是點心 😅", "tag": "avoid"}
-      ],
-      "explain": "爆纖錠（Monde Selection 金獎）設計給「大餐前」使用，膳食纖維先佔胃空間，後續主食吃得少。聚餐/連假特別有用。"},
-    {"id": "fp-milk-tea", "type": "fp_recipe", "category": "fp_recipe", "rarity": "rare", "emoji": "🧋",
-      "tier_required": "retail", "fp_product": "厚焙奶茶",
-      "question": "【FP 搭配法】FP 厚焙奶茶跟一般手搖奶茶差在？",
-      "choices": [
-        {"text": "零添加糖，含膳食纖維與蛋白質，取代正餐", "xp_mod": 5, "feedback": "核心價值 ✨", "tag": "healthy"},
-        {"text": "只是好喝而已", "xp_mod": 0, "feedback": "低估了商品設計", "tag": "balanced"},
-        {"text": "喝越多越瘦", "xp_mod": -3, "feedback": "補充品不是魔法 🙅", "tag": "avoid"}
-      ],
-      "explain": "FP 厚焙奶茶是代餐配方：低 GI、高纖維、含植物蛋白。用來取代一餐（非額外加餐）才有效，一杯約 150-200 卡、飽足 3-4 小時。"},
-    {"id": "fp-glow", "type": "fp_recipe", "category": "fp_recipe", "rarity": "legendary", "emoji": "💎",
-      "tier_required": "retail", "fp_product": "水光錠",
-      "question": "【FP 搭配法】水光錠怎麼吃效果最好？",
-      "choices": [
-        {"text": "每日睡前空腹 2 錠、搭配喝水", "xp_mod": 6, "feedback": "最佳吸收時機 ✨", "tag": "healthy"},
-        {"text": "跟咖啡一起吞", "xp_mod": -1, "feedback": "咖啡因會干擾", "tag": "avoid"},
-        {"text": "三餐飯後各一顆", "xp_mod": 1, "feedback": "可以但吸收率次於空腹", "tag": "balanced"}
-      ],
-      "explain": "水光錠含日本 Hyabest 專利玻尿酸，睡前空腹吸收最佳。搭配充足飲水（一天 2000ml）效果加乘。連續使用 4 週感受最明顯。"},
-
-    {"id": "fp-combo-morning", "type": "fp_recipe", "category": "fp_recipe", "rarity": "legendary", "emoji": "🌅",
-      "tier_required": "fp_franchise", "fp_product": "FP 早餐黃金組",
-      "question": "【加盟進階】FP 早餐黃金組合是？",
-      "choices": [
-        {"text": "厚焙奶茶 + 纖飄錠 + 一顆水煮蛋", "xp_mod": 8, "feedback": "完美組合！300 卡 20g 蛋白 ✨", "tag": "healthy"},
-        {"text": "纖纖飲 X + 薯條", "xp_mod": -3, "feedback": "邏輯錯亂 😅", "tag": "avoid"},
-        {"text": "只喝厚焙奶茶", "xp_mod": 2, "feedback": "可以但缺蛋白完整度", "tag": "balanced"}
-      ],
-      "explain": "加盟商專業搭配：厚焙奶茶（代餐 180 卡）+ 纖飄錠（纖維）+ 水煮蛋（7g 蛋白）= 300 卡 / 20g 蛋白 / 高纖維，飽到中午。跟客人推薦的黃金組合。"},
-    {"id": "fp-combo-afternoon", "type": "fp_recipe", "category": "fp_recipe", "rarity": "legendary", "emoji": "☕",
-      "tier_required": "fp_franchise", "fp_product": "下午斷糖組合",
-      "question": "【加盟進階】客人下午想喝珍奶怎麼救？",
-      "choices": [
-        {"text": "推雪花紫纖飲 + 無糖美式，飽足+不爆", "xp_mod": 8, "feedback": "最強斷糖 🌿", "tag": "healthy"},
-        {"text": "讓他喝珍奶之後吃爆纖錠補救", "xp_mod": -2, "feedback": "補救不是解法", "tag": "avoid"},
-        {"text": "跟他說「不能喝」", "xp_mod": -3, "feedback": "銷售大忌：別說教 🙅", "tag": "avoid"}
-      ],
-      "explain": "加盟商話術：「這杯雪花紫纖飲蔓越莓風味，喝起來像莓果汁但零添加糖，配無糖美式一樣爽。這週試試看？」提供替代而不是拒絕。"},
-    {"id": "fp-combo-night", "type": "fp_recipe", "category": "fp_recipe", "rarity": "legendary", "emoji": "🌙",
-      "tier_required": "fp_franchise", "fp_product": "夜間修復組",
-      "question": "【加盟進階】夜間修復組合最適合？",
-      "choices": [
-        {"text": "水光錠 + 植萃纖酵宿，睡前 30 分", "xp_mod": 8, "feedback": "保養+腸道雙修 ✨", "tag": "healthy"},
-        {"text": "爆纖錠睡前 3 錠", "xp_mod": -1, "feedback": "爆纖錠是餐前用，時機錯", "tag": "avoid"},
-        {"text": "厚焙奶茶當宵夜", "xp_mod": 2, "feedback": "可當代餐但睡前 3 小時內不建議", "tag": "balanced"}
-      ],
-      "explain": "夜間黃金組：水光錠（保濕修復）+ 植萃纖酵宿（腸道 SNQ 認證）。睡眠修復是保養最強槓桿，這組跟客人推「睡著變漂亮」。"},
-    {"id": "fp-coach-talk", "type": "fp_recipe", "category": "fp_recipe", "rarity": "rare", "emoji": "📣",
-      "tier_required": "fp_franchise", "fp_product": "加盟主分享術",
-      "question": "【加盟進階】新客人試用一週沒感覺，怎麼回？",
-      "choices": [
-        {"text": "先問作息+飲食細節，找出盲點再建議", "xp_mod": 8, "feedback": "顧問式銷售 ✨", "tag": "healthy"},
-        {"text": "叫他再多買幾盒", "xp_mod": -3, "feedback": "失去信任 💸", "tag": "avoid"},
-        {"text": "退費處理", "xp_mod": -1, "feedback": "放棄太早", "tag": "avoid"}
-      ],
-      "explain": "加盟主分享鐵律：產品是工具、結果靠執行。新客沒感覺 90% 來自飲食/作息沒對齊。問「早餐吃什麼？睡幾點？有喝水嗎？」再給解法，複購率 3 倍。"},
-    {"id": "fp-cert-exam", "type": "knowledge", "category": "fp_recipe", "rarity": "legendary", "emoji": "🎓",
-      "tier_required": "fp_franchise", "fp_product": "加盟認證測驗",
-      "question": "【加盟認證】下列哪個是 FP 產品最核心的差異化？",
-      "choices": [
-        {"text": "價格最便宜", "correct": false, "feedback": "不是我們的定位"},
-        {"text": "專利成分 + 認證 + 教育支援體系", "correct": true, "feedback": "正解！🎓", "xp_mod": 0},
-        {"text": "明星代言", "correct": false, "feedback": "是加分但非核心"}
-      ],
-      "explain": "FP 品牌三支柱：① 專利配方（Hyabest、SNQ、Monde）② 健康食品認證 ③ 加盟教育體系。賣產品只是入口，持續陪伴才是複購鑰匙。"}
-  ]
+    "cards": [
+        {
+            "id": "k001",
+            "type": "knowledge",
+            "category": "basics",
+            "rarity": "common",
+            "emoji": "🍚",
+            "question": "一碗普通白飯（約 200g）大概多少卡？",
+            "hint": "想想一個拳頭大小的澱粉",
+            "choices": [
+                {
+                    "text": "約 130 卡",
+                    "correct": false,
+                    "feedback": "這大概只有半碗喔～"
+                },
+                {
+                    "text": "約 280 卡",
+                    "correct": true,
+                    "feedback": "答對！記住這個數字很實用 ✨"
+                },
+                {
+                    "text": "約 450 卡",
+                    "correct": false,
+                    "feedback": "這已經是滷肉飯等級了～"
+                }
+            ],
+            "explain": "白飯的熱量密度大約 1.4 卡/克，體態管理期建議一餐控制在半碗到一碗，搭配蛋白質與蔬菜更有滿足感。"
+        },
+        {
+            "id": "k002",
+            "type": "knowledge",
+            "category": "basics",
+            "rarity": "common",
+            "emoji": "🥚",
+            "question": "一顆中型雞蛋含多少蛋白質？",
+            "choices": [
+                {
+                    "text": "約 3g",
+                    "correct": false,
+                    "feedback": "這比較接近一片起司～"
+                },
+                {
+                    "text": "約 7g",
+                    "correct": true,
+                    "feedback": "正確！雞蛋是最 CP 值的蛋白質之一 🥚"
+                },
+                {
+                    "text": "約 15g",
+                    "correct": false,
+                    "feedback": "那得吃兩顆才有～"
+                }
+            ],
+            "explain": "一顆蛋約 70 卡、7g 蛋白質，且含有完整必需胺基酸，是體態管理期的好朋友。一天 2-3 顆無需擔心膽固醇。"
+        },
+        {
+            "id": "k003",
+            "type": "knowledge",
+            "category": "basics",
+            "rarity": "common",
+            "emoji": "🥛",
+            "question": "無糖豆漿 vs 低脂牛奶（各 240ml），誰的蛋白質比較多？",
+            "choices": [
+                {
+                    "text": "豆漿明顯較多",
+                    "correct": false,
+                    "feedback": "差不多，但其實牛奶稍微多一點～"
+                },
+                {
+                    "text": "牛奶稍微多一點",
+                    "correct": true,
+                    "feedback": "沒錯！牛奶約 8g、豆漿約 7g"
+                },
+                {
+                    "text": "明顯一樣",
+                    "correct": false,
+                    "feedback": "其實有小差距喔"
+                }
+            ],
+            "explain": "牛奶 240ml 約 8g 蛋白質，無糖豆漿 240ml 約 7g。兩者都是優質蛋白，差別在於牛奶含鈣較多、豆漿則含植物性雌激素與較低飽和脂肪。"
+        },
+        {
+            "id": "k004",
+            "type": "knowledge",
+            "category": "basics",
+            "rarity": "common",
+            "emoji": "🍌",
+            "question": "以下哪個水果的糖分（每 100g）最高？",
+            "choices": [
+                {
+                    "text": "蘋果",
+                    "correct": false,
+                    "feedback": "蘋果約 10g，不是最高喔"
+                },
+                {
+                    "text": "香蕉",
+                    "correct": true,
+                    "feedback": "香蕉約 12-15g，水果中的高糖選手 🍌"
+                },
+                {
+                    "text": "芭樂",
+                    "correct": false,
+                    "feedback": "芭樂只有約 5g，超低！"
+                }
+            ],
+            "explain": "香蕉（12-15g）> 蘋果（10g）> 芭樂（5g）。水果都不是壞東西，但體態管理期建議一天 2 份、優先選糖分低的如芭樂、莓果、奇異果。"
+        },
+        {
+            "id": "k005",
+            "type": "knowledge",
+            "category": "basics",
+            "rarity": "common",
+            "emoji": "🧈",
+            "question": "下列哪個是飽和脂肪最多的？",
+            "choices": [
+                {
+                    "text": "橄欖油",
+                    "correct": false,
+                    "feedback": "橄欖油以單元不飽和脂肪為主～"
+                },
+                {
+                    "text": "奶油",
+                    "correct": true,
+                    "feedback": "答對！奶油超過 60% 是飽和脂肪"
+                },
+                {
+                    "text": "酪梨",
+                    "correct": false,
+                    "feedback": "酪梨是好油脂代表 🥑"
+                }
+            ],
+            "explain": "奶油 > 椰子油 > 豬油 > 牛油，都是高飽和脂肪。建議烹調以橄欖油、苦茶油、酪梨油為主，每週動物性飽和脂肪攝取不過度即可。"
+        },
+        {
+            "id": "k006",
+            "type": "knowledge",
+            "category": "basics",
+            "rarity": "rare",
+            "emoji": "🍠",
+            "question": "想補膳食纖維，以下哪個最給力（同重量 150g）？",
+            "choices": [
+                {
+                    "text": "白吐司",
+                    "correct": false,
+                    "feedback": "白吐司只有約 2g，很少喔"
+                },
+                {
+                    "text": "白飯",
+                    "correct": false,
+                    "feedback": "白飯只有約 0.4g，幾乎沒有"
+                },
+                {
+                    "text": "地瓜",
+                    "correct": true,
+                    "feedback": "正確！地瓜 150g 約 4-5g 纖維 🍠"
+                }
+            ],
+            "explain": "同樣是澱粉，地瓜的纖維量是白飯的 10 倍以上，升糖指數也較低。早餐用地瓜替代白麵包，對腸胃和滿足感都有感。"
+        },
+        {
+            "id": "k007",
+            "type": "knowledge",
+            "category": "basics",
+            "rarity": "rare",
+            "emoji": "🧋",
+            "question": "一杯 700cc 全糖珍珠奶茶大約多少卡？",
+            "choices": [
+                {
+                    "text": "約 350 卡",
+                    "correct": false,
+                    "feedback": "樂觀了～其實不止"
+                },
+                {
+                    "text": "約 650 卡",
+                    "correct": true,
+                    "feedback": "答對！約等於一個便當 😵"
+                },
+                {
+                    "text": "約 900 卡",
+                    "correct": false,
+                    "feedback": "接近但沒這麼誇張，但也不遠了"
+                }
+            ],
+            "explain": "珍珠奶茶 700cc 全糖 ≈ 650 卡，其中糖約 62g、珍珠本身也是澱粉。改成無糖 + 少珍珠可省下 300-400 卡，一週省 3 杯 = 約半公斤脂肪。"
+        },
+        {
+            "id": "k008",
+            "type": "knowledge",
+            "category": "basics",
+            "rarity": "common",
+            "emoji": "🍱",
+            "question": "一份雞腿便當大約多少卡？",
+            "choices": [
+                {
+                    "text": "約 500 卡",
+                    "correct": false,
+                    "feedback": "低估了～飯加炸雞不只這樣"
+                },
+                {
+                    "text": "約 850 卡",
+                    "correct": true,
+                    "feedback": "正確！約等於日需熱量一半 🍗"
+                },
+                {
+                    "text": "約 1300 卡",
+                    "correct": false,
+                    "feedback": "太多了，除非超大份"
+                }
+            ],
+            "explain": "雞腿便當約 800-900 卡（炸雞腿 450+白飯 280+配菜 150）。若要體態管理，可以換烤雞腿飯（省 150 卡）或只吃一半飯。"
+        },
+        {
+            "id": "k009",
+            "type": "knowledge",
+            "category": "weightloss",
+            "rarity": "common",
+            "emoji": "⚖️",
+            "question": "健康體態管理速度建議是？",
+            "choices": [
+                {
+                    "text": "每週 0.5-1 公斤",
+                    "correct": true,
+                    "feedback": "正確！這是永續的節奏 👏"
+                },
+                {
+                    "text": "每週 2-3 公斤",
+                    "correct": false,
+                    "feedback": "太快了，大多是水和肌肉"
+                },
+                {
+                    "text": "不重要只要瘦就好",
+                    "correct": false,
+                    "feedback": "太快會反彈、掉肌肉"
+                }
+            ],
+            "explain": "一週 0.5-1kg ≈ 每日熱量赤字 500-1000 卡。掉太快的通常是水分與肌肉，復胖機率高。慢慢來反而比較快。"
+        },
+        {
+            "id": "k010",
+            "type": "knowledge",
+            "category": "weightloss",
+            "rarity": "rare",
+            "emoji": "🔥",
+            "question": "要減掉 1 公斤純脂肪，需要大約多少熱量赤字？",
+            "choices": [
+                {
+                    "text": "約 3000 卡",
+                    "correct": false,
+                    "feedback": "這是 1 斤左右，不是 1 公斤"
+                },
+                {
+                    "text": "約 7700 卡",
+                    "correct": true,
+                    "feedback": "答對！記這個數字很有用"
+                },
+                {
+                    "text": "約 15000 卡",
+                    "correct": false,
+                    "feedback": "這是 2 公斤的量了"
+                }
+            ],
+            "explain": "1kg 脂肪 ≈ 7700 卡。若每日赤字 500 卡（少吃+多動），約 15 天減一公斤，這就是健康速度的由來。"
+        },
+        {
+            "id": "k011",
+            "type": "knowledge",
+            "category": "weightloss",
+            "rarity": "common",
+            "emoji": "🌙",
+            "question": "不吃晚餐是體態管理最快的方法？",
+            "choices": [
+                {
+                    "text": "對，明顯不吃最快",
+                    "correct": false,
+                    "feedback": "短期有效，但容易反撲"
+                },
+                {
+                    "text": "錯，容易暴食、代謝降",
+                    "correct": true,
+                    "feedback": "沒錯！體態管理是總量遊戲"
+                },
+                {
+                    "text": "只要早餐吃很多就可以",
+                    "correct": false,
+                    "feedback": "早餐吃多但晚餐斷食不平衡"
+                }
+            ],
+            "explain": "斷晚餐短期體重會掉（主要水分），但容易造成夜間暴食、代謝適應、肌肉流失。關鍵是「一天總熱量」，晚餐可以吃少或吃輕，但不建議明顯不吃。"
+        },
+        {
+            "id": "k012",
+            "type": "knowledge",
+            "category": "weightloss",
+            "rarity": "common",
+            "emoji": "🍎",
+            "question": "只吃水果體重管理，最主要的風險是？",
+            "choices": [
+                {
+                    "text": "糖分太低沒力氣",
+                    "correct": false,
+                    "feedback": "其實水果糖分不低喔"
+                },
+                {
+                    "text": "蛋白質不足、掉肌肉",
+                    "correct": true,
+                    "feedback": "答對！這是最致命的"
+                },
+                {
+                    "text": "明顯沒風險啊",
+                    "correct": false,
+                    "feedback": "有很多風險～"
+                }
+            ],
+            "explain": "水果幾乎沒蛋白質，缺乏蛋白質會讓身體「燒肌肉換能量」，基礎代謝下降，一恢復正常飲食就反彈。體態管理期每公斤體重至少 1.2g 蛋白質。"
+        },
+        {
+            "id": "k013",
+            "type": "knowledge",
+            "category": "weightloss",
+            "rarity": "rare",
+            "emoji": "🧊",
+            "question": "喝冰水可以「燃燒脂肪」嗎？",
+            "choices": [
+                {
+                    "text": "效果顯著",
+                    "correct": false,
+                    "feedback": "流傳很廣但不成立"
+                },
+                {
+                    "text": "幾乎可以忽略",
+                    "correct": true,
+                    "feedback": "正確！連 10 卡都不到"
+                },
+                {
+                    "text": "反而會變胖",
+                    "correct": false,
+                    "feedback": "也不會啦 😅"
+                }
+            ],
+            "explain": "500ml 冰水加熱到體溫，約消耗 17 卡，一天喝 2L 冰水多燒 70 卡。對體態管理幾乎沒差，但多喝水對代謝與滿足感仍有幫助。"
+        },
+        {
+            "id": "k014",
+            "type": "knowledge",
+            "category": "weightloss",
+            "rarity": "common",
+            "emoji": "📊",
+            "question": "體重在一天之內可以波動多少？",
+            "choices": [
+                {
+                    "text": "頂多 100-300g",
+                    "correct": false,
+                    "feedback": "低估了～人體是動態的"
+                },
+                {
+                    "text": "1-2 公斤很正常",
+                    "correct": true,
+                    "feedback": "答對！所以別被單次數字嚇到"
+                },
+                {
+                    "text": "超過 5 公斤",
+                    "correct": false,
+                    "feedback": "這通常是儀器有問題"
+                }
+            ],
+            "explain": "一天體重波動 1-2kg 是常態（食物、水、糞便、肝糖）。建議早上空腹、同一時間量、看一週平均值，而不是單日數字。"
+        },
+        {
+            "id": "k015",
+            "type": "knowledge",
+            "category": "exercise",
+            "rarity": "common",
+            "emoji": "💪",
+            "question": "體態管理期該做重訓還是只做有氧？",
+            "choices": [
+                {
+                    "text": "只做有氧最快",
+                    "correct": false,
+                    "feedback": "快是快，但會掉肌肉"
+                },
+                {
+                    "text": "重訓為主，有氧輔助",
+                    "correct": true,
+                    "feedback": "這是近年科學共識 ✨"
+                },
+                {
+                    "text": "都不用，少吃就好",
+                    "correct": false,
+                    "feedback": "沒運動容易掉肌肉"
+                }
+            ],
+            "explain": "重訓保留肌肉、維持代謝；有氧增加熱量消耗。體態管理期理想：重訓 2-3 次/週 + 每日 6000-8000 步或 2-3 次輕有氧。光做有氧會變成「瘦但鬆垮」。"
+        },
+        {
+            "id": "k016",
+            "type": "knowledge",
+            "category": "exercise",
+            "rarity": "common",
+            "emoji": "🚶‍♀️",
+            "question": "快走 30 分鐘大約燃燒多少卡？（60kg 女性）",
+            "choices": [
+                {
+                    "text": "約 80 卡",
+                    "correct": false,
+                    "feedback": "這比較像散步的量"
+                },
+                {
+                    "text": "約 180 卡",
+                    "correct": true,
+                    "feedback": "答對！大概一顆蘋果"
+                },
+                {
+                    "text": "約 400 卡",
+                    "correct": false,
+                    "feedback": "那得快跑才有"
+                }
+            ],
+            "explain": "60kg 女性快走（6km/h）30 分鐘約 180 卡。運動燒的熱量常被高估、飲食補償常被低估——這是很多人運動沒瘦的原因。"
+        },
+        {
+            "id": "k017",
+            "type": "knowledge",
+            "category": "exercise",
+            "rarity": "rare",
+            "emoji": "⏰",
+            "question": "運動「最代謝保健」的黃金時段是？",
+            "choices": [
+                {
+                    "text": "早上空腹",
+                    "correct": false,
+                    "feedback": "有點效果但差異不大"
+                },
+                {
+                    "text": "運動結束後 2 小時",
+                    "correct": false,
+                    "feedback": "後燃效應存在但有限"
+                },
+                {
+                    "text": "其實整天都在燃",
+                    "correct": true,
+                    "feedback": "答對！別被話術騙了"
+                }
+            ],
+            "explain": "人體 24 小時都在消耗熱量，沒有什麼「黃金代謝保健時段」。最重要的是「一天總消耗 vs 總攝取」。挑你能「長期做」的時段，才是真的有效。"
+        },
+        {
+            "id": "k018",
+            "type": "knowledge",
+            "category": "exercise",
+            "rarity": "common",
+            "emoji": "🍗",
+            "question": "運動後馬上吃東西會讓努力白費？",
+            "choices": [
+                {
+                    "text": "對，會直接變胖",
+                    "correct": false,
+                    "feedback": "這是體重管理最大誤會之一"
+                },
+                {
+                    "text": "錯，30 分內補蛋白反而好",
+                    "correct": true,
+                    "feedback": "答對！肌肉更新的黃金期 💪"
+                },
+                {
+                    "text": "隨便啦沒差",
+                    "correct": false,
+                    "feedback": "其實有差～運動後吃對很重要"
+                }
+            ],
+            "explain": "運動後 30-60 分鐘富含蛋白（20-30g）與少量碳水，有助於肌肉修復與合成，這段時間叫「同化窗口」。不吃反而浪費努力。"
+        },
+        {
+            "id": "k019",
+            "type": "knowledge",
+            "category": "exercise",
+            "rarity": "rare",
+            "emoji": "🤸‍♀️",
+            "question": "每天做 100 個仰臥起坐可以瘦肚子？",
+            "choices": [
+                {
+                    "text": "可以，局部代謝保健很有效",
+                    "correct": false,
+                    "feedback": "局部體態管理是迷思"
+                },
+                {
+                    "text": "不行，脂肪是全身一起減",
+                    "correct": true,
+                    "feedback": "正確！肚子先胖通常也最後瘦"
+                },
+                {
+                    "text": "只要做夠多就可以",
+                    "correct": false,
+                    "feedback": "會變結實但不會局部變瘦"
+                }
+            ],
+            "explain": "脂肪燃燒是全身性的，無法靠局部訓練消除。仰臥起坐練到的是腹肌（肚子裡的肌肉），但外面的脂肪要靠全身熱量赤字才會消。"
+        },
+        {
+            "id": "k020",
+            "type": "knowledge",
+            "category": "mindset",
+            "rarity": "common",
+            "emoji": "😔",
+            "question": "情緒性進食最常見的觸發原因是？",
+            "choices": [
+                {
+                    "text": "真的肚子餓",
+                    "correct": false,
+                    "feedback": "那是生理性飢餓"
+                },
+                {
+                    "text": "壓力與情緒",
+                    "correct": true,
+                    "feedback": "答對！占情緒性進食的 70%"
+                },
+                {
+                    "text": "只是看到食物",
+                    "correct": false,
+                    "feedback": "那是環境誘發"
+                }
+            ],
+            "explain": "壓力會讓皮質醇升高，身體渴望高糖高脂食物來「安撫」。下次想暴吃前，先問：是肚子還是心情？喝口水、深呼吸 5 次，常常就過了。"
+        },
+        {
+            "id": "k021",
+            "type": "knowledge",
+            "category": "mindset",
+            "rarity": "rare",
+            "emoji": "⚖️",
+            "question": "每天量體重，是好習慣還是壞習慣？",
+            "choices": [
+                {
+                    "text": "很是好的，要量",
+                    "correct": false,
+                    "feedback": "看心態，對某些人反而有害"
+                },
+                {
+                    "text": "不要量最好",
+                    "correct": false,
+                    "feedback": "不量也可能失去方向"
+                },
+                {
+                    "text": "看你能不能接受波動",
+                    "correct": true,
+                    "feedback": "這是最成熟的答案 ✨"
+                }
+            ],
+            "explain": "體重計是工具不是審判。能把每日波動當「資訊」的人，量了有幫助；一上升就情緒崩潰的人，量了反而會暴食。建議一週 2-3 次固定時間即可。"
+        },
+        {
+            "id": "k022",
+            "type": "knowledge",
+            "category": "mindset",
+            "rarity": "common",
+            "emoji": "😴",
+            "question": "睡不夠會變胖嗎？",
+            "choices": [
+                {
+                    "text": "明顯沒關係",
+                    "correct": false,
+                    "feedback": "關係很大喔"
+                },
+                {
+                    "text": "會，荷爾蒙被打亂",
+                    "correct": true,
+                    "feedback": "正確！睡眠是被忽略的關鍵"
+                },
+                {
+                    "text": "反而會變瘦",
+                    "correct": false,
+                    "feedback": "短期掉水長期變胖"
+                }
+            ],
+            "explain": "睡眠 <6 小時會讓飢餓素(ghrelin)上升、飽足素(leptin)下降，隔天平均多吃 300 卡。體態管理期睡 7-8 小時和運動一樣重要。"
+        },
+        {
+            "id": "k023",
+            "type": "knowledge",
+            "category": "mindset",
+            "rarity": "legendary",
+            "emoji": "🧠",
+            "question": "體重管理失敗最大的三個「心魔」是？",
+            "choices": [
+                {
+                    "text": "沒時間、太忙、太累",
+                    "correct": false,
+                    "feedback": "那是藉口層次，不是心魔"
+                },
+                {
+                    "text": "完美主義、補償心理、放棄想法",
+                    "correct": true,
+                    "feedback": "答對！會救你無數次 💎"
+                },
+                {
+                    "text": "別人誘惑我",
+                    "correct": false,
+                    "feedback": "責任不該外放"
+                }
+            ],
+            "explain": "① 完美主義：吃一塊蛋糕就覺得「毀了」乾脆放棄 ② 補償心理：「我今天運動了，可以多吃」 ③ 放棄想法：「怎樣都瘦不下來」。識別它們就贏一半。"
+        },
+        {
+            "id": "k024",
+            "type": "knowledge",
+            "category": "mindset",
+            "rarity": "common",
+            "emoji": "🍽️",
+            "question": "吃飽的訊號從胃傳到大腦大約要多久？",
+            "choices": [
+                {
+                    "text": "立刻，一吃就知道",
+                    "correct": false,
+                    "feedback": "是有延遲的喔"
+                },
+                {
+                    "text": "約 20 分鐘",
+                    "correct": true,
+                    "feedback": "答對！所以才要慢慢吃"
+                },
+                {
+                    "text": "約 2 小時",
+                    "correct": false,
+                    "feedback": "這就太久了"
+                }
+            ],
+            "explain": "飽足訊號約 15-20 分鐘才會傳達。快食者常常吃完「剛好飽」其實已經超飽。建議放慢速度、吃到 8 分飽就停、等 10 分鐘再決定要不要續。"
+        },
+        {
+            "id": "k025",
+            "type": "knowledge",
+            "category": "mindset",
+            "rarity": "rare",
+            "emoji": "🍲",
+            "question": "聚餐不想吃過量，最有效的順序是？",
+            "choices": [
+                {
+                    "text": "主食先吃完快走人",
+                    "correct": false,
+                    "feedback": "血糖飆快更容易餓"
+                },
+                {
+                    "text": "湯→蔬菜→蛋白質→澱粉",
+                    "correct": true,
+                    "feedback": "完美策略！血糖也更穩"
+                },
+                {
+                    "text": "甜點先吃避免沒位置",
+                    "correct": false,
+                    "feedback": "😅 這是甜點優先派哲學"
+                }
+            ],
+            "explain": "先喝湯墊胃、吃蔬菜增加滿足、蛋白質穩血糖、澱粉最後。同樣的食物、不同順序，血糖曲線與滿足感差很多。"
+        },
+        {
+            "id": "s001",
+            "type": "scenario",
+            "category": "social",
+            "rarity": "common",
+            "emoji": "🧋",
+            "question": "下午三點同事揪飲料，你要？",
+            "choices": [
+                {
+                    "text": "全糖珍奶大杯加珍珠",
+                    "xp_mod": -2,
+                    "feedback": "這餐吃得開心就好，晚餐清淡一點就平衡 💛",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "無糖綠茶或美式",
+                    "xp_mod": 4,
+                    "feedback": "超棒選擇！省下 400 卡 ✨",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "半糖微冰改小杯",
+                    "xp_mod": 2,
+                    "feedback": "折中派，不用每次都完美 👏",
+                    "tag": "balanced"
+                }
+            ],
+            "explain": "社交飲料是體態管理最大漏洞之一。一週省 3 杯全糖 ≈ 2000 卡 ≈ 0.26kg 脂肪。不用每次都戒，但把「預設」換成無糖。"
+        },
+        {
+            "id": "s002",
+            "type": "scenario",
+            "category": "social",
+            "rarity": "rare",
+            "emoji": "🍲",
+            "question": "週五晚上朋友約麻辣鍋，你的策略？",
+            "choices": [
+                {
+                    "text": "去，但以蔬菜和肉片為主",
+                    "xp_mod": 4,
+                    "feedback": "完美社交+體態管理平衡！",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "去，整場放飛、隔天補回來",
+                    "xp_mod": 0,
+                    "feedback": "記得隔天是清淡+多喝水，不要過度節食",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "編理由不去",
+                    "xp_mod": -1,
+                    "feedback": "偶爾可以，但長期會孤立自己",
+                    "tag": "avoid"
+                }
+            ],
+            "explain": "社交是生活一部分，體態管理不該犧牲關係。火鍋策略：湯底選清湯、優先肉片+菜、沾醬用蒜泥蔥花別用沙茶、白飯或冬粉擇一。"
+        },
+        {
+            "id": "s003",
+            "type": "scenario",
+            "category": "emotion",
+            "rarity": "rare",
+            "emoji": "🩸",
+            "question": "生理期前超想吃甜的，怎麼辦？",
+            "choices": [
+                {
+                    "text": "吃！這時候不吃才痛苦",
+                    "xp_mod": 1,
+                    "feedback": "生理期吃一點甜正常，選黑巧克力 70% 更好",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "換成水果或無糖優格",
+                    "xp_mod": 4,
+                    "feedback": "聰明替代！糖+蛋白質都有",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "忍住不吃",
+                    "xp_mod": -1,
+                    "feedback": "過度壓抑容易後面暴食",
+                    "tag": "avoid"
+                }
+            ],
+            "explain": "經前黃體素上升會增加糖分渴望，是生理不是意志力問題。可以吃，但選對：黑巧克力、香蕉、無糖優格+莓果、地瓜。避免含糖飲料和精緻甜點。"
+        },
+        {
+            "id": "s004",
+            "type": "scenario",
+            "category": "temptation",
+            "rarity": "common",
+            "emoji": "🥐",
+            "question": "早上趕時間，家裡只有甜麵包和牛奶，你？",
+            "choices": [
+                {
+                    "text": "吃甜麵包配牛奶出門",
+                    "xp_mod": 0,
+                    "feedback": "有吃早餐贏過不吃，但蛋白質不足",
+                    "tag": "balanced"
+                },
+                {
+                    "text": "只喝牛奶、路上買蛋",
+                    "xp_mod": 3,
+                    "feedback": "會加蛋的人體態管理都很順 🥚",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "乾脆不吃",
+                    "xp_mod": -2,
+                    "feedback": "中午容易報復性大吃",
+                    "tag": "avoid"
+                }
+            ],
+            "explain": "早餐沒蛋白質會讓整天血糖和食慾不穩。便利商店選項：茶葉蛋 +無糖豆漿、地瓜+茶葉蛋、優格+香蕉。30 秒的決定影響整天。"
+        },
+        {
+            "id": "s005",
+            "type": "scenario",
+            "category": "social",
+            "rarity": "legendary",
+            "emoji": "👩‍🍳",
+            "question": "媽媽煮一大桌還說「多吃一點」，你？",
+            "choices": [
+                {
+                    "text": "全吃完不然媽媽難過",
+                    "xp_mod": -1,
+                    "feedback": "孝順但不用用身體孝順",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "每道都吃一點、白飯減半",
+                    "xp_mod": 4,
+                    "feedback": "情商 MAX！媽媽開心你也沒爆 ✨",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "只吃蛋白質和菜，拒絕飯",
+                    "xp_mod": 1,
+                    "feedback": "有原則，但媽媽可能會念",
+                    "tag": "strict"
+                }
+            ],
+            "explain": "家庭餐是華人體態管理最難的一關。實戰心法：先滿盤蔬菜+肉、白飯半碗、每道嚐一口、嘴巴讚美「好好吃」讓媽媽有成就感，比拒絕有效 10 倍。"
+        },
+        {
+            "id": "s006",
+            "type": "scenario",
+            "category": "social",
+            "rarity": "rare",
+            "emoji": "🍻",
+            "question": "聚餐要喝酒，你？",
+            "choices": [
+                {
+                    "text": "啤酒無限暢飲",
+                    "xp_mod": -2,
+                    "feedback": "啤酒肚不是笑話，液體熱量最狡猾",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "改喝氣泡水或無糖茶",
+                    "xp_mod": 4,
+                    "feedback": "社交+健康兼顧，成熟大人",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "紅白酒一杯，慢慢喝",
+                    "xp_mod": 2,
+                    "feedback": "可以！記得別配炸物",
+                    "tag": "balanced"
+                }
+            ],
+            "explain": "酒精是「空熱量」：1g = 7 卡，僅次於脂肪。啤酒一杯約 150 卡、紅酒一杯 120 卡、shots 更慘。體態管理期 1-2 杯社交可以，別配炸物下酒菜。"
+        },
+        {
+            "id": "s007",
+            "type": "scenario",
+            "category": "temptation",
+            "rarity": "rare",
+            "emoji": "🌃",
+            "question": "加班到 11 點，餓得胃痛，怎麼吃宵夜？",
+            "choices": [
+                {
+                    "text": "泡麵+鹽酥雞",
+                    "xp_mod": -2,
+                    "feedback": "好懂，但明天會後悔",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "無糖豆漿+茶葉蛋",
+                    "xp_mod": 4,
+                    "feedback": "完美宵夜解，蛋白+少熱量",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "一大份水果",
+                    "xp_mod": 0,
+                    "feedback": "熱量不低還是會影響睡眠",
+                    "tag": "balanced"
+                }
+            ],
+            "explain": "真的餓就吃，餓著睡更傷代謝。宵夜選擇：無糖豆漿、茶葉蛋、無糖優格、小份堅果 10g、清湯。避開油炸、辣、大份量澱粉。"
+        },
+        {
+            "id": "s008",
+            "type": "scenario",
+            "category": "temptation",
+            "rarity": "common",
+            "emoji": "💪",
+            "question": "健身房練完超餓，要吃什麼？",
+            "choices": [
+                {
+                    "text": "覺得練過了去吃吃到飽",
+                    "xp_mod": -3,
+                    "feedback": "補償心理，1 小時運動抵不過 2 小時大吃",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "茶葉蛋+香蕉+豆漿",
+                    "xp_mod": 4,
+                    "feedback": "教科書答案！蛋白+碳水都有 ✨",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "忍住不吃",
+                    "xp_mod": -1,
+                    "feedback": "錯過修復時機太可惜",
+                    "tag": "avoid"
+                }
+            ],
+            "explain": "運動後 30-60 分是同化窗口。理想比例：20-30g 蛋白 + 30-50g 碳水。預算內：兩顆茶葉蛋+一根香蕉約 250 卡、蛋白質 15g、碳水 25g。"
+        },
+        {
+            "id": "s009",
+            "type": "scenario",
+            "category": "emotion",
+            "rarity": "legendary",
+            "emoji": "💔",
+            "question": "剛被分手／被罵，只想大吃一頓，你？",
+            "choices": [
+                {
+                    "text": "吃，一次吃爆",
+                    "xp_mod": 0,
+                    "feedback": "允許自己有這一餐，別自責就好",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "叫朋友出來，吃一點點就好",
+                    "xp_mod": 3,
+                    "feedback": "很高情商的選擇 💛",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "去運動或散步轉移",
+                    "xp_mod": 4,
+                    "feedback": "情緒的真正解藥不是食物 ✨",
+                    "tag": "heal"
+                }
+            ],
+            "explain": "情緒性進食：食物是「麻醉劑」不是「解藥」。先允許自己有情緒，再試著把觸發→行為分開：感到悲傷≠必須吃。替代行為：散步、打給朋友、洗熱水澡、寫下來。"
+        },
+        {
+            "id": "s010",
+            "type": "scenario",
+            "category": "mindset",
+            "rarity": "rare",
+            "emoji": "🪨",
+            "question": "努力一週體重沒動（平台期），你？",
+            "choices": [
+                {
+                    "text": "直接放棄",
+                    "xp_mod": -3,
+                    "feedback": "這是心魔，不是體脂 💔",
+                    "tag": "avoid"
+                },
+                {
+                    "text": "檢視並微調飲食／運動",
+                    "xp_mod": 4,
+                    "feedback": "成熟心態！平台期是常態 ✨",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "報復性大吃",
+                    "xp_mod": -2,
+                    "feedback": "會讓一週努力歸零",
+                    "tag": "indulge"
+                }
+            ],
+            "explain": "平台期原因：代謝適應、水分波動、肌肉增加。解法：① 檢查是否熱量抓錯 ② 增加 NEAT（日常活動）③ 換運動模式 ④ 看體圍不看體重 ⑤ 給身體一週適應。"
+        },
+        {
+            "id": "s011",
+            "type": "scenario",
+            "category": "temptation",
+            "rarity": "common",
+            "emoji": "🛋️",
+            "question": "下班累爆，運動課預約了但只想癱在沙發，你？",
+            "choices": [
+                {
+                    "text": "取消課程直接廢",
+                    "xp_mod": -2,
+                    "feedback": "偶爾可以，常常就變習慣了",
+                    "tag": "avoid"
+                },
+                {
+                    "text": "硬著頭皮去，做到一半算一半",
+                    "xp_mod": 4,
+                    "feedback": "這個才是真正的 mindset 贏家 💪",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "換輕運動（散步/瑜伽）",
+                    "xp_mod": 3,
+                    "feedback": "聰明！動比不動好",
+                    "tag": "balanced"
+                }
+            ],
+            "explain": "運動習慣最大的敵人不是累，是「允許自己跳過」。心法：只要去，做 15 分鐘也算。80% 的狀況到了現場就做完了，剩下 20% 也比沒去好。"
+        },
+        {
+            "id": "s012",
+            "type": "scenario",
+            "category": "mindset",
+            "rarity": "common",
+            "emoji": "🎊",
+            "question": "連假吃喝玩樂多吃了 3 天，假期結束你？",
+            "choices": [
+                {
+                    "text": "連續斷食 2 天補回來",
+                    "xp_mod": -2,
+                    "feedback": "極端補償=下一輪暴食的開始",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "恢復正常飲食+多走路",
+                    "xp_mod": 4,
+                    "feedback": "明顯正確！船要慢慢駛回正軌 ✨",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "乾脆爛到底",
+                    "xp_mod": -3,
+                    "feedback": "這就是放棄心魔的聲音",
+                    "tag": "avoid"
+                }
+            ],
+            "explain": "3 天多吃大部分是水分與腸胃存量，不是真的胖 3 公斤。恢復正常飲食 3-5 天體重會回來。補償式節食只會啟動壓力荷爾蒙讓你更難減。"
+        },
+        {
+            "id": "s013",
+            "type": "scenario",
+            "category": "temptation",
+            "rarity": "common",
+            "emoji": "🍱",
+            "question": "買了特大份便當，吃到一半已經飽了，你？",
+            "choices": [
+                {
+                    "text": "捨不得浪費硬吃完",
+                    "xp_mod": -2,
+                    "feedback": "多吃的熱量比剩下的食物貴 💸",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "留下來下一餐吃",
+                    "xp_mod": 4,
+                    "feedback": "最省錢又不胖的答案！",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "吃完主食不吃配菜",
+                    "xp_mod": 1,
+                    "feedback": "主食反而熱量最高喔",
+                    "tag": "balanced"
+                }
+            ],
+            "explain": "「不要浪費食物」vs「變胖」的經典矛盾。真相：多吃的熱量會儲存成脂肪（成本更高），剩的可以下餐吃或冰起來。下次一開始就跟老闆說「飯少一點」。"
+        },
+        {
+            "id": "s014",
+            "type": "scenario",
+            "category": "social",
+            "rarity": "rare",
+            "emoji": "💕",
+            "question": "約會吃法式高級餐廳，你要？",
+            "choices": [
+                {
+                    "text": "整套吃完不留遺憾",
+                    "xp_mod": 1,
+                    "feedback": "特殊日子可以，隔天回到軌道就好",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "前菜+主餐，省甜點",
+                    "xp_mod": 3,
+                    "feedback": "聰明策略！氛圍到位又不爆",
+                    "tag": "balanced"
+                },
+                {
+                    "text": "點沙拉就好",
+                    "xp_mod": -1,
+                    "feedback": "太拘謹反而尷尬，偶爾享受也是生活",
+                    "tag": "strict"
+                }
+            ],
+            "explain": "體態管理不是苦行。把「每週節省的配額」留給真正重要的飲食場合。一頓高級料理不會毀掉一切，關鍵是隔天回到正軌，不是從此自暴自棄。"
+        },
+        {
+            "id": "e001",
+            "type": "scenario",
+            "category": "social",
+            "rarity": "rare",
+            "emoji": "📱",
+            "is_event": true,
+            "event_tags": [
+                "afternoon_3pm",
+                "weekday"
+            ],
+            "event_probability": 0.35,
+            "event_cooldown_days": 14,
+            "event_replayable": true,
+            "event_min_level": 1,
+            "event_ttl_minutes": 45,
+            "event_group": "social",
+            "question": "叮！同事傳 Line：「下午點飲料要嗎？請客☕️」",
+            "hint": "限時事件・2 小時內回答",
+            "choices": [
+                {
+                    "text": "「好啊珍奶大杯全糖！」",
+                    "xp_mod": -2,
+                    "feedback": "享受是享受了～明天記得清淡一天 💛",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "「謝謝～我帶水壺了，改天換我請」",
+                    "xp_mod": 5,
+                    "feedback": "拒絕+禮貌+給理由，完美社交 ✨",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "「謝謝，那我無糖綠就好」",
+                    "xp_mod": 3,
+                    "feedback": "折中派聰明！",
+                    "tag": "balanced"
+                }
+            ],
+            "explain": "下午 3 點是體態管理最危險時段之一 — 血糖低 + 同事揪 + 免費 = 三重誘惑。每天少一杯全糖飲，一年少 13 萬卡 ≈ 17 公斤脂肪。"
+        },
+        {
+            "id": "e002",
+            "type": "scenario",
+            "category": "social",
+            "rarity": "legendary",
+            "emoji": "🍲",
+            "is_event": true,
+            "event_tags": [
+                "friday_night",
+                "evening"
+            ],
+            "event_probability": 0.45,
+            "event_cooldown_days": 21,
+            "event_replayable": true,
+            "event_min_level": 3,
+            "event_ttl_minutes": 60,
+            "event_group": "social",
+            "question": "週五晚上 7 點！朋友訊息轟炸：「快來！麻辣鍋已經訂位了🔥」",
+            "hint": "限時事件・3 小時內回答",
+            "choices": [
+                {
+                    "text": "衝！整晚放飛不設限",
+                    "xp_mod": -1,
+                    "feedback": "偶爾放飛 OK，記得隔天清淡+多喝水 💧",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "去，但白飯不吃、湯底選清湯",
+                    "xp_mod": 6,
+                    "feedback": "完美火鍋策略！社交滿分、熱量 -40% ✨",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "編理由說加班不去",
+                    "xp_mod": -2,
+                    "feedback": "偶爾可以但長期會孤立自己",
+                    "tag": "avoid"
+                }
+            ],
+            "explain": "週末社交餐是體態管理最大破口，但逃避社交才是長期復胖的關鍵。關鍵是「去，但選對」：清湯底、菜+肉+豆腐優先、沾蒜泥蔥花不沾沙茶、白飯冬粉擇一。"
+        },
+        {
+            "id": "s015",
+            "type": "scenario",
+            "category": "temptation",
+            "rarity": "common",
+            "emoji": "🔥",
+            "question": "冬天冷到想吃燒烤/麻辣，你？",
+            "choices": [
+                {
+                    "text": "蔬菜串+肉串，少選加工品",
+                    "xp_mod": 4,
+                    "feedback": "燒烤達人！香腸甜不辣才是熱量陷阱",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "整場大吃大喝",
+                    "xp_mod": -1,
+                    "feedback": "記得這餐佔你兩天熱量",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "只喝湯不吃",
+                    "xp_mod": 0,
+                    "feedback": "湯鹽分超標，不比較好",
+                    "tag": "strict"
+                }
+            ],
+            "explain": "燒烤熱量高的不是肉，是加工品：香腸、甜不辣、米血、百頁豆腐（吸油）。聰明選：牛肉、雞腿、青椒、杏鮑菇、秋葵。醬料選椒鹽比烤肉醬低 80% 熱量。"
+        },
+        {
+            "id": "fm-egg",
+            "type": "knowledge",
+            "category": "store",
+            "rarity": "common",
+            "emoji": "🥚",
+            "question": "一顆全家茶葉蛋的熱量大概是？",
+            "choices": [
+                {
+                    "text": "約 40 卡",
+                    "correct": false,
+                    "feedback": "那是生蛋白"
+                },
+                {
+                    "text": "約 70 卡",
+                    "correct": true,
+                    "feedback": "正確！高 CP 值蛋白 🥚"
+                },
+                {
+                    "text": "約 150 卡",
+                    "correct": false,
+                    "feedback": "高估了～"
+                }
+            ],
+            "explain": "茶葉蛋 ≈ 70 卡 / 7g 蛋白，是超商必備點心。建議搭無糖豆漿當早餐組合，250 卡 14g 蛋白，飽足到中午。"
+        },
+        {
+            "id": "fm-sweet-potato",
+            "type": "knowledge",
+            "category": "store",
+            "rarity": "common",
+            "emoji": "🍠",
+            "question": "全家地瓜一份（150g）大概多少卡？",
+            "choices": [
+                {
+                    "text": "約 80 卡",
+                    "correct": false,
+                    "feedback": "樂觀了～"
+                },
+                {
+                    "text": "約 180 卡",
+                    "correct": true,
+                    "feedback": "正確！替代白飯很好"
+                },
+                {
+                    "text": "約 350 卡",
+                    "correct": false,
+                    "feedback": "太多啦"
+                }
+            ],
+            "explain": "地瓜熱量密度約 1.2 卡/克，150g ≈ 180 卡、5g 纖維。一餐吃半條可取代白飯，血糖穩定度高上兩倍。"
+        },
+        {
+            "id": "fm-soy-milk",
+            "type": "knowledge",
+            "category": "store",
+            "rarity": "common",
+            "emoji": "🥛",
+            "question": "超商 450ml 無糖豆漿蛋白質大約？",
+            "choices": [
+                {
+                    "text": "3g",
+                    "correct": false,
+                    "feedback": "太低"
+                },
+                {
+                    "text": "13g",
+                    "correct": true,
+                    "feedback": "正確！相當於 2 顆蛋"
+                },
+                {
+                    "text": "25g",
+                    "correct": false,
+                    "feedback": "那是乳清等級"
+                }
+            ],
+            "explain": "450ml 無糖豆漿 ≈ 130 卡 + 13g 蛋白，幾乎等於兩顆蛋。體態管理期建議一天喝一瓶（早或下午）。"
+        },
+        {
+            "id": "fm-salad",
+            "type": "scenario",
+            "category": "store",
+            "rarity": "common",
+            "emoji": "🥗",
+            "question": "全家架上三款沙拉，你選？",
+            "choices": [
+                {
+                    "text": "凱薩雞肉沙拉（含麵包丁）",
+                    "xp_mod": 1,
+                    "feedback": "不差，但沙拉醬熱量藏很多",
+                    "tag": "balanced"
+                },
+                {
+                    "text": "烤雞胸生菜（和風醬另拿）",
+                    "xp_mod": 4,
+                    "feedback": "優質選擇！230 卡 25g 蛋白 ✨",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "馬鈴薯蛋沙拉",
+                    "xp_mod": -1,
+                    "feedback": "美乃滋基底，熱量是前者 1.5 倍",
+                    "tag": "indulge"
+                }
+            ],
+            "explain": "超商沙拉熱量差異 90% 來自醬料：凱薩醬 150 卡、和風醬 40 卡、千島醬 120 卡。醬另拿、只加一半，省 100 卡零成本。"
+        },
+        {
+            "id": "fm-oden",
+            "type": "scenario",
+            "category": "store",
+            "rarity": "rare",
+            "emoji": "🍢",
+            "question": "晚上 9 點進全家買關東煮當宵夜，選什麼？",
+            "choices": [
+                {
+                    "text": "白蘿蔔 + 豆腐 + 雞腿肉",
+                    "xp_mod": 5,
+                    "feedback": "完美！200 卡內富含蛋白高纖 ✨",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "米血 + 甜不辣 + 貢丸",
+                    "xp_mod": -2,
+                    "feedback": "加工品三連發 😅 400 卡起跳",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "玉米筍 + 杏鮑菇 + 小香腸",
+                    "xp_mod": 2,
+                    "feedback": "蔬菜 OK 但香腸拉回來了",
+                    "tag": "balanced"
+                }
+            ],
+            "explain": "關東煮地雷：米血（150 卡）、甜不辣（120 卡）、百頁豆腐（180 卡，吸油怪物）、貢丸（80 卡×3）。安全牌：白蘿蔔、杏鮑菇、雞腿肉、豆腐、海帶。"
+        },
+        {
+            "id": "px-chicken",
+            "type": "knowledge",
+            "category": "store",
+            "rarity": "common",
+            "emoji": "🍗",
+            "question": "超市舒肥雞胸（150g）熱量約？",
+            "choices": [
+                {
+                    "text": "約 90 卡",
+                    "correct": false,
+                    "feedback": "低估"
+                },
+                {
+                    "text": "約 180 卡",
+                    "correct": true,
+                    "feedback": "正確！30g 蛋白質怪物"
+                },
+                {
+                    "text": "約 350 卡",
+                    "correct": false,
+                    "feedback": "那是炸雞腿"
+                }
+            ],
+            "explain": "150g 舒肥雞胸 ≈ 180 卡 + 33g 蛋白，體態管理期最 CP 值蛋白來源。建議一次買 3 包分三天，切片加沙拉超快。"
+        },
+        {
+            "id": "px-tofu",
+            "type": "knowledge",
+            "category": "store",
+            "rarity": "common",
+            "emoji": "🧈",
+            "question": "嫩豆腐一盒（300g）蛋白質約？",
+            "choices": [
+                {
+                    "text": "5g",
+                    "correct": false,
+                    "feedback": "太低"
+                },
+                {
+                    "text": "15g",
+                    "correct": true,
+                    "feedback": "正確！比你想的多"
+                },
+                {
+                    "text": "30g",
+                    "correct": false,
+                    "feedback": "那是雞肉等級"
+                }
+            ],
+            "explain": "一盒嫩豆腐 ≈ 150 卡 15g 蛋白，是素食與輕食的王者。加醬油蔥花微波 1 分鐘即可，懶人晚餐神物。"
+        },
+        {
+            "id": "px-broccoli",
+            "type": "knowledge",
+            "category": "store",
+            "rarity": "common",
+            "emoji": "🥦",
+            "question": "青花菜 100g 熱量大約？",
+            "choices": [
+                {
+                    "text": "約 30 卡",
+                    "correct": true,
+                    "feedback": "正確！超低熱量"
+                },
+                {
+                    "text": "約 90 卡",
+                    "correct": false,
+                    "feedback": "高估了"
+                },
+                {
+                    "text": "約 150 卡",
+                    "correct": false,
+                    "feedback": "太誇張"
+                }
+            ],
+            "explain": "青花菜 100g 只有 30 卡、3g 蛋白、2.5g 纖維，還富含維生素 C。體態管理期可以大量吃，吃到飽不怕爆。"
+        },
+        {
+            "id": "px-yogurt",
+            "type": "scenario",
+            "category": "store",
+            "rarity": "common",
+            "emoji": "🍶",
+            "question": "全聯優格區選哪一個？",
+            "choices": [
+                {
+                    "text": "無糖希臘優格 150g",
+                    "xp_mod": 5,
+                    "feedback": "體態管理之王！15g 蛋白 🏆",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "水果優格加蜜桃 200g",
+                    "xp_mod": 0,
+                    "feedback": "糖分藏 15-20g，等於半杯可樂",
+                    "tag": "balanced"
+                },
+                {
+                    "text": "布丁風味優格",
+                    "xp_mod": -2,
+                    "feedback": "那是甜點不是優格 😅",
+                    "tag": "indulge"
+                }
+            ],
+            "explain": "無糖希臘優格是體態管理期神品：150g ≈ 100 卡 + 15g 蛋白。加一點莓果就是完美下午茶。調味優格糖分是無糖的 4-6 倍。"
+        },
+        {
+            "id": "px-oats",
+            "type": "knowledge",
+            "category": "store",
+            "rarity": "rare",
+            "emoji": "🌾",
+            "question": "無糖燕麥片一碗（40g 乾）煮成粥後熱量？",
+            "choices": [
+                {
+                    "text": "約 80 卡",
+                    "correct": false,
+                    "feedback": "乾燕麥密度高"
+                },
+                {
+                    "text": "約 150 卡",
+                    "correct": true,
+                    "feedback": "正確！滿足感爆棚"
+                },
+                {
+                    "text": "約 300 卡",
+                    "correct": false,
+                    "feedback": "高估了"
+                }
+            ],
+            "explain": "40g 乾燕麥 ≈ 150 卡 + 5g 蛋白 + 4g 纖維。煮成粥可膨脹 3 倍，滿足感超強。加杯無糖豆漿就是完整早餐 280 卡。"
+        },
+        {
+            "id": "mc-mcmuffin",
+            "type": "scenario",
+            "category": "store",
+            "rarity": "common",
+            "emoji": "🍳",
+            "question": "早上麥當勞，選？",
+            "choices": [
+                {
+                    "text": "滿福堡（不加起司）+ 美式咖啡",
+                    "xp_mod": 4,
+                    "feedback": "約 320 卡完美早餐",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "薯餅豬肉滿福堡 + 大冰奶",
+                    "xp_mod": -2,
+                    "feedback": "700+ 卡還沒出門就爆表",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "麥香雞",
+                    "xp_mod": 1,
+                    "feedback": "350 卡但缺蛋白質",
+                    "tag": "balanced"
+                }
+            ],
+            "explain": "麥當勞早餐排行：滿福堡 300 卡（優質）< 麥香雞 350 卡 < 經典早餐 700 卡。加起司 +50 卡、薯餅 +150 卡、大冰奶 +250 卡。"
+        },
+        {
+            "id": "mc-grilled",
+            "type": "knowledge",
+            "category": "store",
+            "rarity": "common",
+            "emoji": "🥪",
+            "question": "麥當勞烤雞沙拉（不加醬）熱量？",
+            "choices": [
+                {
+                    "text": "約 80 卡",
+                    "correct": false,
+                    "feedback": "低估"
+                },
+                {
+                    "text": "約 180 卡",
+                    "correct": true,
+                    "feedback": "正確！輕食選項"
+                },
+                {
+                    "text": "約 400 卡",
+                    "correct": false,
+                    "feedback": "那是套餐"
+                }
+            ],
+            "explain": "烤雞沙拉 ≈ 180 卡 + 20g 蛋白。凱薩醬 +120 卡、千島醬 +110 卡、和風醬 +30 卡。醬料決定 40% 熱量。"
+        },
+        {
+            "id": "mc-fries",
+            "type": "knowledge",
+            "category": "store",
+            "rarity": "common",
+            "emoji": "🍟",
+            "question": "麥當勞大薯多少卡？",
+            "choices": [
+                {
+                    "text": "約 250 卡",
+                    "correct": false,
+                    "feedback": "那是小薯"
+                },
+                {
+                    "text": "約 500 卡",
+                    "correct": true,
+                    "feedback": "正確 😱"
+                },
+                {
+                    "text": "約 800 卡",
+                    "correct": false,
+                    "feedback": "還沒這麼誇張"
+                }
+            ],
+            "explain": "麥當勞大薯 ≈ 500 卡 + 25g 脂肪。若真的想吃，改小薯（250 卡）省一半。沾番茄醬每包再加 20 卡。"
+        },
+        {
+            "id": "mc-mcflurry",
+            "type": "scenario",
+            "category": "store",
+            "rarity": "common",
+            "emoji": "🍦",
+            "question": "吃完麥當勞套餐還想加冰炫風？",
+            "choices": [
+                {
+                    "text": "加！人生苦短",
+                    "xp_mod": -3,
+                    "feedback": "冰炫風 450 卡 = 一餐主食",
+                    "tag": "indulge"
+                },
+                {
+                    "text": "改點霜淇淋單球",
+                    "xp_mod": 0,
+                    "feedback": "150 卡折中選擇",
+                    "tag": "balanced"
+                },
+                {
+                    "text": "算了喝無糖茶",
+                    "xp_mod": 4,
+                    "feedback": "剛強！今天贏了",
+                    "tag": "healthy"
+                }
+            ],
+            "explain": "冰炫風 450 卡 = 3 個小籠包。甜點作為「餐後」通常是大腦的獎勵錯覺，不是真的餓。隔 20 分鐘再決定通常就不想了。"
+        },
+        {
+            "id": "mc-coke",
+            "type": "knowledge",
+            "category": "store",
+            "rarity": "common",
+            "emoji": "🥤",
+            "question": "中杯可樂（500ml）含糖量大約？",
+            "choices": [
+                {
+                    "text": "15g（3 顆方糖）",
+                    "correct": false,
+                    "feedback": "低估了"
+                },
+                {
+                    "text": "53g（13 顆方糖）",
+                    "correct": true,
+                    "feedback": "對！一天建議糖量直接爆"
+                },
+                {
+                    "text": "90g（22 顆方糖）",
+                    "correct": false,
+                    "feedback": "接近 XL 份量"
+                }
+            ],
+            "explain": "中杯可樂 500ml = 53g 糖 ≈ 210 卡的液體熱量。WHO 一天建議糖 ≤ 25g。改無糖可樂可省 210 卡零痛感，一年省 12 公斤。"
+        },
+        {
+            "id": "fp-fiber-drink-x",
+            "type": "fp_recipe",
+            "category": "fp_recipe",
+            "rarity": "rare",
+            "emoji": "🥤",
+            "tier_required": "retail",
+            "fp_product": "纖纖飲X",
+            "question": "【FP 搭配法】纖纖飲 X 優質飲用時機？",
+            "choices": [
+                {
+                    "text": "飯前 30 分鐘，搭配 300ml 溫水",
+                    "xp_mod": 5,
+                    "feedback": "正解！滿足感先行 ✨",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "睡前空腹喝",
+                    "xp_mod": -1,
+                    "feedback": "不建議，纖維需要水幫助推進",
+                    "tag": "avoid"
+                },
+                {
+                    "text": "餐中配飲料",
+                    "xp_mod": 0,
+                    "feedback": "效果打折",
+                    "tag": "balanced"
+                }
+            ],
+            "explain": "纖纖飲 X 含多種膳食纖維，飯前 30 分鐘搭 300ml 溫水飲用能在胃中膨脹，降低後續用餐量 15-20%。SNQ 品質認證配方。"
+        },
+        {
+            "id": "fp-fiber-float",
+            "type": "fp_recipe",
+            "category": "fp_recipe",
+            "rarity": "rare",
+            "emoji": "💊",
+            "tier_required": "retail",
+            "fp_product": "纖飄錠",
+            "question": "【FP 搭配法】纖飄錠每日建議量？",
+            "choices": [
+                {
+                    "text": "一天 2 次、每次 3 錠、隨餐吃",
+                    "xp_mod": 5,
+                    "feedback": "標準吃法 ✓",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "睡前 10 錠",
+                    "xp_mod": -3,
+                    "feedback": "過量！不是越多越好",
+                    "tag": "avoid"
+                },
+                {
+                    "text": "想到才吃",
+                    "xp_mod": 0,
+                    "feedback": "效果不連續",
+                    "tag": "balanced"
+                }
+            ],
+            "explain": "纖飄錠（健康食品認證）建議一天 2 次、每次 3 錠、隨餐服用。規律性比劑量重要。郭雪芙代言配方。"
+        },
+        {
+            "id": "fp-burst-fiber",
+            "type": "fp_recipe",
+            "category": "fp_recipe",
+            "rarity": "rare",
+            "emoji": "💥",
+            "tier_required": "retail",
+            "fp_product": "爆纖錠",
+            "question": "【FP 搭配法】爆纖錠適合什麼狀況？",
+            "choices": [
+                {
+                    "text": "大餐前 30 分鐘吃 3 錠",
+                    "xp_mod": 5,
+                    "feedback": "完美！聚餐救星 ✨",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "空腹配咖啡",
+                    "xp_mod": -1,
+                    "feedback": "刺激腸胃，不建議",
+                    "tag": "avoid"
+                },
+                {
+                    "text": "當零食吃",
+                    "xp_mod": -2,
+                    "feedback": "不是點心 😅",
+                    "tag": "avoid"
+                }
+            ],
+            "explain": "爆纖錠（Monde Selection 金獎）設計給「大餐前」使用，膳食纖維先佔胃空間，後續主食吃得少。聚餐/連假特別有用。"
+        },
+        {
+            "id": "fp-milk-tea",
+            "type": "fp_recipe",
+            "category": "fp_recipe",
+            "rarity": "rare",
+            "emoji": "🧋",
+            "tier_required": "retail",
+            "fp_product": "厚焙奶茶",
+            "question": "【FP 搭配法】婕樂纖厚焙奶茶跟一般手搖奶茶差在？",
+            "choices": [
+                {
+                    "text": "零添加糖，含膳食纖維與蛋白質，搭配飲食",
+                    "xp_mod": 5,
+                    "feedback": "核心價值 ✨",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "只是好喝而已",
+                    "xp_mod": 0,
+                    "feedback": "低估了商品設計",
+                    "tag": "balanced"
+                },
+                {
+                    "text": "喝越多越瘦",
+                    "xp_mod": -3,
+                    "feedback": "補充品不是魔法 🙅",
+                    "tag": "avoid"
+                }
+            ],
+            "explain": "婕樂纖厚焙奶茶是輕食方案：低糖選擇、富含膳食纖維、含植物蛋白。用來取代一餐（非額外加餐）才有效，一杯約 150-200 卡、飽足 3-4 小時。"
+        },
+        {
+            "id": "fp-glow",
+            "type": "fp_recipe",
+            "category": "fp_recipe",
+            "rarity": "legendary",
+            "emoji": "💎",
+            "tier_required": "retail",
+            "fp_product": "水光錠",
+            "question": "【FP 搭配法】水光錠怎麼吃效果最好？",
+            "choices": [
+                {
+                    "text": "每日睡前空腹 2 錠、搭配喝水",
+                    "xp_mod": 6,
+                    "feedback": "優質吸收時機 ✨",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "跟咖啡一起吞",
+                    "xp_mod": -1,
+                    "feedback": "咖啡因會干擾",
+                    "tag": "avoid"
+                },
+                {
+                    "text": "三餐飯後各一顆",
+                    "xp_mod": 1,
+                    "feedback": "可以但吸收率次於空腹",
+                    "tag": "balanced"
+                }
+            ],
+            "explain": "水光錠含日本 Hyabest 專利玻尿酸，睡前空腹吸收優質。搭配充足飲水（一天 2000ml）效果加乘。連續使用 4 週感受最明顯。"
+        },
+        {
+            "id": "fp-combo-morning",
+            "type": "fp_recipe",
+            "category": "fp_recipe",
+            "rarity": "legendary",
+            "emoji": "🌅",
+            "tier_required": "fp_franchise",
+            "fp_product": "FP 早餐黃金組",
+            "question": "【加盟進階】FP 早餐黃金組合是？",
+            "choices": [
+                {
+                    "text": "厚焙奶茶 + 纖飄錠 + 一顆水煮蛋",
+                    "xp_mod": 8,
+                    "feedback": "完美組合！300 卡 20g 蛋白 ✨",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "纖纖飲 X + 薯條",
+                    "xp_mod": -3,
+                    "feedback": "邏輯錯亂 😅",
+                    "tag": "avoid"
+                },
+                {
+                    "text": "只喝厚焙奶茶",
+                    "xp_mod": 2,
+                    "feedback": "可以但缺蛋白完整度",
+                    "tag": "balanced"
+                }
+            ],
+            "explain": "加盟商專業搭配：厚焙奶茶（輕食 180 卡）+ 纖飄錠（纖維）+ 水煮蛋（7g 蛋白）= 300 卡 / 20g 蛋白 / 富含膳食纖維，飽到中午。跟客人推薦的黃金組合。"
+        },
+        {
+            "id": "fp-combo-afternoon",
+            "type": "fp_recipe",
+            "category": "fp_recipe",
+            "rarity": "legendary",
+            "emoji": "☕",
+            "tier_required": "fp_franchise",
+            "fp_product": "下午斷糖組合",
+            "question": "【加盟進階】客人下午想喝珍奶怎麼救？",
+            "choices": [
+                {
+                    "text": "推雪花紫纖飲 + 無糖美式，飽足+不爆",
+                    "xp_mod": 8,
+                    "feedback": "優質斷糖 🌿",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "讓他喝珍奶之後吃爆纖錠補救",
+                    "xp_mod": -2,
+                    "feedback": "補救不是解法",
+                    "tag": "avoid"
+                },
+                {
+                    "text": "跟他說「不能喝」",
+                    "xp_mod": -3,
+                    "feedback": "銷售大忌：別說教 🙅",
+                    "tag": "avoid"
+                }
+            ],
+            "explain": "加盟商話術：「這杯雪花紫纖飲蔓越莓風味，喝起來像莓果汁但零添加糖，配無糖美式一樣爽。這週試試看？」提供替代而不是拒絕。"
+        },
+        {
+            "id": "fp-combo-night",
+            "type": "fp_recipe",
+            "category": "fp_recipe",
+            "rarity": "legendary",
+            "emoji": "🌙",
+            "tier_required": "fp_franchise",
+            "fp_product": "夜間修復組",
+            "question": "【加盟進階】夜間修復組合最適合？",
+            "choices": [
+                {
+                    "text": "水光錠 + 植萃纖酵宿，睡前 30 分",
+                    "xp_mod": 8,
+                    "feedback": "保養+腸道雙修 ✨",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "爆纖錠睡前 3 錠",
+                    "xp_mod": -1,
+                    "feedback": "爆纖錠是餐前用，時機錯",
+                    "tag": "avoid"
+                },
+                {
+                    "text": "厚焙奶茶當宵夜",
+                    "xp_mod": 2,
+                    "feedback": "可當輕食但睡前 3 小時內不建議",
+                    "tag": "balanced"
+                }
+            ],
+            "explain": "夜間黃金組：水光錠（保濕修復）+ 植萃纖酵宿（腸道 SNQ 認證）。睡眠修復是保養優質槓桿，這組跟客人推「睡著變漂亮」。"
+        },
+        {
+            "id": "fp-coach-talk",
+            "type": "fp_recipe",
+            "category": "fp_recipe",
+            "rarity": "rare",
+            "emoji": "📣",
+            "tier_required": "fp_franchise",
+            "fp_product": "加盟主分享術",
+            "question": "【加盟進階】新客人試用一週沒感覺，怎麼回？",
+            "choices": [
+                {
+                    "text": "先問作息+飲食細節，找出盲點再建議",
+                    "xp_mod": 8,
+                    "feedback": "顧問式銷售 ✨",
+                    "tag": "healthy"
+                },
+                {
+                    "text": "叫他再多買幾盒",
+                    "xp_mod": -3,
+                    "feedback": "失去信任 💸",
+                    "tag": "avoid"
+                },
+                {
+                    "text": "退費處理",
+                    "xp_mod": -1,
+                    "feedback": "放棄太早",
+                    "tag": "avoid"
+                }
+            ],
+            "explain": "加盟主分享鐵律：產品是工具、結果靠執行。新客沒感覺 90% 來自飲食/作息沒對齊。問「早餐吃什麼？睡幾點？有喝水嗎？」再給解法，複購率 3 倍。"
+        },
+        {
+            "id": "fp-cert-exam",
+            "type": "knowledge",
+            "category": "fp_recipe",
+            "rarity": "legendary",
+            "emoji": "🎓",
+            "tier_required": "fp_franchise",
+            "fp_product": "加盟認證測驗",
+            "question": "【加盟認證】下列哪個是 FP 產品最核心的差異化？",
+            "choices": [
+                {
+                    "text": "價格最便宜",
+                    "correct": false,
+                    "feedback": "不是我們的定位"
+                },
+                {
+                    "text": "專利成分 + 認證 + 教育支援體系",
+                    "correct": true,
+                    "feedback": "正解！🎓",
+                    "xp_mod": 0
+                },
+                {
+                    "text": "明星代言",
+                    "correct": false,
+                    "feedback": "是加分但非核心"
+                }
+            ],
+            "explain": "FP 品牌三支柱：① 專利配方（Hyabest、SNQ、Monde）② 健康食品認證 ③ 加盟教育體系。賣產品只是入口，持續陪伴才是複購鑰匙。"
+        }
+    ]
 }
