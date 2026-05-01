@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Users\Tables;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -116,6 +117,15 @@ class UsersTable
                 TextColumn::make('tier_verified_at')
                     ->dateTime()
                     ->sortable(),
+                IconColumn::make('is_franchisee')
+                    ->label('已加盟')
+                    ->boolean()
+                    ->sortable(),
+                TextColumn::make('franchise_verified_at')
+                    ->label('加盟驗證')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('island_visits_used')
                     ->numeric()
                     ->sortable(),
