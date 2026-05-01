@@ -3,30 +3,34 @@
     <radialGradient id="ob-bg" cx="0.5" cy="0.42" r="0.65">
       <stop offset="0%" stop-color="#FFF8F2"/><stop offset="60%" stop-color="#FFE8D5"/><stop offset="100%" stop-color="#F5C8A8" stop-opacity="0.55"/>
     </radialGradient>
-    <radialGradient id="ob-bubble" cx="0.35" cy="0.35" r="0.7">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95"/><stop offset="60%" stop-color="#FCE8DC" stop-opacity="0.85"/><stop offset="100%" stop-color="#F0B080" stop-opacity="0.7"/>
-    </radialGradient>
+    <linearGradient id="ob-collar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/><stop offset="60%" stop-color="#FFE5D0"/><stop offset="100%" stop-color="#E8B890"/>
+    </linearGradient>
+    <linearGradient id="ob-tag" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFD5B0"/><stop offset="100%" stop-color="#E89868"/>
+    </linearGradient>
   </defs>
-  <ellipse cx="48" cy="90" rx="22" ry="2.2" fill="#A86840" opacity="0.15"/>
+  <ellipse cx="48" cy="90" rx="24" ry="2.4" fill="#A86840" opacity="0.16"/>
   <circle cx="48" cy="48" r="40" fill="url(#ob-bg)"/>
   <g>
-    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -2; 0 0" dur="6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
-    <circle cx="48" cy="50" r="20" fill="url(#ob-bubble)" stroke="#F0B080" stroke-width="1.2" opacity="0.85"/>
-    <ellipse cx="42" cy="42" rx="5" ry="3" fill="#FFFFFF" opacity="0.85"/>
-    <circle cx="40" cy="40" r="1.6" fill="#FFFFFF"/>
-  </g>
-  <g>
-    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -3; 0 0" dur="4.5s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
-    <circle cx="22" cy="34" r="5" fill="url(#ob-bubble)" stroke="#F5C8A8" stroke-width="0.8" opacity="0.75"/>
-    <circle cx="74" cy="30" r="4" fill="url(#ob-bubble)" stroke="#F5C8A8" stroke-width="0.8" opacity="0.7"/>
-    <circle cx="78" cy="62" r="3" fill="url(#ob-bubble)" stroke="#F5C8A8" stroke-width="0.8" opacity="0.65"/>
+    <animateTransform attributeName="transform" type="translate" values="0 0; 0 -1.5; 0 0" dur="5s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+    <path d="M 22 42 Q 28 36 38 36 Q 48 30 58 36 Q 68 36 74 42 Q 76 56 70 66 Q 60 70 48 70 Q 36 70 26 66 Q 20 56 22 42 Z" fill="url(#ob-collar)" stroke="#B88868" stroke-width="1.1" stroke-linejoin="round"/>
+    <path d="M 38 38 Q 48 34 58 38 L 56 50 Q 48 46 40 50 Z" fill="#FFFFFF" opacity="0.6"/>
+    <path d="M 30 56 Q 34 60 38 60" stroke="#FFFFFF" stroke-width="1" fill="none" opacity="0.6"/>
+    <path d="M 58 60 Q 62 60 66 56" stroke="#FFFFFF" stroke-width="1" fill="none" opacity="0.6"/>
+    <rect x="40" y="56" width="16" height="12" rx="3" fill="url(#ob-tag)" stroke="#A86840" stroke-width="0.9"/>
+    <circle cx="48" cy="56" r="1.4" fill="#A86840"/>
+    <text x="48" y="65.5" text-anchor="middle" fill="#FFF8F2" font-size="5" font-weight="700" font-family="-apple-system,sans-serif">朵朵</text>
   </g>
   <g fill="#F5C46E">
-    <path d="M 26 20 L 27.5 24 L 31.5 25 L 27.5 26 L 26 30 L 24.5 26 L 20.5 25 L 24.5 24 Z" opacity="0.9">
-      <animate attributeName="opacity" values="0.95;0.5;0.95" dur="3.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+    <path d="M 22 24 L 23 27 L 26 28 L 23 29 L 22 32 L 21 29 L 18 28 L 21 27 Z" opacity="0.9">
+      <animate attributeName="opacity" values="0.95;0.5;0.95" dur="3.6s" repeatCount="indefinite"/>
     </path>
-    <path d="M 70 70 L 71 73 L 74 74 L 71 75 L 70 78 L 69 75 L 66 74 L 69 73 Z" opacity="0.85">
-      <animate attributeName="opacity" values="0.9;0.45;0.9" dur="4.2s" begin="0.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.42 0 0.58 1;0.42 0 0.58 1"/>
+    <path d="M 74 22 L 75 25 L 78 26 L 75 27 L 74 30 L 73 27 L 70 26 L 73 25 Z" opacity="0.85">
+      <animate attributeName="opacity" values="0.9;0.45;0.9" dur="4.2s" begin="0.6s" repeatCount="indefinite"/>
     </path>
+    <circle cx="78" cy="58" r="1.4" opacity="0.7">
+      <animate attributeName="opacity" values="0.8;0.3;0.8" dur="3.2s" begin="0.4s" repeatCount="indefinite"/>
+    </circle>
   </g>
 </svg>

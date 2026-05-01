@@ -28,22 +28,35 @@
 </head>
 <body>
 
-<h1>👗 Outfit Icons v1 — wardrobe</h1>
+<h1>👗 Outfit Icons v2 — wardrobe (16 outfits)</h1>
 <p class="sub">
-  8 個朵朵衣櫥裝扮 SVG，取代原 emoji（✨🧣👓🎧👒👼👑🧑‍🍳）。viewBox 0 0 96 96，純手刻 SVG，可直接進 production。<br>
-  風格對齊集團 SVG style guide v1（badge v5 風格）— 軟漸層 + 地面陰影 + 3-6s ease-in-out 微動態。鎖定狀態走 CSS <code>filter:grayscale</code>（外層處理）。
+  16 個朵朵衣櫥裝扮 SVG（v1 8 個 + v2 新增 8 個 + 重做 basic / glasses）。viewBox 0 0 96 96，純手刻 SVG，可直接進 production。<br>
+  風格對齊集團 SVG style guide v1（badge v5 風格）— 軟漸層 + 地面陰影 + 3-7s ease-in-out 微動態。鎖定狀態走 CSS <code>filter:grayscale</code>（外層處理）。<br>
+  解鎖路徑：等級（LV.3 → LV.20）/ 連續天數（7 / 14 / 30）/ FP 團隊（3 件專屬）。
 </p>
 
 <div class="grid">
-  <div class="card"><img src="outfit_basic.svg"><div class="name">基本造型</div><div class="key">none</div><div class="hint">預設 · 泡泡 + sparkle</div></div>
+  <div class="card"><img src="outfit_basic.svg"><div class="name">基本造型</div><div class="key">none</div><div class="hint">預設 · 名牌 + 圍領</div></div>
+  <div class="card"><img src="outfit_ribbon.svg"><div class="name">蝴蝶結</div><div class="key">ribbon</div><div class="hint">LV.3 · 粉嫩搖曳</div></div>
   <div class="card"><img src="outfit_scarf.svg"><div class="name">溫暖圍巾</div><div class="key">scarf</div><div class="hint">LV.5 · 玫瑰漸層 + 飄心</div></div>
-  <div class="card"><img src="outfit_glasses.svg"><div class="name">圓框眼鏡</div><div class="key">glasses</div><div class="hint">LV.8 · 文青木框</div></div>
+  <div class="card"><img src="outfit_chef_apron.svg"><div class="name">入門圍裙</div><div class="key">chef_apron</div><div class="hint">LV.6 · 進廚房</div></div>
+  <div class="card"><img src="outfit_glasses.svg"><div class="name">圓框眼鏡</div><div class="key">glasses</div><div class="hint">LV.8 · 文青木框 + 小書</div></div>
+  <div class="card"><img src="outfit_witch_hat.svg"><div class="name">巫女帽</div><div class="key">witch_hat</div><div class="hint">LV.10 · 紫黑星月</div></div>
   <div class="card"><img src="outfit_headphones.svg"><div class="name">玫瑰耳機</div><div class="key">headphones</div><div class="hint">LV.12 · 飄音符</div></div>
-  <div class="card"><img src="outfit_straw_hat.svg"><div class="name">草帽</div><div class="key">straw_hat</div><div class="hint">7 day streak · 太陽光線</div></div>
+  <div class="card"><img src="outfit_starry_cape.svg"><div class="name">星空披風</div><div class="key">starry_cape</div><div class="hint">LV.15 · 夜空閃爍</div></div>
+  <div class="card"><img src="outfit_sunglasses.svg"><div class="name">太陽眼鏡</div><div class="key">sunglasses</div><div class="hint">LV.15 · 金邊墨鏡 *</div></div>
   <div class="card"><img src="outfit_angel_wings.svg"><div class="name">天使翅膀</div><div class="key">angel_wings</div><div class="hint">LV.20 · halo 光環</div></div>
-  <div class="card fp"><img src="outfit_fp_crown.svg"><div class="name">FP 皇冠</div><div class="key">fp_crown</div><div class="hint">FP 團隊專屬 · 金色寶石</div></div>
-  <div class="card fp"><img src="outfit_fp_chef.svg"><div class="name">FP 主廚裝</div><div class="key">fp_chef</div><div class="hint">FP 團隊專屬 · 廚師帽 + 圍裙</div></div>
+  <div class="card"><img src="outfit_straw_hat.svg"><div class="name">草帽</div><div class="key">straw_hat</div><div class="hint">7 day streak · 太陽光線</div></div>
+  <div class="card"><img src="outfit_sakura.svg"><div class="name">櫻花飾</div><div class="key">sakura</div><div class="hint">14 day streak · 飄落花瓣</div></div>
+  <div class="card"><img src="outfit_winter_scarf.svg"><div class="name">冬季毛圍巾</div><div class="key">winter_scarf</div><div class="hint">30 day streak · 雪花</div></div>
+  <div class="card fp"><img src="outfit_fp_crown.svg"><div class="name">FP 皇冠</div><div class="key">fp_crown</div><div class="hint">FP 專屬 · 金色寶石</div></div>
+  <div class="card fp"><img src="outfit_fp_chef.svg"><div class="name">FP 主廚裝</div><div class="key">fp_chef</div><div class="hint">FP 專屬 · 帽 + 圍裙</div></div>
+  <div class="card fp"><img src="outfit_fp_apron_premium.svg"><div class="name">FP 主廚高階圍裙</div><div class="key">fp_apron_premium</div><div class="hint">FP 專屬 · 金繡高階版</div></div>
 </div>
+
+<p class="sub" style="margin-top:18px;font-size:12px;">
+  * <code>sunglasses</code> 原規劃為「累積 50 餐」(meal_count) — 因 user 表無對應 cumulative 欄位，依 brief fallback 為 LV.15（與 starry_cape 並列同等級門檻，視覺上互相替代）。若日後加 meal_count 累積欄位可改回。
+</p>
 
 <div class="scale">
   <h3>實際使用尺寸（48 / 64 / 80 / 96 px）— wardrobe grid 大概顯示 64-80px</h3>
