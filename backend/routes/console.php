@@ -41,6 +41,13 @@ Schedule::command('sanctum:prune-expired --hours=24')
     ->withoutOverlapping()
     ->onOneServer();
 
+// SPEC-weekly-ai-report §3 — pre-generate current-week reports Sunday 19:00 (Asia/Taipei).
+Schedule::command('reports:generate-weekly')
+    ->weeklyOn(\Illuminate\Console\Scheduling\Schedule::SUNDAY, '19:00')
+    ->timezone('Asia/Taipei')
+    ->withoutOverlapping()
+    ->onOneServer();
+
 // SPEC-healthkit-integration §5 retention — wipe raw HK payloads older than 90d.
 Schedule::command('health:prune --days=90')
     ->dailyAt('05:30')

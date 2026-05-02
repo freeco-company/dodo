@@ -127,6 +127,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/health/today', [\App\Http\Controllers\Api\HealthMetricsController::class, 'today']);
     Route::get('/health/history', [\App\Http\Controllers\Api\HealthMetricsController::class, 'history']);
 
+    // ----- SPEC-weekly-ai-report Phase 1 (rich version of weekly recap) -----
+    Route::get('/reports/weekly/current', [\App\Http\Controllers\Api\ReportController::class, 'currentWeekly']);
+    Route::get('/reports/weekly/history', [\App\Http\Controllers\Api\ReportController::class, 'weeklyHistory']);
+    Route::post('/reports/weekly/{id}/shared', [\App\Http\Controllers\Api\ReportController::class, 'recordShared'])
+        ->whereNumber('id');
+    Route::get('/reports/weekly/by-date/{weekStart}', [\App\Http\Controllers\Api\ReportController::class, 'richWeeklyByDate']);
+
     // ----- ADR-008 alignment: current-user-scoped (no uid in path) -----
     Route::get('/me/dashboard', [MeController::class, 'dashboard']);
     Route::get('/me/settings', [MeController::class, 'getSettings']);
