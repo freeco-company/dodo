@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\FastingSession;
 use App\Models\User;
+use App\Services\Gamification\AchievementPublisher;
+use App\Services\Gamification\GamificationPublisher;
 use Carbon\CarbonImmutable;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
@@ -37,6 +39,8 @@ class FastingService
 
     public function __construct(
         private readonly EntitlementsService $entitlements,
+        private readonly GamificationPublisher $gamification,
+        private readonly AchievementPublisher $achievements,
     ) {}
 
     public function isModeAllowed(User $user, string $mode): bool
@@ -119,7 +123,123 @@ class FastingService
         $session->completed = $elapsedMinutes >= $session->target_duration_minutes;
         $session->save();
 
+        if ($session->completed) {
+            $this->publishCompletion($user, $session, $endedAt);
+        }
+
         return $session->fresh();
+    }
+
+    /**
+     * SPEC-fasting-timer Phase 2 §6.1 — gamification + achievement on completed.
+     *
+     * Two-tier:
+     *   - every completed session → gamification XP via meal.fasting_completed
+     *   - milestones (first / 7-streak / 30-streak) → AchievementPublisher
+     *
+     * Streak counts consecutive calendar days (Asia/Taipei) ending today with
+     * at least one completed session — same definition we use elsewhere
+     * (CheckinService) so users have one mental model.
+     */
+    private function publishCompletion(User $user, FastingSession $session, CarbonImmutable $endedAt): void
+    {
+        $uuid = $user->pandora_user_uuid;
+        if ($uuid === null || $uuid === '') {
+            return;
+        }
+
+        $occurredKey = $endedAt->getTimestamp();
+        $this->gamification->publish(
+            $uuid,
+            'meal.fasting_completed',
+            "meal.fasting_completed.{$session->id}",
+            [
+                'mode' => $session->mode,
+                'target_minutes' => (int) $session->target_duration_minutes,
+            ],
+            $endedAt,
+        );
+
+        $totalCompleted = FastingSession::query()
+            ->where('user_id', $user->id)
+            ->where('completed', true)
+            ->count();
+
+        if ($totalCompleted === 1) {
+            $this->achievements->publish(
+                $uuid,
+                'meal.fasting_first',
+                "meal.fasting_first.{$uuid}",
+                ['mode' => $session->mode],
+                $endedAt,
+            );
+        }
+
+        $streak = $this->currentDayStreak($user, $endedAt);
+        if ($streak === 7) {
+            $this->achievements->publish(
+                $uuid,
+                'meal.fasting_streak_7',
+                "meal.fasting_streak_7.{$uuid}.{$occurredKey}",
+                ['streak_days' => 7],
+                $endedAt,
+            );
+            $this->gamification->publish(
+                $uuid,
+                'meal.fasting_streak_7',
+                "meal.fasting_streak_7.{$uuid}." . $endedAt->toDateString(),
+                ['streak_days' => 7],
+                $endedAt,
+            );
+        }
+        if ($streak === 30) {
+            $this->achievements->publish(
+                $uuid,
+                'meal.fasting_streak_30',
+                "meal.fasting_streak_30.{$uuid}.{$occurredKey}",
+                ['streak_days' => 30],
+                $endedAt,
+            );
+        }
+    }
+
+    /**
+     * Consecutive-calendar-day streak (Asia/Taipei) ending on $now's date,
+     * counting days that have at least one `completed` session.
+     */
+    public function currentDayStreak(User $user, CarbonImmutable $now): int
+    {
+        $tz = 'Asia/Taipei';
+        $today = $now->setTimezone($tz)->toDateString();
+        $daysWithCompletion = FastingSession::query()
+            ->where('user_id', $user->id)
+            ->where('completed', true)
+            ->whereNotNull('ended_at')
+            ->orderByDesc('ended_at')
+            ->limit(60)
+            ->get(['ended_at'])
+            ->map(fn ($r) => CarbonImmutable::parse($r->ended_at)->setTimezone($tz)->toDateString())
+            ->unique()
+            ->values()
+            ->all();
+        $set = array_flip($daysWithCompletion);
+
+        $cursor = CarbonImmutable::parse($today, $tz);
+        if (! isset($set[$cursor->toDateString()])) {
+            // grace: count from yesterday if today has nothing yet
+            $cursor = $cursor->subDay();
+            if (! isset($set[$cursor->toDateString()])) {
+                return 0;
+            }
+        }
+
+        $streak = 0;
+        while (isset($set[$cursor->toDateString()])) {
+            $streak++;
+            $cursor = $cursor->subDay();
+        }
+
+        return $streak;
     }
 
     /**
