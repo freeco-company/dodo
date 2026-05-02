@@ -353,6 +353,109 @@ class CardService
         ];
     }
 
+    /**
+     * SPEC-seasonal-outfit-cards §3.2 — lightweight completion summary by
+     * category for the Cards tab progress bar.
+     *
+     * Categories: derived from deck() entries' `category` field; cards
+     * without one fall under "uncategorized" (food / knowledge defaults).
+     *
+     * @return array{
+     *   total: int,
+     *   collected: int,
+     *   percent: int,
+     *   categories: list<array{
+     *     key:string, label:string, total:int, collected:int, percent:int,
+     *     tier_required:?string, accessible:bool
+     *   }>,
+     * }
+     */
+    public function completionSummary(User $user): array
+    {
+        $isFranchisee = (bool) ($user->is_franchisee ?? false);
+        $userTier = (string) ($user->membership_tier ?? 'public');
+        $sub = (string) ($user->subscription_type ?? 'none');
+        if ($sub !== '' && $sub !== 'none') {
+            $userTier = $sub;
+        }
+
+        $deck = array_values(array_filter(
+            $this->deck(),
+            fn ($c) => $isFranchisee || ! $this->isFranchiseOnlyCard($c),
+        ));
+
+        $collectedIds = CardPlay::query()
+            ->where('pandora_user_uuid', $user->pandora_user_uuid)
+            ->whereNotNull('answered_at')
+            ->where('correct', true)
+            ->pluck('card_id')
+            ->map(fn ($v) => (string) $v)
+            ->unique()
+            ->all();
+        $collectedSet = array_flip($collectedIds);
+
+        $byCategory = [];
+        foreach ($deck as $c) {
+            $catKey = (string) ($c['category'] ?? 'uncategorized');
+            $tierRequired = isset($c['tier_required']) ? (string) $c['tier_required'] : null;
+
+            if (! isset($byCategory[$catKey])) {
+                $byCategory[$catKey] = [
+                    'key' => $catKey,
+                    'label' => $this->categoryLabel($catKey),
+                    'total' => 0,
+                    'collected' => 0,
+                    'tier_required' => $tierRequired,
+                    'accessible' => $this->tierSatisfies($userTier, $tierRequired),
+                ];
+            }
+            $byCategory[$catKey]['total']++;
+            $cardId = (string) ($c['id'] ?? '');
+            if ($cardId !== '' && isset($collectedSet[$cardId])) {
+                $byCategory[$catKey]['collected']++;
+            }
+            // Promote the strictest tier_required as the category's gating.
+            if ($tierRequired !== null && $byCategory[$catKey]['tier_required'] === null) {
+                $byCategory[$catKey]['tier_required'] = $tierRequired;
+                $byCategory[$catKey]['accessible'] = $this->tierSatisfies($userTier, $tierRequired);
+            }
+        }
+
+        $categories = array_values($byCategory);
+        foreach ($categories as &$row) {
+            // $row['total'] >= 1 by construction (entry is created during ++).
+            $row['percent'] = (int) round($row['collected'] / $row['total'] * 100);
+        }
+        unset($row);
+
+        $total = array_sum(array_column($categories, 'total'));
+        $collected = array_sum(array_column($categories, 'collected'));
+
+        return [
+            'total' => $total,
+            'collected' => $collected,
+            'percent' => $total > 0 ? (int) round($collected / $total * 100) : 0,
+            'categories' => $categories,
+        ];
+    }
+
+    private function categoryLabel(string $key): string
+    {
+        return match ($key) {
+            'food' => '📚 食物百科',
+            'knowledge' => '💚 健康知識',
+            'event' => '🎭 突發事件',
+            'fp' => '⭐ FP 搭配',
+            'spring' => '🌸 春櫻限定',
+            'summer' => '🌊 海洋夏夜',
+            'autumn' => '🍁 楓葉月圓',
+            'winter' => '❄️ 雪夜暖爐',
+            'holiday' => '🎁 節日特別',
+            'lore' => '📖 朵朵故事',
+            default => '其他',
+        };
+    }
+
     public function collection(User $user): array
     {
         $isFranchisee = (bool) ($user->is_franchisee ?? false);

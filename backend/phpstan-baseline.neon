@@ -978,3 +978,15 @@ parameters:
 			identifier: method.notFound
 			count: 1
 			path: tests/Feature/Api/ProgressSnapshotControllerTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/Api/CardCompletionTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/CardCompletionTest.php
