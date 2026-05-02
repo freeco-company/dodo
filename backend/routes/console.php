@@ -41,6 +41,12 @@ Schedule::command('sanctum:prune-expired --hours=24')
     ->withoutOverlapping()
     ->onOneServer();
 
+// SPEC-healthkit-integration §5 retention — wipe raw HK payloads older than 90d.
+Schedule::command('health:prune --days=90')
+    ->dailyAt('05:30')
+    ->withoutOverlapping()
+    ->onOneServer();
+
 // Pre-launch security: prune webhook nonce rows older than 30 days.
 // Replay window is 5 minutes; we keep 30 days for ops debugging / audit.
 // Cheap delete: each table has a unique index on event_id (or nonce) and a

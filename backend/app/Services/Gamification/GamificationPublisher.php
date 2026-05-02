@@ -67,6 +67,8 @@ class GamificationPublisher
         // SPEC-fasting-timer Phase 2 — publish on completed=true session end.
         'meal.fasting_completed',
         'meal.fasting_streak_7',
+        // SPEC-healthkit-integration — publish on first daily steps goal hit.
+        'meal.steps_goal_achieved',
     ];
 
     /**

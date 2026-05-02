@@ -122,6 +122,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/fasting/current', [\App\Http\Controllers\Api\FastingController::class, 'current']);
     Route::get('/fasting/history', [\App\Http\Controllers\Api\FastingController::class, 'history']);
 
+    // ----- SPEC-healthkit-integration Phase 1 -----
+    Route::post('/health/sync', [\App\Http\Controllers\Api\HealthMetricsController::class, 'sync']);
+    Route::get('/health/today', [\App\Http\Controllers\Api\HealthMetricsController::class, 'today']);
+    Route::get('/health/history', [\App\Http\Controllers\Api\HealthMetricsController::class, 'history']);
+
     // ----- ADR-008 alignment: current-user-scoped (no uid in path) -----
     Route::get('/me/dashboard', [MeController::class, 'dashboard']);
     Route::get('/me/settings', [MeController::class, 'getSettings']);
