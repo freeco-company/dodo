@@ -64,6 +64,9 @@ class GamificationPublisher
         'meal.new_food_discovered',
         'meal.card_correct',
         'meal.card_first_solve',
+        // SPEC-fasting-timer Phase 2 — publish on completed=true session end.
+        'meal.fasting_completed',
+        'meal.fasting_streak_7',
     ];
 
     /**

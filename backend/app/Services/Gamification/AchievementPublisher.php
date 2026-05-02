@@ -33,6 +33,10 @@ class AchievementPublisher
         'meal.streak_7',
         'meal.streak_30',
         'meal.foodie_10',  // wired in FoodDiscoveryService when user reaches 10 distinct foods
+        // SPEC-fasting-timer Phase 2 — fasting milestones.
+        'meal.fasting_first',     // 首次完成一個斷食 session
+        'meal.fasting_streak_7',  // 連續 7 天完成斷食
+        'meal.fasting_streak_30', // 連續 30 天完成斷食
     ];
 
     public const SOURCE_APP = 'meal';

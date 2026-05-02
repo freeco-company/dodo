@@ -900,3 +900,9 @@ parameters:
 			identifier: method.notFound
 			count: 2
 			path: tests/Feature/Api/FastingControllerTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: tests/Feature/Gamification/FastingHooksTest.php
