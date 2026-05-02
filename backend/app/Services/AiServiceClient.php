@@ -225,6 +225,43 @@ class AiServiceClient
         return $this->base() !== '' && (string) config('services.meal_ai_service.shared_secret') !== '';
     }
 
+    /**
+     * SPEC-04 / 05 / 02 / 01 Phase 1.5 — fetch a 朵朵-voice narrative from
+     * ai-service `/v1/reports/narrative`. Always returns an array; callers
+     * are expected to fall back to deterministic copy on AiServiceUnavailable.
+     *
+     * @param  array<string,mixed>  $payload  Typed payload sub-object per spec.
+     * @return array{headline:string, lines:list<string>, model:string, cost_usd:float, stub_mode:bool}
+     */
+    public function narrative(
+        User $user,
+        string $kind,
+        string $tier,
+        array $payload,
+    ): array {
+        $this->ensureEnabled();
+
+        $body = [
+            'kind' => $kind,
+            'tier' => $tier,
+            'pandora_user_uuid' => (string) ($user->pandora_user_uuid ?? ''),
+        ];
+        if ($payload !== []) {
+            $body[$kind] = $payload;
+        }
+
+        $response = $this->baseRequest($user)->post($this->base().'/v1/reports/narrative', $body);
+        $json = $this->jsonOrThrow($response, '/v1/reports/narrative');
+
+        return [
+            'headline' => (string) ($json['headline'] ?? '朵朵的小報告 ✨'),
+            'lines' => array_values(array_map('strval', (array) ($json['lines'] ?? []))),
+            'model' => (string) ($json['model'] ?? 'unknown'),
+            'cost_usd' => (float) ($json['cost_usd'] ?? 0.0),
+            'stub_mode' => (bool) ($json['stub_mode'] ?? false),
+        ];
+    }
+
     private function ensureEnabled(): void
     {
         if (! $this->isEnabled()) {

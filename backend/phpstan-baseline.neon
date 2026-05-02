@@ -934,7 +934,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
 			identifier: method.notFound
-			count: 9
+			count: 12
 			path: tests/Feature/Api/WeeklyReportControllerTest.php
 
 		-
