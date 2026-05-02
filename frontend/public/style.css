@@ -1607,6 +1607,71 @@ button { font-family: inherit; letter-spacing: 0.04em; }
 }
 .low-conf-banner b { color: #8A5A20; }
 
+/* SPEC-photo-ai-calorie-polish §3 — Result page progressive disclosure
+   First paint：score + food name + kcal-big。0.4s 後 macro ring + dodo_comment fade in。
+   降低資訊密度，讓「拍完秒看到關鍵數字」感更強。 */
+.scan-food-name { font-size: 17px; }
+.scan-kcal-big {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--peach-deep, #D86B45);
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+.scan-kcal-big small {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8A8A8A;
+  margin-left: 2px;
+}
+.scan-macro-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  background: linear-gradient(180deg, #FFFAF5 0%, #FFF4EB 100%);
+  border-radius: 14px;
+  margin: 8px 0;
+}
+.macro-ring { flex-shrink: 0; }
+.macro-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #5A5A5A;
+}
+.macro-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.macro-legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.scan-dodo-comment {
+  margin: 8px 0;
+  padding: 10px 14px;
+  background: rgba(122, 174, 110, 0.08);
+  border-left: 3px solid #7AAE6E;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #4A6240;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.fade-in-delayed {
+  animation: fadeInDelayed 0.5s ease-out 0.4s both;
+}
+@keyframes fadeInDelayed {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ===== Suggest Next Meal (TA #1 need) ===== */
 .suggest-card {
   background: linear-gradient(180deg, #FFFAF3 0%, #FFF4E8 100%);
