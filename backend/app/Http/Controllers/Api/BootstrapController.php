@@ -20,18 +20,29 @@ use Illuminate\Http\Request;
 class BootstrapController extends Controller
 {
     /**
-     * Lifecycle stages that should see the franchise consultation CTA
-     * (ADR-008 §2.1 §4 — 加盟自用回本 CTA 對 loyalist / applicant / franchisee_self_use 顯示).
+     * Lifecycle stages that should see the franchise consultation CTA.
      *
-     * 對 self_use 仍露 banner — 文案改成「想擴大經營？」入口（前端做差異化）。
-     * franchisee_active 不顯示 banner（已是進階經營者）；改顯示 operator portal 鉤子。
+     * 2026-05-02 紅線收緊（meal CLAUDE.md「商業紅線」§ + memory feedback_meal_independent_app_no_franchise_push）：
+     *   原 ['loyalist', 'applicant', 'franchisee_self_use'] 中的 `loyalist` 移除。
      *
-     * 公平交易法紅線（dodo CLAUDE.md / ADR-003 §7 / ADR-008 §7）：
+     *   原因：loyalist 升級門檻是「連用 14 天」（純 in-app activity，不需要母艦消費過），
+     *   違反新紅線「meal 對未在婕樂纖消費過的用戶 zero 加盟 CTA」。記錄飲食 / 走路用一用
+     *   突然被推加盟會讓用戶反感，傷害 App 獨立性。
+     *
+     *   保留：
+     *   - applicant（用戶已主動提交諮詢表單 = 用戶主動 → 自然回應）
+     *   - franchisee_self_use（母艦下單過 = 符合「母艦消費過」紅線）
+     *
+     *   不變：
+     *   - franchisee_active 仍走 operator portal hook（不露 CTA banner）
+     *   - opt-out silence flag 仍硬擋（多一道保險）
+     *
+     * 公平交易法紅線（ADR-003 §7 / ADR-008 §7）：
      *   不可在 CTA 文案中出現「下線 / 分潤 / 推薦獎金 / 招募」等多層次傳銷暗示詞。
      *   ADR-008 新增禁字：「合作夥伴」「升級加盟方案」（過於曖昧）。
      *   後端只送 url + boolean，文案由前端 hardcode 中性詞（「自用回本 / 省錢 / 親友合購」）。
      */
-    private const CTA_ELIGIBLE_STAGES = ['loyalist', 'applicant', 'franchisee_self_use'];
+    private const CTA_ELIGIBLE_STAGES = ['applicant', 'franchisee_self_use'];
 
     /**
      * Stages that should see the operator portal hook (段 2 鉤子，ADR-008 §3.3).

@@ -14,9 +14,12 @@ use Tests\TestCase;
 /**
  * ADR-008 UX sensitivity — opt-out flag verification.
  *
- *   - silence on  → bootstrap returns show_franchise_cta=false even if stage=loyalist
+ *   - silence on  → bootstrap returns show_franchise_cta=false even if stage qualifies
  *   - silence off → bootstrap restores normal lifecycle-driven decision
  *   - opt-out fires UserOptedOutFranchiseCta event for downstream listeners
+ *
+ * 2026-05-02 紅線收緊：fixture 改用 stage='applicant'（保留在 CTA_ELIGIBLE_STAGES）；
+ * loyalist 不再觸發 CTA，所以用 loyalist 驗 silence 行為會雙重 false 看不出差異。
  *
  * Class-style PHPUnit (avoids Pest TestCall noise on $this->actingAs / postJson;
  * mirrors the FunnelDashboardTest convention so we don't grow the baseline).
@@ -35,7 +38,7 @@ class FranchiseCtaSilenceTest extends TestCase
         Cache::flush();
 
         Http::fake([
-            '*/api/v1/users/*/lifecycle' => Http::response(['stage' => 'loyalist'], 200),
+            '*/api/v1/users/*/lifecycle' => Http::response(['stage' => 'applicant'], 200),
             '*/api/v1/internal/events' => Http::response(['accepted' => true], 202),
         ]);
     }
@@ -53,9 +56,9 @@ class FranchiseCtaSilenceTest extends TestCase
         return $user;
     }
 
-    public function test_silence_on_hides_franchise_cta_even_when_stage_is_loyalist(): void
+    public function test_silence_on_hides_franchise_cta_even_when_stage_is_eligible(): void
     {
-        $user = $this->makeUser('uuid-silence-loyalist');
+        $user = $this->makeUser('uuid-silence-applicant');
 
         $this->actingAs($user, 'sanctum')
             ->postJson('/api/me/franchise-cta-silence', ['silenced' => true])
@@ -65,7 +68,7 @@ class FranchiseCtaSilenceTest extends TestCase
         $this->actingAs($user, 'sanctum')
             ->getJson('/api/bootstrap')
             ->assertOk()
-            ->assertJsonPath('lifecycle.status', 'loyalist')
+            ->assertJsonPath('lifecycle.status', 'applicant')
             ->assertJsonPath('lifecycle.show_franchise_cta', false);
     }
 
@@ -85,7 +88,7 @@ class FranchiseCtaSilenceTest extends TestCase
         $this->actingAs($user, 'sanctum')
             ->getJson('/api/bootstrap')
             ->assertOk()
-            ->assertJsonPath('lifecycle.status', 'loyalist')
+            ->assertJsonPath('lifecycle.status', 'applicant')
             ->assertJsonPath('lifecycle.show_franchise_cta', true);
     }
 

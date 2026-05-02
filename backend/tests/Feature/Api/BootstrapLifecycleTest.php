@@ -13,7 +13,8 @@ uses(RefreshDatabase::class);
  *
  * 規格：
  *   - lifecycle.status ∈ {visitor, loyalist, applicant, franchisee_self_use, franchisee_active}
- *   - show_franchise_cta = true  iff status ∈ {loyalist, applicant, franchisee_self_use}
+ *   - show_franchise_cta = true  iff status ∈ {applicant, franchisee_self_use}
+ *     （2026-05-02 紅線收緊：loyalist 移除，純 in-app 活躍 ≠ 加盟對象）
  *   - show_operator_portal = true iff status === 'franchisee_active'
  *   - py-service 5xx / 連不到 → fallback visitor / cta=false / portal=false
  *   - 公平交易法紅線（ADR-008 §7）：response body 全文不可含禁字
@@ -63,7 +64,7 @@ it('hides franchise CTA + operator portal for visitor stage', function () {
         ->assertJsonPath('lifecycle.show_operator_portal', false);
 });
 
-it('shows franchise CTA for loyalist / applicant / franchisee_self_use stages (ADR-008 §4)', function (string $stage) {
+it('shows franchise CTA for applicant / franchisee_self_use stages (2026-05-02 red line: loyalist removed)', function (string $stage) {
     mockLifecycleResponse($stage);
     $user = makeUserWithUuid('uuid-'.$stage);
 
@@ -74,7 +75,19 @@ it('shows franchise CTA for loyalist / applicant / franchisee_self_use stages (A
         ->assertJsonPath('lifecycle.show_franchise_cta', true)
         ->assertJsonPath('lifecycle.show_operator_portal', false)
         ->assertJsonPath('lifecycle.franchise_url', 'https://js-store.com.tw/franchise/consult');
-})->with(['loyalist', 'applicant', 'franchisee_self_use']);
+})->with(['applicant', 'franchisee_self_use']);
+
+it('HIDES franchise CTA for loyalist (2026-05-02 red line: pure in-app activity ≠ franchise audience)', function () {
+    mockLifecycleResponse('loyalist');
+    $user = makeUserWithUuid('uuid-loyalist');
+
+    $this->actingAs($user, 'sanctum')
+        ->getJson('/api/bootstrap')
+        ->assertOk()
+        ->assertJsonPath('lifecycle.status', 'loyalist')
+        ->assertJsonPath('lifecycle.show_franchise_cta', false)
+        ->assertJsonPath('lifecycle.show_operator_portal', false);
+});
 
 it('shows operator portal hook (and HIDES CTA banner) for franchisee_active', function () {
     mockLifecycleResponse('franchisee_active');
