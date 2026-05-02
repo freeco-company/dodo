@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Exceptions\AiServiceUnavailableException;
 use App\Http\Controllers\Controller;
 use App\Services\AiServiceClient;
+use App\Services\EntitlementsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -19,7 +20,10 @@ class AiMealController extends Controller
     /** ~5 MB base64 ≈ 3.75 MB raw — keep below ai-service 8 MB ceiling with headroom. */
     private const MAX_PHOTO_BASE64_BYTES = 5_000_000;
 
-    public function __construct(private readonly AiServiceClient $ai) {}
+    public function __construct(
+        private readonly AiServiceClient $ai,
+        private readonly EntitlementsService $entitlements,
+    ) {}
 
     public function scan(Request $request): JsonResponse
     {
@@ -46,6 +50,24 @@ class AiMealController extends Controller
         $context = $data['context'] ?? [];
         if (isset($data['meal_type'])) {
             $context['meal_type'] = $data['meal_type'];
+        }
+
+        // SPEC-photo-ai-calorie-polish §5.1 — pre-flight quota check.
+        // Free tier: 3 拍照辨識/天；Paid: unlimited (passes through).
+        // 超額返 402 + paywall payload；frontend 朵朵語氣不打擾文案見 SPEC §5.1。
+        $user = $request->user();
+        if ($user !== null && ! $this->entitlements->consumePhotoAiQuota($user)) {
+            return response()->json([
+                'error_code' => 'PHOTO_AI_QUOTA_EXCEEDED',
+                'message' => '今天的拍照次數用完了 🌱',
+                'paywall' => [
+                    'reason' => 'photo_ai_daily_quota',
+                    'tier_required' => 'paid',
+                    'fallback_hint' => '可以改用「文字描述」記錄，或明天再來',
+                    'fallback_endpoint' => '/api/meals/text',
+                    'reset_at_iso' => $this->entitlements->get($user)['photo_ai_quota_reset_at'] ?? null,
+                ],
+            ], 402);
         }
 
         try {

@@ -29,6 +29,7 @@ use Laravel\Sanctum\HasApiTokens;
     'membership_tier', 'subscription_type', 'subscription_expires_at_iso',
     'fp_ref_code', 'tier_verified_at', 'is_franchisee', 'franchise_verified_at',
     'island_visits_used', 'island_visits_reset_at',
+    'photo_ai_used_today', 'photo_ai_reset_at',
     'journey_cycle', 'journey_day', 'journey_last_advance_date', 'journey_started_at',
     'api_token', 'daily_water_goal_ml', 'onboarded_at', 'disclaimer_ack_at',
     'referral_code', 'deletion_requested_at', 'hard_delete_after', 'push_enabled',
@@ -67,6 +68,7 @@ class User extends Authenticatable implements FilamentUser
             'birth_date' => 'date',
             'last_active_date' => 'date',
             'island_visits_reset_at' => 'date',
+            'photo_ai_reset_at' => 'date',
             'journey_last_advance_date' => 'date',
 
             'subscription_expires_at' => 'datetime',
