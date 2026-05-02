@@ -723,6 +723,16 @@
 
     <!-- ===== Cards Codex tab (知識卡圖鑑) ===== -->
     <div id="tab-cards-codex" class="hidden px-5 space-y-3 pb-6">
+      <!-- SPEC-06 seasonal banner + per-category completion -->
+      <div class="card p-4" id="codex-completion-card">
+        <div class="flex items-baseline justify-between mb-2">
+          <div class="text-sm font-bold">收藏完整度 ✨</div>
+          <div class="text-xs text-muted"><span class="num-pop" id="codex-comp-pct">0</span>%</div>
+        </div>
+        <div id="codex-seasonal-chips" class="flex flex-wrap gap-1 mb-2"></div>
+        <div id="codex-categories" class="space-y-2 text-xs"></div>
+      </div>
+
       <div class="card p-4">
         <div class="flex items-baseline justify-between mb-1">
           <div class="text-sm font-bold">卡牌圖鑑 🎴</div>
