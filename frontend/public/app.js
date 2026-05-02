@@ -1725,6 +1725,11 @@ async function logMeal() {
   } catch (e) {
     if (e.error_code === 'AI_SERVICE_DOWN' || e.error_code === 'AI_SERVICE_TIMEOUT') {
       toast('朵朵在補充能量～請稍後再試 ✨', { emoji: '🌙' });
+    } else if (e.error_code === 'PHOTO_AI_QUOTA_EXCEEDED') {
+      // SPEC-photo-ai-calorie-polish §5.1 — 朵朵語氣不打擾，提供文字 fallback
+      toast(e.message || '今天的拍照次數用完了 🌱', { emoji: '🌱' });
+      // Soft offer: 跳 paywall，但保留 fallback「文字描述」按鈕（不強迫升級）
+      setTimeout(() => openPaywall('scan_quota_exhausted'), 800);
     } else {
       toast('失敗：' + e.message, { emoji: '⚠️' });
     }
@@ -1732,6 +1737,45 @@ async function logMeal() {
     $('#btn-log-meal').disabled = false;
     $('#btn-log-meal').textContent = '再記錄一餐';
   }
+}
+
+// SPEC-photo-ai-calorie-polish §3 — Macro ring SVG (碳水 / 蛋白 / 脂肪 三色環).
+// Pure inline SVG so it works without a framework; pulled into showScanResult().
+function renderMacroRing(carb, protein, fat) {
+  const carbN = Math.max(0, +carb || 0);
+  const proteinN = Math.max(0, +protein || 0);
+  const fatN = Math.max(0, +fat || 0);
+  // Calorie weight per gram: carb 4, protein 4, fat 9 (SPEC §3 macro ring shows
+  // calorie share, not gram share — more honest reflection of the meal).
+  const carbKcal = carbN * 4, proteinKcal = proteinN * 4, fatKcal = fatN * 9;
+  const totalKcal = carbKcal + proteinKcal + fatKcal;
+  if (totalKcal <= 0) return '';
+  const r = 32, c = 2 * Math.PI * r;
+  const carbPct = carbKcal / totalKcal;
+  const proteinPct = proteinKcal / totalKcal;
+  const fatPct = fatKcal / totalKcal;
+  // Stroke-dasharray rings stacked: carb (full circle base), protein (offset), fat (offset)
+  return `
+    <svg class="macro-ring" viewBox="0 0 80 80" width="80" height="80" aria-hidden="true">
+      <circle cx="40" cy="40" r="${r}" fill="none" stroke="#F0E8DC" stroke-width="8"/>
+      <circle cx="40" cy="40" r="${r}" fill="none" stroke="#C9A77B" stroke-width="8"
+        stroke-dasharray="${(carbPct * c).toFixed(2)} ${c.toFixed(2)}" stroke-dashoffset="0"
+        transform="rotate(-90 40 40)" stroke-linecap="round"/>
+      <circle cx="40" cy="40" r="${r}" fill="none" stroke="#7AAE6E" stroke-width="8"
+        stroke-dasharray="${(proteinPct * c).toFixed(2)} ${c.toFixed(2)}"
+        stroke-dashoffset="${(-carbPct * c).toFixed(2)}"
+        transform="rotate(-90 40 40)" stroke-linecap="round"/>
+      <circle cx="40" cy="40" r="${r}" fill="none" stroke="#E89B6E" stroke-width="8"
+        stroke-dasharray="${(fatPct * c).toFixed(2)} ${c.toFixed(2)}"
+        stroke-dashoffset="${(-(carbPct + proteinPct) * c).toFixed(2)}"
+        transform="rotate(-90 40 40)" stroke-linecap="round"/>
+    </svg>
+    <div class="macro-legend">
+      <span><i style="background:#C9A77B"></i>碳水 ${carbN.toFixed(0)}g</span>
+      <span><i style="background:#7AAE6E"></i>蛋白 ${proteinN.toFixed(0)}g</span>
+      <span><i style="background:#E89B6E"></i>脂肪 ${fatN.toFixed(0)}g</span>
+    </div>
+  `;
 }
 
 // Queue of unlock rewards to show in sequence (box-opening modals)
@@ -1807,8 +1851,7 @@ function showScanResult(r) {
   const lowConfBanner = lowConf
     ? `<div class="low-conf-banner">
         <b>📸 辨識信心不足</b><br/>
-        Demo 模式還無法真實分析照片（需要接 Claude Vision API）。<br/>
-        請點「手動修改」或用下方搜尋重新選擇正確食物～
+        請點「不是這個」修正，或用下方搜尋重新選擇正確食物～
       </div>`
     : '';
   if (r.pokedex.is_new) badges.push('<span class="badge-chip">📖 新食物</span>');
@@ -1819,27 +1862,45 @@ function showScanResult(r) {
   if (r.new_outfits && r.new_outfits.length) r.new_outfits.forEach((k) => badges.push(`<span class="badge-chip">👗 新衣服解鎖</span>`));
 
   const scoreClass = m.meal_score >= 80 ? '' : m.meal_score >= 60 ? 'hot' : 'cold';
+  // SPEC §3 macro ring — show only when we have macro data (post-Phase 2 path).
+  const macroRingHtml = renderMacroRing(m.carbs_g, m.protein_g, m.fat_g);
+  // SPEC §3 dodo_comment — 朵朵 NPC 25 字一句點評（vision recognize Phase 1 schema）.
+  // Backend may carry this through r.meal.dodo_comment OR r.dodo_comment depending
+  // on path (Phase 2 wires meals.dodo_comment column on POST /meals creation).
+  const dodoComment = (r.meal?.dodo_comment || r.dodo_comment || '').trim();
+  const dodoLineHtml = dodoComment
+    ? `<div class="scan-dodo-comment fade-in-delayed">🌱 ${escapeHtml(dodoComment)}</div>`
+    : '';
+
   $('#scan-result').innerHTML = `
     ${lowConfBanner}
-    <div class="flex items-center gap-3 mb-3">
+    <div class="scan-result-header flex items-center gap-3 mb-3">
       <div class="score-pill ${scoreClass}" style="width:56px;height:56px;font-size:20px;">${m.meal_score}</div>
       <div class="flex-1">
-        <div class="font-bold">${m.food_name}</div>
-        <div class="text-xs text-muted">${m.calories} 卡 · 蛋白 ${m.protein_g}g · 碳水 ${m.carbs_g}g · 脂肪 ${m.fat_g}g</div>
+        <div class="font-bold scan-food-name">${m.food_name}</div>
+        <div class="scan-kcal-big">${m.calories} <small>kcal</small></div>
       </div>
       <div class="text-right text-xs">
         <div class="text-muted">+XP</div>
         <div class="num font-black text-lg" style="color: var(--gold)">${r.xp_gained}</div>
       </div>
     </div>
-    <div class="flex flex-wrap gap-2 mb-3">${badges.join('')}</div>
+    ${macroRingHtml ? `<div class="scan-macro-block fade-in-delayed">${macroRingHtml}</div>` : ''}
+    ${dodoLineHtml}
+    <div class="flex flex-wrap gap-2 mb-3 mt-3">${badges.join('')}</div>
     <div class="text-sm p-3 rounded-xl" style="background: var(--cream);">${stripLegacyMascot(r.coach_response)}</div>
     <div class="mt-3 text-xs text-muted">
-      辨識不正確？<button type="button" id="btn-correct" class="underline" style="color: var(--peach-deep)">手動修改</button>
+      辨識不正確？<button type="button" id="btn-correct" class="underline" style="color: var(--peach-deep)">不是這個</button>
     </div>
   `;
   $('#scan-result').classList.remove('hidden');
   $('#btn-correct')?.addEventListener('click', () => openCorrectionDialog(m.id));
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
 }
 
 async function openCorrectionDialog(mealId) {
