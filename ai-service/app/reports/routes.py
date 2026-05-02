@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 
 from app.auth.internal import require_internal_secret
 from app.config import Settings
