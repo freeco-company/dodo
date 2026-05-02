@@ -116,6 +116,7 @@ async def vision_recognize(
         safety_flags=safety_flags,
         stub_mode=settings.stub_mode,
         is_food=result.is_food,
+        dodo_comment=result.dodo_comment,
     )
 
     # Skip Laravel persistence on not_food — there's nothing legitimate to
