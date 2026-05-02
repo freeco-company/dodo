@@ -882,3 +882,21 @@ parameters:
 			identifier: method.notFound
 			count: 1
 			path: tests/Feature/Api/Internal/AiCallbackControllerTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 12
+			path: tests/Feature/Api/FastingControllerTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/Api/FastingControllerTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/Api/FastingControllerTest.php
