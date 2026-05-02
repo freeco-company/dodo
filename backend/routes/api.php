@@ -127,6 +127,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/health/today', [\App\Http\Controllers\Api\HealthMetricsController::class, 'today']);
     Route::get('/health/history', [\App\Http\Controllers\Api\HealthMetricsController::class, 'history']);
 
+    // ----- SPEC-progress-photo-album Phase 1 (metadata-only) -----
+    Route::post('/progress/snapshot', [\App\Http\Controllers\Api\ProgressSnapshotController::class, 'store']);
+    Route::get('/progress/timeline', [\App\Http\Controllers\Api\ProgressSnapshotController::class, 'timeline']);
+    Route::delete('/progress/snapshot/{id}', [\App\Http\Controllers\Api\ProgressSnapshotController::class, 'destroy'])
+        ->whereNumber('id');
+
     // ----- SPEC-weekly-ai-report Phase 1 (rich version of weekly recap) -----
     Route::get('/reports/weekly/current', [\App\Http\Controllers\Api\ReportController::class, 'currentWeekly']);
     Route::get('/reports/weekly/history', [\App\Http\Controllers\Api\ReportController::class, 'weeklyHistory']);
