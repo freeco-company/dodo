@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from app.config import Settings
-from app.vision.schemas import RecognizedItem
+from app.vision.schemas import MacroGrams, RecognizedItem
 
 logger = logging.getLogger(__name__)
 
@@ -28,23 +28,43 @@ class VisionResult:
     input_tokens: int
     output_tokens: int
     is_food: bool = True
+    dodo_comment: str | None = None
 
 
 _VISION_PROMPT = (
     "請辨識照片中的食物，輸出 JSON：\n"
-    '{"is_food":true/false,"items":[{"name":"...","estimated_kcal":整數,"confidence":0-1}],'
-    '"overall_confidence":0-1,"feedback":"一句鼓勵或建議"}\n'
+    '{"is_food":true/false,"items":[{"name":"...","estimated_kcal":整數,"confidence":0-1,'
+    '"macro_grams":{"carb":數字,"protein":數字,"fat":數字}}],'
+    '"overall_confidence":0-1,"feedback":"一句鼓勵或建議",'
+    '"dodo_comment":"朵朵 25 字內口語點評"}\n'
     "規則：\n"
     "- 只輸出 JSON，不要 markdown。\n"
     "- 若照片不是食物（例：人臉、寵物、風景、文字截圖、空盤、模糊到無法辨識），\n"
     "  回："
     '{"is_food":false,"items":[],"overall_confidence":0,'
-    '"feedback":"看起來不是食物喔，幫我拍張清楚的食物照吧 ✨"}。\n'
+    '"feedback":"看起來不是食物喔，幫我拍張清楚的食物照吧 ✨","dodo_comment":null}。\n'
     "- 飲料、湯、甜點、水果、加工食品都算食物（is_food:true）。\n"
     "- 不確定就把 confidence 拉低，不要硬猜。\n"
+    "- macro_grams 估不出來就設為 null（不要硬填 0）。\n"
+    "- dodo_comment 用朵朵語氣（溫柔導師、繁體中文、≤25 字、不下醫療建議）。\n"
+    "  範例：「分量充足 ✨ 記得多走走」「碳水偏高了 🌱」「色彩很豐富，營養均衡」。\n"
     "- feedback 用繁體中文，1-2 句，溫暖正向。\n"
     "- 不可建議單餐 < 800 大卡或全日 < 1200 大卡的方案。\n"
 )
+
+
+def _parse_macro_grams(raw: object) -> MacroGrams | None:
+    """Best-effort parse macro_grams from AI JSON. Returns None if missing/invalid."""
+    if not isinstance(raw, dict):
+        return None
+    try:
+        return MacroGrams(
+            carb=float(raw.get("carb", 0)),
+            protein=float(raw.get("protein", 0)),
+            fat=float(raw.get("fat", 0)),
+        )
+    except (TypeError, ValueError):
+        return None
 
 
 class AnthropicVisionClient:
@@ -154,12 +174,15 @@ class AnthropicVisionClient:
         items_raw = payload.get("items") or []
         items: list[RecognizedItem] = []
         for it in items_raw:
+            if not isinstance(it, dict):
+                continue
             try:
                 items.append(
                     RecognizedItem(
                         name=str(it.get("name", "未知")),
                         estimated_kcal=int(it.get("estimated_kcal", 0)),
                         confidence=float(it.get("confidence", 0.0)),
+                        macro_grams=_parse_macro_grams(it.get("macro_grams")),
                     )
                 )
             except (TypeError, ValueError):
@@ -167,6 +190,10 @@ class AnthropicVisionClient:
 
         overall = float(payload.get("overall_confidence", 0.0))
         feedback = str(payload.get("feedback", "")).strip() or "辨識完成。"
+        dodo_raw = payload.get("dodo_comment")
+        dodo_comment = (
+            str(dodo_raw).strip()[:50] if isinstance(dodo_raw, str) and dodo_raw.strip() else None
+        )
 
         return VisionResult(
             items=items,
@@ -176,4 +203,5 @@ class AnthropicVisionClient:
             input_tokens=getattr(resp.usage, "input_tokens", 0),
             output_tokens=getattr(resp.usage, "output_tokens", 0),
             is_food=True,
+            dodo_comment=dodo_comment,
         )
