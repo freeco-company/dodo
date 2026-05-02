@@ -4475,6 +4475,47 @@ async function loadCardsCodex() {
   } catch (e) {
     console.error('loadCardsCodex', e);
   }
+  loadCardsCompletion();
+}
+
+async function loadCardsCompletion() {
+  try {
+    const r = await api('GET', '/cards/completion');
+    const c = r.completion || {};
+    const pctEl = document.getElementById('codex-comp-pct');
+    if (pctEl) pctEl.textContent = String(c.percent || 0);
+
+    const chips = document.getElementById('codex-seasonal-chips');
+    if (chips) {
+      const active = (r.seasonal_active || []).map((s) =>
+        `<span class="chip chip-active">${s.label} · 剩 ${s.days_remaining} 天</span>`
+      );
+      const upcoming = (r.seasonal_upcoming || []).slice(0, 1).map((s) =>
+        `<span class="chip">${s.label} · ${s.days_until} 天後</span>`
+      );
+      const all = active.concat(upcoming);
+      chips.innerHTML = all.length ? all.join('') : '<span class="text-[11px] text-muted">目前沒有限定活動 — 下一次很快就到 🌱</span>';
+    }
+
+    const cats = document.getElementById('codex-categories');
+    if (cats) {
+      cats.innerHTML = (c.categories || []).map((cat) => {
+        const lock = cat.accessible ? '' : ' 🔒';
+        const dim = cat.accessible ? '' : 'opacity-60';
+        return `
+          <div class="${dim}">
+            <div class="flex items-center justify-between mb-1">
+              <span>${cat.label}${lock}</span>
+              <span class="text-muted">${cat.collected}/${cat.total} (${cat.percent}%)</span>
+            </div>
+            <div style="background:#EDE3D0;border-radius:999px;height:6px;overflow:hidden;">
+              <div style="background:linear-gradient(90deg,#C9D3BE,#7FB069);height:6px;width:${cat.percent}%;"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  } catch (e) { /* silent */ }
 }
 
 function renderCodex() {
