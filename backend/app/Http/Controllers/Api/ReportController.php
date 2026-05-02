@@ -14,15 +14,16 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 /**
- * /api/reports/weekly/{date} — weekly summary card.
+ * /api/reports/weekly/{date} — legacy "letter" endpoint.
  *
- * Slimmed port of ai-game/src/services/reports.ts. The original calls AI
- * to generate a personalized "letter" — that path is deferred until the
- * Python AI service is wired through. For now we surface deterministic
+ * Slimmed port of ai-game/src/services/reports.ts. Surfaces deterministic
  * stats (avg score, perfect/logged days, weight delta, top foods); the
- * letter is left empty so the UI can fall back to a hard-coded template.
+ * `letter` field stays empty so legacy UI clients fall back to a template.
  *
- * @todo Phase F: call AI for the letter via AiServiceClient.
+ * The richer SPEC-04 weekly report (with fasting + health aggregates +
+ * 朵朵 AI narrative for paid users) lives at /api/reports/weekly/current
+ * and the by-date / history / shared sibling endpoints in this same
+ * controller — see currentWeekly() / richWeeklyByDate() below.
  */
 class ReportController extends Controller
 {

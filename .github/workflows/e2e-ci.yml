@@ -1,17 +1,17 @@
 name: E2E CI
 
-# Note: this workflow is committed but not yet validated in CI runtime.
-# Local run is the source of truth for now (see e2e/README.md).
-# First green run will gate enabling pull_request triggers.
+# Activated 2026-05-03 after smoke + uiRegister password fix (Laravel password
+# rules require 10+ chars + mixed case + numbers + HIBP-uncompromised; old
+# `password123` no longer passes register validation).
 
 on:
   workflow_dispatch:
-  # pull_request:
-  #   paths:
-  #     - 'backend/**'
-  #     - 'frontend/**'
-  #     - 'e2e/**'
-  #     - '.github/workflows/e2e-ci.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'e2e/**'
+      - '.github/workflows/e2e-ci.yml'
 
 jobs:
   e2e:

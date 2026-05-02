@@ -66,7 +66,7 @@ REG_BODY=$(cat <<JSON
 {
   "name": "smoke-${STAMP}",
   "email": "smoke+${STAMP}@dodo.local",
-  "password": "password123",
+  "password": "Smoke-Test-Pass-2026-${STAMP}",
   "height_cm": 165,
   "current_weight_kg": 65,
   "target_weight_kg": 60,
