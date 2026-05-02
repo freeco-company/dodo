@@ -1558,7 +1558,7 @@ function switchTab(tab) {
       el.classList.add('tab-anim');
     }
   });
-  if (tab === 'home') { loadDashboard(); loadSuggestions(); loadGrowth(); loadKnowledgeDaily(); }
+  if (tab === 'home') { loadDashboard(); loadSuggestions(); loadGrowth(); loadKnowledgeDaily(); loadHealthWidget(); }
   if (tab === 'knowledge') loadKnowledgeCategories();
   if (tab === 'pokedex') loadPokedex();
   if (tab === 'chat') loadChatStarters();
@@ -2744,6 +2744,80 @@ function renderStarters(list) {
 }
 
 // === Calendar ===
+// === Health metrics widget (SPEC-03 Phase 2) ===
+async function loadHealthWidget() {
+  const body = document.getElementById('health-widget-body');
+  const sub = document.getElementById('health-entry-sub');
+  if (!body) return;
+  try {
+    const t = await api('GET', '/health/today');
+    const lines = [];
+    if (t.steps != null) {
+      const pct = Math.min(1, t.steps / (t.steps_goal || 6000));
+      const reached = t.steps >= (t.steps_goal || 6000) ? '✨' : '';
+      lines.push(`<div class="flex items-center justify-between"><span>🚶 ${t.steps.toLocaleString()} 步 ${reached}</span><span class="text-muted">目標 ${t.steps_goal}</span></div>`);
+    }
+    if (t.active_kcal != null) {
+      lines.push(`<div class="flex items-center justify-between"><span>🔥 活動熱量</span><span>${t.active_kcal} kcal</span></div>`);
+    }
+    if (t.workouts > 0) {
+      lines.push(`<div class="flex items-center justify-between"><span>💪 運動 sessions</span><span>${t.workouts}</span></div>`);
+    }
+    if (t.weight_kg != null) {
+      const when = t.weight_recorded_at ? new Date(t.weight_recorded_at).toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' }) : '';
+      lines.push(`<div class="flex items-center justify-between"><span>⚖️ 體重</span><span>${t.weight_kg} kg <span class="text-muted">${when}</span></span></div>`);
+    }
+    if (t.sleep_minutes != null) {
+      const h = Math.floor(t.sleep_minutes / 60);
+      const m = t.sleep_minutes % 60;
+      lines.push(`<div class="flex items-center justify-between"><span>😴 睡眠</span><span>${h}h ${m}m</span></div>`);
+    } else if (t.sleep_locked) {
+      lines.push(`<div class="flex items-center justify-between text-muted"><span>😴 睡眠 🔒</span><span>升級解鎖</span></div>`);
+    }
+    if (lines.length === 0) {
+      body.innerHTML = `<div class="text-muted">尚未連接 Apple 健康 / Google 健康 — 點「設定」手動記錄體重，朵朵會幫妳追進度 🌱</div>`;
+      if (sub) sub.textContent = '尚未連接 · 點此手動記錄體重';
+    } else {
+      body.innerHTML = lines.join('');
+      if (sub) sub.textContent = '已連接 · 點此查看 / 手動補記';
+    }
+  } catch (e) {
+    body.innerHTML = `<div class="text-muted">載入失敗</div>`;
+  }
+}
+
+async function promptWeightLog() {
+  const raw = prompt('體重 (kg)', '');
+  if (raw == null) return;
+  const val = parseFloat(raw);
+  if (!Number.isFinite(val) || val < 20 || val > 250) {
+    if (typeof showToast === 'function') showToast('請輸入合理的體重 (20-250 kg)');
+    return;
+  }
+  try {
+    await api('POST', '/health/sync', {
+      metrics: [{
+        type: 'weight',
+        value: val,
+        unit: 'kg',
+        recorded_at: new Date().toISOString(),
+        source: 'manual',
+      }],
+    });
+    if (typeof showToast === 'function') showToast(`記錄了 ${val.toFixed(1)} kg ✨`);
+    loadHealthWidget();
+  } catch (e) {
+    if (typeof showToast === 'function') showToast('記錄失敗 — 稍後再試');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const settingsBtn = document.getElementById('health-settings-btn');
+  if (settingsBtn) settingsBtn.addEventListener('click', promptWeightLog);
+  const meEntry = document.getElementById('me-health-data');
+  if (meEntry) meEntry.addEventListener('click', promptWeightLog);
+});
+
 // === Fasting timer (SPEC-02 Phase 3) ===
 const FASTING_PHASES = [
   { key: 'digesting',       upTo:  4*60, label: '進食消化中', emoji: '🍱' },
