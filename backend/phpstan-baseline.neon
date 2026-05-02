@@ -906,3 +906,27 @@ parameters:
 			identifier: method.notFound
 			count: 5
 			path: tests/Feature/Gamification/FastingHooksTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 11
+			path: tests/Feature/Api/HealthMetricsControllerTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/HealthMetricsControllerTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/Feature/Api/HealthMetricsControllerTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:artisan\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/HealthMetricsControllerTest.php
