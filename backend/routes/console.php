@@ -48,6 +48,20 @@ Schedule::command('reports:generate-weekly')
     ->withoutOverlapping()
     ->onOneServer();
 
+// SPEC-04 §3 — Sunday 20:00 push fanout AFTER the 19:00 generate ran.
+Schedule::command('reports:notify-weekly')
+    ->weeklyOn(\Illuminate\Console\Scheduling\Schedule::SUNDAY, '20:00')
+    ->timezone('Asia/Taipei')
+    ->withoutOverlapping()
+    ->onOneServer();
+
+// SPEC-06 §2.3 — daily 09:00 seasonal release / expiring push fanout.
+Schedule::command('seasonal:notify')
+    ->dailyAt('09:00')
+    ->timezone('Asia/Taipei')
+    ->withoutOverlapping()
+    ->onOneServer();
+
 // SPEC-healthkit-integration §5 retention — wipe raw HK payloads older than 90d.
 Schedule::command('health:prune --days=90')
     ->dailyAt('05:30')

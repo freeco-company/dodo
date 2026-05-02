@@ -41,6 +41,7 @@ class FastingService
         private readonly EntitlementsService $entitlements,
         private readonly GamificationPublisher $gamification,
         private readonly AchievementPublisher $achievements,
+        private readonly PushDispatcher $push,
     ) {}
 
     public function isModeAllowed(User $user, string $mode): bool
@@ -125,6 +126,10 @@ class FastingService
 
         if ($session->completed) {
             $this->publishCompletion($user, $session, $endedAt);
+            // Best-effort completion push — silent on failure (FCM not configured etc).
+            try {
+                $this->push->fastingCompleted($user, (string) $session->mode, (int) $elapsedMinutes);
+            } catch (\Throwable $e) { /* fail-soft */ }
         }
 
         return $session->fresh();
