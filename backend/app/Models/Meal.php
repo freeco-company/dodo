@@ -18,10 +18,10 @@ class Meal extends Model
 
     protected $fillable = [
         'legacy_id', 'user_id', 'pandora_user_uuid', 'daily_log_id', 'date', 'meal_type',
-        'photo_url', 'food_name', 'food_components', 'matched_food_ids',
+        'photo_url', 'food_name', 'recognized_via', 'food_components', 'matched_food_ids',
         'serving_weight_g',
         'calories', 'protein_g', 'carbs_g', 'fat_g', 'fiber_g', 'sodium_mg', 'sugar_g',
-        'meal_score', 'coach_response',
+        'meal_score', 'coach_response', 'dodo_comment',
         'user_corrected', 'correction_data', 'ai_confidence', 'ai_raw_response',
     ];
 

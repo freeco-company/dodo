@@ -272,3 +272,11 @@ Route::post('/internal/lifecycle/invalidate', [\App\Http\Controllers\Api\Lifecyc
 // franchisee.activated → User/DodoUser is_franchisee=true; franchisee.deactivated → false
 Route::post('/internal/franchisee/webhook', FranchiseWebhookController::class)
     ->middleware('franchisee.webhook');
+
+// SPEC-photo-ai-calorie-polish §4.2 — ai-service (FastAPI) → 朵朵 callback receivers
+// Auth via X-Internal-Secret (shared with services.meal_ai_service.shared_secret).
+// Best-effort logging endpoints; ai-service treats failure as non-fatal.
+Route::post('/internal/ai-callback/food-recognition',
+    [\App\Http\Controllers\Api\Internal\AiCallbackController::class, 'foodRecognition']);
+Route::post('/internal/ai-callback/cost-event',
+    [\App\Http\Controllers\Api\Internal\AiCallbackController::class, 'costEvent']);

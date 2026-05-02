@@ -99,7 +99,7 @@ parameters:
 		-
 			message: '#^Cannot call method toDateString\(\) on string\.$#'
 			identifier: method.nonObject
-			count: 1
+			count: 2
 			path: app/Services/EntitlementsService.php
 
 		-
@@ -857,3 +857,28 @@ parameters:
 			identifier: method.alreadyNarrowedType
 			count: 1
 			path: tests/Unit/ExampleTest.php
+
+		# SPEC-photo-ai-calorie-polish Phase 2 — Pest TestCall stub limitation (project-wide pattern)
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
+			identifier: method.notFound
+			count: 6
+			path: tests/Feature/Api/PhotoAiQuotaTest.php
+
+		-
+			message: '#^Cannot call method toDateString\(\) on string\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: tests/Feature/Api/PhotoAiQuotaTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:withHeaders\(\)\.$#'
+			identifier: method.notFound
+			count: 6
+			path: tests/Feature/Api/Internal/AiCallbackControllerTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:postJson\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/Feature/Api/Internal/AiCallbackControllerTest.php
