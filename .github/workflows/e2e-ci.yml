@@ -1,17 +1,14 @@
 name: E2E CI
 
-# Note: this workflow is committed but not yet validated in CI runtime.
-# Local run is the source of truth for now (see e2e/README.md).
-# First green run will gate enabling pull_request triggers.
+# Note: pull_request trigger is intentionally NOT enabled yet.
+# 2026-05-03 attempt to enable surfaced a pre-existing rabbit-button click
+# timeout (#130 e2e run) unrelated to this PR. Password fix landed; uiRegister
+# helper now uses `E2E-Test-Pass-${stamp}` which satisfies Laravel's
+# 10-char+mixedCase+numbers+HIBP rules. Remaining UI-test issue tracked
+# separately — re-enable pull_request once that is fixed.
 
 on:
   workflow_dispatch:
-  # pull_request:
-  #   paths:
-  #     - 'backend/**'
-  #     - 'frontend/**'
-  #     - 'e2e/**'
-  #     - '.github/workflows/e2e-ci.yml'
 
 jobs:
   e2e:

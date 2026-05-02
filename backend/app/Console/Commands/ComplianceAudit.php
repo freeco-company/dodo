@@ -32,14 +32,86 @@ class ComplianceAudit extends Command
         $apply = (bool) $this->option('apply');
         $this->info($apply ? '=== Compliance audit (apply) ===' : '=== Compliance audit (dry-run) ===');
 
-        $stats = $this->auditArticles($apply);
+        $articleStats = $this->auditArticles($apply);
+        $deckStats = $this->auditQuestionDeck();
 
         $this->table(
             ['Kind', 'Scanned', 'Flagged', 'Fixed', 'Top Terms'],
-            [['knowledge_article', $stats['scanned'], $stats['flagged'], $stats['fixed'], $this->topTerms($stats['terms'])]],
+            [
+                ['knowledge_article', $articleStats['scanned'], $articleStats['flagged'], $articleStats['fixed'], $this->topTerms($articleStats['terms'])],
+                ['question_deck', $deckStats['scanned'], $deckStats['flagged'], 0, $this->topTerms($deckStats['terms'])],
+            ],
         );
 
+        // Question deck violations are CI-fatal (read-only file, not auto-fixable).
+        if ($deckStats['flagged'] > 0) {
+            $this->error("question_decks.json has {$deckStats['flagged']} card(s) with violation terms — fix the seed file by hand.");
+
+            return self::FAILURE;
+        }
+
         return self::SUCCESS;
+    }
+
+    /**
+     * SPEC-06 Phase 2 — also scan the seasonal / holiday / lore card seed
+     * for compliance terms. These cards ship in code (not DB-driven) so a
+     * regression at PR-time should fail loudly, not auto-rewrite.
+     *
+     * @return array{scanned:int,flagged:int,terms:array<string,int>}
+     */
+    private function auditQuestionDeck(): array
+    {
+        $path = database_path('seed/question_decks.json');
+        if (! file_exists($path)) {
+            return ['scanned' => 0, 'flagged' => 0, 'terms' => []];
+        }
+        $raw = file_get_contents($path);
+        if ($raw === false) {
+            return ['scanned' => 0, 'flagged' => 0, 'terms' => []];
+        }
+        $data = json_decode($raw, true);
+        if (! is_array($data) || ! isset($data['cards']) || ! is_array($data['cards'])) {
+            return ['scanned' => 0, 'flagged' => 0, 'terms' => []];
+        }
+
+        $scanned = 0;
+        $flagged = 0;
+        $terms = [];
+        foreach ($data['cards'] as $card) {
+            if (! is_array($card)) {
+                continue;
+            }
+            $scanned++;
+            $hits = [];
+            $textFields = [
+                (string) ($card['question'] ?? ''),
+                (string) ($card['hint'] ?? ''),
+                (string) ($card['explain'] ?? ''),
+            ];
+            foreach ((array) ($card['choices'] ?? []) as $choice) {
+                if (! is_array($choice)) {
+                    continue;
+                }
+                $textFields[] = (string) ($choice['text'] ?? '');
+                $textFields[] = (string) ($choice['feedback'] ?? '');
+            }
+            foreach ($textFields as $val) {
+                foreach ($this->sanitizer->riskReport($val) as $term) {
+                    $hits[] = $term;
+                }
+            }
+            $hits = array_values(array_unique($hits));
+            if ($hits === []) {
+                continue;
+            }
+            $flagged++;
+            foreach ($hits as $t) {
+                $terms[$t] = ($terms[$t] ?? 0) + 1;
+            }
+        }
+
+        return compact('scanned', 'flagged', 'terms');
     }
 
     /**

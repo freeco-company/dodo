@@ -35,7 +35,8 @@ export async function registerUser(opts: {
   const name = opts.name ?? `e2e-${stamp}`;
   const body = {
     email,
-    password: 'password123',
+    // Strong password to satisfy current Laravel password rules (uncompromised + mixed case + 12+ chars)
+    password: `E2E-Test-Pass-${stamp}`,
     name,
     height_cm: opts.height_cm ?? 165,
     current_weight_kg: opts.current_weight_kg ?? 65,
