@@ -7,7 +7,9 @@ use App\Models\DailyLog;
 use App\Models\Meal;
 use App\Models\WeeklyReport;
 use App\Services\Gamification\GamificationPublisher;
+use App\Services\WeeklyReportService;
 use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -26,7 +28,55 @@ class ReportController extends Controller
 {
     public function __construct(
         private readonly GamificationPublisher $gamification,
+        private readonly WeeklyReportService $weeklyService,
     ) {}
+
+    /**
+     * SPEC-04 §3 — current week's rich report (cached snapshot or freshly
+     * aggregated; idempotent regenerate).
+     */
+    public function currentWeekly(Request $request): JsonResponse
+    {
+        return response()->json($this->weeklyService->generate($request->user()));
+    }
+
+    /**
+     * SPEC-04 §3 — past report by week_start (YYYY-MM-DD, must be a Sunday;
+     * service will snap to start-of-week regardless).
+     */
+    public function richWeeklyByDate(Request $request, string $weekStart): JsonResponse
+    {
+        if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $weekStart)) {
+            return response()->json(['message' => 'week_start must be YYYY-MM-DD'], 422);
+        }
+        $start = CarbonImmutable::parse($weekStart, 'Asia/Taipei');
+
+        return response()->json($this->weeklyService->generate($request->user(), $start));
+    }
+
+    public function weeklyHistory(Request $request): JsonResponse
+    {
+        $weeks = (int) $request->integer('weeks', 12);
+        $weeks = max(1, min(52, $weeks));
+
+        return response()->json([
+            'data' => $this->weeklyService->history($request->user(), $weeks),
+        ]);
+    }
+
+    public function recordShared(Request $request, int $id): JsonResponse
+    {
+        $report = WeeklyReport::query()
+            ->where('id', $id)
+            ->where('user_id', $request->user()->id)
+            ->first();
+        if ($report === null) {
+            return response()->json(['message' => 'Report not found'], 404);
+        }
+        $count = $this->weeklyService->recordShared($report);
+
+        return response()->json(['shared_count' => $count]);
+    }
 
     public function weekly(Request $request, string $date): JsonResponse
     {

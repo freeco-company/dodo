@@ -130,6 +130,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Meal::class, 'pandora_user_uuid', 'pandora_user_uuid');
     }
 
+    public function healthMetrics(): HasMany
+    {
+        return $this->hasMany(HealthMetric::class);
+    }
+
     public function conversations(): HasMany
     {
         return $this->hasMany(Conversation::class, 'pandora_user_uuid', 'pandora_user_uuid');
