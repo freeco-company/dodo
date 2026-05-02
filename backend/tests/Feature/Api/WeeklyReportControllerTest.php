@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\WeeklyReport;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Http;
 
 uses(RefreshDatabase::class);
 
@@ -169,4 +170,61 @@ it('all 4 endpoints reject unauthenticated requests', function () {
 
 it('reports:generate-weekly artisan command runs without error on empty system', function () {
     $this->artisan('reports:generate-weekly')->assertSuccessful();
+});
+
+it('paid users get ai-service narrative when configured', function () {
+    config()->set('services.meal_ai_service.base_url', 'https://ai.test');
+    config()->set('services.meal_ai_service.shared_secret', 'narrative-secret');
+    Http::fake([
+        'ai.test/v1/reports/narrative' => Http::response([
+            'headline' => '朵朵 AI 動態旁白 ✨',
+            'lines' => ['妳這週 5 天記錄超穩 🌱', '下週試試多走 2,000 步'],
+            'model' => 'claude-3-5-sonnet-latest',
+            'cost_usd' => 0.0042,
+            'stub_mode' => false,
+        ], 200),
+    ]);
+    $user = User::factory()->create([
+        'membership_tier' => 'fp_lifetime',
+        'pandora_user_uuid' => 'aaaa9999-9999-9999-9999-999999999999',
+    ]);
+
+    $resp = $this->actingAs($user, 'sanctum')
+        ->getJson('/api/reports/weekly/current')
+        ->assertOk();
+
+    expect($resp->json('narrative.headline'))->toBe('朵朵 AI 動態旁白 ✨');
+    Http::assertSent(fn ($req) => str_ends_with($req->url(), '/v1/reports/narrative')
+        && $req['kind'] === 'weekly_report'
+        && $req['tier'] === 'paid');
+});
+
+it('falls back to deterministic narrative when ai-service errors', function () {
+    config()->set('services.meal_ai_service.base_url', 'https://ai.test');
+    config()->set('services.meal_ai_service.shared_secret', 'narrative-secret');
+    Http::fake(['ai.test/v1/reports/narrative' => Http::response([], 502)]);
+    $user = User::factory()->create([
+        'membership_tier' => 'fp_lifetime',
+        'pandora_user_uuid' => 'bbbb9999-9999-9999-9999-999999999999',
+    ]);
+
+    $resp = $this->actingAs($user, 'sanctum')
+        ->getJson('/api/reports/weekly/current')
+        ->assertOk();
+
+    expect($resp->json('narrative.headline'))->not->toBe('朵朵 AI 動態旁白 ✨');
+    expect($resp->json('narrative.headline'))->toContain('還沒');
+});
+
+it('skips ai-service entirely for free users', function () {
+    config()->set('services.meal_ai_service.base_url', 'https://ai.test');
+    config()->set('services.meal_ai_service.shared_secret', 'narrative-secret');
+    Http::fake();
+    $user = User::factory()->create();
+
+    $this->actingAs($user, 'sanctum')
+        ->getJson('/api/reports/weekly/current')
+        ->assertOk();
+
+    Http::assertNothingSent();
 });

@@ -2,12 +2,14 @@
 
 namespace App\Services;
 
+use App\Exceptions\AiServiceUnavailableException;
 use App\Models\FastingSession;
 use App\Models\HealthMetric;
 use App\Models\Meal;
 use App\Models\User;
 use App\Models\WeeklyReport;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Log;
 
 /**
  * SPEC-weekly-ai-report Phase 1 — aggregate + cache + render the weekly
@@ -23,6 +25,7 @@ class WeeklyReportService
     public function __construct(
         private readonly GrowthService $growth,
         private readonly EntitlementsService $entitlements,
+        private readonly AiServiceClient $aiService,
     ) {}
 
     public function weekStartFor(CarbonImmutable $date): CarbonImmutable
@@ -49,7 +52,10 @@ class WeeklyReportService
         $health = $this->aggregateHealth($user, $weekStart, $weekEnd, $isPaid);
         $growth = $this->growth->weeklyReview($user, $weekStart);
 
-        $narrative = $this->renderNarrative($meals, $fasting, $health, $growth, $isPaid);
+        $deterministic = $this->renderNarrative($meals, $fasting, $health, $growth, $isPaid);
+        $narrative = $isPaid
+            ? $this->maybeUpgradeNarrative($user, $weekStart, $weekEnd, $meals, $fasting, $health, $growth, $deterministic)
+            : $deterministic;
 
         $payload = [
             'window' => [
@@ -247,6 +253,64 @@ class WeeklyReportService
             'avg_sleep_minutes' => $sleepAvg,
             'sleep_locked' => ! $isPaid,
         ];
+    }
+
+    /**
+     * Phase 1.5 — call ai-service `/v1/reports/narrative` for paid users.
+     * Fail-soft: any AiService error returns the deterministic fallback.
+     *
+     * @param  array<string,mixed>  $meals
+     * @param  array<string,mixed>  $fasting
+     * @param  array<string,mixed>  $health
+     * @param  array<string,mixed>  $growth
+     * @param  array{headline:string, lines:list<string>}  $fallback
+     * @return array{headline:string, lines:list<string>}
+     */
+    private function maybeUpgradeNarrative(
+        User $user,
+        CarbonImmutable $weekStart,
+        CarbonImmutable $weekEnd,
+        array $meals,
+        array $fasting,
+        array $health,
+        array $growth,
+        array $fallback,
+    ): array {
+        if (! $this->aiService->isEnabled()) {
+            return $fallback;
+        }
+        try {
+            $payload = [
+                'window_start' => $weekStart->toDateString(),
+                'window_end' => $weekEnd->toDateString(),
+                'days_logged' => (int) ($growth['current']['days_logged'] ?? 0),
+                'meals_count' => (int) ($meals['count'] ?? 0),
+                'meals_kcal' => (int) ($meals['total_kcal'] ?? 0),
+                'top_foods' => array_slice(array_map(fn ($f) => (string) $f['name'], $meals['top_foods'] ?? []), 0, 5),
+                'fasting_sessions' => (int) ($fasting['sessions'] ?? 0),
+                'fasting_completed' => (int) ($fasting['completed'] ?? 0),
+                'fasting_longest_minutes' => (int) ($fasting['longest_minutes'] ?? 0),
+                'steps_total' => (int) ($health['total_steps'] ?? 0),
+                'active_kcal_total' => (int) ($health['total_active_kcal'] ?? 0),
+                'sleep_avg_minutes' => $health['avg_sleep_minutes'] ?? null,
+                'weight_change_kg' => $growth['deltas']['weight_change_kg'] ?? null,
+                'avg_score' => $growth['current']['avg_score'] ?? null,
+            ];
+            $tier = $this->entitlements->isPaid($user) ? 'paid' : 'free';
+            $resp = $this->aiService->narrative($user, 'weekly_report', $tier, $payload);
+
+            return [
+                'headline' => $resp['headline'],
+                'lines' => $resp['lines'],
+            ];
+        } catch (AiServiceUnavailableException $e) {
+            Log::info('[WeeklyReport] ai narrative unavailable, using fallback', [
+                'user_id' => $user->id,
+                'reason' => $e->getMessage(),
+            ]);
+
+            return $fallback;
+        }
     }
 
     /**
