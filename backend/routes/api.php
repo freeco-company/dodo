@@ -220,6 +220,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/answer', [CardController::class, 'answer']);
         Route::get('/stamina', [CardController::class, 'stamina']);
         Route::get('/collection', [CardController::class, 'collection']);
+        Route::get('/completion', [CardController::class, 'completion']);
 
         // Event card offers (NPC-pushed, time-limited)
         Route::get('/event-offer/{offer_id}', [CardController::class, 'eventOffer'])

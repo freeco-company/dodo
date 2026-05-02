@@ -5,12 +5,16 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\CardEventOffer;
 use App\Services\CardService;
+use App\Services\SeasonalContentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class CardController extends Controller
 {
-    public function __construct(private readonly CardService $service) {}
+    public function __construct(
+        private readonly CardService $service,
+        private readonly SeasonalContentService $seasonal,
+    ) {}
 
     public function draw(Request $request): JsonResponse
     {
@@ -39,6 +43,19 @@ class CardController extends Controller
     public function collection(Request $request): JsonResponse
     {
         return response()->json($this->service->collection($request->user()));
+    }
+
+    /**
+     * SPEC-seasonal-outfit-cards Phase 1 — completion summary by category
+     * + active / upcoming seasonal windows for the Cards tab progress UI.
+     */
+    public function completion(Request $request): JsonResponse
+    {
+        return response()->json([
+            'completion' => $this->service->completionSummary($request->user()),
+            'seasonal_active' => $this->seasonal->activeAt(),
+            'seasonal_upcoming' => array_slice($this->seasonal->upcomingAt(), 0, 3),
+        ]);
     }
 
     public function eventOffer(Request $request, int $offerId): JsonResponse
