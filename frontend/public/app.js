@@ -2912,7 +2912,59 @@ document.addEventListener('DOMContentLoaded', () => {
   if (settingsBtn) settingsBtn.addEventListener('click', promptWeightLog);
   const meEntry = document.getElementById('me-health-data');
   if (meEntry) meEntry.addEventListener('click', promptWeightLog);
+  const progressEntry = document.getElementById('me-progress-album');
+  if (progressEntry) progressEntry.addEventListener('click', openProgressAlbum);
 });
+
+// === Progress photos (SPEC-05 Phase 2) — metadata-only manual log ===
+async function openProgressAlbum() {
+  try {
+    const r = await api('GET', '/progress/timeline?days=180');
+    const items = r.data || [];
+    const list = items.length === 0
+      ? '還沒有進度紀錄 — 從現在開始累積身材變化軌跡 🌱'
+      : items.slice(-8).reverse().map((s) => {
+          const d = new Date(s.taken_at).toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' });
+          const w = s.weight_kg != null ? ` · ${s.weight_kg.toFixed(1)}kg` : '';
+          const m = s.mood ? ` ${s.mood}` : '';
+          const n = s.notes ? ` · ${s.notes.slice(0, 20)}${s.notes.length > 20 ? '…' : ''}` : '';
+          return `${d}${w}${m}${n}`;
+        }).join('\n');
+
+    const action = prompt(
+      `📷 進度照記錄\n\n最近紀錄：\n${list}\n\n要新增今天的紀錄嗎？\n` +
+      '輸入體重 kg（選填，按 Enter 跳過）：',
+      ''
+    );
+    if (action === null) return;
+
+    const weight = action.trim() === '' ? null : parseFloat(action);
+    if (action.trim() !== '' && (!Number.isFinite(weight) || weight < 20 || weight > 250)) {
+      if (typeof showToast === 'function') showToast('請輸入合理的體重 (20-250 kg) 或留空');
+      return;
+    }
+    const mood = prompt('心情 emoji（選填，例如 🙂 ✨ 💪）：', '');
+    const notes = prompt('備註（選填，最多 500 字）：', '');
+
+    const payload = {
+      taken_at: new Date().toISOString(),
+    };
+    if (weight !== null) payload.weight_kg = weight;
+    if (mood && mood.trim()) payload.mood = mood.trim();
+    if (notes && notes.trim()) payload.notes = notes.trim().slice(0, 500);
+
+    await api('POST', '/progress/snapshot', payload);
+    if (typeof showToast === 'function') showToast('進度紀錄已儲存 ✨');
+  } catch (e) {
+    const code = e?.body?.error_code;
+    if (code === 'PROGRESS_TIER_LOCKED') {
+      if (typeof showToast === 'function') showToast('進度照相簿是年付 / VIP 限定 ✨');
+      switchTab('me');
+    } else {
+      if (typeof showToast === 'function') showToast('儲存失敗 — 稍後再試');
+    }
+  }
+}
 
 // === Fasting timer (SPEC-02 Phase 3) ===
 const FASTING_PHASES = [
