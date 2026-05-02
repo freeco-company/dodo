@@ -2622,7 +2622,103 @@ async function loadSuggestions() {
 }
 
 // === Report ===
+async function loadWeeklyRich() {
+  try {
+    const r = await api('GET', '/reports/weekly/current');
+    const win = document.getElementById('weekly-rich-window');
+    if (win) win.textContent = `${r.window.start.slice(5)} – ${r.window.end.slice(5)}`;
+    const headline = document.getElementById('weekly-rich-headline');
+    if (headline) headline.textContent = r.narrative.headline;
+
+    const stats = document.getElementById('weekly-rich-stats');
+    if (stats) {
+      const cells = [];
+      cells.push(`<div>🍱 <b class="num">${r.meals.count}</b> 餐 · ${r.meals.total_kcal.toLocaleString()} kcal</div>`);
+      cells.push(`<div>🚶 <b class="num">${r.health.total_steps.toLocaleString()}</b> 步</div>`);
+      cells.push(`<div>⏱️ 斷食 <b class="num">${r.fasting.completed}</b> / ${r.fasting.sessions}</div>`);
+      const wc = r.growth.weight_change_kg;
+      cells.push(`<div>⚖️ ${wc == null ? '—' : (wc > 0 ? '+' : '') + wc + ' kg'}</div>`);
+      if (r.health.avg_sleep_minutes != null) {
+        const h = Math.floor(r.health.avg_sleep_minutes / 60);
+        const m = r.health.avg_sleep_minutes % 60;
+        cells.push(`<div>😴 ${h}h ${m}m</div>`);
+      } else if (r.health.sleep_locked) {
+        cells.push(`<div class="text-muted">😴 升級解鎖</div>`);
+      }
+      stats.innerHTML = cells.join('');
+    }
+
+    const narrative = document.getElementById('weekly-rich-narrative');
+    if (narrative) {
+      narrative.innerHTML = (r.narrative.lines || []).map((l) => `<div>${l}</div>`).join('');
+    }
+
+    const shareBtn = document.getElementById('weekly-share-btn');
+    if (shareBtn) {
+      if (!r.features.image_card) {
+        shareBtn.textContent = '🔒 分享圖卡（升級解鎖）';
+      } else {
+        shareBtn.textContent = `分享圖卡 ✨${r.shared_count > 0 ? ` (${r.shared_count})` : ''}`;
+      }
+      shareBtn.onclick = () => shareWeekly(r);
+    }
+
+    const histBtn = document.getElementById('weekly-history-btn');
+    if (histBtn) histBtn.onclick = () => toggleWeeklyHistory();
+  } catch (e) { /* silent — legacy report below still renders */ }
+}
+
+async function shareWeekly(r) {
+  if (!r.features.image_card) {
+    if (typeof showToast === 'function') showToast('升級訂閱可解鎖分享圖卡 ✨');
+    switchTab('me');
+    return;
+  }
+  try {
+    const txt = [
+      r.narrative.headline,
+      `${r.window.start.slice(5)} – ${r.window.end.slice(5)}`,
+      ...(r.narrative.lines || []),
+      '#潘朵拉飲食 #朵朵週報',
+    ].join('\n');
+    if (navigator.share) {
+      await navigator.share({ text: txt, title: '朵朵的本週小報告' });
+    } else {
+      await navigator.clipboard.writeText(txt);
+      if (typeof showToast === 'function') showToast('已複製文字 ✨');
+    }
+    await api('POST', `/reports/weekly/${r.id}/shared`, {});
+    loadWeeklyRich();
+  } catch (e) { /* user dismissed share sheet */ }
+}
+
+async function toggleWeeklyHistory() {
+  const wrap = document.getElementById('weekly-history-list');
+  if (!wrap) return;
+  if (!wrap.classList.contains('hidden')) {
+    wrap.classList.add('hidden');
+    return;
+  }
+  try {
+    const h = await api('GET', '/reports/weekly/history?weeks=12');
+    const items = h.data || [];
+    if (items.length === 0) {
+      wrap.innerHTML = '<div class="text-muted">還沒有歷史紀錄 — 累積 7 天再來看 🌱</div>';
+    } else {
+      wrap.innerHTML = items.map((w) => {
+        const score = w.avg_score == null ? '—' : w.avg_score.toFixed(1);
+        return `<div class="flex items-center justify-between"><span>${w.week_start.slice(5)} – ${w.week_end.slice(5)}</span><span>平均 ${score}${w.shared_count > 0 ? ' · 分享 ' + w.shared_count : ''}</span></div>`;
+      }).join('');
+    }
+    wrap.classList.remove('hidden');
+  } catch (e) {
+    wrap.innerHTML = '<div class="text-muted">載入失敗</div>';
+    wrap.classList.remove('hidden');
+  }
+}
+
 async function loadWeekly() {
+  loadWeeklyRich();
   const today = new Date().toISOString().slice(0, 10);
   const r = await api('GET', `/reports/weekly/${today}`);
 

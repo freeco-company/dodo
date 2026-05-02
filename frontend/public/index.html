@@ -769,6 +769,21 @@
 
     <!-- ===== Report tab ===== -->
     <div id="tab-report" class="hidden px-5 space-y-4 pb-8">
+      <!-- SPEC-04 rich weekly report card -->
+      <div class="card p-5" id="weekly-rich-card" style="background:linear-gradient(135deg,#FFF8F2,#F5F1EA);">
+        <div class="flex items-baseline justify-between mb-2">
+          <div class="text-sm font-bold" id="weekly-rich-headline">朵朵的本週小報告 ✨</div>
+          <div class="text-[11px] text-muted" id="weekly-rich-window">—</div>
+        </div>
+        <div id="weekly-rich-stats" class="grid grid-cols-2 gap-2 text-xs mb-3"></div>
+        <div id="weekly-rich-narrative" class="text-xs leading-6 mb-3 text-muted"></div>
+        <div class="flex gap-2">
+          <button class="chip flex-1" id="weekly-share-btn" type="button">分享圖卡 ✨</button>
+          <button class="chip" id="weekly-history-btn" type="button">看歷史</button>
+        </div>
+        <div id="weekly-history-list" class="hidden mt-3 text-xs space-y-1"></div>
+      </div>
+
       <div class="report-hero">
         <div class="rh-label">本週成績單</div>
         <div class="rh-dates" id="rh-dates">—</div>
