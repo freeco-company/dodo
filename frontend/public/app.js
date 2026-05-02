@@ -1541,8 +1541,8 @@ function mealTypeLabel(t) {
 
 // === Tabs ===
 // Map secondary tabs (only reachable from "我的") back to "me" for nav highlighting
-const SECONDARY_TABS = new Set(['wardrobe', 'pokedex', 'achievements', 'report', 'cards-codex', 'calendar']);
-const ALL_TABS = ['home','island','scan','chat','calendar','me','wardrobe','pokedex','achievements','report','cards-codex','knowledge'];
+const SECONDARY_TABS = new Set(['wardrobe', 'pokedex', 'achievements', 'report', 'cards-codex', 'calendar', 'fasting']);
+const ALL_TABS = ['home','island','scan','chat','calendar','me','wardrobe','pokedex','achievements','report','cards-codex','knowledge','fasting'];
 
 function switchTab(tab) {
   const navHighlight = SECONDARY_TABS.has(tab) ? 'me' : tab;
@@ -1564,6 +1564,7 @@ function switchTab(tab) {
   if (tab === 'chat') loadChatStarters();
   if (tab === 'calendar') loadCalendar();
   if (tab === 'wardrobe') loadWardrobe();
+  if (tab === 'fasting') loadFasting();
   if (tab === 'achievements') loadAchievements();
   if (tab === 'cards-codex') loadCardsCodex();
   if (tab === 'me') loadTierInfo();
@@ -2743,6 +2744,175 @@ function renderStarters(list) {
 }
 
 // === Calendar ===
+// === Fasting timer (SPEC-02 Phase 3) ===
+const FASTING_PHASES = [
+  { key: 'digesting',       upTo:  4*60, label: '進食消化中', emoji: '🍱' },
+  { key: 'settling',        upTo:  8*60, label: '身體平靜下來 🌱', emoji: '🌱' },
+  { key: 'glycogen_switch', upTo: 12*60, label: '能量切換中 ✨', emoji: '✨' },
+  { key: 'fat_burning',     upTo: 16*60, label: '脂肪燃燒區 🔥', emoji: '🔥' },
+  { key: 'autophagy',       upTo: 20*60, label: '細胞清潔模式 🌟', emoji: '🌟' },
+  { key: 'deep_fast',       upTo: Infinity, label: '深度斷食 💪 記得補水', emoji: '💪' },
+];
+const FASTING_FREE_MODES = new Set(['16:8', '14:10']);
+let fastingTickHandle = null;
+let fastingState = { mode: '16:8', snapshot: null };
+
+function fmtElapsed(min) {
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return `${h}h ${m}m`;
+}
+
+function renderFastingPhases(currentPhase) {
+  const wrap = document.getElementById('fasting-phases');
+  if (!wrap) return;
+  wrap.innerHTML = FASTING_PHASES.map((p) => {
+    const reached = FASTING_PHASES.findIndex((x) => x.key === currentPhase) >= FASTING_PHASES.findIndex((x) => x.key === p.key);
+    return `<span class="fasting-phase-dot ${reached ? 'reached' : ''}" title="${p.label}">${p.emoji}</span>`;
+  }).join('');
+}
+
+function renderFastingActive(snap) {
+  document.getElementById('fasting-inactive').classList.add('hidden');
+  document.getElementById('fasting-active').classList.remove('hidden');
+  document.getElementById('fasting-mode-label').textContent = snap.mode;
+  const targetH = Math.round(snap.target_duration_minutes / 60);
+  document.getElementById('fasting-target-text').textContent = `目標 ${targetH}h`;
+  document.getElementById('fasting-elapsed').textContent = fmtElapsed(snap.elapsed_minutes);
+  const ring = document.getElementById('fasting-ring-fill');
+  if (ring) {
+    const dash = 326.7;
+    ring.setAttribute('stroke-dashoffset', String(dash * (1 - snap.progress)));
+  }
+  const phaseDef = FASTING_PHASES.find((p) => p.key === snap.phase) || FASTING_PHASES[0];
+  document.getElementById('fasting-phase-label').textContent = phaseDef.label;
+  renderFastingPhases(snap.phase);
+  if (snap.eligible_to_eat_at) {
+    const eat = new Date(snap.eligible_to_eat_at);
+    const now = new Date();
+    if (eat > now) {
+      const diffMin = Math.max(0, Math.round((eat - now) / 60000));
+      document.getElementById('fasting-eligible-text').textContent = `可以吃了：剩 ${fmtElapsed(diffMin)}`;
+    } else {
+      document.getElementById('fasting-eligible-text').textContent = `已達目標 ✨ 可以開始進食`;
+    }
+  }
+}
+
+function renderFastingInactive() {
+  document.getElementById('fasting-inactive').classList.remove('hidden');
+  document.getElementById('fasting-active').classList.add('hidden');
+}
+
+async function loadFasting() {
+  // Bind handlers idempotently
+  document.querySelectorAll('#fasting-mode-picker .chip').forEach((b) => {
+    b.onclick = () => {
+      const mode = b.dataset.mode;
+      if (!FASTING_FREE_MODES.has(mode)) {
+        // paid mode — let the API return 402 paywall
+      }
+      document.querySelectorAll('#fasting-mode-picker .chip').forEach((x) => x.classList.toggle('chip-active', x === b));
+      fastingState.mode = mode;
+    };
+  });
+  document.getElementById('fasting-start-btn').onclick = startFasting;
+  document.getElementById('fasting-end-btn').onclick = endFasting;
+
+  try {
+    const cur = await api('GET', '/fasting/current');
+    if (cur.snapshot) {
+      fastingState.snapshot = cur.snapshot;
+      renderFastingActive(cur.snapshot);
+      startFastingTick();
+    } else {
+      renderFastingInactive();
+      stopFastingTick();
+    }
+  } catch (e) { /* silent */ }
+
+  try {
+    const hist = await api('GET', '/fasting/history?per_page=10');
+    const items = hist.data || [];
+    const list = document.getElementById('fasting-history-list');
+    if (items.length === 0) {
+      list.innerHTML = '<div class="text-muted">還沒有完成過斷食 — 開始第一次吧 🌱</div>';
+    } else {
+      list.innerHTML = items.map((s) => {
+        const ended = new Date(s.ended_at).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        return `<div class="flex items-center justify-between">
+          <span>${ended} · ${s.mode}</span>
+          <span>${s.completed ? '✅ 達成' : '— 中途結束'}</span>
+        </div>`;
+      }).join('');
+    }
+    if (hist.meta && hist.meta.history_capped_days) {
+      list.insertAdjacentHTML('beforeend', `<div class="text-[11px] text-muted mt-2">Free 用戶顯示最近 ${hist.meta.history_capped_days} 天</div>`);
+    }
+  } catch (e) { /* silent */ }
+}
+
+async function startFasting() {
+  try {
+    const resp = await api('POST', '/fasting/start', { mode: fastingState.mode });
+    fastingState.snapshot = resp.snapshot;
+    renderFastingActive(resp.snapshot);
+    startFastingTick();
+    if (typeof showToast === 'function') showToast('開始斷食 ✨ 朵朵會陪妳');
+  } catch (e) {
+    const code = e?.body?.error_code;
+    if (code === 'FASTING_MODE_LOCKED') {
+      if (typeof showToast === 'function') showToast('這個模式需要升級訂閱才能解鎖 ✨');
+      switchTab('me'); // surface upgrade entry
+    } else if (code === 'FASTING_ALREADY_ACTIVE') {
+      if (typeof showToast === 'function') showToast('妳已經有一個進行中的斷食 🌱');
+      loadFasting();
+    } else {
+      if (typeof showToast === 'function') showToast('無法開始斷食 — 稍後再試');
+    }
+  }
+}
+
+async function endFasting() {
+  try {
+    const resp = await api('POST', '/fasting/end', {});
+    const s = resp.session;
+    if (typeof showToast === 'function') {
+      showToast(s.completed ? '達成目標 ✨ 妳今天很棒' : '結束斷食 🌱 下一次再加油');
+    }
+    renderFastingInactive();
+    stopFastingTick();
+    loadFasting();
+  } catch (e) {
+    if (typeof showToast === 'function') showToast('無法結束斷食 — 稍後再試');
+  }
+}
+
+function startFastingTick() {
+  stopFastingTick();
+  fastingTickHandle = setInterval(() => {
+    const snap = fastingState.snapshot;
+    if (!snap) return;
+    const startedMs = new Date(snap.started_at).getTime();
+    const elapsedMin = Math.max(0, Math.floor((Date.now() - startedMs) / 60000));
+    const target = snap.target_duration_minutes;
+    const phase = (() => {
+      for (const p of FASTING_PHASES) if (elapsedMin < p.upTo) return p.key;
+      return 'deep_fast';
+    })();
+    renderFastingActive({
+      ...snap,
+      elapsed_minutes: elapsedMin,
+      progress: target > 0 ? Math.min(1, elapsedMin / target) : 0,
+      phase,
+    });
+  }, 30000); // 30s tick — gentle on battery
+}
+function stopFastingTick() {
+  if (fastingTickHandle) clearInterval(fastingTickHandle);
+  fastingTickHandle = null;
+}
+
 async function loadCalendar() {
   const data = await api('GET', `/calendar?days=35`);
   $('#cal-streak').textContent = data.stats.current_streak;

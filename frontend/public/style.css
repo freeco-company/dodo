@@ -6578,3 +6578,50 @@ body:has(#tab-achievements:not(.hidden)) .dodo-mentor-bubble {
   color: var(--muted);
   line-height: 1.4;
 }
+
+/* === SPEC-02 fasting timer === */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #FFF8F2;
+  border: 1px solid #EDE3D0;
+  font-size: 12px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.chip:hover { background: #FFE5D0; }
+.chip-active {
+  background: var(--accent, #E89F7A);
+  border-color: var(--accent, #E89F7A);
+  color: white;
+  font-weight: 700;
+}
+.chip-locked {
+  opacity: 0.6;
+  background: #F5F1EA;
+}
+.fasting-ring {
+  filter: drop-shadow(0 4px 12px rgba(127, 176, 105, 0.18));
+}
+.fasting-phase-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #F5F1EA;
+  font-size: 14px;
+  filter: grayscale(0.7);
+  opacity: 0.4;
+  transition: all 0.3s ease;
+}
+.fasting-phase-dot.reached {
+  background: linear-gradient(135deg, #C9D3BE, #7FB069);
+  filter: none;
+  opacity: 1;
+  transform: scale(1.05);
+}
