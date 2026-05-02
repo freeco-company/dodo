@@ -116,6 +116,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/meals/{meal}/correct', [MealController::class, 'correct']);
     Route::delete('/meals/{meal}', [MealController::class, 'destroy']);
 
+    // ----- SPEC-fasting-timer Phase 1 -----
+    Route::post('/fasting/start', [\App\Http\Controllers\Api\FastingController::class, 'start']);
+    Route::post('/fasting/end', [\App\Http\Controllers\Api\FastingController::class, 'end']);
+    Route::get('/fasting/current', [\App\Http\Controllers\Api\FastingController::class, 'current']);
+    Route::get('/fasting/history', [\App\Http\Controllers\Api\FastingController::class, 'history']);
+
     // ----- ADR-008 alignment: current-user-scoped (no uid in path) -----
     Route::get('/me/dashboard', [MeController::class, 'dashboard']);
     Route::get('/me/settings', [MeController::class, 'getSettings']);

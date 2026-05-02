@@ -95,6 +95,15 @@ class EntitlementsService
         return true;
     }
 
+    /**
+     * SPEC-fasting-timer §5 — public alias for paid-tier check.
+     * Re-uses the same predicate as `isUnlimited` (any active sub or fp_lifetime).
+     */
+    public function isPaid(User $user): bool
+    {
+        return $this->isUnlimited($user);
+    }
+
     private function isUnlimited(User $user): bool
     {
         $tier = $user->membership_tier;
@@ -144,6 +153,9 @@ class EntitlementsService
             'photo_ai_quota_used' => $photoUsed,
             'photo_ai_quota_remaining' => $photoRemaining,
             'photo_ai_quota_reset_at' => $this->tomorrowResetIso(),
+            // SPEC-fasting-timer §5 — gating snapshot for frontend & FastingService.
+            'fasting_advanced_modes' => $unlimited,
+            'fasting_history_days' => $unlimited ? 0 : 7,
             'pricing' => self::SUBSCRIPTION_PRICING,
             'fp_web_signup_url' => 'https://pandora.js-store.com.tw/join',
         ];
