@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>Seasonal Badges v1 — preview</title>
+<style>
+  body { margin: 0; padding: 32px; background: #FFF8F2; font-family: "PingFang TC", "Noto Sans TC", system-ui, sans-serif; color: #5A3825; }
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  p.lead { color: #87614A; margin-bottom: 28px; font-size: 13px; line-height: 1.7; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px; }
+  .card { background: #fff; border-radius: 16px; padding: 18px 12px; text-align: center; box-shadow: 0 4px 18px rgba(168, 104, 64, 0.08); }
+  .card img { width: 96px; height: 96px; }
+  .card .key { font-size: 13px; font-weight: 600; margin-top: 10px; color: #5A3825; }
+  .card .label { font-size: 12px; color: #87614A; margin-top: 2px; }
+  .card .meta { font-size: 11px; color: #B89878; margin-top: 6px; }
+  .group-title { font-size: 16px; font-weight: 700; margin-top: 26px; margin-bottom: 14px; color: #5A3825; }
+</style>
+</head>
+<body>
+  <h1>Seasonal Badges v1 ✨</h1>
+  <p class="lead">
+    SPEC-06 季節限定系列徽章。4 季 + 4 節日 = 8 枚。<br/>
+    全部 96×96 viewBox、ease-in-out 動態、療癒可愛風格（design-svg badge v5 對齊）。<br/>
+    使用情境：用戶解鎖該季 / 節日相關 quest 後在 wardrobe / achievements / cards 圖鑑顯示。
+  </p>
+
+  <div class="group-title">🌸 四季</div>
+  <div class="grid">
+    <div class="card"><img src="badge_spring.svg" alt="spring"/><div class="key">spring</div><div class="label">春櫻系列</div><div class="meta">2/4 – 4/4</div></div>
+    <div class="card"><img src="badge_summer.svg" alt="summer"/><div class="key">summer</div><div class="label">海洋夏夜</div><div class="meta">5/5 – 7/4</div></div>
+    <div class="card"><img src="badge_autumn.svg" alt="autumn"/><div class="key">autumn</div><div class="label">楓葉月圓</div><div class="meta">8/7 – 10/6</div></div>
+    <div class="card"><img src="badge_winter.svg" alt="winter"/><div class="key">winter</div><div class="label">雪夜暖爐</div><div class="meta">11/7 – 1/6</div></div>
+  </div>
+
+  <div class="group-title">🎁 節日特別款</div>
+  <div class="grid">
+    <div class="card"><img src="badge_holiday_mid_autumn.svg" alt="mid_autumn"/><div class="key">mid_autumn</div><div class="label">中秋特別款</div><div class="meta">9/10 – 9/24</div></div>
+    <div class="card"><img src="badge_holiday_christmas.svg" alt="christmas"/><div class="key">christmas</div><div class="label">聖誕特別款</div><div class="meta">12/15 – 12/29</div></div>
+    <div class="card"><img src="badge_holiday_new_year.svg" alt="new_year"/><div class="key">new_year</div><div class="label">新年特別款</div><div class="meta">1/25 – 2/8</div></div>
+    <div class="card"><img src="badge_holiday_qixi.svg" alt="qixi"/><div class="key">qixi</div><div class="label">七夕特別款</div><div class="meta">8/1 – 8/15</div></div>
+  </div>
+</body>
+</html>
