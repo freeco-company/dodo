@@ -990,3 +990,9 @@ parameters:
 			identifier: method.notFound
 			count: 1
 			path: tests/Feature/Api/CardCompletionTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:artisan\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/Feature/Api/PushDispatcherTest.php
