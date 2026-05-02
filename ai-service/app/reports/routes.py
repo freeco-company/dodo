@@ -69,9 +69,9 @@ def _build_user_prompt(req: NarrativeRequest) -> str:
         lines.append(f"- 連續記錄 {p.streak_days} 天")
 
     if req.photo_meal is not None:
-        m = req.photo_meal
-        lines.append(f"\n剛拍的這餐:\n- {m.food_name}（{m.calories} kcal）")
-        lines.append(f"- 蛋白 {m.protein_g}g / 碳水 {m.carbs_g}g / 脂肪 {m.fat_g}g")
+        meal = req.photo_meal
+        lines.append(f"\n剛拍的這餐:\n- {meal.food_name}（{meal.calories} kcal）")
+        lines.append(f"- 蛋白 {meal.protein_g}g / 碳水 {meal.carbs_g}g / 脂肪 {meal.fat_g}g")
 
     lines.append(
         "\n請以「朵朵」的口吻回覆 2-4 行繁中文字，每行 < 40 字。"
