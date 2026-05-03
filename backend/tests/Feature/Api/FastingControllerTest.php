@@ -118,6 +118,25 @@ it('current returns null snapshot when no active session', function () {
         ->assertJsonPath('snapshot', null);
 });
 
+it('snapshot returns elapsed_minutes as integer (no float leak from diffInMinutes)', function () {
+    $user = User::factory()->create();
+    FastingSession::create([
+        'user_id' => $user->id,
+        'mode' => '16:8',
+        'target_duration_minutes' => 960,
+        'started_at' => now()->subSeconds(45), // <1 minute — float diffInMinutes would yield 0.75
+        'source_app' => 'dodo',
+    ]);
+
+    $resp = $this->actingAs($user, 'sanctum')
+        ->getJson('/api/fasting/current')
+        ->assertOk();
+
+    $em = $resp->json('snapshot.elapsed_minutes');
+    expect($em)->toBeInt();
+    expect($em)->toBe(0);
+});
+
 it('current returns derived elapsed_minutes and progress', function () {
     $user = User::factory()->create();
     FastingSession::create([

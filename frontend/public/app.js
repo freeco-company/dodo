@@ -3039,8 +3039,11 @@ let fastingTickHandle = null;
 let fastingState = { mode: '16:8', snapshot: null };
 
 function fmtElapsed(min) {
-  const h = Math.floor(min / 60);
-  const m = min % 60;
+  // Defensive: round to integer first. Backend should send int but a stale
+  // tick from before that fix or a float from Math operations could leak.
+  const total = Math.max(0, Math.floor(Number(min) || 0));
+  const h = Math.floor(total / 60);
+  const m = total % 60;
   return `${h}h ${m}m`;
 }
 

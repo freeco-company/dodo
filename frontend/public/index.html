@@ -75,7 +75,7 @@
      prior <script src="https://cdn.tailwindcss.com"></script> was removed. -->
 <link rel="stylesheet" href="/tailwind.css?v=1" />
 <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=Kosugi+Maru&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Shippori+Mincho+B1:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Zen+Maru+Gothic:wght@400;500;700;900&family=Yusei+Magic&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css?v=43" />
+<link rel="stylesheet" href="/style.css?v=44" />
 
 <!-- Sentry browser SDK — config-driven. Set window.__SENTRY_DSN__ in a prod
      bootstrap snippet (e.g. via nginx sub_filter or build-time injection)
@@ -1604,7 +1604,7 @@
 <script src="/icons.js?v=2"></script>
 <script src="/sound.js?v=4"></script>
 <script src="/character.js?v=9"></script>
-<script src="/app.js?v=45"></script>
+<script src="/app.js?v=46"></script>
 <script>
 // 朵朵浮窗：關閉 + 隨機輪播語錄 (preview only)
 (function() {
@@ -1637,6 +1637,9 @@
     if (islandFs && !islandFs.classList.contains('hidden')) return true;
     if (paywall) return true;
     if (document.body.classList.contains('island-mode')) return true;
+    // Hide bubble on tabs where it would obscure key UI (fasting timer end button etc).
+    const fastingTab = document.getElementById('tab-fasting');
+    if (fastingTab && !fastingTab.classList.contains('hidden')) return true;
     return false;
   }
 
@@ -1668,7 +1671,7 @@
 
   // Watch for screen / body class changes so bubble can re-show after ceremony done
   const obs = new MutationObserver(applyVisibility);
-  ['screen-ceremony','screen-welcome','screen-disclaimer','island-fullscreen'].forEach((id) => {
+  ['screen-ceremony','screen-welcome','screen-disclaimer','island-fullscreen','tab-fasting'].forEach((id) => {
     const el = document.getElementById(id);
     if (el) obs.observe(el, { attributes: true, attributeFilter: ['class'] });
   });
