@@ -18,6 +18,7 @@ from app.auth.internal import require_internal_secret
 from app.config import Settings
 from app.deps import settings_dep
 from app.reports.schemas import NarrativeRequest, NarrativeResponse
+from app.safety.insight_sanitizer import insight_text_violates
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -72,6 +73,21 @@ def _build_user_prompt(req: NarrativeRequest) -> str:
         meal = req.photo_meal
         lines.append(f"\n剛拍的這餐:\n- {meal.food_name}（{meal.calories} kcal）")
         lines.append(f"- 蛋白 {meal.protein_g}g / 碳水 {meal.carbs_g}g / 脂肪 {meal.fat_g}g")
+
+    if req.cross_metric_insight is not None:
+        ci = req.cross_metric_insight
+        lines.append(f"\nInsight 規則: {ci.insight_key}")
+        lines.append(f"觸發資料: {ci.detection_payload}")
+        lines.append(f"預設 headline: {ci.free_headline}")
+        lines.append(f"預設 body: {ci.free_body}")
+        lines.append(
+            "請依朵朵語氣重寫 1 行 headline (≤30字) + 2-3 行 body (每行 ≤40字)，"
+            "比預設 body 更有溫度但不多寫超過 150 字總長。"
+            "硬規則：禁用「減重 / 減脂 / 燃脂 / 排毒 / 治療 / 抑制食慾 / 加速代謝 / "
+            "瘦身 / 塑身 / 暴瘦 / 變瘦」等詞，"
+            "改用「習慣 / 節奏 / 平台期 / 規律 / 補充能量 / 身體適應 / 變化 / 堅持」。"
+            "不下醫療因果結論（用「可能跟壓力有關」而非「皮質醇升高 → 失眠」）。"
+        )
 
     if req.fasting_stage_transition is not None:
         st = req.fasting_stage_transition
@@ -132,6 +148,16 @@ def _stub_response(req: NarrativeRequest) -> NarrativeResponse:
         return NarrativeResponse(
             headline=stub_titles.get(st.phase, "繼續加油 🌷"),
             lines=["朵朵：「身體在好好運作 🌱」", "記得補水"],
+            model="stub",
+            stub_mode=True,
+        )
+    if req.kind == "cross_metric_insight" and req.cross_metric_insight is not None:
+        ci = req.cross_metric_insight
+        # Stub mode: return the free template verbatim — already 朵朵 voice + sanitized.
+        body_lines = [ln.strip() for ln in ci.free_body.split("。") if ln.strip()]
+        return NarrativeResponse(
+            headline=ci.free_headline,
+            lines=body_lines or [ci.free_body],
             model="stub",
             stub_mode=True,
         )
@@ -200,6 +226,22 @@ async def _call_anthropic(req: NarrativeRequest, settings: Settings) -> Narrativ
         input_tokens=in_tok,
         output_tokens=out_tok,
     )
+
+    # SPEC-cross-metric-insight-v1 PR #3 — post-LLM sanitize for insight kind.
+    # If LLM hallucinated forbidden terms, fall back to free template (already
+    # passed Laravel ContentGuardTest). Conservative: false-positive → safer
+    # template; false-negative → 食安法 violation (P0).
+    if req.kind == "cross_metric_insight":
+        joined = headline + " " + " ".join(body)
+        violations = insight_text_violates(joined)
+        if violations:
+            logger.warning(
+                "[reports] insight narrative violated sanitizer (%s); falling back to template",
+                violations,
+            )
+            stub = _stub_response(req)
+            stub.model = f"stub_after_sanitize:{model}"
+            return stub
 
     return NarrativeResponse(
         headline=headline,
