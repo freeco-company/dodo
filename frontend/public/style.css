@@ -5240,9 +5240,7 @@ body.time-night .island-ground .island-grass { background: linear-gradient(180de
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .dialog-char-frame {
-  /* 2026-05-03 — 縮一半（220x240 → 110x120）。source PNG 內容區只有 346x876，
-     之前在大尺寸 dialog 渲染時眼睛 highlight 糊成黑點；縮小後 source 解析度撐得住。 */
-  width: 110px; height: 120px;
+  width: 220px; height: 240px;
   background: transparent;
   border: none;
   box-shadow: none;
