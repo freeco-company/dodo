@@ -13,9 +13,16 @@ testable, no-cost baseline today.
 
 from __future__ import annotations
 
+import base64
 import copy
+import json
+import logging
 from dataclasses import dataclass
+from typing import Any
 
+import httpx
+
+from app.config import Settings
 from app.vision.schemas import (
     RefinedDish,
     RefineDishInput,
@@ -23,6 +30,8 @@ from app.vision.schemas import (
     VisionRefineRequest,
     VisionRefineResponse,
 )
+
+logger = logging.getLogger(__name__)
 
 _FOOD_NAME_BY_KEY = {
     "rice_white": "白飯",
@@ -112,15 +121,160 @@ def _apply_hint_stub(orig: RefineDishInput, hint: RefineUserHint) -> RefinedDish
     )
 
 
-# TODO(PR #3.5): real Anthropic vision prompt path.
-#   When STUB_MODE=false:
-#   - download image_url (or accept image bytes from Laravel proxy)
-#   - prompt: "Original AI estimate was these dishes [...]. The user says
-#     dish #N is actually {new_food_key|new_food_name} at {new_portion}×.
-#     Re-derive macros for that one dish using the image as visual ground
-#     truth. Other dishes: leave as-is unless the swap implies a structural
-#     change to the meal composition. Return same schema as recognize."
-#   - inject user_calibration hints from Laravel:
-#     "user typically logs rice_white at -15% AI's portion estimate"
-#   - cost guard: charge ~30% of recognize cost (single-dish re-derivation
-#     uses fewer output tokens)
+_REFINE_SYSTEM_PROMPT = (
+    "妳是「朵朵 dodo」的營養助手，專門做 dish-level 的 macro 校正。"
+    "用戶剛剛告訴妳一道菜的食材或份量被 AI 認錯了。請用原圖 + 用戶 hint，"
+    "重新估算那一道菜的 kcal / carb_g / protein_g / fat_g。"
+    "硬規則：只回 JSON、不寫散文、不下醫療建議、不評論身材。"
+)
+
+
+class AnthropicRefineService:
+    """SPEC PR #6 — real Anthropic vision refine.
+
+    Downloads the original image (image_url) and sends it + the user_hint to
+    Claude vision with a deterministic prompt. Returns RefinedDish for the
+    target dish; other dishes pass through unchanged unless the swap
+    implies structural change (rare, and stub fallback covers that).
+
+    Fail-soft: any error → fall back to StubRefineService (linear scaling).
+    Production: STUB_MODE=false + ANTHROPIC_API_KEY set → real path activates.
+    """
+
+    def __init__(self, settings: Settings) -> None:
+        self._settings = settings
+        self._client: Any | None = None
+        self._stub = StubRefineService()
+
+    async def refine(self, payload: VisionRefineRequest) -> VisionRefineResponse:
+        if self._settings.stub_mode or not self._settings.anthropic_api_key:
+            return self._stub.refine(payload)
+        try:
+            return await self._real_refine(payload)
+        except Exception as e:  # noqa: BLE001 — fail-soft contract
+            logger.warning("[refine] anthropic call failed, stub fallback: %s", e)
+            return self._stub.refine(payload)
+
+    def _ensure_client(self) -> Any:
+        if self._client is None:
+            from anthropic import AsyncAnthropic
+            self._client = AsyncAnthropic(api_key=self._settings.anthropic_api_key)
+        return self._client
+
+    async def _real_refine(self, payload: VisionRefineRequest) -> VisionRefineResponse:
+        # Download image (short timeout; share fail-soft path with cache miss).
+        if not payload.image_url:
+            return self._stub.refine(payload)
+
+        async with httpx.AsyncClient(timeout=10) as http:
+            r = await http.get(payload.image_url)
+            r.raise_for_status()
+            image_bytes = r.content
+            image_mime = r.headers.get("content-type", "image/jpeg").split(";")[0].strip()
+
+        if image_mime not in {"image/jpeg", "image/png", "image/webp", "image/heic"}:
+            image_mime = "image/jpeg"
+
+        b64 = base64.b64encode(image_bytes).decode("ascii")
+        target_idx = payload.user_hint.dish_index
+        target_dish = payload.original_dishes[target_idx]
+        hint_lines: list[str] = [f"目標 dish 索引：{target_idx}"]
+        if payload.user_hint.new_food_key:
+            hint_lines.append(f"用戶說食材其實是：{payload.user_hint.new_food_key}")
+        if payload.user_hint.new_food_name:
+            hint_lines.append(f"用戶提供食材名：{payload.user_hint.new_food_name}")
+        if payload.user_hint.new_portion is not None:
+            hint_lines.append(f"用戶說份量倍率是：{payload.user_hint.new_portion}×")
+
+        original_lines = []
+        for i, d in enumerate(payload.original_dishes):
+            marker = " ← 校正目標" if i == target_idx else ""
+            original_lines.append(
+                f"  {i}. {d.food_name}（key={d.food_key}）"
+                f" {d.kcal} kcal / 碳 {d.carb_g}g / 蛋 {d.protein_g}g / 脂 {d.fat_g}g{marker}"
+            )
+
+        user_text = (
+            f"原 AI 估算的 dishes：\n{chr(10).join(original_lines)}\n\n"
+            f"用戶 hint：\n{chr(10).join(hint_lines)}\n\n"
+            f"請只重估目標 dish (index {target_idx})，其他 dish 保持原值。\n"
+            "輸出 JSON：\n"
+            '{"food_name": "...", "food_key": "...", "portion_multiplier": 1.0,\n'
+            ' "kcal": 0, "carb_g": 0.0, "protein_g": 0.0, "fat_g": 0.0,\n'
+            ' "confidence": 0.0}\n'
+            "Confidence 0.7-0.95 視視覺證據強弱。"
+        )
+
+        client = self._ensure_client()
+        resp = await client.messages.create(
+            model=self._settings.anthropic_model_vision,
+            max_tokens=512,
+            system=_REFINE_SYSTEM_PROMPT,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image",
+                            "source": {"type": "base64", "media_type": image_mime, "data": b64},
+                        },
+                        {"type": "text", "text": user_text},
+                    ],
+                }
+            ],
+        )
+
+        text_parts: list[str] = []
+        for block in resp.content:
+            if getattr(block, "type", None) == "text":
+                text_parts.append(getattr(block, "text", ""))
+        raw = "".join(text_parts).strip()
+
+        # Trim leading ```json fences if any
+        if raw.startswith("```"):
+            raw = raw.strip("`").strip()
+            if raw.startswith("json"):
+                raw = raw[4:].strip()
+
+        try:
+            parsed = json.loads(raw)
+        except json.JSONDecodeError:
+            logger.warning("[refine] non-JSON response, stub fallback: %r", raw[:200])
+            return self._stub.refine(payload)
+
+        # Compose dishes_out: passthrough non-target, refined target.
+        dishes_out: list[RefinedDish] = []
+        for idx, orig in enumerate(payload.original_dishes):
+            if idx == target_idx:
+                dishes_out.append(RefinedDish(
+                    food_name=parsed.get("food_name") or target_dish.food_name,
+                    food_key=parsed.get("food_key") or target_dish.food_key,
+                    portion_multiplier=float(parsed.get("portion_multiplier") or target_dish.portion_multiplier),
+                    kcal=int(parsed.get("kcal") or 0),
+                    carb_g=float(parsed.get("carb_g") or 0),
+                    protein_g=float(parsed.get("protein_g") or 0),
+                    fat_g=float(parsed.get("fat_g") or 0),
+                    confidence=float(parsed.get("confidence") or 0.85),
+                    candidates=[],
+                ))
+            else:
+                dishes_out.append(_passthrough(orig))
+
+        # Token-based cost estimate (vision is more expensive than chat).
+        usage = getattr(resp, "usage", None)
+        in_tok = getattr(usage, "input_tokens", 0) if usage else 0
+        out_tok = getattr(usage, "output_tokens", 0) if usage else 0
+        from app.cost.tracker import anthropic_cost_usd
+        cost = anthropic_cost_usd(
+            model=self._settings.anthropic_model_vision,
+            input_tokens=in_tok,
+            output_tokens=out_tok,
+        )
+
+        return VisionRefineResponse(
+            dishes=dishes_out,
+            model=self._settings.anthropic_model_vision,
+            cost_usd=cost,
+            stub_mode=False,
+            user_hint=payload.user_hint,
+        )

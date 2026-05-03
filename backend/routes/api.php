@@ -148,6 +148,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/insights/{insight}', [\App\Http\Controllers\Api\InsightController::class, 'show'])->whereNumber('insight');
     Route::post('/insights/{insight}/read', [\App\Http\Controllers\Api\InsightController::class, 'read'])->whereNumber('insight');
     Route::post('/insights/{insight}/dismiss', [\App\Http\Controllers\Api\InsightController::class, 'dismiss'])->whereNumber('insight');
+    // ----- SPEC-progress-ritual-v1 PR #1 — ritual events + share cards -----
+    Route::get('/rituals/unread', [\App\Http\Controllers\Api\RitualController::class, 'unread']);
+    Route::post('/rituals/{event}/seen', [\App\Http\Controllers\Api\RitualController::class, 'seen'])->whereNumber('event');
+    Route::post('/rituals/{event}/share', [\App\Http\Controllers\Api\RitualController::class, 'share'])->whereNumber('event');
+    Route::post('/progress/compare/share-card', [\App\Http\Controllers\Api\RitualController::class, 'compareShareCard']);
+
+    // SPEC-progress-ritual-v1 PR #5 — collage detail + share endpoints.
+    Route::get('/collages', [\App\Http\Controllers\Api\RitualController::class, 'collagesIndex']);
+    Route::get('/collages/{collage}', [\App\Http\Controllers\Api\RitualController::class, 'collageShow'])->whereNumber('collage');
+    Route::post('/collages/{collage}/share', [\App\Http\Controllers\Api\RitualController::class, 'collageShare'])->whereNumber('collage');
 
     // ----- SPEC-weekly-ai-report Phase 1 (rich version of weekly recap) -----
     Route::get('/reports/weekly/current', [\App\Http\Controllers\Api\ReportController::class, 'currentWeekly']);

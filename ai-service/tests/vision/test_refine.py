@@ -131,3 +131,34 @@ def test_refine_validates_portion_bounds(
 def test_refine_requires_auth(client: TestClient) -> None:
     resp = client.post("/v1/vision/refine", json=_refine_payload())
     assert resp.status_code in (401, 403)
+
+
+def test_anthropic_refine_falls_back_to_stub_when_key_missing(
+    client: TestClient, auth_header: dict[str, str], monkeypatch
+) -> None:
+    """No ANTHROPIC_API_KEY → stub fallback (still returns 200, stub_mode=True)."""
+    from app.config import reset_settings_cache
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "")
+    monkeypatch.setenv("STUB_MODE", "false")
+    reset_settings_cache()
+
+    resp = client.post("/v1/vision/refine", json=_refine_payload(), headers=auth_header)
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["stub_mode"] is True
+
+
+def test_anthropic_refine_falls_back_to_stub_on_image_url_missing(
+    client: TestClient, auth_header: dict[str, str], monkeypatch
+) -> None:
+    """No image_url → can't fetch → stub fallback."""
+    from app.config import reset_settings_cache
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+    monkeypatch.setenv("STUB_MODE", "false")
+    reset_settings_cache()
+
+    payload = _refine_payload(image_url=None)
+    resp = client.post("/v1/vision/refine", json=payload, headers=auth_header)
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["stub_mode"] is True

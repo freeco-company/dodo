@@ -192,6 +192,10 @@ class MealController extends Controller
         // for the daily cron. Engine is idempotent (cooldown + week-bucket
         // idempotency_key), so multiple meal posts in a day are safe.
         \App\Jobs\EvaluateInsightsForUserJob::dispatch($user->id)->afterCommit()->onQueue('default');
+        // SPEC-progress-ritual-v1 PR #8 — fire ritual on meal streak milestones.
+        try {
+            app(\App\Services\Ritual\StreakRitualService::class)->checkMealStreak($user);
+        } catch (\Throwable $e) { /* fail-soft */ }
 
         return new MealResource($meal);
     }

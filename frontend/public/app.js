@@ -1617,7 +1617,11 @@ function switchTab(tab) {
       el.classList.add('tab-anim');
     }
   });
-  if (tab === 'home') { loadDashboard(); loadSuggestions(); loadGrowth(); loadKnowledgeDaily(); loadHealthWidget(); refreshHomeFastingWidget(); }
+  if (tab === 'home') {
+    loadDashboard(); loadSuggestions(); loadGrowth(); loadKnowledgeDaily(); loadHealthWidget(); refreshHomeFastingWidget();
+    // SPEC-progress-ritual-v1 PR #6.5 — surface ritual banner on home tab visit.
+    if (typeof renderRitualHomeBanner === 'function') renderRitualHomeBanner().catch(() => {});
+  }
   if (tab === 'knowledge') loadKnowledgeCategories();
   if (tab === 'pokedex') loadPokedex();
   if (tab === 'chat') loadChatStarters();
@@ -6329,3 +6333,355 @@ async function redeemTierCode() {
 }
 
 init();
+
+// =============================================================================
+// SPEC-progress-ritual-v1 PR #4 — Ritual fullscreen primitive + 5 variants +
+// BeforeAfterSlider component. All vanilla DOM (no framework).
+// Triggered by /api/rituals/unread polled on home open + first chat tab.
+// =============================================================================
+
+// Public entrypoint: scan unread rituals + queue fullscreen for the highest-
+// priority one. Frontend banner (PR #5) handles the rest.
+async function checkAndShowRituals() {
+  let resp;
+  try {
+    resp = await api('GET', '/rituals/unread');
+  } catch {
+    return;
+  }
+  const events = resp.data || [];
+  if (events.length === 0) return;
+  // Show only the first (most recent); user dismisses to see next.
+  showRitualFullscreen(events[0]);
+}
+
+function showRitualFullscreen(event) {
+  const overlay = document.createElement('div');
+  overlay.className = 'ritual-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9500;display:flex;align-items:center;justify-content:center;animation:ritualFadeIn .4s';
+
+  const variant = event.ritual_key;
+  const payload = event.payload || {};
+  let inner = '';
+
+  switch (variant) {
+    case 'streak_milestone_celebration':
+      inner = streakCelebrationHtml(payload);
+      break;
+    case 'outfit_unlock_fullscreen':
+      inner = outfitUnlockHtml(payload);
+      break;
+    case 'monthly_progress_collage':
+      inner = monthlyCollageRevealHtml(payload);
+      break;
+    case 'season_outfit_reveal':
+      inner = seasonRevealHtml(payload);
+      break;
+    case 'progress_photo_slider':
+      inner = sliderRitualHtml(payload);
+      break;
+    default:
+      inner = `<div style="color:white;text-align:center"><div class="text-xl mb-2">🌱</div><div>朵朵發現一件事</div></div>`;
+  }
+
+  overlay.innerHTML = `
+    <div style="position:relative;max-width:520px;width:90%;color:white;text-align:center">
+      ${inner}
+      <button type="button" class="btn-ritual-close" style="position:absolute;top:-40px;right:0;color:white;font-size:14px;background:none;border:none">關閉 ✕</button>
+      <div class="ritual-actions" style="margin-top:24px;display:flex;gap:12px;justify-content:center">
+        <button type="button" class="btn-ritual-share" style="padding:12px 24px;border-radius:24px;background:rgba(255,255,255,.2);color:white;border:1px solid white;font-size:14px">📸 分享</button>
+        <button type="button" class="btn-ritual-dismiss" style="padding:12px 24px;border-radius:24px;background:white;color:#333;border:none;font-size:14px;font-weight:bold">繼續</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  if (!document.getElementById('ritual-anim-style')) {
+    const style = document.createElement('style');
+    style.id = 'ritual-anim-style';
+    style.textContent = `
+      @keyframes ritualFadeIn { from { opacity: 0 } to { opacity: 1 } }
+      @keyframes ritualZoomIn { from { transform: scale(.3); opacity: 0 } to { transform: scale(1); opacity: 1 } }
+      @keyframes ritualSlideUp { from { transform: translateY(40px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+      .ritual-zoom { animation: ritualZoomIn 1s ease-out }
+      .ritual-slide-up { animation: ritualSlideUp .8s ease-out .5s both }
+    `;
+    document.head.appendChild(style);
+  }
+
+  const close = () => {
+    api('POST', `/rituals/${event.id}/seen`).catch(() => {});
+    overlay.remove();
+  };
+  overlay.querySelector('.btn-ritual-close').onclick = close;
+  overlay.querySelector('.btn-ritual-dismiss').onclick = close;
+  overlay.querySelector('.btn-ritual-share').onclick = async () => {
+    try {
+      const r = await api('POST', `/rituals/${event.id}/share`);
+      if (navigator.share && r.image_url) {
+        try {
+          await navigator.share({ url: r.image_url, title: '朵朵紀念卡' });
+        } catch {}
+      } else {
+        toast('分享卡產生中 ✨');
+      }
+    } catch (e) {
+      toast('分享失敗：' + (e.message || ''), { emoji: '⚠️' });
+    }
+  };
+}
+
+function streakCelebrationHtml(payload) {
+  const days = payload.streak_count || payload.streak || 30;
+  return `
+    <div class="ritual-zoom" style="font-size:120px;font-weight:black;line-height:1">${days}</div>
+    <div class="ritual-slide-up" style="font-size:24px;margin-top:8px">天連勝 🌟</div>
+    <div class="ritual-slide-up" style="margin-top:16px;line-height:1.6;font-size:14px;opacity:.9">
+      妳真的做到了。<br>
+      不是每個人都能堅持這麼久，<br>
+      要記得對自己說一聲「辛苦了」。
+    </div>
+  `;
+}
+
+function outfitUnlockHtml(payload) {
+  const name = payload.outfit_name || payload.label || '神秘 outfit';
+  return `
+    <div class="ritual-zoom" style="font-size:80px">✨</div>
+    <div class="ritual-slide-up" style="font-size:22px;margin-top:8px;font-weight:bold">${escapeHtml(name)}</div>
+    <div class="ritual-slide-up" style="margin-top:16px;line-height:1.6;font-size:14px;opacity:.9">
+      朵朵：「這套配妳的寵物超好看 ✨」<br>
+      到衣櫃換上看看吧
+    </div>
+  `;
+}
+
+function monthlyCollageRevealHtml(payload) {
+  const month = payload.month_start ? payload.month_start.slice(0, 7) : '上個月';
+  return `
+    <div class="ritual-zoom" style="font-size:80px">🌱</div>
+    <div class="ritual-slide-up" style="font-size:22px;margin-top:8px;font-weight:bold">${escapeHtml(month)} 月度回顧</div>
+    <div class="ritual-slide-up" style="margin-top:16px;line-height:1.6;font-size:14px;opacity:.9">
+      朵朵幫妳整理了這個月的軌跡 ✨<br>
+      點「繼續」看完整 collage
+    </div>
+  `;
+}
+
+function seasonRevealHtml(payload) {
+  const season = payload.season_name || '新季節';
+  return `
+    <div class="ritual-zoom" style="font-size:80px">🌸</div>
+    <div class="ritual-slide-up" style="font-size:22px;margin-top:8px;font-weight:bold">${escapeHtml(season)} 系列上架</div>
+    <div class="ritual-slide-up" style="margin-top:16px;line-height:1.6;font-size:14px;opacity:.9">
+      限定 60 天，要試試嗎？<br>
+      朵朵幫妳搭配好了
+    </div>
+  `;
+}
+
+function sliderRitualHtml(payload) {
+  const days = payload.days_between || 0;
+  return `
+    <div class="ritual-zoom" style="font-size:80px">📸</div>
+    <div class="ritual-slide-up" style="font-size:22px;margin-top:8px;font-weight:bold">妳堅持了 ${days} 天 ✨</div>
+    <div class="ritual-slide-up" style="margin-top:16px;line-height:1.6;font-size:14px;opacity:.9">
+      點「繼續」來看 before / after 對比
+    </div>
+  `;
+}
+
+// BeforeAfterSlider — drag-to-reveal two photos overlay.
+// Usage: createBeforeAfterSlider(containerEl, { srcA, srcB, dateA, dateB, daysBetween })
+function createBeforeAfterSlider(container, opts) {
+  const { srcA, srcB, dateA, dateB, daysBetween } = opts;
+  container.innerHTML = `
+    <div class="ba-slider" style="position:relative;width:100%;aspect-ratio:1;background:#000;border-radius:16px;overflow:hidden;touch-action:none;user-select:none">
+      <img src="${escapeHtml(srcB)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" alt="after">
+      <div class="ba-clip" style="position:absolute;inset:0;clip-path:inset(0 50% 0 0)">
+        <img src="${escapeHtml(srcA)}" style="width:100%;height:100%;object-fit:cover" alt="before">
+      </div>
+      <div class="ba-handle" style="position:absolute;top:0;bottom:0;left:50%;width:3px;background:white;cursor:ew-resize;transform:translateX(-50%)">
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;color:#666;font-weight:bold">⇔</div>
+      </div>
+      <div style="position:absolute;top:8px;left:8px;color:white;background:rgba(0,0,0,.5);padding:4px 8px;border-radius:8px;font-size:11px">前 ${escapeHtml(dateA || '')}</div>
+      <div style="position:absolute;top:8px;right:8px;color:white;background:rgba(0,0,0,.5);padding:4px 8px;border-radius:8px;font-size:11px">後 ${escapeHtml(dateB || '')}</div>
+    </div>
+    <div style="text-align:center;margin-top:12px;font-size:14px;color:var(--peach-deep);font-weight:bold">妳堅持了 ${daysBetween || 0} 天 ✨</div>
+  `;
+
+  const slider = container.querySelector('.ba-slider');
+  const clip = container.querySelector('.ba-clip');
+  const handle = container.querySelector('.ba-handle');
+  let dragging = false;
+
+  const setPct = (pct) => {
+    const p = Math.max(0, Math.min(100, pct));
+    clip.style.clipPath = `inset(0 ${100 - p}% 0 0)`;
+    handle.style.left = p + '%';
+  };
+
+  const onMove = (clientX) => {
+    const rect = slider.getBoundingClientRect();
+    const pct = ((clientX - rect.left) / rect.width) * 100;
+    setPct(pct);
+  };
+
+  slider.addEventListener('pointerdown', (e) => { dragging = true; onMove(e.clientX); });
+  window.addEventListener('pointermove', (e) => { if (dragging) onMove(e.clientX); });
+  window.addEventListener('pointerup', () => { dragging = false; });
+
+  setPct(50);
+}
+
+// Wire up: ritual check fires after init's loadDashboard. We hook the dashboard
+// load at bootstrap so the first home view triggers the surface check.
+const _origLoadDashboard = typeof loadDashboard === 'function' ? loadDashboard : null;
+if (_origLoadDashboard) {
+  loadDashboard = async function() {
+    await _origLoadDashboard.apply(this, arguments);
+    // Don't block — fire and forget.
+    checkAndShowRituals().catch(() => {});
+  };
+}
+
+window.checkAndShowRituals = checkAndShowRituals;
+window.createBeforeAfterSlider = createBeforeAfterSlider;
+
+// =============================================================================
+// SPEC-progress-ritual-v1 PR #5 — collage detail modal + home banner
+// =============================================================================
+
+async function openCollageDetail(collageId) {
+  let data;
+  try {
+    data = await api('GET', `/collages/${collageId}`);
+  } catch (e) {
+    toast('集錦載入失敗：' + (e.message || ''), { emoji: '⚠️' });
+    return;
+  }
+
+  const sheet = document.createElement('div');
+  sheet.className = 'collage-detail-overlay';
+  sheet.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px';
+
+  const stats = data.stats || {};
+  const monthLabel = (data.month_start || '').slice(0, 7);
+  const letter = (data.narrative_letter || '').replace(/\n/g, '<br>');
+
+  sheet.innerHTML = `
+    <div class="collage-card" style="background:linear-gradient(180deg,#fff7ee 0%,#fff 100%);max-width:480px;width:100%;border-radius:24px;padding:28px;max-height:90vh;overflow-y:auto;position:relative">
+      <button type="button" class="btn-close" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:18px;color:#999">✕</button>
+
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:14px;color:var(--peach-deep);font-weight:bold">🌱 朵朵的月度回顧</div>
+        <div style="font-size:24px;font-weight:black;margin-top:4px">${escapeHtml(monthLabel)}</div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="text-center p-3 rounded-xl" style="background:white">
+          <div class="text-xs text-muted">🍱 規律記錄</div>
+          <div class="text-2xl font-black mt-1">${stats.food_days_logged || 0}</div>
+          <div class="text-xs text-muted">天</div>
+        </div>
+        <div class="text-center p-3 rounded-xl" style="background:white">
+          <div class="text-xs text-muted">🚶 累積步數</div>
+          <div class="text-2xl font-black mt-1">${(stats.steps_total || 0).toLocaleString()}</div>
+          <div class="text-xs text-muted">步</div>
+        </div>
+        <div class="text-center p-3 rounded-xl" style="background:white">
+          <div class="text-xs text-muted">⏱️ 斷食達標</div>
+          <div class="text-2xl font-black mt-1">${stats.fasting_days_completed || 0}</div>
+          <div class="text-xs text-muted">天</div>
+        </div>
+        <div class="text-center p-3 rounded-xl" style="background:white">
+          <div class="text-xs text-muted">📸 進度照</div>
+          <div class="text-2xl font-black mt-1">${(data.snapshot_ids || []).length}</div>
+          <div class="text-xs text-muted">張</div>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl mb-4" style="background:white;border-left:3px solid var(--peach-deep);line-height:1.7">
+        <div class="text-xs text-muted mb-2">朵朵的手寫信 ✨</div>
+        <div class="text-sm">${letter}</div>
+      </div>
+
+      <div class="flex gap-2">
+        <button type="button" class="btn-share-collage flex-1 py-3 rounded-xl text-sm font-bold" style="background:var(--peach-deep);color:white">📸 分享這個月</button>
+        <button type="button" class="btn-close-secondary px-4 py-3 rounded-xl text-sm" style="background:white;border:1px solid #ddd">關閉</button>
+      </div>
+
+      <div class="text-center text-xs text-muted mt-3">已分享 ${data.shared_count || 0} 次 🌷</div>
+    </div>
+  `;
+  document.body.appendChild(sheet);
+
+  const close = () => sheet.remove();
+  sheet.querySelector('.btn-close').onclick = close;
+  sheet.querySelector('.btn-close-secondary').onclick = close;
+  sheet.onclick = (e) => { if (e.target === sheet) close(); };
+
+  sheet.querySelector('.btn-share-collage').onclick = async () => {
+    try {
+      const r = await api('POST', `/collages/${collageId}/share`);
+      if (navigator.share && r.image_url) {
+        try {
+          await navigator.share({ url: r.image_url, title: `朵朵的 ${monthLabel} 回顧 ✨` });
+        } catch {}
+      }
+      toast(`已分享第 ${r.shared_count} 次 🌷`);
+      close();
+    } catch (e) {
+      toast('分享失敗：' + (e.message || ''), { emoji: '⚠️' });
+    }
+  };
+}
+
+// Home banner — shows top of home tab when there are unread rituals.
+// Renders inline (not fullscreen) so it doesn't fight with showRitualFullscreen.
+async function renderRitualHomeBanner() {
+  const container = document.getElementById('ritual-home-banner');
+  if (!container) return;
+  let resp;
+  try {
+    resp = await api('GET', '/rituals/unread');
+  } catch {
+    return;
+  }
+  const events = resp.data || [];
+  if (events.length === 0) {
+    container.classList.add('hidden');
+    return;
+  }
+  const first = events[0];
+  const labelByKey = {
+    monthly_progress_collage: '🌱 妳的月度集錦準備好了',
+    streak_milestone_celebration: `🌟 ${first.payload?.streak_count || ''} 天連勝！`,
+    outfit_unlock_fullscreen: `✨ 解鎖了新的 ${first.payload?.outfit_name || 'outfit'}`,
+    season_outfit_reveal: `🌸 ${first.payload?.season_name || '新季節'} 系列上架`,
+    progress_photo_slider: '📸 對比一下這段堅持',
+  };
+  const label = labelByKey[first.ritual_key] || '🌱 朵朵發現一件事';
+
+  container.innerHTML = `
+    <div class="ritual-home-card" style="background:linear-gradient(135deg,#ffe4d6 0%,#ffd1bd 100%);border-radius:16px;padding:14px;margin:8px;display:flex;align-items:center;gap:10px">
+      <div class="flex-1">
+        <div style="font-size:14px;font-weight:bold">${escapeHtml(label)}</div>
+        <div style="font-size:11px;color:#888;margin-top:2px">點來看朵朵幫妳準備的 ✨</div>
+      </div>
+      <button type="button" class="btn-banner-open" style="padding:8px 14px;border-radius:20px;background:var(--peach-deep);color:white;border:none;font-size:13px;font-weight:bold">看看</button>
+    </div>
+  `;
+  container.classList.remove('hidden');
+  container.querySelector('.btn-banner-open').onclick = () => {
+    if (first.ritual_key === 'monthly_progress_collage' && first.payload?.collage_id) {
+      api('POST', `/rituals/${first.id}/seen`).catch(() => {});
+      openCollageDetail(first.payload.collage_id);
+    } else {
+      showRitualFullscreen(first);
+    }
+  };
+}
+
+window.openCollageDetail = openCollageDetail;
+window.renderRitualHomeBanner = renderRitualHomeBanner;
