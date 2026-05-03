@@ -116,6 +116,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/meals/{meal}/correct', [MealController::class, 'correct']);
     Route::delete('/meals/{meal}', [MealController::class, 'destroy']);
 
+    // SPEC-photo-ai-correction-v2 PR #2 — per-dish correction endpoints
+    Route::post('/meals/{meal}/dishes', [\App\Http\Controllers\Api\MealDishController::class, 'store']);
+    Route::patch('/meals/{meal}/dishes/{dish}', [\App\Http\Controllers\Api\MealDishController::class, 'update']);
+    Route::delete('/meals/{meal}/dishes/{dish}', [\App\Http\Controllers\Api\MealDishController::class, 'destroy']);
+    Route::post('/meals/{meal}/dishes/{dish}/refine', [\App\Http\Controllers\Api\MealDishController::class, 'refine']);
+    Route::get('/meals/{meal}/dishes/{dish}/candidates', [\App\Http\Controllers\Api\MealDishController::class, 'candidates']);
+
     // ----- SPEC-fasting-timer Phase 1 + v2 -----
     Route::post('/fasting/start', [\App\Http\Controllers\Api\FastingController::class, 'start']);
     Route::post('/fasting/end', [\App\Http\Controllers\Api\FastingController::class, 'end']);

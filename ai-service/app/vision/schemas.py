@@ -69,3 +69,59 @@ class VisionRecognizeTextResponse(BaseModel):
     cost_usd: float
     safety_flags: list[str] = []
     stub: bool = False
+
+
+# ---------- SPEC-photo-ai-correction-v2 PR #3 ----------
+#
+# /v1/vision/refine — re-infer a single dish from the original image + user hint.
+# Used by Laravel MealCorrectionService::refineDishViaAi after the user changes
+# food_key or portion_multiplier and asks for a fresh AI estimate.
+
+
+class RefineDishInput(BaseModel):
+    """A dish from the previous recognize call, sent back as context."""
+
+    food_name: str = Field(min_length=1, max_length=80)
+    food_key: str | None = Field(default=None, max_length=64)
+    portion_multiplier: float = Field(ge=0.25, le=3.0, default=1.0)
+    kcal: int = Field(ge=0, le=5000, default=0)
+    carb_g: float = Field(ge=0.0, le=500.0, default=0.0)
+    protein_g: float = Field(ge=0.0, le=500.0, default=0.0)
+    fat_g: float = Field(ge=0.0, le=500.0, default=0.0)
+    confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+
+
+class RefineUserHint(BaseModel):
+    """Which dish to refine + what the user said it actually is."""
+
+    dish_index: int = Field(ge=0)
+    new_food_key: str | None = Field(default=None, max_length=64)
+    new_food_name: str | None = Field(default=None, max_length=80)
+    new_portion: float | None = Field(default=None, ge=0.25, le=3.0)
+
+
+class VisionRefineRequest(BaseModel):
+    user_uuid: str = Field(min_length=1, max_length=64)
+    image_url: str | None = Field(default=None, max_length=2048)
+    original_dishes: list[RefineDishInput]
+    user_hint: RefineUserHint
+
+
+class RefinedDish(BaseModel):
+    food_name: str = Field(min_length=1, max_length=80)
+    food_key: str | None = Field(default=None, max_length=64)
+    portion_multiplier: float = Field(ge=0.25, le=3.0)
+    kcal: int = Field(ge=0, le=5000)
+    carb_g: float = Field(ge=0.0, le=500.0)
+    protein_g: float = Field(ge=0.0, le=500.0)
+    fat_g: float = Field(ge=0.0, le=500.0)
+    confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    candidates: list[dict[str, object]] = Field(default_factory=list)
+
+
+class VisionRefineResponse(BaseModel):
+    dishes: list[RefinedDish]
+    model: str
+    cost_usd: float
+    stub_mode: bool = False
+    user_hint: RefineUserHint
