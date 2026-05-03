@@ -73,6 +73,25 @@ def _build_user_prompt(req: NarrativeRequest) -> str:
         lines.append(f"\n剛拍的這餐:\n- {meal.food_name}（{meal.calories} kcal）")
         lines.append(f"- 蛋白 {meal.protein_g}g / 碳水 {meal.carbs_g}g / 脂肪 {meal.fat_g}g")
 
+    if req.fasting_stage_transition is not None:
+        st = req.fasting_stage_transition
+        h, m = divmod(st.elapsed_minutes, 60)
+        target_h = st.target_minutes // 60
+        phase_label = {
+            "settling": "進入空腹（4h）",
+            "glycogen_switch": "肝醣轉換（8h）",
+            "fat_burning": "脂肪燃燒區（12h）",
+            "autophagy": "自噬作用（16h）",
+            "deep_fast": "深度斷食（20h+）",
+        }.get(st.phase, st.phase)
+        lines.append(f"\n剛剛進入新階段：{phase_label}")
+        lines.append(f"- 模式 {st.mode}（目標 {target_h}h）· 已斷食 {h}h {m}m")
+        if st.streak_days > 0:
+            lines.append(f"- 連續達標 {st.streak_days} 天")
+        lines.append(
+            "請給 1 行 headline + 1-2 行身體狀態說明（不寫療效，不寫保證減重）+ 1 行鼓勵。"
+        )
+
     lines.append(
         "\n請以「朵朵」的口吻回覆 2-4 行繁中文字，每行 < 40 字。"
         "正向、溫暖、避免負面評價（不要說「妳變胖了」等）。"
@@ -98,6 +117,21 @@ def _stub_response(req: NarrativeRequest) -> NarrativeResponse:
         return NarrativeResponse(
             headline=req.photo_meal.food_name,
             lines=[f"記錄了 {req.photo_meal.calories} kcal ✨", "朵朵：「吃得均衡就好 🌷」"],
+            model="stub",
+            stub_mode=True,
+        )
+    if req.kind == "fasting_stage_transition" and req.fasting_stage_transition is not None:
+        st = req.fasting_stage_transition
+        stub_titles = {
+            "settling": "進入空腹 🌱",
+            "glycogen_switch": "能量切換中 ✨",
+            "fat_burning": "進入脂肪燃燒區 🔥",
+            "autophagy": "細胞清潔模式 🌟",
+            "deep_fast": "深度斷食 💪",
+        }
+        return NarrativeResponse(
+            headline=stub_titles.get(st.phase, "繼續加油 🌷"),
+            lines=["朵朵：「身體在好好運作 🌱」", "記得補水"],
             model="stub",
             stub_mode=True,
         )
