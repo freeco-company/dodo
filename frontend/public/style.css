@@ -6589,7 +6589,8 @@ body:has(#tab-achievements:not(.hidden)) .dodo-mentor-bubble {
 .chip {
   display: inline-flex;
   align-items: center;
-  padding: 6px 12px;
+  justify-content: center;
+  padding: 8px 14px;
   border-radius: 999px;
   background: #FFF8F2;
   border: 1px solid #EDE3D0;
@@ -6597,6 +6598,10 @@ body:has(#tab-achievements:not(.hidden)) .dodo-mentor-bubble {
   color: var(--ink);
   cursor: pointer;
   transition: all 0.15s ease;
+  /* Don't break inside parens — 16:8 (推薦) etc. should stay one line */
+  white-space: nowrap;
+  /* Allow shrinking but never wrap; longer chips just take more width */
+  flex: 0 0 auto;
 }
 .chip:hover { background: #FFE5D0; }
 .chip-active {
@@ -6605,10 +6610,31 @@ body:has(#tab-achievements:not(.hidden)) .dodo-mentor-bubble {
   color: white;
   font-weight: 700;
 }
+/* Locked chip — keep text legible by dimming the BG instead of the whole
+   element. Previous opacity:0.6 made the lock + label nearly invisible. */
 .chip-locked {
-  opacity: 0.6;
-  background: #F5F1EA;
+  opacity: 1;
+  background: #ECE2D5;
+  border-color: #DCC9B0;
+  color: #6B5248;
+  cursor: not-allowed;
 }
+.chip-locked:hover { background: #ECE2D5; }
+/* When the picker has many chips, let it horizontally scroll instead of
+   wrapping ugly. Container is .fasting-modes (added flex-wrap upstream;
+   we override here to scroll instead). */
+.fasting-modes {
+  flex-wrap: nowrap !important;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scroll-snap-type: x proximity;
+  padding-bottom: 4px;
+}
+.fasting-modes .chip { scroll-snap-align: start; }
+/* Hide scrollbar visually on WebKit (still scrollable) for cleaner mobile look */
+.fasting-modes::-webkit-scrollbar { height: 4px; }
+.fasting-modes::-webkit-scrollbar-thumb { background: rgba(184, 152, 120, 0.3); border-radius: 999px; }
 .fasting-ring {
   filter: drop-shadow(0 4px 12px rgba(127, 176, 105, 0.18));
 }

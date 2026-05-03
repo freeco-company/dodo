@@ -2,7 +2,8 @@ import { chromium } from 'playwright';
 
 const url = 'https://meal-api.js-store.com.tw/';
 const browser = await chromium.launch({ headless: true });
-const ctx = await browser.newContext({ viewport: { width: 414, height: 896 } });
+const ctx = await browser.newContext({ viewport: { width: 414, height: 896 }, bypassCSP: true });
+await ctx.route('**/*', (route) => route.continue({ headers: { ...route.request().headers(), 'cache-control': 'no-cache' } }));
 const page = await ctx.newPage();
 
 const errors = [];
