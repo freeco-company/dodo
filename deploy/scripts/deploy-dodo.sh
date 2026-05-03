@@ -136,6 +136,8 @@ deploy_ai_service() {
 
 deploy_frontend() {
     echo "=== Deploying dodo-frontend (static) ==="
+    echo "--- Building Tailwind (writes public/tailwind.css) ---"
+    run "cd '$LOCAL_ROOT/frontend' && npm run build:tailwind"
     run "rsync ${RSYNC_FLAGS[*]} ${EXCLUDES_FRONT[*]} \
         '$LOCAL_ROOT/frontend/public/' '$SSH_HOST:$REMOTE_BASE/frontend/public/'"
     ssh_run "echo 'frontend synced (no service to restart; nginx serves static)'"
