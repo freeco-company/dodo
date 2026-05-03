@@ -65,12 +65,45 @@ class PhotoMealPayload(BaseModel):
     fat_g: float = 0
 
 
+class MonthlyCollageLetterPayload(BaseModel):
+    """SPEC-progress-ritual-v1 PR #3 — paid 朵朵 letter for monthly collage.
+
+    Compliance: NEVER expose weight kg in payload (insulates LLM from numbers
+    that would tempt 變瘦/減重 phrasing). Aggregator passes neutral counts only.
+    """
+
+    month: str = Field(pattern=r"^\d{4}/\d{2}$")
+    food_days_logged: int = Field(ge=0, le=31)
+    steps_total: int = Field(ge=0)
+    fasting_days: int = Field(ge=0, le=31)
+    snapshot_count: int = Field(ge=0, le=31)
+
+
+class StreakMilestoneLetterPayload(BaseModel):
+    """SPEC-progress-ritual-v1 PR #3 — fullscreen celebration letter."""
+
+    streak_kind: Literal["meal", "fasting", "steps", "weight_log", "photo"]
+    streak_count: int = Field(ge=1)
+
+
+class ProgressSliderCaptionPayload(BaseModel):
+    """SPEC-progress-ritual-v1 PR #3 — ≤30 char slider caption (compliance hard).
+
+    NEVER expose kg here — caption only sees days_between (already neutral).
+    """
+
+    days_between: int = Field(ge=1, le=3650)
+
+
 NarrativeKind = Literal[
     "weekly_report",
     "fasting_completed",
     "fasting_stage_transition",
     "progress_snapshot",
     "photo_meal",
+    "monthly_collage_letter",
+    "streak_milestone_letter",
+    "progress_slider_caption",
 ]
 
 
@@ -83,6 +116,9 @@ class NarrativeRequest(BaseModel):
     fasting_stage_transition: FastingStageTransitionPayload | None = None
     progress_snapshot: ProgressSnapshotPayload | None = None
     photo_meal: PhotoMealPayload | None = None
+    monthly_collage_letter: MonthlyCollageLetterPayload | None = None
+    streak_milestone_letter: StreakMilestoneLetterPayload | None = None
+    progress_slider_caption: ProgressSliderCaptionPayload | None = None
 
 
 class NarrativeResponse(BaseModel):
