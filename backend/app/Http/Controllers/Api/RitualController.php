@@ -53,11 +53,37 @@ class RitualController extends Controller
     public function share(Request $request, RitualEvent $event): JsonResponse
     {
         $this->guard($request, $event);
+        // PR #7 — pass renderer-friendly content shape (headline / stats / footer).
+        // Compliance: NO kg / weight values — only neutral days / counts / streak nums.
+        $payload = $event->payload ?? [];
+        $content = match ($event->ritual_key) {
+            \App\Models\RitualEvent::KEY_STREAK_MILESTONE => [
+                'headline' => ($payload['streak_count'] ?? 0).' 天連勝 🌟',
+                'subtitle' => '妳真的做到了',
+                'stats' => [
+                    ['label' => '連續天數', 'value' => (string) ($payload['streak_count'] ?? '')],
+                    ['label' => '類型', 'value' => (string) ($payload['streak_kind'] ?? '挑戰')],
+                ],
+                'footer' => '#潘朵拉飲食 #朵朵連勝',
+            ],
+            \App\Models\RitualEvent::KEY_OUTFIT_UNLOCK_FULLSCREEN => [
+                'headline' => '解鎖新 outfit ✨',
+                'subtitle' => (string) ($payload['outfit_name'] ?? ''),
+                'stats' => [],
+                'footer' => '#潘朵拉飲食 #朵朵衣櫃',
+            ],
+            default => [
+                'headline' => '🌱 朵朵的紀念',
+                'subtitle' => $event->ritual_key,
+                'stats' => [],
+                'footer' => '#潘朵拉飲食',
+            ],
+        };
         $card = $this->renderer->render(
             $request->user(),
             'ritual_event',
             $event->id,
-            ['ritual_key' => $event->ritual_key, 'payload' => $event->payload],
+            $content,
         );
         $this->dispatcher->markShared($event);
 
@@ -83,11 +109,19 @@ class RitualController extends Controller
             throw new AuthorizationException('snapshot not found or not yours');
         }
 
+        $days = abs((int) $b->taken_at->diffInDays($a->taken_at));
         $card = $this->renderer->render(
             $request->user(),
             'photo_compare',
             min($a->id, $b->id) * 1000000 + max($a->id, $b->id),
-            ['a' => $a->id, 'b' => $b->id, 'days' => abs($b->taken_at->diffInDays($a->taken_at))],
+            [
+                'headline' => "妳堅持了 {$days} 天 ✨",
+                'subtitle' => '朵朵的對比紀念卡',
+                'stats' => [
+                    ['label' => '期間', 'value' => "{$days} 天"],
+                ],
+                'footer' => '#潘朵拉飲食 #朵朵堅持',
+            ],
         );
 
         return response()->json([
@@ -142,11 +176,27 @@ class RitualController extends Controller
             throw new AuthorizationException('cross-tenant');
         }
 
+        $stats = $collage->stats_payload ?? [];
+        $cardStats = [];
+        if (isset($stats['food_days_logged'])) {
+            $cardStats[] = ['label' => '🍱 規律記錄', 'value' => $stats['food_days_logged'].' 天'];
+        }
+        if (isset($stats['steps_total'])) {
+            $cardStats[] = ['label' => '🚶 累積步數', 'value' => number_format((int) $stats['steps_total']).' 步'];
+        }
+        if (isset($stats['fasting_days_completed'])) {
+            $cardStats[] = ['label' => '⏱️ 斷食達標', 'value' => $stats['fasting_days_completed'].' 天'];
+        }
         $card = $this->renderer->render(
             $request->user(),
             'monthly_collage',
             $collage->id,
-            ['month_start' => $collage->month_start->toDateString(), 'snapshot_ids' => $collage->snapshot_ids],
+            [
+                'headline' => $collage->month_start->format('Y/m').' 朵朵的月度回顧 🌱',
+                'subtitle' => '這個月的軌跡',
+                'stats' => $cardStats,
+                'footer' => '#潘朵拉飲食 #朵朵月報',
+            ],
         );
 
         $collage->increment('shared_count');
