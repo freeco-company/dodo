@@ -148,3 +148,45 @@ def test_no_payload_for_weekly_still_returns_safe_stub(client: TestClient) -> No
     assert resp.status_code == 200
     body = resp.json()
     assert body["stub_mode"] is True
+
+
+def test_fasting_stage_transition_stub_returns_phase_specific_headline(client: TestClient) -> None:
+    """SPEC-fasting-redesign-v2 §2.3 — stage push for paid users."""
+    resp = _post(
+        client,
+        {
+            "kind": "fasting_stage_transition",
+            "tier": "paid",
+            "pandora_user_uuid": "u-stage",
+            "fasting_stage_transition": {
+                "mode": "16:8",
+                "target_minutes": 960,
+                "elapsed_minutes": 720,
+                "phase": "fat_burning",
+                "streak_days": 5,
+            },
+        },
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["stub_mode"] is True
+    assert "脂肪燃燒" in body["headline"] or "🔥" in body["headline"]
+
+
+def test_fasting_stage_transition_invalid_phase_rejected(client: TestClient) -> None:
+    resp = _post(
+        client,
+        {
+            "kind": "fasting_stage_transition",
+            "tier": "paid",
+            "pandora_user_uuid": "u-stage",
+            "fasting_stage_transition": {
+                "mode": "16:8",
+                "target_minutes": 960,
+                "elapsed_minutes": 0,
+                "phase": "digesting",  # not in allowed transition list
+                "streak_days": 0,
+            },
+        },
+    )
+    assert resp.status_code == 422

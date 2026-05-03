@@ -33,6 +33,18 @@ class FastingCompletedPayload(BaseModel):
     streak_days: int = 0
 
 
+class FastingStageTransitionPayload(BaseModel):
+    """SPEC-fasting-redesign-v2 §2.3 — stage push payload (paid LLM voice)."""
+
+    mode: str
+    target_minutes: int
+    elapsed_minutes: int
+    phase: Literal[
+        "settling", "glycogen_switch", "fat_burning", "autophagy", "deep_fast"
+    ]
+    streak_days: int = 0
+
+
 class ProgressSnapshotPayload(BaseModel):
     """For progress-photo album narrative — never receives photo bytes (SPEC §4.3)."""
 
@@ -56,6 +68,7 @@ class PhotoMealPayload(BaseModel):
 NarrativeKind = Literal[
     "weekly_report",
     "fasting_completed",
+    "fasting_stage_transition",
     "progress_snapshot",
     "photo_meal",
 ]
@@ -67,6 +80,7 @@ class NarrativeRequest(BaseModel):
     pandora_user_uuid: str = Field(min_length=1, max_length=64)
     weekly_report: WeeklyReportPayload | None = None
     fasting_completed: FastingCompletedPayload | None = None
+    fasting_stage_transition: FastingStageTransitionPayload | None = None
     progress_snapshot: ProgressSnapshotPayload | None = None
     photo_meal: PhotoMealPayload | None = None
 
