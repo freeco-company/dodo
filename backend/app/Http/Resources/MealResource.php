@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\MealDish;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -32,6 +33,9 @@ class MealResource extends JsonResource
             'meal_score' => $this->meal_score,
             'coach_response' => $this->coach_response,
             'ai_confidence' => $this->ai_confidence !== null ? (float) $this->ai_confidence : null,
+            // SPEC-photo-ai-correction-v2 PR #4 — per-dish breakdown for correction UI.
+            // Empty array when meal pre-dates v2 (legacy meals show single-blob UI).
+            'dishes' => MealDishResource::collection($this->dishes),
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

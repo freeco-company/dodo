@@ -151,3 +151,100 @@ it('scan requires authentication', function () {
     $this->postJson('/api/meals/scan', ['photo_base64' => base64_encode('xx')])
         ->assertStatus(401);
 });
+
+// SPEC-photo-ai-correction-v2 PR #4.5 — auto-materialize Meal + dishes from scan items[].
+it('scan auto-materializes a Meal + MealDish rows from items[]', function () {
+    Http::fake([
+        'ai.test/v1/vision/recognize' => Http::response([
+            'items' => [
+                ['name' => '白飯', 'estimated_kcal' => 320, 'confidence' => 0.92,
+                 'macro_grams' => ['carb' => 70, 'protein' => 6, 'fat' => 0.5]],
+                ['name' => '雞腿', 'estimated_kcal' => 280, 'confidence' => 0.88,
+                 'macro_grams' => ['carb' => 0, 'protein' => 35, 'fat' => 15]],
+            ],
+            'overall_confidence' => 0.90,
+            'manual_input_required' => false,
+            'ai_feedback' => '看起來均衡',
+            'model' => 'stub',
+            'cost_usd' => 0.001,
+            'safety_flags' => [],
+            'stub_mode' => true,
+            'is_food' => true,
+            'dodo_comment' => '吃得均衡 🌷',
+        ], 200),
+    ]);
+
+    $pngBytes = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=');
+    $user = User::factory()->create(['pandora_user_uuid' => 'u-auto-meal']);
+
+    $resp = $this->actingAs($user, 'sanctum')
+        ->postJson('/api/meals/scan', [
+            'photo_base64' => base64_encode($pngBytes),
+            'content_type' => 'image/png',
+            'meal_type' => 'lunch',
+        ])
+        ->assertOk();
+
+    expect($resp->json('meal'))->not->toBeNull();
+    expect($resp->json('meal.dishes'))->toHaveCount(2);
+    expect($resp->json('meal.dishes.0.food_name'))->toBe('白飯');
+    expect($resp->json('meal.dishes.0.confidence_band'))->toBe('high');
+    expect($resp->json('meal.macros.calories'))->toBe(600);
+
+    $mealId = $resp->json('meal.id');
+    expect(\App\Models\MealDish::where('meal_id', $mealId)->count())->toBe(2);
+});
+
+it('scan does NOT materialize when is_food is false', function () {
+    Http::fake([
+        'ai.test/v1/vision/recognize' => Http::response([
+            'items' => [],
+            'overall_confidence' => 0.5,
+            'manual_input_required' => true,
+            'ai_feedback' => '看起來不是食物',
+            'model' => 'stub',
+            'cost_usd' => 0.0,
+            'safety_flags' => ['not_food'],
+            'stub_mode' => true,
+            'is_food' => false,
+        ], 200),
+    ]);
+
+    $user = User::factory()->create(['pandora_user_uuid' => 'u-not-food']);
+
+    $resp = $this->actingAs($user, 'sanctum')
+        ->postJson('/api/meals/scan', [
+            'photo_base64' => base64_encode('xx'),
+        ])
+        ->assertOk();
+
+    expect($resp->json('meal'))->toBeNull();
+    expect($user->meals()->count())->toBe(0);
+});
+
+it('scan falls back to 40/30/30 macro split when ai-service omits macro_grams', function () {
+    Http::fake([
+        'ai.test/v1/vision/recognize' => Http::response([
+            'items' => [
+                ['name' => '便當', 'estimated_kcal' => 800, 'confidence' => 0.9],
+            ],
+            'overall_confidence' => 0.9,
+            'manual_input_required' => false,
+            'ai_feedback' => '',
+            'model' => 'stub', 'cost_usd' => 0.001,
+            'safety_flags' => [], 'stub_mode' => true, 'is_food' => true,
+        ], 200),
+    ]);
+
+    $user = User::factory()->create(['pandora_user_uuid' => 'u-fallback-macro']);
+
+    $resp = $this->actingAs($user, 'sanctum')
+        ->postJson('/api/meals/scan', ['photo_base64' => base64_encode('xx')])
+        ->assertOk();
+
+    $dish = $resp->json('meal.dishes.0');
+    expect((int) $dish['kcal'])->toBe(800);
+    expect((float) $dish['carb_g'])->toBe(80.0);     // 800 * .4 / 4
+    expect((float) $dish['protein_g'])->toBe(60.0);  // 800 * .3 / 4
+    expect((float) $dish['fat_g'])->toBe(26.7);      // 800 * .3 / 9
+});

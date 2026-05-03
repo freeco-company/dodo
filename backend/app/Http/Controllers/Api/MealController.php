@@ -60,16 +60,56 @@ class MealController extends Controller
             'sugar_g' => ['nullable', 'numeric', 'min:0', 'max:300'],
             'matched_food_ids' => ['nullable', 'array', 'max:20'],
             'matched_food_ids.*' => ['integer', 'min:1'],
+            // SPEC-photo-ai-correction-v2 PR #4 — optional per-dish breakdown.
+            // When frontend confirms a multi-dish scan, it passes the items[]
+            // through here so we materialize MealDish rows on creation
+            // (otherwise they'd have to round-trip via /meals/{m}/dishes).
+            'dishes' => ['nullable', 'array', 'max:20'],
+            'dishes.*.food_name' => ['required_with:dishes', 'string', 'max:120'],
+            'dishes.*.food_key' => ['nullable', 'string', 'max:64'],
+            'dishes.*.portion_multiplier' => ['nullable', 'numeric', 'between:0.25,3.0'],
+            'dishes.*.portion_unit' => ['nullable', 'string', 'max:16'],
+            'dishes.*.kcal' => ['required_with:dishes', 'integer', 'min:0', 'max:5000'],
+            'dishes.*.carb_g' => ['required_with:dishes', 'numeric', 'min:0', 'max:500'],
+            'dishes.*.protein_g' => ['required_with:dishes', 'numeric', 'min:0', 'max:500'],
+            'dishes.*.fat_g' => ['required_with:dishes', 'numeric', 'min:0', 'max:500'],
+            'dishes.*.confidence' => ['nullable', 'numeric', 'between:0,1'],
+            'dishes.*.candidates' => ['nullable', 'array'],
         ]);
 
         $matchedFoodIds = $data['matched_food_ids'] ?? [];
-        unset($data['matched_food_ids']);
+        $dishesPayload = $data['dishes'] ?? [];
+        unset($data['matched_food_ids'], $data['dishes']);
 
         $user = $request->user();
         /** @var Meal $meal */
         $meal = $user->meals()->create($data + [
             'matched_food_ids' => $matchedFoodIds,
         ]);
+
+        // SPEC-photo-ai-correction-v2 PR #4 — materialize dish rows when
+        // provided. Order preserved via display_order for stable rendering.
+        if (! empty($dishesPayload)) {
+            foreach ($dishesPayload as $idx => $d) {
+                $meal->dishes()->create([
+                    'food_name' => $d['food_name'],
+                    'food_key' => $d['food_key'] ?? null,
+                    'portion_multiplier' => $d['portion_multiplier'] ?? 1.00,
+                    'portion_unit' => $d['portion_unit'] ?? null,
+                    'kcal' => $d['kcal'],
+                    'carb_g' => $d['carb_g'],
+                    'protein_g' => $d['protein_g'],
+                    'fat_g' => $d['fat_g'],
+                    'confidence' => $d['confidence'] ?? null,
+                    'source' => \App\Models\MealDish::SOURCE_AI_INITIAL,
+                    'candidates_json' => $d['candidates'] ?? null,
+                    'display_order' => $idx,
+                ]);
+            }
+            // Sync meal totals (also enforces per-meal kcal/macro consistency).
+            app(\App\Services\MealCorrectionService::class)->recalcMealTotals($meal->fresh());
+            $meal->refresh();
+        }
 
         // ADR-009 §3.1 — compute per-meal score; null when nutrition data
         // missing (manual freeform entry). Server is authoritative — request
