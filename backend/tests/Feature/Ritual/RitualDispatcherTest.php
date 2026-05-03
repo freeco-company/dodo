@@ -125,6 +125,73 @@ it('POST /progress/compare/share-card validates ownership', function () {
         ->assertForbidden();
 });
 
+it('GET /collages returns user-owned collages list', function () {
+    $user = User::factory()->create(['pandora_user_uuid' => 'u-list-cl']);
+    \App\Models\MonthlyCollage::create([
+        'user_id' => $user->id, 'month_start' => '2026-04-01',
+        'snapshot_ids' => [1, 2, 3, 4, 5], 'stats_payload' => ['x' => 1],
+        'narrative_letter' => '堅持的軌跡',
+    ]);
+    \App\Models\MonthlyCollage::create([
+        'user_id' => $user->id, 'month_start' => '2026-03-01',
+        'snapshot_ids' => [10, 11, 12, 13], 'stats_payload' => ['x' => 1],
+        'narrative_letter' => '上上個月',
+    ]);
+
+    $resp = $this->actingAs($user, 'sanctum')
+        ->getJson('/api/collages')
+        ->assertOk()
+        ->assertJsonCount(2, 'data');
+
+    expect($resp->json('data.0.month_start'))->toBe('2026-04-01');
+});
+
+it('GET /collages/{c} returns full detail with narrative_letter', function () {
+    $user = User::factory()->create(['pandora_user_uuid' => 'u-show-cl']);
+    $collage = \App\Models\MonthlyCollage::create([
+        'user_id' => $user->id, 'month_start' => '2026-04-01',
+        'snapshot_ids' => [1, 2, 3, 4, 5],
+        'stats_payload' => ['food_days_logged' => 23, 'steps_total' => 245000],
+        'narrative_letter' => '這個月妳堅持下來了 🌱',
+    ]);
+
+    $this->actingAs($user, 'sanctum')
+        ->getJson("/api/collages/{$collage->id}")
+        ->assertOk()
+        ->assertJsonPath('narrative_letter', '這個月妳堅持下來了 🌱')
+        ->assertJsonPath('stats.food_days_logged', 23);
+});
+
+it('GET /collages/{c} forbids cross-tenant', function () {
+    $alice = User::factory()->create();
+    $bob = User::factory()->create(['pandora_user_uuid' => 'u-bob-cl']);
+    $bobCollage = \App\Models\MonthlyCollage::create([
+        'user_id' => $bob->id, 'month_start' => '2026-04-01',
+        'snapshot_ids' => [1, 2, 3, 4], 'stats_payload' => [],
+        'narrative_letter' => 'x',
+    ]);
+
+    $this->actingAs($alice, 'sanctum')
+        ->getJson("/api/collages/{$bobCollage->id}")
+        ->assertForbidden();
+});
+
+it('POST /collages/{c}/share renders card + bumps shared_count', function () {
+    $user = User::factory()->create(['pandora_user_uuid' => 'u-share-cl']);
+    $collage = \App\Models\MonthlyCollage::create([
+        'user_id' => $user->id, 'month_start' => '2026-04-01',
+        'snapshot_ids' => [1, 2, 3, 4], 'stats_payload' => [],
+        'narrative_letter' => 'x',
+    ]);
+
+    $this->actingAs($user, 'sanctum')
+        ->postJson("/api/collages/{$collage->id}/share")
+        ->assertOk()
+        ->assertJsonPath('shared_count', 1);
+
+    expect($collage->fresh()->shared_count)->toBe(1);
+});
+
 it('POST /progress/compare/share-card returns image url for own snapshots', function () {
     $user = User::factory()->create(['pandora_user_uuid' => 'u-own-cmp']);
     $a = ProgressSnapshot::create(['user_id' => $user->id, 'taken_at' => now()->subDays(60), 'weight_g' => 60000]);

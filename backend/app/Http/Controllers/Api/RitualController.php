@@ -96,6 +96,68 @@ class RitualController extends Controller
         ]);
     }
 
+    /** GET /api/collages — list user's collages (paginated lite). */
+    public function collagesIndex(Request $request): JsonResponse
+    {
+        $request->validate(['limit' => ['nullable', 'integer', 'min:1', 'max:24']]);
+        $rows = MonthlyCollage::query()
+            ->where('user_id', $request->user()->id)
+            ->orderByDesc('month_start')
+            ->limit($request->integer('limit', 12))
+            ->get();
+
+        return response()->json([
+            'data' => $rows->map(fn (MonthlyCollage $c) => [
+                'id' => $c->id,
+                'month_start' => $c->month_start->toDateString(),
+                'snapshot_count' => count($c->snapshot_ids),
+                'shared_count' => $c->shared_count,
+            ])->all(),
+        ]);
+    }
+
+    /** GET /api/collages/{collage} — full detail for the collage modal. */
+    public function collageShow(Request $request, MonthlyCollage $collage): JsonResponse
+    {
+        if ($collage->user_id !== $request->user()->id) {
+            throw new AuthorizationException('cross-tenant');
+        }
+
+        return response()->json([
+            'id' => $collage->id,
+            'month_start' => $collage->month_start->toDateString(),
+            'snapshot_ids' => $collage->snapshot_ids,
+            'stats' => $collage->stats_payload,
+            'narrative_letter' => $collage->narrative_letter,
+            'image_path' => $collage->image_path,
+            'image_url' => $collage->image_path ? '/storage/'.$collage->image_path : null,
+            'shared_count' => $collage->shared_count,
+        ]);
+    }
+
+    /** POST /api/collages/{collage}/share — render share card + bump count. */
+    public function collageShare(Request $request, MonthlyCollage $collage): JsonResponse
+    {
+        if ($collage->user_id !== $request->user()->id) {
+            throw new AuthorizationException('cross-tenant');
+        }
+
+        $card = $this->renderer->render(
+            $request->user(),
+            'monthly_collage',
+            $collage->id,
+            ['month_start' => $collage->month_start->toDateString(), 'snapshot_ids' => $collage->snapshot_ids],
+        );
+
+        $collage->increment('shared_count');
+
+        return response()->json([
+            'image_path' => $card->image_path,
+            'image_url' => '/storage/'.$card->image_path,
+            'shared_count' => $collage->fresh()->shared_count,
+        ]);
+    }
+
     private function guard(Request $request, RitualEvent $event): void
     {
         if ($event->user_id !== $request->user()->id) {

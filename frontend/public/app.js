@@ -6374,3 +6374,141 @@ if (_origLoadDashboard) {
 
 window.checkAndShowRituals = checkAndShowRituals;
 window.createBeforeAfterSlider = createBeforeAfterSlider;
+
+// =============================================================================
+// SPEC-progress-ritual-v1 PR #5 — collage detail modal + home banner
+// =============================================================================
+
+async function openCollageDetail(collageId) {
+  let data;
+  try {
+    data = await api('GET', `/collages/${collageId}`);
+  } catch (e) {
+    toast('集錦載入失敗：' + (e.message || ''), { emoji: '⚠️' });
+    return;
+  }
+
+  const sheet = document.createElement('div');
+  sheet.className = 'collage-detail-overlay';
+  sheet.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px';
+
+  const stats = data.stats || {};
+  const monthLabel = (data.month_start || '').slice(0, 7);
+  const letter = (data.narrative_letter || '').replace(/\n/g, '<br>');
+
+  sheet.innerHTML = `
+    <div class="collage-card" style="background:linear-gradient(180deg,#fff7ee 0%,#fff 100%);max-width:480px;width:100%;border-radius:24px;padding:28px;max-height:90vh;overflow-y:auto;position:relative">
+      <button type="button" class="btn-close" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:18px;color:#999">✕</button>
+
+      <div style="text-align:center;margin-bottom:16px">
+        <div style="font-size:14px;color:var(--peach-deep);font-weight:bold">🌱 朵朵的月度回顧</div>
+        <div style="font-size:24px;font-weight:black;margin-top:4px">${escapeHtml(monthLabel)}</div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="text-center p-3 rounded-xl" style="background:white">
+          <div class="text-xs text-muted">🍱 規律記錄</div>
+          <div class="text-2xl font-black mt-1">${stats.food_days_logged || 0}</div>
+          <div class="text-xs text-muted">天</div>
+        </div>
+        <div class="text-center p-3 rounded-xl" style="background:white">
+          <div class="text-xs text-muted">🚶 累積步數</div>
+          <div class="text-2xl font-black mt-1">${(stats.steps_total || 0).toLocaleString()}</div>
+          <div class="text-xs text-muted">步</div>
+        </div>
+        <div class="text-center p-3 rounded-xl" style="background:white">
+          <div class="text-xs text-muted">⏱️ 斷食達標</div>
+          <div class="text-2xl font-black mt-1">${stats.fasting_days_completed || 0}</div>
+          <div class="text-xs text-muted">天</div>
+        </div>
+        <div class="text-center p-3 rounded-xl" style="background:white">
+          <div class="text-xs text-muted">📸 進度照</div>
+          <div class="text-2xl font-black mt-1">${(data.snapshot_ids || []).length}</div>
+          <div class="text-xs text-muted">張</div>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl mb-4" style="background:white;border-left:3px solid var(--peach-deep);line-height:1.7">
+        <div class="text-xs text-muted mb-2">朵朵的手寫信 ✨</div>
+        <div class="text-sm">${letter}</div>
+      </div>
+
+      <div class="flex gap-2">
+        <button type="button" class="btn-share-collage flex-1 py-3 rounded-xl text-sm font-bold" style="background:var(--peach-deep);color:white">📸 分享這個月</button>
+        <button type="button" class="btn-close-secondary px-4 py-3 rounded-xl text-sm" style="background:white;border:1px solid #ddd">關閉</button>
+      </div>
+
+      <div class="text-center text-xs text-muted mt-3">已分享 ${data.shared_count || 0} 次 🌷</div>
+    </div>
+  `;
+  document.body.appendChild(sheet);
+
+  const close = () => sheet.remove();
+  sheet.querySelector('.btn-close').onclick = close;
+  sheet.querySelector('.btn-close-secondary').onclick = close;
+  sheet.onclick = (e) => { if (e.target === sheet) close(); };
+
+  sheet.querySelector('.btn-share-collage').onclick = async () => {
+    try {
+      const r = await api('POST', `/collages/${collageId}/share`);
+      if (navigator.share && r.image_url) {
+        try {
+          await navigator.share({ url: r.image_url, title: `朵朵的 ${monthLabel} 回顧 ✨` });
+        } catch {}
+      }
+      toast(`已分享第 ${r.shared_count} 次 🌷`);
+      close();
+    } catch (e) {
+      toast('分享失敗：' + (e.message || ''), { emoji: '⚠️' });
+    }
+  };
+}
+
+// Home banner — shows top of home tab when there are unread rituals.
+// Renders inline (not fullscreen) so it doesn't fight with showRitualFullscreen.
+async function renderRitualHomeBanner() {
+  const container = document.getElementById('ritual-home-banner');
+  if (!container) return;
+  let resp;
+  try {
+    resp = await api('GET', '/rituals/unread');
+  } catch {
+    return;
+  }
+  const events = resp.data || [];
+  if (events.length === 0) {
+    container.classList.add('hidden');
+    return;
+  }
+  const first = events[0];
+  const labelByKey = {
+    monthly_progress_collage: '🌱 妳的月度集錦準備好了',
+    streak_milestone_celebration: `🌟 ${first.payload?.streak_count || ''} 天連勝！`,
+    outfit_unlock_fullscreen: `✨ 解鎖了新的 ${first.payload?.outfit_name || 'outfit'}`,
+    season_outfit_reveal: `🌸 ${first.payload?.season_name || '新季節'} 系列上架`,
+    progress_photo_slider: '📸 對比一下這段堅持',
+  };
+  const label = labelByKey[first.ritual_key] || '🌱 朵朵發現一件事';
+
+  container.innerHTML = `
+    <div class="ritual-home-card" style="background:linear-gradient(135deg,#ffe4d6 0%,#ffd1bd 100%);border-radius:16px;padding:14px;margin:8px;display:flex;align-items:center;gap:10px">
+      <div class="flex-1">
+        <div style="font-size:14px;font-weight:bold">${escapeHtml(label)}</div>
+        <div style="font-size:11px;color:#888;margin-top:2px">點來看朵朵幫妳準備的 ✨</div>
+      </div>
+      <button type="button" class="btn-banner-open" style="padding:8px 14px;border-radius:20px;background:var(--peach-deep);color:white;border:none;font-size:13px;font-weight:bold">看看</button>
+    </div>
+  `;
+  container.classList.remove('hidden');
+  container.querySelector('.btn-banner-open').onclick = () => {
+    if (first.ritual_key === 'monthly_progress_collage' && first.payload?.collage_id) {
+      api('POST', `/rituals/${first.id}/seen`).catch(() => {});
+      openCollageDetail(first.payload.collage_id);
+    } else {
+      showRitualFullscreen(first);
+    }
+  };
+}
+
+window.openCollageDetail = openCollageDetail;
+window.renderRitualHomeBanner = renderRitualHomeBanner;
