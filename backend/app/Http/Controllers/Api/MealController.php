@@ -147,6 +147,12 @@ class MealController extends Controller
             }
         }
 
+        // SPEC-cross-metric-insight-v1 PR #6 — realtime evaluate. Fires
+        // milestone insights (streak_30 etc.) same-day rather than waiting
+        // for the daily cron. Engine is idempotent (cooldown + week-bucket
+        // idempotency_key), so multiple meal posts in a day are safe.
+        \App\Jobs\EvaluateInsightsForUserJob::dispatch($user->id)->afterCommit()->onQueue('default');
+
         return new MealResource($meal);
     }
 
