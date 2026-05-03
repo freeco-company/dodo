@@ -142,6 +142,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/progress/snapshot/{id}', [\App\Http\Controllers\Api\ProgressSnapshotController::class, 'destroy'])
         ->whereNumber('id');
 
+    // ----- SPEC-cross-metric-insight-v1 PR #2 — Insight read API -----
+    Route::get('/insights/unread', [\App\Http\Controllers\Api\InsightController::class, 'unread']);
+    Route::get('/insights/history', [\App\Http\Controllers\Api\InsightController::class, 'history']);
+    Route::get('/insights/{insight}', [\App\Http\Controllers\Api\InsightController::class, 'show'])->whereNumber('insight');
+    Route::post('/insights/{insight}/read', [\App\Http\Controllers\Api\InsightController::class, 'read'])->whereNumber('insight');
+    Route::post('/insights/{insight}/dismiss', [\App\Http\Controllers\Api\InsightController::class, 'dismiss'])->whereNumber('insight');
+
     // ----- SPEC-weekly-ai-report Phase 1 (rich version of weekly recap) -----
     Route::get('/reports/weekly/current', [\App\Http\Controllers\Api\ReportController::class, 'currentWeekly']);
     Route::get('/reports/weekly/history', [\App\Http\Controllers\Api\ReportController::class, 'weeklyHistory']);

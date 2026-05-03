@@ -35,6 +35,10 @@ class HealthMetricsController extends Controller
 
         $result = $this->service->sync($request->user(), $data['metrics']);
 
+        // SPEC-cross-metric-insight-v1 PR #6 — realtime evaluate after sync.
+        // Engine is idempotent, so per-batch dispatch is safe.
+        \App\Jobs\EvaluateInsightsForUserJob::dispatch($request->user()->id)->afterCommit()->onQueue('default');
+
         return response()->json($result, 200);
     }
 

@@ -100,6 +100,13 @@ final class UserDataSnapshot
         return is_numeric($v) ? (int) $v : null;
     }
 
+    public function fastingLateBreaks7d(): int
+    {
+        $v = $this->fasting['late_breaks_7d'] ?? null;
+
+        return is_numeric($v) ? (int) $v : 0;
+    }
+
     /** any of the configured streak categories (meal/fasting/steps/weight/photo). */
     public function maxStreakDays(): int
     {
@@ -107,5 +114,57 @@ final class UserDataSnapshot
         $vals = array_map('intval', array_filter($vals, 'is_numeric'));
 
         return $vals === [] ? 0 : max($vals);
+    }
+
+    public function mealsDaysLogged7d(): int
+    {
+        $v = $this->meals['days_logged_7d'] ?? null;
+
+        return is_numeric($v) ? (int) $v : 0;
+    }
+
+    public function avgProteinG7d(): ?float
+    {
+        $v = $this->meals['avg_protein_g_7d'] ?? null;
+
+        return is_numeric($v) ? (float) $v : null;
+    }
+
+    /** Late-night meal count: meals logged after 21:00 in the past 7 days. */
+    public function lateNightMealCount7d(): ?int
+    {
+        $v = $this->meals['late_night_count_7d'] ?? null;
+
+        return is_numeric($v) ? (int) $v : null;
+    }
+
+    /** Weekend kcal excess ratio (vs weekday baseline). null when insufficient data. */
+    public function weekendKcalExcessRatio(): ?float
+    {
+        $v = $this->meals['weekend_excess_ratio'] ?? null;
+
+        return is_numeric($v) ? (float) $v : null;
+    }
+
+    /** Step daily target met days in past 7 days. */
+    public function stepsDaysMetTarget7d(): int
+    {
+        $v = $this->steps['days_met_target_7d'] ?? null;
+
+        return is_numeric($v) ? (int) $v : 0;
+    }
+
+    /** 4-week weight stability: max absolute delta within rolling window. */
+    public function weight4wMaxDeltaKg(): ?float
+    {
+        $v = $this->weight['max_delta_4w'] ?? null;
+
+        return is_numeric($v) ? (float) $v : null;
+    }
+
+    /** Most recent broken streak: 1 if user had ≥7-day streak that broke last week + restarted ≥3d this week. */
+    public function streakRecoverySignal(): bool
+    {
+        return (bool) ($this->streaks['recovery_signal'] ?? false);
     }
 }
