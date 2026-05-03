@@ -5568,14 +5568,12 @@ body.time-night .island-ground .island-grass { background: linear-gradient(180de
 .animal-img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .store-character .animal-img { padding: 4px; }
 .dialog-char-emoji .animal-img { width: 220px; height: 220px; }
-/* 朵朵 NPC 用 dodo-full.png（trimmed 全身），讓圖片填滿整個 frame
-   讓朵朵跟寵物視覺份量對等 — user feedback 2026-05-01。
-   object-fit: contain + height 100% 讓全身完整呈現，不裁切。 */
+/* 朵朵 NPC 用 1024x1024 master（含透明 padding），讓 object-fit: contain
+   自動把實際角色縮到 frame 的 ~33%，避免大尺寸渲染時源 PNG 解析度不足
+   導致眼睛 highlight 糊成黑點 — 對齊 calendar 的處理方式 2026-05-03。 */
 .dialog-char-emoji .animal-img.npc-animal {
-  width: auto;
+  width: 100%;
   height: 100%;
-  max-width: 100%;
-  max-height: 100%;
   object-fit: contain;
 }
 
