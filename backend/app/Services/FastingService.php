@@ -270,25 +270,37 @@ class FastingService
     /**
      * Snapshot for `/api/fasting/current`, including derived progress fields.
      *
+     * SPEC-fasting-redesign-v2 — now also returns the eating-window state
+     * when the most recent session has ended (so the UI can countdown to
+     * next fasting start instead of going blank).
+     *
      * @return array<string,mixed>|null
      */
     public function snapshot(User $user): ?array
     {
-        $session = $this->current($user);
-        if ($session === null) {
-            return null;
+        $active = $this->current($user);
+        if ($active !== null) {
+            return $this->fastingSnapshotFor($active);
         }
+        // No active fasting — surface eating window if last session ended recently
+        return $this->eatingWindowSnapshotFor($user);
+    }
 
+    /**
+     * @return array<string,mixed>
+     */
+    private function fastingSnapshotFor(FastingSession $session): array
+    {
         $now = CarbonImmutable::now();
         $startedAt = CarbonImmutable::parse($session->started_at);
         // Carbon's diffInMinutes returns float — frontend expects integer
-        // minutes for display (otherwise 0.012m sub-second startup leaks
-        // into the UI as "0.012307116666666668m").
+        // minutes for display.
         $elapsedMinutes = (int) max(0, floor((float) $startedAt->diffInMinutes($now)));
         $target = (int) $session->target_duration_minutes;
         $progress = $target > 0 ? min(1.0, $elapsedMinutes / $target) : 0.0;
 
         return [
+            'kind' => 'fasting',
             'id' => $session->id,
             'mode' => $session->mode,
             'started_at' => $startedAt->toIso8601String(),
@@ -297,7 +309,95 @@ class FastingService
             'progress' => round($progress, 4),
             'eligible_to_eat_at' => $startedAt->addMinutes($target)->toIso8601String(),
             'phase' => $this->phaseFor($elapsedMinutes),
+            'last_pushed_phase' => $session->last_pushed_phase,
         ];
+    }
+
+    /**
+     * SPEC-v2 §2.4 — eating window after a session ends. The window length
+     * is `total_cycle - target` minutes (e.g. 16:8 → 8h eating window).
+     *
+     * Returns null if no recent session OR if the eating window expired
+     * (>2h after window end, we don't surface stale state).
+     *
+     * @return array<string,mixed>|null
+     */
+    private function eatingWindowSnapshotFor(User $user): ?array
+    {
+        $latest = FastingSession::query()
+            ->where('user_id', $user->id)
+            ->whereNotNull('ended_at')
+            ->orderByDesc('ended_at')
+            ->first();
+        if ($latest === null || $latest->ended_at === null) {
+            return null;
+        }
+
+        $endedAt = CarbonImmutable::parse($latest->ended_at);
+        $eatingWindowMinutes = $this->eatingWindowMinutesFor((string) $latest->mode, (int) $latest->target_duration_minutes);
+        $eatingEnd = $endedAt->addMinutes($eatingWindowMinutes);
+        $now = CarbonImmutable::now();
+
+        // Don't show stale state — if eating window finished >2h ago, return
+        // null (UI shows the "start a new session" picker).
+        if ($now->greaterThan($eatingEnd->addHours(2))) {
+            return null;
+        }
+
+        $elapsedMinutes = (int) max(0, floor((float) $endedAt->diffInMinutes($now)));
+        $remainingMinutes = max(0, $eatingWindowMinutes - $elapsedMinutes);
+        $progress = $eatingWindowMinutes > 0 ? min(1.0, $elapsedMinutes / $eatingWindowMinutes) : 0.0;
+
+        return [
+            'kind' => 'eating_window',
+            'last_session_id' => $latest->id,
+            'mode' => $latest->mode,
+            'eating_started_at' => $endedAt->toIso8601String(),
+            'eating_ends_at' => $eatingEnd->toIso8601String(),
+            'eating_window_minutes' => $eatingWindowMinutes,
+            'elapsed_minutes' => $elapsedMinutes,
+            'remaining_minutes' => $remainingMinutes,
+            'progress' => round($progress, 4),
+            'expired' => $now->greaterThanOrEqualTo($eatingEnd),
+        ];
+    }
+
+    /**
+     * Eating window length for a given fasting mode (24h cycle minus fasting).
+     */
+    public function eatingWindowMinutesFor(string $mode, int $targetMinutes): int
+    {
+        // Most modes are 24h cycles — eating window = 24*60 - target.
+        // Custom modes might exceed 24h (we cap at 4h minimum eating).
+        $eating = (24 * 60) - $targetMinutes;
+        return max(4 * 60, $eating);
+    }
+
+    /**
+     * SPEC-v2 §2.5 — let the user retroactively change when the fasting
+     * started (the #1 user complaint: "I forgot to hit start"). Limited to
+     * the last 24 hours.
+     */
+    public function markStartedAt(User $user, CarbonImmutable $newStart): FastingSession
+    {
+        $session = $this->current($user);
+        if ($session === null) {
+            throw new RuntimeException('fasting_no_active');
+        }
+        $now = CarbonImmutable::now();
+        if ($newStart->greaterThan($now)) {
+            throw new RuntimeException('fasting_start_in_future');
+        }
+        if ($newStart->lessThan($now->subHours(24))) {
+            throw new RuntimeException('fasting_start_too_old');
+        }
+
+        $session->started_at = Carbon::instance($newStart->toDateTime());
+        // Reset stage-push tracking so any newly-passed thresholds re-fire.
+        $session->last_pushed_phase = null;
+        $session->save();
+
+        return $session->fresh();
     }
 
     /**
@@ -313,6 +413,51 @@ class FastingService
             $elapsedMinutes < 16 * 60 => 'fat_burning',
             $elapsedMinutes < 20 * 60 => 'autophagy',
             default => 'deep_fast',
+        };
+    }
+
+    public const PHASE_ORDER = [
+        'digesting',
+        'settling',
+        'glycogen_switch',
+        'fat_burning',
+        'autophagy',
+        'deep_fast',
+    ];
+
+    /**
+     * SPEC-v2 §2.3 — copy for stage-transition push templates.
+     * Returns ['title' => ..., 'body' => ...] in 朵朵 voice.
+     *
+     * @return array{title:string, body:string}
+     */
+    public function stagePushCopy(string $phase): array
+    {
+        return match ($phase) {
+            'settling' => [
+                'title' => '進入空腹 🌱',
+                'body' => '身體開始休息，朵朵陪妳繼續',
+            ],
+            'glycogen_switch' => [
+                'title' => '能量切換中 ✨',
+                'body' => '肝醣轉換，撐住，朵朵看見妳了',
+            ],
+            'fat_burning' => [
+                'title' => '進入脂肪燃燒區 🔥',
+                'body' => '身體開始燒脂肪，記得補水',
+            ],
+            'autophagy' => [
+                'title' => '細胞清潔模式 🌟',
+                'body' => '自噬作用啟動，妳的努力很值得',
+            ],
+            'deep_fast' => [
+                'title' => '深度斷食 💪',
+                'body' => '妳真的很有毅力，補水休息別忘了',
+            ],
+            default => [
+                'title' => '繼續加油 🌷',
+                'body' => '朵朵在這裡',
+            ],
         };
     }
 }

@@ -116,11 +116,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/meals/{meal}/correct', [MealController::class, 'correct']);
     Route::delete('/meals/{meal}', [MealController::class, 'destroy']);
 
-    // ----- SPEC-fasting-timer Phase 1 -----
+    // ----- SPEC-fasting-timer Phase 1 + v2 -----
     Route::post('/fasting/start', [\App\Http\Controllers\Api\FastingController::class, 'start']);
     Route::post('/fasting/end', [\App\Http\Controllers\Api\FastingController::class, 'end']);
     Route::get('/fasting/current', [\App\Http\Controllers\Api\FastingController::class, 'current']);
     Route::get('/fasting/history', [\App\Http\Controllers\Api\FastingController::class, 'history']);
+    // SPEC-v2 §2.5 — let user retroactively change session start time
+    Route::patch('/fasting/start-time', [\App\Http\Controllers\Api\FastingController::class, 'markStartedAt']);
 
     // ----- SPEC-healthkit-integration Phase 1 -----
     Route::post('/health/sync', [\App\Http\Controllers\Api\HealthMetricsController::class, 'sync']);
