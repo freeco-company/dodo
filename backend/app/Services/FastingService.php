@@ -281,7 +281,10 @@ class FastingService
 
         $now = CarbonImmutable::now();
         $startedAt = CarbonImmutable::parse($session->started_at);
-        $elapsedMinutes = max(0, $startedAt->diffInMinutes($now));
+        // Carbon's diffInMinutes returns float — frontend expects integer
+        // minutes for display (otherwise 0.012m sub-second startup leaks
+        // into the UI as "0.012307116666666668m").
+        $elapsedMinutes = (int) max(0, floor((float) $startedAt->diffInMinutes($now)));
         $target = (int) $session->target_duration_minutes;
         $progress = $target > 0 ? min(1.0, $elapsedMinutes / $target) : 0.0;
 

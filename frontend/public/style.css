@@ -6637,6 +6637,32 @@ body:has(#tab-achievements:not(.hidden)) .dodo-mentor-bubble {
 .fasting-modes::-webkit-scrollbar-thumb { background: rgba(184, 152, 120, 0.3); border-radius: 999px; }
 .fasting-ring {
   filter: drop-shadow(0 4px 12px rgba(127, 176, 105, 0.18));
+  /* Constrain absolutely-positioned center text to ring width so a long
+     value (eg 「100h 23m」 deep into deep_fast) never overflows into the
+     phases row below. */
+  max-width: 200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.fasting-ring .absolute {
+  /* Center text container — pad inward + clip overflow */
+  padding: 0 12px;
+  text-align: center;
+  pointer-events: none;
+}
+.fasting-ring .absolute > div {
+  white-space: nowrap;
+  max-width: 176px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#fasting-active {
+  /* Tighter vertical rhythm so phase row sits clearly under ring */
+  padding-bottom: 8px;
+}
+#fasting-phases {
+  margin-top: 18px;
+  margin-bottom: 6px;
 }
 .fasting-phase-dot {
   display: inline-flex;
