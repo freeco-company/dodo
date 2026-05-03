@@ -3115,11 +3115,15 @@ async function loadHealthWidget() {
 }
 
 async function promptWeightLog() {
-  const raw = prompt('體重 (kg)', '');
-  if (raw == null) return;
+  const raw = await UI.prompt('輸入今天的體重 (kg)：', {
+    title: '⚖️ 體重紀錄',
+    inputType: 'number',
+    placeholder: '62.5',
+  });
+  if (raw == null || raw === '') return;
   const val = parseFloat(raw);
   if (!Number.isFinite(val) || val < 20 || val > 250) {
-    if (typeof showToast === 'function') showToast('請輸入合理的體重 (20-250 kg)');
+    UI.alert('請輸入合理的體重 (20-250 kg)');
     return;
   }
   try {
@@ -3163,20 +3167,22 @@ async function openProgressAlbum() {
           return `${d}${w}${m}${n}`;
         }).join('\n');
 
-    const action = prompt(
-      `📷 進度照記錄\n\n最近紀錄：\n${list}\n\n要新增今天的紀錄嗎？\n` +
-      '輸入體重 kg（選填，按 Enter 跳過）：',
-      ''
+    const action = await UI.prompt(
+      `最近紀錄：\n${list}\n\n要新增今天的紀錄嗎？輸入體重 kg（選填，可留空）：`,
+      { title: '📷 進度照記錄', inputType: 'number', placeholder: '62.5' }
     );
     if (action === null) return;
 
-    const weight = action.trim() === '' ? null : parseFloat(action);
-    if (action.trim() !== '' && (!Number.isFinite(weight) || weight < 20 || weight > 250)) {
-      if (typeof showToast === 'function') showToast('請輸入合理的體重 (20-250 kg) 或留空');
+    const trimmed = (action || '').trim();
+    const weight = trimmed === '' ? null : parseFloat(trimmed);
+    if (trimmed !== '' && (!Number.isFinite(weight) || weight < 20 || weight > 250)) {
+      UI.alert('請輸入合理的體重 (20-250 kg) 或留空');
       return;
     }
-    const mood = prompt('心情 emoji（選填，例如 🙂 ✨ 💪）：', '');
-    const notes = prompt('備註（選填，最多 500 字）：', '');
+    const mood = await UI.prompt('心情 emoji（選填，例如 🙂 ✨ 💪）：', { title: '今天心情', placeholder: '🙂' });
+    if (mood === null) return;
+    const notes = await UI.prompt('備註（選填，最多 500 字）：', { title: '備註', placeholder: '今天感覺...' });
+    if (notes === null) return;
 
     const payload = {
       taken_at: new Date().toISOString(),
