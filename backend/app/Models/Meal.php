@@ -6,11 +6,15 @@ use App\Models\Concerns\HasPandoraUserUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property ?array $correction_data
  * @property ?array $food_components
  * @property ?array $matched_food_ids
+ * @property ?string $photo_url
+ * @property int $id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, MealDish> $dishes
  */
 class Meal extends Model
 {
@@ -52,5 +56,11 @@ class Meal extends Model
     public function dailyLog(): BelongsTo
     {
         return $this->belongsTo(DailyLog::class);
+    }
+
+    /** SPEC-photo-ai-correction-v2 — per-dish breakdown. */
+    public function dishes(): HasMany
+    {
+        return $this->hasMany(MealDish::class)->orderBy('display_order');
     }
 }
