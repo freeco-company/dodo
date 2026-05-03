@@ -75,7 +75,7 @@
      prior <script src="https://cdn.tailwindcss.com"></script> was removed. -->
 <link rel="stylesheet" href="/tailwind.css?v=1" />
 <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=Kosugi+Maru&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Shippori+Mincho+B1:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Zen+Maru+Gothic:wght@400;500;700;900&family=Yusei+Magic&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css?v=48" />
+<link rel="stylesheet" href="/style.css?v=49" />
 
 <!-- Sentry browser SDK — config-driven. Set window.__SENTRY_DSN__ in a prod
      bootstrap snippet (e.g. via nginx sub_filter or build-time injection)
@@ -484,6 +484,32 @@
           <div class="text-muted">載入中…</div>
         </div>
       </div>
+
+      <!-- SPEC-pikmin-walk-v1 — Pikmin Bloom 風探險 widget。
+           走路 → 階段（種子→芽→花→果）→ 召喚 mini-dodo 跟著你走。
+           data-walk-widget 對應 frontend/public/walk-pikmin.js 自掛載 -->
+      <button class="card w-full text-left p-4" id="home-walk-widget" data-walk-widget type="button"
+              style="background:linear-gradient(135deg,#FFF8F2,#FFE5D0); border:none; cursor:pointer;">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-sm font-bold">🌸 朵朵探險日記</div>
+          <div class="text-xs text-muted" id="walk-widget-phase-label">種子 · 0 步</div>
+        </div>
+        <!-- Phase ladder: seed→sprout→bloom→fruit -->
+        <div class="walk-phase-ladder flex items-center gap-1 mb-2">
+          <div class="walk-phase walk-phase-seed" data-phase="seed">🌱</div>
+          <div class="walk-phase-bar"><div class="walk-phase-fill" id="walk-phase-fill" style="width:0%"></div></div>
+          <div class="walk-phase walk-phase-sprout" data-phase="sprout">🌿</div>
+          <div class="walk-phase-bar"><div class="walk-phase-fill" id="walk-phase-fill-2" style="width:0%"></div></div>
+          <div class="walk-phase walk-phase-bloom" data-phase="bloom">🌸</div>
+          <div class="walk-phase-bar"><div class="walk-phase-fill" id="walk-phase-fill-3" style="width:0%"></div></div>
+          <div class="walk-phase walk-phase-fruit" data-phase="fruit">🍎</div>
+        </div>
+        <!-- Mini-dodo follower train -->
+        <div class="walk-mini-dodos flex items-center gap-1" id="walk-mini-dodos" aria-label="今日召喚的 mini-dodo">
+          <span class="text-xs text-muted">還沒收集到 mini-dodo · 記一餐就會跑出來囉</span>
+        </div>
+        <div class="text-[11px] text-muted mt-2" id="walk-widget-hint">點我看探險日記 →</div>
+      </button>
 
       <!-- Event card banner (shown when user has a pending event offer) -->
       <div class="event-banner-wrap hidden" id="event-banner-wrap">
@@ -1744,6 +1770,7 @@
 <script src="/icons.js?v=2"></script>
 <script src="/sound.js?v=4"></script>
 <script src="/character.js?v=9"></script>
+<script src="/walk-pikmin.js?v=1"></script>
 
 <script src="/app.js?v=57"></script>
 <script>

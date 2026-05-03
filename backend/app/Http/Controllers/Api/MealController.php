@@ -197,6 +197,13 @@ class MealController extends Controller
             app(\App\Services\Ritual\StreakRitualService::class)->checkMealStreak($user);
         } catch (\Throwable $e) { /* fail-soft */ }
 
+        // SPEC-pikmin-walk-v1 — meal log 推 macro mini-dodo（紅/綠/黃/紫）。
+        // 達門檻才召喚，UNIQUE 鍵保證 idempotent。fail-soft：mini-dodo 失敗不能擋餐後流程。
+        try {
+            app(\App\Services\Dodo\Walk\WalkSessionService::class)
+                ->summonForMealsToday($user, \Illuminate\Support\Carbon::parse($meal->date));
+        } catch (\Throwable $e) { /* fail-soft */ }
+
         return new MealResource($meal);
     }
 

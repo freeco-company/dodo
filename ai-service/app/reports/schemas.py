@@ -108,6 +108,21 @@ class ProgressSliderCaptionPayload(BaseModel):
     days_between: int = Field(ge=1, le=3650)
 
 
+class WalkDiaryPayload(BaseModel):
+    """SPEC-pikmin-walk-v1 — daily 朵朵 探險日記 旁白 payload.
+
+    Compliance: 中性詞「均衡 / 活力 / 日常」, 不暗示療效（禁用「燃脂 / 排毒 / 補鈣」）.
+    Frontend 已先給朵朵 stub headline + lines 作 fallback；ai 路徑只重寫成導師語氣.
+    """
+
+    date: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
+    total_steps: int = Field(ge=0, le=200000)
+    phase: Literal["seed", "sprout", "bloom", "fruit"]
+    colors_collected: list[Literal["red", "green", "blue", "yellow", "purple"]] = Field(
+        default_factory=list, max_length=5
+    )
+
+
 NarrativeKind = Literal[
     "weekly_report",
     "fasting_completed",
@@ -118,6 +133,7 @@ NarrativeKind = Literal[
     "monthly_collage_letter",
     "streak_milestone_letter",
     "progress_slider_caption",
+    "walk_diary",
 ]
 
 
@@ -134,6 +150,7 @@ class NarrativeRequest(BaseModel):
     monthly_collage_letter: MonthlyCollageLetterPayload | None = None
     streak_milestone_letter: StreakMilestoneLetterPayload | None = None
     progress_slider_caption: ProgressSliderCaptionPayload | None = None
+    walk_diary: WalkDiaryPayload | None = None
 
 
 class NarrativeResponse(BaseModel):

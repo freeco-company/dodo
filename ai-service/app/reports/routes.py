@@ -130,6 +130,33 @@ def _build_user_prompt(req: NarrativeRequest) -> str:
             "輸出格式：只一行（沒有 body）。"
         )
 
+    if req.walk_diary is not None:
+        wd = req.walk_diary
+        phase_label = {
+            "seed": "種子（剛起步）",
+            "sprout": "發芽（持續累積）",
+            "bloom": "開花（已過半）",
+            "fruit": "結果（目標達成）",
+        }.get(wd.phase, wd.phase)
+        color_label = {
+            "red": "紅 (蛋白質均衡)",
+            "green": "綠 (蔬菜纖維)",
+            "blue": "藍 (水分日常)",
+            "yellow": "黃 (好油適量)",
+            "purple": "紫 (全穀類)",
+        }
+        colors_zh = "、".join(color_label.get(c, c) for c in wd.colors_collected) or "（還沒有）"
+        lines.append(f"\n今日步行探險日記：{wd.date}")
+        lines.append(f"- 步數 {wd.total_steps:,} 步 · 階段：{phase_label}")
+        lines.append(f"- 收集到 mini-dodo：{colors_zh}")
+        lines.append(
+            "請以朵朵導師口吻回 1 行 headline (≤30字, 視階段給適切鼓勵) + 2-3 行 body 每行 ≤30字。"
+            "正向、像朋友的旁白。提到具體 mini-dodo 顏色（中性詞如「均衡」「日常」），"
+            "如果某顏色還沒收集到可以輕輕提醒明天可以怎麼吃。"
+            "硬規則禁用：燃脂 / 排毒 / 補鈣 / 加速代謝 / 減重 / 變瘦 / 修復 / 治療 / 抗氧化。"
+            "可用：節奏 / 累積 / 平衡 / 日常 / 活力 / 一段路 / 慢慢來。"
+        )
+
     if req.fasting_stage_transition is not None:
         st = req.fasting_stage_transition
         h, m = divmod(st.elapsed_minutes, 60)
@@ -230,6 +257,33 @@ def _stub_response(req: NarrativeRequest) -> NarrativeResponse:
         return NarrativeResponse(
             headline=f"妳堅持了 {req.progress_slider_caption.days_between} 天 ✨",
             lines=[],
+            model="stub",
+            stub_mode=True,
+        )
+    if req.kind == "walk_diary" and req.walk_diary is not None:
+        wd = req.walk_diary
+        headline_by_phase = {
+            "seed": "今天剛起步，慢慢來 🌱",
+            "sprout": "小芽冒出來了 🌿",
+            "bloom": "花開了！過半囉 🌸",
+            "fruit": "結果啦！目標達成 🎉",
+        }
+        body: list[str] = [f"今天走了 {wd.total_steps:,} 步"]
+        if wd.colors_collected:
+            body.append(f"收集到 {len(set(wd.colors_collected))} 種 mini-dodo 小夥伴")
+        else:
+            body.append("還沒有 mini-dodo 出現，記一餐就會跑出來囉")
+        if wd.phase == "fruit":
+            body.append("今天的步數已經很夠了，記得補水 💧")
+        elif wd.phase == "bloom":
+            body.append("再走一段就到目標了，加油")
+        elif wd.phase == "sprout":
+            body.append("節奏剛剛好，慢慢累積就好")
+        else:
+            body.append("從今天的小步開始，明天會更輕鬆")
+        return NarrativeResponse(
+            headline=headline_by_phase.get(wd.phase, "走走停停都是你的節奏"),
+            lines=body,
             model="stub",
             stub_mode=True,
         )

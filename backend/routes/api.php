@@ -136,6 +136,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/health/today', [\App\Http\Controllers\Api\HealthMetricsController::class, 'today']);
     Route::get('/health/history', [\App\Http\Controllers\Api\HealthMetricsController::class, 'history']);
 
+    // ----- SPEC-pikmin-walk-v1 — Pikmin Bloom 風計步深度遊戲化 -----
+    Route::get('/walk/today', [\App\Http\Controllers\Api\WalkController::class, 'today']);
+    Route::post('/walk/sync', [\App\Http\Controllers\Api\WalkController::class, 'sync']);
+    Route::get('/walk/history', [\App\Http\Controllers\Api\WalkController::class, 'history']);
+    Route::get('/walk/diary', [\App\Http\Controllers\Api\WalkController::class, 'diary']);
+
     // ----- SPEC-progress-photo-album Phase 1 (metadata-only) -----
     Route::post('/progress/snapshot', [\App\Http\Controllers\Api\ProgressSnapshotController::class, 'store']);
     Route::get('/progress/timeline', [\App\Http\Controllers\Api\ProgressSnapshotController::class, 'timeline']);
