@@ -137,6 +137,40 @@ class AiServiceClient
     }
 
     /**
+     * SPEC-photo-ai-correction-v2 — re-infer a single dish using the original
+     * image + user hint (food swap or portion change). Calls POST /v1/vision/refine.
+     *
+     * Returns the same envelope shape as scanMeal (`dishes` array). Throws
+     * AiServiceUnavailableException when the service is unreachable / disabled
+     * — caller (MealCorrectionService::refineDishViaAi) catches and falls back
+     * to leaving the dish untouched.
+     *
+     * @param  array{image_url: ?string, original_dishes: array, user_hint: array}  $payload
+     * @return array<string, mixed>
+     */
+    public function refineMealDish(User $user, array $payload): array
+    {
+        $this->ensureEnabled();
+
+        $body = [
+            'user_uuid' => (string) ($user->pandora_user_uuid ?? ''),
+            'image_url' => $payload['image_url'],
+            'original_dishes' => $payload['original_dishes'],
+            'user_hint' => $payload['user_hint'],
+        ];
+
+        try {
+            $response = $this->baseRequest($user)
+                ->asJson()
+                ->post($this->url('/v1/vision/refine'), $body);
+        } catch (ConnectionException $e) {
+            throw new AiServiceUnavailableException('AI_SERVICE_TIMEOUT', $e->getMessage());
+        }
+
+        return $this->jsonOrThrow($response, 'vision/refine');
+    }
+
+    /**
      * Streaming chat — proxies SSE from POST /v1/chat/stream.
      *
      * Returns a Symfony StreamedResponse the controller can return directly.
