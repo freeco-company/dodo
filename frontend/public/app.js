@@ -5799,7 +5799,7 @@ function paintIslandCharacter() {
   // 2026-04-30 改：店員 = 朵朵 統一品牌
   const storeChar = $('#store-character');
   if (storeChar) {
-    storeChar.innerHTML = `<img src="/characters/dodo-portrait.png?v=5" alt="朵朵 dodo NPC" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
+    storeChar.innerHTML = `<img src="/characters/dodo-portrait.png?v=6" alt="朵朵 dodo NPC" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
   }
 }
 

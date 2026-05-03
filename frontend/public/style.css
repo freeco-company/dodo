@@ -5566,12 +5566,13 @@ body.time-night .island-ground .island-grass { background: linear-gradient(180de
 .animal-img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .store-character .animal-img { padding: 4px; }
 .dialog-char-emoji .animal-img { width: 220px; height: 220px; }
-/* 朵朵 NPC 用 1024x1024 master（含透明 padding），讓 object-fit: contain
-   自動把實際角色縮到 frame 的 ~33%，避免大尺寸渲染時源 PNG 解析度不足
-   導致眼睛 highlight 糊成黑點 — 對齊 calendar 的處理方式 2026-05-03。 */
+/* 朵朵 NPC 用 1024x1024 master（含透明 padding），固定 220x220 box 配合
+   object-fit: contain，讓實際角色自動縮到 box 的 ~33%（calendar 同模式）。
+   不要用 100%/auto — 父層 dialog-char-emoji 沒明確尺寸會讓 img 取 1024
+   原生尺寸而 overflow 出 frame，這是之前「眼睛糊掉」的真正原因。 */
 .dialog-char-emoji .animal-img.npc-animal {
-  width: 100%;
-  height: 100%;
+  width: 220px;
+  height: 220px;
   object-fit: contain;
 }
 
