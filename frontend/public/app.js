@@ -1617,7 +1617,11 @@ function switchTab(tab) {
       el.classList.add('tab-anim');
     }
   });
-  if (tab === 'home') { loadDashboard(); loadSuggestions(); loadGrowth(); loadKnowledgeDaily(); loadHealthWidget(); refreshHomeFastingWidget(); }
+  if (tab === 'home') {
+    loadDashboard(); loadSuggestions(); loadGrowth(); loadKnowledgeDaily(); loadHealthWidget(); refreshHomeFastingWidget();
+    // SPEC-progress-ritual-v1 PR #6.5 — surface ritual banner on home tab visit.
+    if (typeof renderRitualHomeBanner === 'function') renderRitualHomeBanner().catch(() => {});
+  }
   if (tab === 'knowledge') loadKnowledgeCategories();
   if (tab === 'pokedex') loadPokedex();
   if (tab === 'chat') loadChatStarters();
