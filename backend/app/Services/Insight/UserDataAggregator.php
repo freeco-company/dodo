@@ -54,6 +54,16 @@ class UserDataAggregator
         $curr = $rows->filter(fn ($r) => $r->recorded_at >= $sCurr)->pluck('value')->map('floatval')->all();
         $prev = $rows->filter(fn ($r) => $r->recorded_at >= $sPrev && $r->recorded_at <= $ePrev)->pluck('value')->map('floatval')->all();
 
+        // PR #2 — 4-week stability: max(daily kg) - min(daily kg) over past 28 days.
+        $rows4w = HealthMetric::query()
+            ->where('user_id', $user->id)
+            ->where('type', HealthMetricsService::TYPE_WEIGHT)
+            ->where('recorded_at', '>=', $sCurr->subDays(21))
+            ->pluck('value')
+            ->map('floatval')
+            ->all();
+        $maxDelta4w = count($rows4w) >= 4 ? round(max($rows4w) - min($rows4w), 2) : null;
+
         return [
             'series_kg' => $rows->map(fn ($r) => [
                 'date' => $r->recorded_at->toDateString(),
@@ -62,6 +72,7 @@ class UserDataAggregator
             'avg_7d' => $curr === [] ? null : round(array_sum($curr) / count($curr), 2),
             'avg_prev_7d' => $prev === [] ? null : round(array_sum($prev) / count($prev), 2),
             'sd_7d' => count($curr) >= 3 ? $this->stddev($curr) : null,
+            'max_delta_4w' => $maxDelta4w,
         ];
     }
 
@@ -93,9 +104,14 @@ class UserDataAggregator
         $curr = $rows->filter(fn ($r) => $r->recorded_at >= $sCurr)->pluck('value')->map('intval')->sum();
         $prev = $rows->filter(fn ($r) => $r->recorded_at >= $sPrev && $r->recorded_at <= $ePrev)->pluck('value')->map('intval')->sum();
 
+        // PR #2 — daily target met (default 8000 steps; could become user pref later).
+        $byDay = $rows->filter(fn ($r) => $r->recorded_at >= $sCurr)->groupBy(fn ($r) => $r->recorded_at->setTimezone('Asia/Taipei')->toDateString());
+        $daysMetTarget = $byDay->filter(fn ($g) => $g->sum(fn ($r) => (float) $r->value) >= 8000)->count();
+
         return [
             'total_7d' => $rows->filter(fn ($r) => $r->recorded_at >= $sCurr)->isEmpty() ? null : (int) $curr,
             'total_prev_7d' => $rows->filter(fn ($r) => $r->recorded_at >= $sPrev && $r->recorded_at <= $ePrev)->isEmpty() ? null : (int) $prev,
+            'days_met_target_7d' => $daysMetTarget,
         ];
     }
 
@@ -122,11 +138,39 @@ class UserDataAggregator
         $dailyKcal = $byDay->map(fn ($g) => (float) $g->sum('calories'))->values()->all();
         $dailyProtein = $byDay->map(fn ($g) => (float) $g->sum('protein_g'))->values()->all();
 
+        // PR #2 — late-night meals (after 21:00 Asia/Taipei).
+        $lateNightCount = $meals->filter(function ($m) {
+            $created = $m->created_at;
+
+            return $created !== null && (int) $created->setTimezone('Asia/Taipei')->format('H') >= 21;
+        })->count();
+
+        // PR #2 — weekend (Sat/Sun) vs weekday kcal split.
+        $weekendKcal = [];
+        $weekdayKcal = [];
+        foreach ($byDay as $dateStr => $group) {
+            $dow = (int) \Illuminate\Support\Carbon::parse($dateStr)->dayOfWeek; // 0=Sun, 6=Sat
+            $kcal = (float) $group->sum('calories');
+            if ($dow === 0 || $dow === 6) {
+                $weekendKcal[] = $kcal;
+            } else {
+                $weekdayKcal[] = $kcal;
+            }
+        }
+        $weekendExcess = null;
+        if ($weekendKcal !== [] && $weekdayKcal !== []) {
+            $we = array_sum($weekendKcal) / count($weekendKcal);
+            $wd = array_sum($weekdayKcal) / count($weekdayKcal);
+            $weekendExcess = $wd > 0 ? round(($we - $wd) / $wd, 3) : null;
+        }
+
         return [
             'avg_kcal_7d' => round(array_sum($dailyKcal) / count($dailyKcal), 1),
             'sd_kcal_7d' => count($dailyKcal) >= 2 ? $this->stddev($dailyKcal) : null,
             'days_logged_7d' => $byDay->count(),
             'avg_protein_g_7d' => round(array_sum($dailyProtein) / count($dailyProtein), 1),
+            'late_night_count_7d' => $lateNightCount,
+            'weekend_excess_ratio' => $weekendExcess,
         ];
     }
 
@@ -150,9 +194,20 @@ class UserDataAggregator
 
         $daysCompleted7d = $sessions->filter(fn ($s) => $s->started_at >= $sCurr)->count();
 
+        // PR #2 — late-night ended sessions (after 22:00 or before 04:00 Asia/Taipei)
+        $lateBreaks7d = $sessions
+            ->filter(fn ($s) => $s->ended_at !== null && $s->ended_at >= $sCurr)
+            ->filter(function ($s) {
+                $h = (int) $s->ended_at->setTimezone('Asia/Taipei')->format('H');
+
+                return $h >= 22 || $h < 4;
+            })
+            ->count();
+
         return [
             'streak_days' => $streak,
             'days_completed_7d' => $daysCompleted7d,
+            'late_breaks_7d' => $lateBreaks7d,
         ];
     }
 

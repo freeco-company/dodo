@@ -208,7 +208,7 @@ it('engine logs InsightRuleRun for every rule, fired or not', function () {
     app(InsightEngine::class)->evaluateAllForUser($user, $now);
 
     expect(InsightRuleRun::where('user_id', $user->id)->whereDate('eval_date', '2026-05-04')->count())
-        ->toBe(4); // 4 rules in PR #1 registry
+        ->toBe(12); // 12 rules in PR #2 registry
 });
 
 it('aggregator returns null fields for users with no data', function () {
