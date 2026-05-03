@@ -449,10 +449,9 @@ async function afterRegister(data) {
 }
 
 async function runBoxCeremony(animalKey) {
-  const spirits = await ensureSpirits();
-  const s = spirits.find((x) => x.animal_key === animalKey);
   $('#screen-welcome').classList.add('hidden');
   $('#screen-ceremony').classList.remove('hidden');
+
   const lidL = $('#box-lid-left');
   const lidR = $('#box-lid-right');
   const rays = $('#box-rays');
@@ -463,53 +462,93 @@ async function runBoxCeremony(animalKey) {
   const btn = $('#ceremony-continue');
 
   // reset
-  [lidL, lidR].forEach((el) => el.classList.remove('opened'));
-  rays.classList.remove('shown');
-  glow.classList.remove('shown');
-  sparkles.classList.remove('shown');
-  spirit.classList.remove('shown');
-  text.classList.remove('shown');
-  btn.classList.remove('shown');
-  btn.classList.add('hidden');
+  [lidL, lidR].forEach((el) => el && el.classList.remove('opened'));
+  rays && rays.classList.remove('shown');
+  glow && glow.classList.remove('shown');
+  sparkles && sparkles.classList.remove('shown');
+  spirit && spirit.classList.remove('shown');
+  text && text.classList.remove('shown');
+  btn && btn.classList.remove('shown');
+  btn && btn.classList.add('hidden');
   $('#ceremony-box')?.classList.remove('faded');
-  spirit.innerHTML = '';
-  text.innerHTML = '';
-  $('#box-particles').innerHTML = '';
+  if (spirit) spirit.innerHTML = '';
+  if (text) text.innerHTML = '';
+  const partsEl = $('#box-particles');
+  if (partsEl) partsEl.innerHTML = '';
 
-  // Sequence
-  await wait(400);
-  window.sfx?.play('box_open');
-  lidL.classList.add('opened');
-  lidR.classList.add('opened');
-  await wait(350);
-  glow.classList.add('shown');
-  await wait(150);
-  rays.classList.add('shown');
-  sparkles.classList.add('shown');
-  spawnBoxParticles(24);
-  await wait(450);
-  spirit.innerHTML = renderCharacter({ animal: animalKey, level: 1, mood: 'cheering' });
-  spirit.classList.add('shown');
-  // Fade the box so the spirit takes the visual focus
-  $('#ceremony-box')?.classList.add('faded');
-  confetti();
-  await wait(600);
-  if (s) {
-    text.innerHTML = `
-      <div class="c-subtitle">${escapeHtml(s.element)} · ${escapeHtml(s.mythology)}</div>
-      <div class="c-title">${escapeHtml(s.spirit_title)}</div>
-      <div class="c-story">${escapeHtml(s.story)}</div>
-      <div class="c-motto">「${escapeHtml(s.motto)}」</div>
-    `;
-  } else {
-    text.innerHTML = `<div class="c-title">新夥伴出現了</div>`;
+  // ESCAPE HATCH: no matter what fails inside the animation sequence (network
+  // hangs, broken renderCharacter, missing element after a frontend rebuild,
+  // iOS Safari being weird about SVG transforms), the continue button is
+  // forcibly shown after 8 seconds so the user is never trapped.
+  const escapeTimer = setTimeout(() => {
+    try {
+      if (text && !text.classList.contains('shown')) {
+        text.innerHTML = `<div class="c-title">新夥伴等著妳</div>`;
+        text.classList.add('shown');
+      }
+      if (btn) {
+        btn.classList.remove('hidden');
+        btn.classList.add('shown');
+      }
+    } catch { /* nothing more to do */ }
+  }, 8000);
+
+  // Sequence — wrapped so any thrown error doesn't leave the user trapped.
+  let spirits = [];
+  try {
+    spirits = await ensureSpirits();
+  } catch { /* fallback to empty */ }
+  const s = (spirits || []).find((x) => x && x.animal_key === animalKey);
+
+  try {
+    await wait(400);
+    window.sfx?.play('box_open');
+    lidL && lidL.classList.add('opened');
+    lidR && lidR.classList.add('opened');
+    await wait(350);
+    glow && glow.classList.add('shown');
+    await wait(150);
+    rays && rays.classList.add('shown');
+    sparkles && sparkles.classList.add('shown');
+    try { spawnBoxParticles(24); } catch { /* particles are decorative */ }
+    await wait(450);
+    if (spirit) {
+      try {
+        spirit.innerHTML = renderCharacter({ animal: animalKey, level: 1, mood: 'cheering' });
+      } catch {
+        spirit.textContent = '✨';
+      }
+      spirit.classList.add('shown');
+    }
+    $('#ceremony-box')?.classList.add('faded');
+    try { confetti(); } catch { /* confetti is decorative */ }
+    await wait(600);
+    if (text) {
+      if (s) {
+        text.innerHTML = `
+          <div class="c-subtitle">${escapeHtml(s.element || '')} · ${escapeHtml(s.mythology || '')}</div>
+          <div class="c-title">${escapeHtml(s.spirit_title || '新夥伴')}</div>
+          <div class="c-story">${escapeHtml(s.story || '')}</div>
+          <div class="c-motto">「${escapeHtml(s.motto || '')}」</div>
+        `;
+      } else {
+        text.innerHTML = `<div class="c-title">新夥伴出現了</div>`;
+      }
+      text.classList.add('shown');
+    }
+    await wait(500);
+  } catch (e) {
+    console.warn('[ceremony] animation step failed, surfacing continue button:', e);
+  } finally {
+    clearTimeout(escapeTimer);
+    if (btn) {
+      btn.classList.remove('hidden');
+      btn.classList.add('shown');
+    }
   }
-  text.classList.add('shown');
-  await wait(500);
-  btn.classList.remove('hidden');
-  btn.classList.add('shown');
 
   return new Promise((resolve) => {
+    if (!btn) { resolve(); return; }
     btn.addEventListener('click', () => resolve(), { once: true });
   });
 }
