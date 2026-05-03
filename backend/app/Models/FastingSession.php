@@ -15,6 +15,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon $started_at
  * @property ?Carbon $ended_at
  * @property bool $completed
+ * @property ?string $last_pushed_phase
+ * @property ?Carbon $eating_window_started_at
  * @property string $source_app
  */
 class FastingSession extends Model
@@ -23,7 +25,8 @@ class FastingSession extends Model
 
     protected $fillable = [
         'user_id', 'mode', 'target_duration_minutes',
-        'started_at', 'ended_at', 'completed', 'source_app',
+        'started_at', 'ended_at', 'completed',
+        'last_pushed_phase', 'eating_window_started_at', 'source_app',
     ];
 
     protected function casts(): array
@@ -31,6 +34,7 @@ class FastingSession extends Model
         return [
             'started_at' => 'datetime',
             'ended_at' => 'datetime',
+            'eating_window_started_at' => 'datetime',
             'target_duration_minutes' => 'integer',
             'completed' => 'boolean',
         ];

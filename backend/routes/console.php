@@ -55,6 +55,12 @@ Schedule::command('reports:notify-weekly')
     ->withoutOverlapping()
     ->onOneServer();
 
+// SPEC-fasting-redesign-v2 §2.3 — every 15 min, push stage-transition for active sessions.
+Schedule::command('fasting:tick-push')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping()
+    ->onOneServer();
+
 // SPEC-06 §2.3 — daily 09:00 seasonal release / expiring push fanout.
 Schedule::command('seasonal:notify')
     ->dailyAt('09:00')

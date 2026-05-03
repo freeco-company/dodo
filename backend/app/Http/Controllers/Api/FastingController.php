@@ -73,6 +73,29 @@ class FastingController extends Controller
         ]);
     }
 
+    /**
+     * SPEC-v2 §2.5 — retroactively change session start time (forgot-to-start fix).
+     */
+    public function markStartedAt(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'started_at' => ['required', 'date'],
+        ]);
+        try {
+            $session = $this->service->markStartedAt(
+                $request->user(),
+                \Carbon\CarbonImmutable::parse($data['started_at']),
+            );
+        } catch (RuntimeException $e) {
+            return $this->translate($e);
+        }
+
+        return response()->json([
+            'session' => $this->serialize($session),
+            'snapshot' => $this->service->snapshot($request->user()),
+        ]);
+    }
+
     public function history(Request $request): JsonResponse
     {
         $request->validate([
@@ -137,6 +160,12 @@ class FastingController extends Controller
                     'tier_required' => 'paid',
                 ],
             ], 402),
+            'fasting_start_in_future', 'fasting_start_too_old' => response()->json([
+                'error_code' => strtoupper($e->getMessage()),
+                'message' => $e->getMessage() === 'fasting_start_in_future'
+                    ? '開始時間不能在未來'
+                    : '只能調整 24 小時內的時間',
+            ], 422),
             'fasting_mode_invalid', 'fasting_target_out_of_range', 'fasting_ended_before_started' => response()->json([
                 'error_code' => strtoupper($e->getMessage()),
                 'message' => '輸入無效',

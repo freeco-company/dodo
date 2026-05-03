@@ -215,3 +215,118 @@ it('all 4 endpoints reject unauthenticated requests', function () {
     $this->getJson('/api/fasting/current')->assertStatus(401);
     $this->getJson('/api/fasting/history')->assertStatus(401);
 });
+
+// === SPEC-fasting-redesign-v2 ===
+
+it('current returns kind=fasting when active', function () {
+    $user = User::factory()->create();
+    FastingSession::create([
+        'user_id' => $user->id,
+        'mode' => '16:8',
+        'target_duration_minutes' => 960,
+        'started_at' => now()->subHours(2),
+        'source_app' => 'dodo',
+    ]);
+    $resp = $this->actingAs($user, 'sanctum')->getJson('/api/fasting/current')->assertOk();
+    expect($resp->json('snapshot.kind'))->toBe('fasting');
+});
+
+it('current returns kind=eating_window when last session ended recently', function () {
+    $user = User::factory()->create();
+    FastingSession::create([
+        'user_id' => $user->id,
+        'mode' => '16:8',
+        'target_duration_minutes' => 960,
+        'started_at' => now()->subHours(17),
+        'ended_at' => now()->subMinutes(30),
+        'completed' => true,
+        'source_app' => 'dodo',
+    ]);
+    $resp = $this->actingAs($user, 'sanctum')->getJson('/api/fasting/current')->assertOk();
+    expect($resp->json('snapshot.kind'))->toBe('eating_window');
+    expect($resp->json('snapshot.eating_window_minutes'))->toBe(8 * 60);
+    expect($resp->json('snapshot.elapsed_minutes'))->toBeBetween(28, 32);
+});
+
+it('eating window returns null when stale (>2h after window end)', function () {
+    $user = User::factory()->create();
+    FastingSession::create([
+        'user_id' => $user->id,
+        'mode' => '16:8',
+        'target_duration_minutes' => 960,
+        'started_at' => now()->subHours(28),
+        'ended_at' => now()->subHours(11), // window 8h, ended 11h ago = 3h past window
+        'completed' => true,
+        'source_app' => 'dodo',
+    ]);
+    $resp = $this->actingAs($user, 'sanctum')->getJson('/api/fasting/current')->assertOk();
+    expect($resp->json('snapshot'))->toBeNull();
+});
+
+it('PATCH /fasting/start-time updates session start time within 24h', function () {
+    $user = User::factory()->create();
+    FastingSession::create([
+        'user_id' => $user->id,
+        'mode' => '16:8',
+        'target_duration_minutes' => 960,
+        'started_at' => now()->subMinutes(5),
+        'source_app' => 'dodo',
+    ]);
+    $newStart = now()->subHours(3)->toIso8601String();
+    $resp = $this->actingAs($user, 'sanctum')
+        ->patchJson('/api/fasting/start-time', ['started_at' => $newStart])
+        ->assertOk();
+    expect($resp->json('snapshot.elapsed_minutes'))->toBeBetween(178, 182);
+});
+
+it('PATCH /fasting/start-time rejects future time', function () {
+    $user = User::factory()->create();
+    FastingSession::create([
+        'user_id' => $user->id,
+        'mode' => '16:8',
+        'target_duration_minutes' => 960,
+        'started_at' => now()->subMinutes(5),
+        'source_app' => 'dodo',
+    ]);
+    $this->actingAs($user, 'sanctum')
+        ->patchJson('/api/fasting/start-time', ['started_at' => now()->addHour()->toIso8601String()])
+        ->assertStatus(422)
+        ->assertJsonPath('error_code', 'FASTING_START_IN_FUTURE');
+});
+
+it('PATCH /fasting/start-time rejects time more than 24h ago', function () {
+    $user = User::factory()->create();
+    FastingSession::create([
+        'user_id' => $user->id,
+        'mode' => '16:8',
+        'target_duration_minutes' => 960,
+        'started_at' => now()->subMinutes(5),
+        'source_app' => 'dodo',
+    ]);
+    $this->actingAs($user, 'sanctum')
+        ->patchJson('/api/fasting/start-time', ['started_at' => now()->subHours(30)->toIso8601String()])
+        ->assertStatus(422)
+        ->assertJsonPath('error_code', 'FASTING_START_TOO_OLD');
+});
+
+it('fasting:tick-push runs cleanly with no active sessions', function () {
+    $this->artisan('fasting:tick-push')->assertSuccessful();
+});
+
+it('fasting:tick-push only fires once per phase per session', function () {
+    $user = User::factory()->create();
+    $session = FastingSession::create([
+        'user_id' => $user->id,
+        'mode' => '16:8',
+        'target_duration_minutes' => 960,
+        'started_at' => now()->subHours(13), // fat_burning phase (12-16h)
+        'source_app' => 'dodo',
+    ]);
+
+    $this->artisan('fasting:tick-push')->assertSuccessful();
+    expect($session->fresh()->last_pushed_phase)->toBe('fat_burning');
+
+    // Run again — should not change since phase didn't deepen
+    $this->artisan('fasting:tick-push')->assertSuccessful();
+    expect($session->fresh()->last_pushed_phase)->toBe('fat_burning');
+});
