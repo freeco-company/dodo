@@ -147,6 +147,11 @@ class MealController extends Controller
             }
         }
 
+        // SPEC-progress-ritual-v1 PR #8 — fire ritual on meal streak milestones.
+        try {
+            app(\App\Services\Ritual\StreakRitualService::class)->checkMealStreak($user);
+        } catch (\Throwable $e) { /* fail-soft */ }
+
         return new MealResource($meal);
     }
 

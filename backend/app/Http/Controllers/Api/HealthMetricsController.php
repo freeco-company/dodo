@@ -35,6 +35,11 @@ class HealthMetricsController extends Controller
 
         $result = $this->service->sync($request->user(), $data['metrics']);
 
+        // SPEC-progress-ritual-v1 PR #8 — fire ritual on weight log streak milestones.
+        try {
+            app(\App\Services\Ritual\StreakRitualService::class)->checkWeightLogStreak($request->user());
+        } catch (\Throwable $e) { /* fail-soft */ }
+
         return response()->json($result, 200);
     }
 
