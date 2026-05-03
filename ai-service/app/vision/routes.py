@@ -23,7 +23,7 @@ from app.deps import (
 )
 from app.safety.scanner import append_disclaimer, scan_input, validate_kcal
 from app.vision.anthropic_client import AnthropicVisionClient
-from app.vision.refine_service import AnthropicRefineService, StubRefineService
+from app.vision.refine_service import AnthropicRefineService
 from app.vision.schemas import (
     VisionMealType,
     VisionRecognizeResponse,

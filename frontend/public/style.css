@@ -6777,3 +6777,69 @@ body:has(#tab-achievements:not(.hidden)) .dodo-mentor-bubble {
   opacity: 1;
   transform: scale(1.05);
 }
+
+/* ============================================================================
+ * SPEC-pikmin-walk-v1 — Pikmin Bloom 風 mini-dodo follower train + phase ladder
+ * ============================================================================ */
+
+.walk-phase-ladder {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.walk-phase {
+  font-size: 18px;
+  flex: 0 0 auto;
+  filter: grayscale(0.4);
+  opacity: 0.7;
+  transition: all 200ms ease-in-out;
+}
+.walk-phase[data-phase="seed"] { filter: none; opacity: 1; }
+.walk-phase-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.walk-phase-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #F4C5A3, #E87B5C);
+  border-radius: 2px;
+  transition: width 400ms ease-out;
+}
+
+.walk-mini-dodos {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 36px;
+}
+.mini-dodo {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  animation: mini-dodo-bounce 1.6s ease-in-out infinite;
+}
+.mini-dodo:nth-child(2) { animation-delay: 0.2s; }
+.mini-dodo:nth-child(3) { animation-delay: 0.4s; }
+.mini-dodo:nth-child(4) { animation-delay: 0.6s; }
+.mini-dodo:nth-child(5) { animation-delay: 0.8s; }
+@keyframes mini-dodo-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.mini-dodo-chip {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+.mini-dodo-chip-red { color: #B14F30; border-color: #E87B5C; }
+.mini-dodo-chip-green { color: #4D7B3F; border-color: #7CB66B; }
+.mini-dodo-chip-blue { color: #3676AC; border-color: #5BA8DD; }
+.mini-dodo-chip-yellow { color: #A07B2A; border-color: #E8B96A; }
+.mini-dodo-chip-purple { color: #6B4D9A; border-color: #9F7BC9; }

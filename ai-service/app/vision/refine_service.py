@@ -96,7 +96,9 @@ def _apply_hint_stub(orig: RefineDishInput, hint: RefineUserHint) -> RefinedDish
     out = copy.deepcopy(orig)
     if hint.new_food_key is not None:
         out.food_key = hint.new_food_key
-        out.food_name = _FOOD_NAME_BY_KEY.get(hint.new_food_key, hint.new_food_name or orig.food_name)
+        out.food_name = _FOOD_NAME_BY_KEY.get(
+            hint.new_food_key, hint.new_food_name or orig.food_name
+        )
     elif hint.new_food_name is not None:
         out.food_name = hint.new_food_name
 
@@ -249,7 +251,9 @@ class AnthropicRefineService:
                 dishes_out.append(RefinedDish(
                     food_name=parsed.get("food_name") or target_dish.food_name,
                     food_key=parsed.get("food_key") or target_dish.food_key,
-                    portion_multiplier=float(parsed.get("portion_multiplier") or target_dish.portion_multiplier),
+                    portion_multiplier=float(
+                        parsed.get("portion_multiplier") or target_dish.portion_multiplier
+                    ),
                     kcal=int(parsed.get("kcal") or 0),
                     carb_g=float(parsed.get("carb_g") or 0),
                     protein_g=float(parsed.get("protein_g") or 0),
