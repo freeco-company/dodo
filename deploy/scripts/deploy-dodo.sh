@@ -18,9 +18,11 @@ set -euo pipefail
 
 # --- Config (override via env) -----------------------------------------------
 SSH_HOST="${SSH_HOST:-root@139.162.121.187}"
-REMOTE_BASE="${REMOTE_BASE:-/var/www/dodo}"
+REMOTE_BASE="${REMOTE_BASE:-/var/www/pandora-meal}"
 PHP_BIN="${PHP_BIN:-/usr/bin/php}"
 LOCAL_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+QUEUE_SVC="${QUEUE_SVC:-pandora-meal-backend-queue.service}"
+AI_SVC="${AI_SVC:-pandora-meal-ai-service.service}"
 
 DRY_RUN=0
 ONLY=""
@@ -103,15 +105,18 @@ deploy_backend() {
         cd $REMOTE_BASE/backend && \
         $PHP_BIN artisan down --refresh=15 --retry=60 || true; \
         composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist && \
+        rm -f bootstrap/cache/packages.php bootstrap/cache/services.php && \
+        $PHP_BIN artisan package:discover --ansi && \
         $migrate_cmd \
         $PHP_BIN artisan config:cache && \
         $PHP_BIN artisan route:cache && \
         $PHP_BIN artisan view:cache && \
         $PHP_BIN artisan event:cache && \
         $PHP_BIN artisan storage:link || true; \
+        chown -R www-data:www-data storage bootstrap/cache && \
         $PHP_BIN artisan queue:restart && \
         systemctl reload php8.3-fpm && \
-        systemctl restart dodo-backend-queue.service && \
+        systemctl restart $QUEUE_SVC && \
         $PHP_BIN artisan up && \
         echo 'backend deployed'"
 }
@@ -123,8 +128,7 @@ deploy_ai_service() {
 
     ssh_run "set -e; \
         cd $REMOTE_BASE/ai-service && \
-        sudo -u dodo bash -c 'cd $REMOTE_BASE/ai-service && uv sync --frozen' && \
-        systemctl restart dodo-ai-service.service && \
+        systemctl restart $AI_SVC && \
         sleep 2 && \
         curl -fsS http://127.0.0.1:8002/healthz && echo && \
         echo 'ai-service deployed'"
