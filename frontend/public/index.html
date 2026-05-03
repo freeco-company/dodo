@@ -75,7 +75,7 @@
      prior <script src="https://cdn.tailwindcss.com"></script> was removed. -->
 <link rel="stylesheet" href="/tailwind.css?v=1" />
 <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=Kosugi+Maru&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Shippori+Mincho+B1:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Zen+Maru+Gothic:wght@400;500;700;900&family=Yusei+Magic&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css?v=46" />
+<link rel="stylesheet" href="/style.css?v=47" />
 
 <!-- Sentry browser SDK — config-driven. Set window.__SENTRY_DSN__ in a prod
      bootstrap snippet (e.g. via nginx sub_filter or build-time injection)
@@ -433,9 +433,11 @@
         </div>
       </div>
 
-      <!-- SPEC-fasting-redesign-v2 — active fasting/eating window widget on Home -->
-      <button id="home-fasting-widget" class="hidden w-full text-left" type="button" style="background:none;border:none;padding:0;cursor:pointer;">
-        <div class="card p-4" style="background:linear-gradient(135deg,#F5F1EA,#E5F0DA);">
+      <!-- SPEC-fasting-redesign-v2 — fasting widget always present on Home,
+           switches between active timer / eating-window / inactive CTA. -->
+      <button id="home-fasting-widget" class="w-full text-left" type="button" style="background:none;border:none;padding:0;cursor:pointer;">
+        <!-- Active state -->
+        <div id="home-fasting-active-card" class="card p-4 hidden" style="background:linear-gradient(135deg,#F5F1EA,#E5F0DA);">
           <div class="flex items-center justify-between mb-2">
             <div class="text-sm font-bold" id="home-fasting-title">⏱️ 斷食中</div>
             <div class="text-xs text-muted" id="home-fasting-mode">16:8</div>
@@ -451,6 +453,19 @@
             </div>
           </div>
           <div class="text-[10px] text-muted mt-2 text-center">點擊查看完整斷食 →</div>
+        </div>
+        <!-- Inactive CTA state (always 1-tap entry to fasting tab) -->
+        <div id="home-fasting-cta-card" class="card p-4 hidden" style="background:linear-gradient(135deg,#FFF8F2,#FFE5D0);">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div style="font-size:28px;line-height:1;">⏱️</div>
+              <div>
+                <div class="text-sm font-bold">想試試間歇性斷食？</div>
+                <div class="text-[11px] text-muted">16:8 · 朵朵陪妳，一鍵開始</div>
+              </div>
+            </div>
+            <div class="text-xs text-muted">→</div>
+          </div>
         </div>
       </button>
 
@@ -1724,7 +1739,7 @@
 <script src="/icons.js?v=2"></script>
 <script src="/sound.js?v=4"></script>
 <script src="/character.js?v=9"></script>
-<script src="/app.js?v=49"></script>
+<script src="/app.js?v=50"></script>
 <script>
 // 朵朵浮窗：關閉 + 隨機輪播語錄 (preview only)
 (function() {

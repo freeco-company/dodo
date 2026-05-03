@@ -6683,6 +6683,10 @@ body:has(#tab-achievements:not(.hidden)) .dodo-mentor-bubble {
   flex-wrap: nowrap;
 }
 
+/* SPEC-v2 fix — tab content needs breathing room from the always-visible
+   top header (care-row + progress bars). Without this all tabs look glued. */
+[id^="tab-"]:not(.hidden) { padding-top: 12px; }
+
 /* SPEC-v2 — single colored stage chip (replaces 6-emoji string) */
 .fasting-stage-chip {
   display: inline-block;

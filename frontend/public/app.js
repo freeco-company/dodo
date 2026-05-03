@@ -3390,11 +3390,22 @@ async function endFasting() { return attemptEndFasting(); }
 // === Home tab fasting widget ===
 async function refreshHomeFastingWidget() {
   const widget = document.getElementById('home-fasting-widget');
-  if (!widget) return;
+  const activeCard = document.getElementById('home-fasting-active-card');
+  const ctaCard = document.getElementById('home-fasting-cta-card');
+  if (!widget || !activeCard || !ctaCard) return;
+
+  // Always make the wrapper button clickable to fasting tab
+  widget.onclick = () => switchTab('fasting');
+
   try {
     const cur = await api('GET', '/fasting/current');
     const snap = cur.snapshot;
-    if (!snap) { widget.classList.add('hidden'); return; }
+    if (!snap) {
+      // No active session → show 1-tap CTA so user doesn't need Me-tab indirection
+      activeCard.classList.add('hidden');
+      ctaCard.classList.remove('hidden');
+      return;
+    }
 
     if (snap.kind === 'fasting') {
       const phaseDef = FASTING_PHASES.find((p) => p.key === snap.phase) || FASTING_PHASES[0];
@@ -3414,9 +3425,13 @@ async function refreshHomeFastingWidget() {
       const mm = String(end.getMinutes()).padStart(2, '0');
       setText('home-fasting-remaining', `${hh}:${mm}`);
     }
-    widget.classList.remove('hidden');
-    widget.onclick = () => switchTab('fasting');
-  } catch (e) { /* silent */ }
+    ctaCard.classList.add('hidden');
+    activeCard.classList.remove('hidden');
+  } catch (e) {
+    // Surface CTA on API error too — better than blank
+    activeCard.classList.add('hidden');
+    ctaCard.classList.remove('hidden');
+  }
 }
 
 async function startFasting() {
