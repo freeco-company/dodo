@@ -158,6 +158,12 @@ button { font-family: inherit; letter-spacing: 0.04em; }
   display: flex; align-items: center; justify-content: center;
   overflow: hidden;
 }
+/* CRITICAL: Tailwind's .hidden { display: none } loads before style.css and
+   loses to .ceremony-screen { display: flex } above. Without this explicit
+   override the ceremony screen is visible from page load (incident 2026-05-03
+   — users seeing closed Pandora's box from second 0). Same pattern as
+   .island-fs.hidden below. */
+.ceremony-screen.hidden { display: none !important; }
 .ceremony-bg {
   position: absolute; inset: 0;
   background:
