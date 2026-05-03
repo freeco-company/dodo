@@ -1620,7 +1620,13 @@ function switchTab(tab) {
   if (tab === 'home') { loadDashboard(); loadSuggestions(); loadGrowth(); loadKnowledgeDaily(); loadHealthWidget(); refreshHomeFastingWidget(); }
   if (tab === 'knowledge') loadKnowledgeCategories();
   if (tab === 'pokedex') loadPokedex();
-  if (tab === 'chat') loadChatStarters();
+  if (tab === 'chat') {
+    loadChatStarters();
+    // SPEC-cross-metric-insight-v1 PR #7 — re-pull insights every chat tab
+    // visit (loadChatStarters has its own once-only guard, but insights need
+    // re-checking so newly-fired ones surface).
+    if (typeof loadInsightSurface === 'function') loadInsightSurface().catch(() => {});
+  }
   if (tab === 'calendar') loadCalendar();
   if (tab === 'wardrobe') loadWardrobe();
   if (tab === 'fasting') loadFasting();
@@ -2868,10 +2874,8 @@ async function loadChatStarters() {
     renderStarters(s.starters);
     renderSeesYou(s.sees_you);
   } catch {}
-  // SPEC-cross-metric-insight-v1 PR #4 — surface unread insights inline.
-  // Fires after starters so the welcome bubble lands first; insights are the
-  // 「main reason 朵朵 chat 開了今天」hook.
-  loadInsightSurface().catch(() => {});
+  // PR #7 moved loadInsightSurface to switchTab('chat') — fires every visit
+  // (not just first-load) so newly-fired insights show without app restart.
 }
 
 // SPEC-cross-metric-insight-v1 PR #4 — fetch unread insights + render headline
@@ -2885,7 +2889,11 @@ async function loadInsightSurface() {
   }
   const items = (resp.data || []).slice(0, 3);
   if (items.length === 0) return;
+  // PR #7 dedup — if a bubble for this insight id is already in the chat,
+  // skip (avoids duplicates when user re-enters chat tab before dismissing).
+  const messages = $('#chat-messages');
   for (const it of items) {
+    if (messages?.querySelector(`[data-insight-id="${it.id}"]`)) continue;
     appendInsightBubble(it);
   }
 }
