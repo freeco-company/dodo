@@ -3046,6 +3046,15 @@ function fmtElapsed(min) {
   const m = total % 60;
   return `${h}h ${m}m`;
 }
+// Seconds-resolution version for the live ticking display.
+function fmtElapsedHMS(totalSeconds) {
+  const s = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${h}:${pad(m)}:${pad(sec)}`;
+}
 
 /* SPEC-v2 §2.3 — render dual ring + colored stage chip + tap-to-edit start */
 function renderFastingActive(snap) {
@@ -3060,7 +3069,13 @@ function renderFastingActive(snap) {
   const pct = Math.round(snap.progress * 100);
   setText('fasting-mode-label', snap.mode);
   setText('fasting-target-text', `目標 ${targetH}h · ${pct}%`);
-  setText('fasting-elapsed', fmtElapsed(snap.elapsed_minutes));
+  // Prefer second-resolution display when tick has supplied it; otherwise fall
+  // back to minute-only (initial server snapshot).
+  if (typeof snap.elapsed_seconds === 'number') {
+    setText('fasting-elapsed', fmtElapsedHMS(snap.elapsed_seconds));
+  } else {
+    setText('fasting-elapsed', fmtElapsed(snap.elapsed_minutes));
+  }
 
   // Outer fasting ring: 0..1 fill (white→green gradient)
   const ringFill = document.getElementById('fasting-ring-fill');
@@ -3136,7 +3151,11 @@ function renderEatingWindow(snap) {
   eatingWindow && eatingWindow.classList.remove('hidden');
 
   setText('fasting-ew-mode-label', snap.mode);
-  setText('fasting-ew-remaining', fmtElapsed(snap.remaining_minutes));
+  if (typeof snap.remaining_seconds === 'number') {
+    setText('fasting-ew-remaining', fmtElapsedHMS(snap.remaining_seconds));
+  } else {
+    setText('fasting-ew-remaining', fmtElapsed(snap.remaining_minutes));
+  }
   const windowH = Math.round(snap.eating_window_minutes / 60);
   setText('fasting-ew-window-text', `進食窗 ${windowH}h`);
 
@@ -3443,8 +3462,9 @@ function startFastingTick() {
     if (!snap) return;
     if (snap.kind === 'fasting') {
       const startedMs = new Date(snap.started_at).getTime();
-      const elapsedMin = Math.max(0, Math.floor((Date.now() - startedMs) / 60000));
-      const target = snap.target_duration_minutes;
+      const elapsedSec = Math.max(0, Math.floor((Date.now() - startedMs) / 1000));
+      const elapsedMin = Math.floor(elapsedSec / 60);
+      const targetSec = snap.target_duration_minutes * 60;
       const phase = (() => {
         for (const p of FASTING_PHASES) if (elapsedMin < p.upTo) return p.key;
         return 'deep_fast';
@@ -3452,21 +3472,26 @@ function startFastingTick() {
       renderFastingActive({
         ...snap,
         elapsed_minutes: elapsedMin,
-        progress: target > 0 ? Math.min(1, elapsedMin / target) : 0,
+        elapsed_seconds: elapsedSec,
+        progress: targetSec > 0 ? Math.min(1, elapsedSec / targetSec) : 0,
         phase,
       });
     } else if (snap.kind === 'eating_window') {
       const eatStart = new Date(snap.eating_started_at).getTime();
-      const elapsedMin = Math.max(0, Math.floor((Date.now() - eatStart) / 60000));
-      const remaining = Math.max(0, snap.eating_window_minutes - elapsedMin);
+      const elapsedSec = Math.max(0, Math.floor((Date.now() - eatStart) / 1000));
+      const elapsedMin = Math.floor(elapsedSec / 60);
+      const windowSec = snap.eating_window_minutes * 60;
+      const remainingSec = Math.max(0, windowSec - elapsedSec);
       renderEatingWindow({
         ...snap,
         elapsed_minutes: elapsedMin,
-        remaining_minutes: remaining,
-        progress: snap.eating_window_minutes > 0 ? Math.min(1, elapsedMin / snap.eating_window_minutes) : 0,
+        elapsed_seconds: elapsedSec,
+        remaining_minutes: Math.floor(remainingSec / 60),
+        remaining_seconds: remainingSec,
+        progress: windowSec > 0 ? Math.min(1, elapsedSec / windowSec) : 0,
       });
     }
-  }, 30000); // 30s tick
+  }, 1000); // 1s tick — live readout
 }
 function stopFastingTick() {
   if (fastingTickHandle) clearInterval(fastingTickHandle);
