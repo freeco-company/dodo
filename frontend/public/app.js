@@ -2868,6 +2868,175 @@ async function loadChatStarters() {
     renderStarters(s.starters);
     renderSeesYou(s.sees_you);
   } catch {}
+  // SPEC-cross-metric-insight-v1 PR #4 — surface unread insights inline.
+  // Fires after starters so the welcome bubble lands first; insights are the
+  // 「main reason 朵朵 chat 開了今天」hook.
+  loadInsightSurface().catch(() => {});
+}
+
+// SPEC-cross-metric-insight-v1 PR #4 — fetch unread insights + render headline
+// bubbles + 「看細節」 button. Tap opens detail modal (paywalled body for free).
+async function loadInsightSurface() {
+  let resp;
+  try {
+    resp = await api('GET', '/insights/unread');
+  } catch {
+    return;
+  }
+  const items = (resp.data || []).slice(0, 3);
+  if (items.length === 0) return;
+  for (const it of items) {
+    appendInsightBubble(it);
+  }
+}
+
+function appendInsightBubble(insight) {
+  const node = document.createElement('div');
+  node.className = 'msg-row bot insight-bubble';
+  node.dataset.insightId = insight.id;
+  const headline = escapeHtml(insight.narrative?.headline || '朵朵發現一件事 🌱');
+  node.innerHTML = `
+    <div class="bubble bot" style="border-left:3px solid var(--peach-deep);background:#fff7ee;max-width:85%">
+      <div class="text-sm font-bold mb-1">🌱 ${headline}</div>
+      <div class="text-xs text-muted">朵朵根據妳這週的紀錄發現的</div>
+      <div class="flex gap-2 mt-2">
+        <button type="button" class="btn-insight-detail text-xs px-3 py-1 rounded-full" style="background:var(--peach-deep);color:white">看細節</button>
+        <button type="button" class="btn-insight-dismiss text-xs px-3 py-1 rounded-full text-muted">不感興趣</button>
+      </div>
+    </div>
+  `;
+  $('#chat-messages').appendChild(node);
+  $('#chat-messages').scrollTop = $('#chat-messages').scrollHeight;
+
+  node.querySelector('.btn-insight-detail').onclick = () => openInsightDetail(insight);
+  node.querySelector('.btn-insight-dismiss').onclick = async () => {
+    try {
+      await api('POST', `/insights/${insight.id}/dismiss`);
+      node.remove();
+      toast('好的，朵朵下次換個方式 🌷');
+    } catch {}
+  };
+}
+
+async function openInsightDetail(insight) {
+  // Mark as read fire-and-forget (don't block UI on it)
+  api('POST', `/insights/${insight.id}/read`).catch(() => {});
+
+  const tier = state.tier || (window.entitlements?.tier) || 'free';
+  const isPaid = tier !== 'free';
+
+  const sheet = document.createElement('div');
+  sheet.className = 'insight-detail-overlay';
+  sheet.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;display:flex;align-items:flex-end;justify-content:center';
+
+  const headline = escapeHtml(insight.narrative?.headline || '');
+  const body = isPaid
+    ? escapeHtml(insight.narrative?.body || '')
+    : '';
+
+  const detection = insight.detection || {};
+  const detectionList = Object.entries(detection).slice(0, 6)
+    .map(([k, v]) => `<div class="text-xs text-muted">${escapeHtml(k)}: <b>${escapeHtml(String(v))}</b></div>`)
+    .join('');
+
+  const actions = (insight.actions || []).slice(0, 3)
+    .map((a) => `<button type="button" data-action-key="${escapeHtml(a.action_key)}" class="insight-action text-sm py-2 px-4 rounded-xl mr-2 mb-2" style="background:var(--cream);border:1px solid var(--peach-deep);color:var(--peach-deep)">${escapeHtml(a.label)}</button>`)
+    .join('');
+
+  sheet.innerHTML = `
+    <div class="insight-sheet" style="background:white;width:100%;max-width:520px;border-radius:24px 24px 0 0;padding:24px;max-height:90vh;overflow-y:auto">
+      <div class="flex items-center justify-between mb-3">
+        <button type="button" class="btn-insight-close text-sm">← 關閉</button>
+        <div class="text-xs text-muted">朵朵的觀察</div>
+        <div style="width:48px"></div>
+      </div>
+      <div class="text-lg font-bold mb-3">🌱 ${headline}</div>
+
+      ${isPaid ? `
+        <div class="text-sm leading-relaxed mb-4 p-3 rounded-xl" style="background:var(--cream)">
+          ${body.replace(/\n/g, '<br>')}
+        </div>
+      ` : `
+        <div class="mb-4 p-4 rounded-xl text-center" style="background:linear-gradient(135deg,#ffe4d6 0%,#ffd1bd 100%)">
+          <div class="text-sm font-bold mb-2">🌷 升級看完整解讀</div>
+          <div class="text-xs text-muted mb-3">朵朵會用 100-150 字解釋這個 insight 的意思 + 建議行動</div>
+          <button type="button" class="btn-insight-paywall px-6 py-2 rounded-xl text-sm font-bold" style="background:var(--peach-deep);color:white">看看訂閱方案</button>
+        </div>
+      `}
+
+      ${isPaid && detectionList ? `
+        <details class="mb-3" open>
+          <summary class="text-xs text-muted cursor-pointer">📊 觸發資料</summary>
+          <div class="mt-2 p-3 rounded-xl" style="background:#fafafa">${detectionList}</div>
+        </details>
+      ` : ''}
+
+      ${actions ? `
+        <div class="mt-4">
+          <div class="text-xs text-muted mb-2">朵朵建議</div>
+          ${actions}
+        </div>
+      ` : ''}
+    </div>
+  `;
+  document.body.appendChild(sheet);
+
+  const close = () => sheet.remove();
+  sheet.querySelector('.btn-insight-close').onclick = close;
+  sheet.onclick = (e) => { if (e.target === sheet) close(); };
+
+  const paywallBtn = sheet.querySelector('.btn-insight-paywall');
+  if (paywallBtn) {
+    paywallBtn.onclick = () => {
+      close();
+      if (typeof openPaywall === 'function') {
+        openPaywall('insight_detail_locked');
+      }
+    };
+  }
+
+  sheet.querySelectorAll('.insight-action').forEach((btn) => {
+    btn.onclick = () => {
+      const key = btn.dataset.actionKey;
+      close();
+      // Map action_key to existing app deep links
+      handleInsightAction(key);
+    };
+  });
+}
+
+function handleInsightAction(key) {
+  // Best-effort routing — falls back to a friendly toast if we don't have a
+  // matching deep link yet (user can still navigate manually).
+  switch (key) {
+    case 'fasting_start_168':
+      toast('打開斷食 tab 試試 16:8 ✨');
+      switchTab?.('fasting');
+      break;
+    case 'steps_add_2000':
+      toast('今天加 2000 步走走 🚶‍♀️');
+      switchTab?.('home');
+      break;
+    case 'goal_protein_up':
+      toast('飲食 tab 可以調整目標 🥩');
+      switchTab?.('scan');
+      break;
+    case 'tdee_recompute':
+      toast('我的 → 設定 → 重算 TDEE 🌱');
+      switchTab?.('me');
+      break;
+    case 'reminder_sleep':
+    case 'reminder_dinner':
+      toast('提醒已記在心上 🌷');
+      break;
+    case 'celebrate_letter':
+    case 'celebrate_open':
+      toast('恭喜妳 🎉 看看成就頁的小禮物');
+      switchTab?.('achievements');
+      break;
+    default:
+      toast('收到～朵朵會繼續觀察 🌱');
+  }
 }
 function renderSeesYou(sy) {
   if (!sy || !sy.facts) return;
