@@ -3093,8 +3093,17 @@ async function loadFasting() {
   document.querySelectorAll('#fasting-mode-picker .chip').forEach((b) => {
     b.onclick = () => {
       const mode = b.dataset.mode;
-      if (!FASTING_FREE_MODES.has(mode)) {
-        // paid mode — let the API return 402 paywall
+      const isLocked = b.classList.contains('chip-locked');
+      if (isLocked) {
+        // Explain WHY locked + offer upgrade. Don't silently change selection.
+        const labels = { '18:6': '18:6 進階斷食', '20:4': 'OMAD（20 小時斷食 + 4 小時進食）' };
+        const label = labels[mode] || '進階斷食模式';
+        if (typeof showToast === 'function') {
+          showToast(`${label} 是付費功能 ✨ 升級訂閱即可使用`);
+        }
+        // Bounce to Me tab where the upgrade entry lives
+        if (typeof switchTab === 'function') setTimeout(() => switchTab('me'), 800);
+        return;
       }
       document.querySelectorAll('#fasting-mode-picker .chip').forEach((x) => x.classList.toggle('chip-active', x === b));
       fastingState.mode = mode;

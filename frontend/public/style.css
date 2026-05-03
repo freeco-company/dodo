@@ -6635,34 +6635,52 @@ body:has(#tab-achievements:not(.hidden)) .dodo-mentor-bubble {
 /* Hide scrollbar visually on WebKit (still scrollable) for cleaner mobile look */
 .fasting-modes::-webkit-scrollbar { height: 4px; }
 .fasting-modes::-webkit-scrollbar-thumb { background: rgba(184, 152, 120, 0.3); border-radius: 999px; }
-.fasting-ring {
+/* Fasting active ring — explicit fixed-size container with absolute-centered
+   text overlay. Avoids the inline-block / Tailwind absolute interaction that
+   broke layout in the 2026-05-03 incident (the elapsed text rendered beside
+   instead of inside the ring). */
+.fasting-ring-wrap {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 0 auto 8px;
   filter: drop-shadow(0 4px 12px rgba(127, 176, 105, 0.18));
-  /* Constrain absolutely-positioned center text to ring width so a long
-     value (eg 「100h 23m」 deep into deep_fast) never overflows into the
-     phases row below. */
-  max-width: 200px;
-  margin-left: auto;
-  margin-right: auto;
 }
-.fasting-ring .absolute {
-  /* Center text container — pad inward + clip overflow */
-  padding: 0 12px;
+.fasting-ring-svg {
+  width: 220px;
+  height: 220px;
+  display: block;
+}
+.fasting-ring-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   text-align: center;
   pointer-events: none;
+  width: 160px; /* leave breathing room inside the 220 ring */
 }
-.fasting-ring .absolute > div {
+.fasting-elapsed-big {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1.1;
   white-space: nowrap;
-  max-width: 176px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  letter-spacing: 0.02em;
 }
-#fasting-active {
-  /* Tighter vertical rhythm so phase row sits clearly under ring */
-  padding-bottom: 8px;
+.fasting-target-small {
+  font-size: 11px;
+  color: var(--ink-soft);
+  margin-top: 4px;
+  white-space: nowrap;
 }
-#fasting-phases {
-  margin-top: 18px;
-  margin-bottom: 6px;
+.fasting-phases {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+  margin-bottom: 8px;
+  flex-wrap: nowrap;
 }
 .fasting-phase-dot {
   display: inline-flex;

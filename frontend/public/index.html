@@ -75,7 +75,7 @@
      prior <script src="https://cdn.tailwindcss.com"></script> was removed. -->
 <link rel="stylesheet" href="/tailwind.css?v=1" />
 <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=Kosugi+Maru&family=Noto+Sans+TC:wght@300;400;500;700;900&family=Shippori+Mincho+B1:wght@400;500;600;700;800&family=Zen+Kaku+Gothic+New:wght@300;400;500;700;900&family=Zen+Maru+Gothic:wght@400;500;700;900&family=Yusei+Magic&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css?v=44" />
+<link rel="stylesheet" href="/style.css?v=45" />
 
 <!-- Sentry browser SDK — config-driven. Set window.__SENTRY_DSN__ in a prod
      bootstrap snippet (e.g. via nginx sub_filter or build-time injection)
@@ -885,10 +885,11 @@
         </div>
         <!-- active state -->
         <div id="fasting-active" class="hidden">
-          <div class="text-xs text-muted mb-2">斷食模式</div>
-          <div class="text-base font-bold mb-3" id="fasting-mode-label">16:8</div>
-          <div class="fasting-ring relative inline-block">
-            <svg viewBox="0 0 120 120" width="200" height="200">
+          <div class="text-xs text-muted mb-1">斷食模式</div>
+          <div class="text-base font-bold mb-4" id="fasting-mode-label">16:8</div>
+
+          <div class="fasting-ring-wrap">
+            <svg class="fasting-ring-svg" viewBox="0 0 120 120">
               <circle cx="60" cy="60" r="52" fill="none" stroke="#EDE3D0" stroke-width="10"/>
               <circle id="fasting-ring-fill" cx="60" cy="60" r="52" fill="none"
                       stroke="url(#fastingRingGrad)" stroke-width="10" stroke-linecap="round"
@@ -901,14 +902,15 @@
                 </linearGradient>
               </defs>
             </svg>
-            <div class="absolute inset-0 flex flex-col items-center justify-center">
-              <div class="text-2xl font-bold num-pop" id="fasting-elapsed">0h 0m</div>
-              <div class="text-[11px] text-muted" id="fasting-target-text">目標 16h</div>
+            <div class="fasting-ring-center">
+              <div class="fasting-elapsed-big num-pop" id="fasting-elapsed">0h 0m</div>
+              <div class="fasting-target-small" id="fasting-target-text">目標 16h</div>
             </div>
           </div>
-          <div class="fasting-phases flex justify-center gap-1 mt-4 mb-2" id="fasting-phases"></div>
-          <div class="text-xs text-muted mb-1" id="fasting-phase-label">進食消化中</div>
-          <div class="text-[11px] text-muted mb-4" id="fasting-eligible-text">可以吃了：—</div>
+
+          <div class="fasting-phases" id="fasting-phases"></div>
+          <div class="text-xs text-muted mt-3 mb-1" id="fasting-phase-label">進食消化中</div>
+          <div class="text-[11px] text-muted mb-5" id="fasting-eligible-text">可以吃了：—</div>
           <button class="btn-primary w-full" id="fasting-end-btn" type="button">📝 結束斷食</button>
         </div>
       </div>
@@ -1043,10 +1045,10 @@
       </button>
 
       <button class="me-entry card" data-go="fasting">
-        <div class="me-entry-emoji">🌱</div>
+        <div class="me-entry-emoji">⏱️</div>
         <div class="me-entry-text">
-          <div class="me-entry-title">斷食 timer</div>
-          <div class="me-entry-sub">16:8 / 14:10 進階模式 paid · 朵朵陪妳 ✨</div>
+          <div class="me-entry-title">間歇性斷食</div>
+          <div class="me-entry-sub">16:8 / 14:10 計時 · 進階模式付費解鎖</div>
         </div>
         <div class="me-entry-chev">›</div>
       </button>
@@ -1604,7 +1606,7 @@
 <script src="/icons.js?v=2"></script>
 <script src="/sound.js?v=4"></script>
 <script src="/character.js?v=9"></script>
-<script src="/app.js?v=46"></script>
+<script src="/app.js?v=47"></script>
 <script>
 // 朵朵浮窗：關閉 + 隨機輪播語錄 (preview only)
 (function() {
