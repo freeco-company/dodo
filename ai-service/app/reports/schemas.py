@@ -65,12 +65,28 @@ class PhotoMealPayload(BaseModel):
     fat_g: float = 0
 
 
+class CrossMetricInsightPayload(BaseModel):
+    """SPEC-cross-metric-insight-v1 PR #3 — paid-tier dynamic narrative.
+
+    Laravel sends the rule's deterministic detection_payload + key + free
+    template as fallback; ai-service generates a richer 朵朵 voice body
+    (headline can be reused or freshly generated).
+    """
+
+    insight_key: str = Field(min_length=1, max_length=64)
+    detection_payload: dict[str, object] = Field(default_factory=dict)
+    free_headline: str = Field(min_length=1, max_length=200)
+    free_body: str = Field(min_length=1, max_length=500)
+    user_display_name: str | None = Field(default=None, max_length=80)
+
+
 NarrativeKind = Literal[
     "weekly_report",
     "fasting_completed",
     "fasting_stage_transition",
     "progress_snapshot",
     "photo_meal",
+    "cross_metric_insight",
 ]
 
 
@@ -83,6 +99,7 @@ class NarrativeRequest(BaseModel):
     fasting_stage_transition: FastingStageTransitionPayload | None = None
     progress_snapshot: ProgressSnapshotPayload | None = None
     photo_meal: PhotoMealPayload | None = None
+    cross_metric_insight: CrossMetricInsightPayload | None = None
 
 
 class NarrativeResponse(BaseModel):
