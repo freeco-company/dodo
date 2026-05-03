@@ -450,7 +450,8 @@ async function afterRegister(data) {
 
 async function runBoxCeremony(animalKey) {
   $('#screen-welcome').classList.add('hidden');
-  $('#screen-ceremony').classList.remove('hidden');
+  const ceremony = $('#screen-ceremony');
+  ceremony.classList.remove('hidden');
 
   const lidL = $('#box-lid-left');
   const lidR = $('#box-lid-right');
@@ -476,27 +477,39 @@ async function runBoxCeremony(animalKey) {
   const partsEl = $('#box-particles');
   if (partsEl) partsEl.innerHTML = '';
 
-  // ESCAPE HATCH: no matter what fails inside the animation sequence (network
-  // hangs, broken renderCharacter, missing element after a frontend rebuild,
-  // iOS Safari being weird about SVG transforms), the continue button is
-  // forcibly shown after 8 seconds so the user is never trapped.
-  const escapeTimer = setTimeout(() => {
-    try {
-      if (text && !text.classList.contains('shown')) {
-        text.innerHTML = `<div class="c-title">新夥伴等著妳</div>`;
-        text.classList.add('shown');
-      }
-      if (btn) {
-        btn.classList.remove('hidden');
-        btn.classList.add('shown');
-      }
-    } catch { /* nothing more to do */ }
-  }, 8000);
+  // SHOW BUTTON IMMEDIATELY — animation is a delight, not a gate.
+  // We start the box-open animation, but the continue button is available
+  // from the very first frame. If the user wants to wait and watch the
+  // sequence, beautiful. If anything fails (a 2026-05-03 prod incident
+  // where users got stuck on a closed chest with no escape), they can
+  // still tap the button and proceed.
+  const surfaceButton = () => {
+    if (!btn) return;
+    btn.classList.remove('hidden');
+    btn.classList.add('shown');
+  };
+  // Surface button after a short delay (1.5s) so it doesn't fight the
+  // brand-head fade-in, but before any animation step can fail.
+  const escapeTimer = setTimeout(surfaceButton, 1500);
+
+  // Tap-anywhere-to-skip: clicking the chest area also resolves the ceremony.
+  let manualSkip = false;
+  const skipHandler = (e) => {
+    // Don't trigger from clicking an actual button (let normal click flow run)
+    if (e.target.closest('button')) return;
+    manualSkip = true;
+    surfaceButton();
+  };
+  ceremony.addEventListener('click', skipHandler);
 
   // Sequence — wrapped so any thrown error doesn't leave the user trapped.
   let spirits = [];
   try {
-    spirits = await ensureSpirits();
+    // Spirits API requires auth and is harmless to skip. Add hard 2s timeout.
+    spirits = await Promise.race([
+      ensureSpirits(),
+      new Promise((resolve) => setTimeout(() => resolve([]), 2000)),
+    ]);
   } catch { /* fallback to empty */ }
   const s = (spirits || []).find((x) => x && x.animal_key === animalKey);
 
@@ -541,15 +554,22 @@ async function runBoxCeremony(animalKey) {
     console.warn('[ceremony] animation step failed, surfacing continue button:', e);
   } finally {
     clearTimeout(escapeTimer);
-    if (btn) {
-      btn.classList.remove('hidden');
-      btn.classList.add('shown');
-    }
+    surfaceButton();
   }
 
   return new Promise((resolve) => {
-    if (!btn) { resolve(); return; }
-    btn.addEventListener('click', () => resolve(), { once: true });
+    const cleanup = () => ceremony.removeEventListener('click', skipHandler);
+    if (manualSkip) { cleanup(); resolve(); return; }
+    if (!btn) { cleanup(); resolve(); return; }
+    btn.addEventListener('click', () => { cleanup(); resolve(); }, { once: true });
+    // Belt-and-suspenders: also resolve if user taps anywhere on ceremony bg
+    // after button is shown (some users may tap outside the small button)
+    ceremony.addEventListener('click', () => {
+      if (manualSkip) return;
+      manualSkip = true;
+      cleanup();
+      resolve();
+    }, { once: true });
   });
 }
 
