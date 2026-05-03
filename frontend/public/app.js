@@ -1620,7 +1620,13 @@ function switchTab(tab) {
   if (tab === 'home') { loadDashboard(); loadSuggestions(); loadGrowth(); loadKnowledgeDaily(); loadHealthWidget(); refreshHomeFastingWidget(); }
   if (tab === 'knowledge') loadKnowledgeCategories();
   if (tab === 'pokedex') loadPokedex();
-  if (tab === 'chat') loadChatStarters();
+  if (tab === 'chat') {
+    loadChatStarters();
+    // SPEC-cross-metric-insight-v1 PR #7 — re-pull insights every chat tab
+    // visit (loadChatStarters has its own once-only guard, but insights need
+    // re-checking so newly-fired ones surface).
+    if (typeof loadInsightSurface === 'function') loadInsightSurface().catch(() => {});
+  }
   if (tab === 'calendar') loadCalendar();
   if (tab === 'wardrobe') loadWardrobe();
   if (tab === 'fasting') loadFasting();
@@ -1955,231 +1961,6 @@ function showScanResult(r) {
   `;
   $('#scan-result').classList.remove('hidden');
   $('#btn-correct')?.addEventListener('click', () => openCorrectionDialog(m.id));
-
-  // SPEC-photo-ai-correction-v2 PR #4 — render per-dish breakdown when present.
-  // Backend MealResource.dishes[] is empty for legacy meals; falls back to the
-  // single-blob UI above. New scans (post-PR #2 backend wiring) populate it.
-  if (Array.isArray(m.dishes) && m.dishes.length > 0) {
-    renderDishBreakdown(m);
-  }
-}
-
-// SPEC-photo-ai-correction-v2 PR #4 — multi-dish correction UI primitives.
-// Hooks into showScanResult; appends dish list + per-dish edit sheet to scan-result.
-function renderDishBreakdown(meal) {
-  const container = document.createElement('div');
-  container.className = 'mt-4 dish-breakdown';
-  container.innerHTML = `
-    <div class="text-xs text-muted mb-2">📋 ${meal.dishes.length} 道菜（點任一道修正）</div>
-    <div class="dish-list flex flex-col gap-2">
-      ${meal.dishes.map((d, i) => renderDishRow(d, i)).join('')}
-    </div>
-    <button type="button" class="btn-add-dish mt-3 w-full text-sm py-2 rounded-xl border border-dashed"
-      style="border-color: var(--peach-deep); color: var(--peach-deep)">
-      + 漏了什麼？手動加
-    </button>
-  `;
-  $('#scan-result').appendChild(container);
-
-  container.querySelectorAll('[data-dish-edit]').forEach((el) => {
-    el.addEventListener('click', () => openDishCorrectionSheet(meal.id, +el.dataset.dishEdit, meal));
-  });
-  container.querySelector('.btn-add-dish').addEventListener('click', () => openAddDishSheet(meal.id));
-}
-
-function renderDishRow(d, idx) {
-  const bandColor = d.confidence_band === 'high' ? '#3fc997'
-    : d.confidence_band === 'medium' ? '#f5b647'
-    : d.confidence_band === 'low' ? '#ec6464' : '#aaa';
-  const bandLabel = d.confidence_band === 'high' ? '高'
-    : d.confidence_band === 'medium' ? '中'
-    : d.confidence_band === 'low' ? '低' : '手動';
-  const portionTxt = d.portion_multiplier !== 1 ? ` ×${d.portion_multiplier}` : '';
-  return `
-    <button type="button" data-dish-edit="${idx}"
-      class="dish-row text-left p-2 rounded-xl flex items-center gap-2"
-      style="background: var(--cream); border: 1px solid #e8d8c8">
-      <div class="flex-1">
-        <div class="text-sm font-bold">${escapeHtml(d.food_name)}${portionTxt}</div>
-        <div class="text-xs text-muted">${d.kcal} kcal · 碳 ${Math.round(d.carb_g)}g · 蛋 ${Math.round(d.protein_g)}g · 脂 ${Math.round(d.fat_g)}g</div>
-      </div>
-      <span class="dish-conf-chip text-xs px-2 py-1 rounded-full"
-        style="background: ${bandColor}1f; color: ${bandColor}; font-weight: 700">${bandLabel}</span>
-    </button>
-  `;
-}
-
-async function openDishCorrectionSheet(mealId, dishIdx, mealCache) {
-  const dish = mealCache.dishes[dishIdx];
-  if (!dish) return;
-
-  const sheet = document.createElement('div');
-  sheet.className = 'dish-sheet-overlay';
-  sheet.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;display:flex;align-items:flex-end;justify-content:center';
-  sheet.innerHTML = `
-    <div class="dish-sheet" style="background:var(--cream);width:100%;max-width:520px;border-radius:24px 24px 0 0;padding:20px;max-height:90vh;overflow-y:auto">
-      <div class="flex items-center justify-between mb-3">
-        <button type="button" class="btn-sheet-close text-sm">← 取消</button>
-        <div class="font-bold">修正：${escapeHtml(dish.food_name)}</div>
-        <div style="width:48px"></div>
-      </div>
-
-      <div class="mb-3 p-3 rounded-xl" style="background:#fff">
-        <div class="text-xs text-muted mb-1">🍚 食材</div>
-        <div class="font-bold mb-2" id="dish-food-name-display">${escapeHtml(dish.food_name)}</div>
-        ${dish.candidates && dish.candidates.length > 0 ? `
-          <div class="text-xs text-muted mb-1">候選</div>
-          <div class="flex flex-wrap gap-1">
-            ${dish.candidates.slice(0, 5).map((c) => `
-              <button type="button" data-cand-key="${escapeHtml(c.food_key || '')}" data-cand-name="${escapeHtml(c.food_name || c.name || '')}"
-                class="cand-chip text-xs px-2 py-1 rounded-full" style="background:#f5e6d8">
-                ${escapeHtml(c.food_name || c.name || '')}
-              </button>
-            `).join('')}
-          </div>
-        ` : `<div class="text-xs text-muted">（無候選；可用「找不到 → 手打」）</div>`}
-        <button type="button" class="btn-manual-food text-xs underline mt-2" style="color:var(--peach-deep)">找不到 → 手打名稱</button>
-      </div>
-
-      <div class="mb-3 p-3 rounded-xl" style="background:#fff">
-        <div class="text-xs text-muted mb-1">📏 份量</div>
-        <div class="flex items-center gap-2 mb-1">
-          <span class="text-xs">0.25×</span>
-          <input type="range" min="0.25" max="3.0" step="0.25" value="${dish.portion_multiplier}" id="dish-portion-slider" style="flex:1">
-          <span class="text-xs">3.0×</span>
-        </div>
-        <div class="text-center font-bold" id="dish-portion-display">${dish.portion_multiplier}×</div>
-      </div>
-
-      <div class="mb-3 p-3 rounded-xl" style="background:#fff">
-        <div class="text-xs text-muted mb-1">📊 預估</div>
-        <div class="font-bold text-lg" id="dish-kcal-display">${dish.kcal} kcal</div>
-        <div class="text-xs text-muted" id="dish-macros-display">
-          碳 ${Math.round(dish.carb_g)}g · 蛋 ${Math.round(dish.protein_g)}g · 脂 ${Math.round(dish.fat_g)}g
-        </div>
-      </div>
-
-      <div class="flex gap-2 mt-4">
-        <button type="button" class="btn-dish-refine flex-1 py-3 rounded-xl text-sm" style="background:#fff;border:1px solid var(--peach-deep);color:var(--peach-deep)">⟲ 用 AI 重新估</button>
-        <button type="button" class="btn-dish-apply flex-[2] py-3 rounded-xl text-sm font-bold" style="background:var(--peach-deep);color:white">✓ 套用</button>
-      </div>
-
-      <button type="button" class="btn-dish-remove w-full mt-2 py-2 text-xs text-red-500">🗑️ 移除這道菜</button>
-    </div>
-  `;
-  document.body.appendChild(sheet);
-
-  const close = () => sheet.remove();
-  sheet.querySelector('.btn-sheet-close').onclick = close;
-  sheet.onclick = (e) => { if (e.target === sheet) close(); };
-
-  // local state for slider preview (linear scale before apply)
-  const baseKcal = dish.kcal / dish.portion_multiplier;
-  const baseCarb = dish.carb_g / dish.portion_multiplier;
-  const baseProtein = dish.protein_g / dish.portion_multiplier;
-  const baseFat = dish.fat_g / dish.portion_multiplier;
-  let pendingPortion = dish.portion_multiplier;
-  let pendingFoodKey = dish.food_key;
-  let pendingFoodName = dish.food_name;
-
-  const slider = sheet.querySelector('#dish-portion-slider');
-  slider.addEventListener('input', () => {
-    pendingPortion = +slider.value;
-    sheet.querySelector('#dish-portion-display').textContent = `${pendingPortion}×`;
-    sheet.querySelector('#dish-kcal-display').textContent = `${Math.round(baseKcal * pendingPortion)} kcal`;
-    sheet.querySelector('#dish-macros-display').textContent =
-      `碳 ${Math.round(baseCarb * pendingPortion)}g · 蛋 ${Math.round(baseProtein * pendingPortion)}g · 脂 ${Math.round(baseFat * pendingPortion)}g`;
-  });
-
-  sheet.querySelectorAll('.cand-chip').forEach((el) => {
-    el.addEventListener('click', () => {
-      pendingFoodKey = el.dataset.candKey || pendingFoodKey;
-      pendingFoodName = el.dataset.candName || pendingFoodName;
-      sheet.querySelector('#dish-food-name-display').textContent = pendingFoodName;
-    });
-  });
-
-  sheet.querySelector('.btn-manual-food').onclick = async () => {
-    const name = await UI.prompt('食材名稱？', { title: '手打食材', placeholder: '例如：番茄炒蛋' });
-    if (!name) return;
-    pendingFoodKey = null;
-    pendingFoodName = name;
-    sheet.querySelector('#dish-food-name-display').textContent = name;
-  };
-
-  sheet.querySelector('.btn-dish-refine').onclick = async () => {
-    try {
-      const r = await api('POST', `/meals/${mealId}/dishes/${dish.id}/refine`, {
-        new_food_key: pendingFoodKey !== dish.food_key ? pendingFoodKey : undefined,
-        new_food_name: pendingFoodName !== dish.food_name ? pendingFoodName : undefined,
-        new_portion: pendingPortion !== dish.portion_multiplier ? pendingPortion : undefined,
-      });
-      const refined = r.data || r;
-      sheet.querySelector('#dish-kcal-display').textContent = `${refined.kcal} kcal`;
-      sheet.querySelector('#dish-macros-display').textContent =
-        `碳 ${Math.round(refined.carb_g)}g · 蛋 ${Math.round(refined.protein_g)}g · 脂 ${Math.round(refined.fat_g)}g`;
-      toast('AI 重新估完成 ✨');
-    } catch (e) {
-      toast('AI 重新估失敗：' + (e.message || ''), { emoji: '⚠️' });
-    }
-  };
-
-  sheet.querySelector('.btn-dish-apply').onclick = async () => {
-    try {
-      await api('PATCH', `/meals/${mealId}/dishes/${dish.id}`, {
-        food_key: pendingFoodKey,
-        food_name: pendingFoodName,
-        portion_multiplier: pendingPortion,
-        kcal: Math.round(baseKcal * pendingPortion),
-        carb_g: +(baseCarb * pendingPortion).toFixed(2),
-        protein_g: +(baseProtein * pendingPortion).toFixed(2),
-        fat_g: +(baseFat * pendingPortion).toFixed(2),
-      });
-      toast('已修正 🌱');
-      close();
-      loadDashboard();
-    } catch (e) {
-      toast('修正失敗：' + (e.message || ''), { emoji: '⚠️' });
-    }
-  };
-
-  sheet.querySelector('.btn-dish-remove').onclick = async () => {
-    if (!confirm('確定移除這道菜？')) return;
-    try {
-      await api('DELETE', `/meals/${mealId}/dishes/${dish.id}`);
-      toast('已移除');
-      close();
-      loadDashboard();
-    } catch (e) {
-      toast('移除失敗：' + (e.message || ''), { emoji: '⚠️' });
-    }
-  };
-}
-
-async function openAddDishSheet(mealId) {
-  const name = await UI.prompt('食材名稱？', { title: '➕ 加 1 道菜', placeholder: '例如：滷蛋' });
-  if (!name) return;
-  const kcalStr = await UI.prompt('熱量 (kcal)？', { title: '估熱量', placeholder: '80' });
-  const kcal = parseInt(kcalStr || '0', 10);
-  if (!Number.isFinite(kcal) || kcal < 0) {
-    toast('請輸入有效熱量數字', { emoji: '⚠️' });
-    return;
-  }
-  // Quick rough macro split (40/30/30 carb/protein/fat) for manual add
-  // user can edit later via correction sheet for precise values.
-  const carb_g = +(kcal * 0.4 / 4).toFixed(1);
-  const protein_g = +(kcal * 0.3 / 4).toFixed(1);
-  const fat_g = +(kcal * 0.3 / 9).toFixed(1);
-  try {
-    await api('POST', `/meals/${mealId}/dishes`, {
-      food_name: name, kcal, carb_g, protein_g, fat_g,
-      portion_multiplier: 1.0,
-    });
-    toast(`已加入「${name}」🌱`);
-    loadDashboard();
-  } catch (e) {
-    toast('加入失敗：' + (e.message || ''), { emoji: '⚠️' });
-  }
 }
 
 function escapeHtml(s) {
@@ -3093,6 +2874,177 @@ async function loadChatStarters() {
     renderStarters(s.starters);
     renderSeesYou(s.sees_you);
   } catch {}
+  // PR #7 moved loadInsightSurface to switchTab('chat') — fires every visit
+  // (not just first-load) so newly-fired insights show without app restart.
+}
+
+// SPEC-cross-metric-insight-v1 PR #4 — fetch unread insights + render headline
+// bubbles + 「看細節」 button. Tap opens detail modal (paywalled body for free).
+async function loadInsightSurface() {
+  let resp;
+  try {
+    resp = await api('GET', '/insights/unread');
+  } catch {
+    return;
+  }
+  const items = (resp.data || []).slice(0, 3);
+  if (items.length === 0) return;
+  // PR #7 dedup — if a bubble for this insight id is already in the chat,
+  // skip (avoids duplicates when user re-enters chat tab before dismissing).
+  const messages = $('#chat-messages');
+  for (const it of items) {
+    if (messages?.querySelector(`[data-insight-id="${it.id}"]`)) continue;
+    appendInsightBubble(it);
+  }
+}
+
+function appendInsightBubble(insight) {
+  const node = document.createElement('div');
+  node.className = 'msg-row bot insight-bubble';
+  node.dataset.insightId = insight.id;
+  const headline = escapeHtml(insight.narrative?.headline || '朵朵發現一件事 🌱');
+  node.innerHTML = `
+    <div class="bubble bot" style="border-left:3px solid var(--peach-deep);background:#fff7ee;max-width:85%">
+      <div class="text-sm font-bold mb-1">🌱 ${headline}</div>
+      <div class="text-xs text-muted">朵朵根據妳這週的紀錄發現的</div>
+      <div class="flex gap-2 mt-2">
+        <button type="button" class="btn-insight-detail text-xs px-3 py-1 rounded-full" style="background:var(--peach-deep);color:white">看細節</button>
+        <button type="button" class="btn-insight-dismiss text-xs px-3 py-1 rounded-full text-muted">不感興趣</button>
+      </div>
+    </div>
+  `;
+  $('#chat-messages').appendChild(node);
+  $('#chat-messages').scrollTop = $('#chat-messages').scrollHeight;
+
+  node.querySelector('.btn-insight-detail').onclick = () => openInsightDetail(insight);
+  node.querySelector('.btn-insight-dismiss').onclick = async () => {
+    try {
+      await api('POST', `/insights/${insight.id}/dismiss`);
+      node.remove();
+      toast('好的，朵朵下次換個方式 🌷');
+    } catch {}
+  };
+}
+
+async function openInsightDetail(insight) {
+  // Mark as read fire-and-forget (don't block UI on it)
+  api('POST', `/insights/${insight.id}/read`).catch(() => {});
+
+  const tier = state.tier || (window.entitlements?.tier) || 'free';
+  const isPaid = tier !== 'free';
+
+  const sheet = document.createElement('div');
+  sheet.className = 'insight-detail-overlay';
+  sheet.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;display:flex;align-items:flex-end;justify-content:center';
+
+  const headline = escapeHtml(insight.narrative?.headline || '');
+  const body = isPaid
+    ? escapeHtml(insight.narrative?.body || '')
+    : '';
+
+  const detection = insight.detection || {};
+  const detectionList = Object.entries(detection).slice(0, 6)
+    .map(([k, v]) => `<div class="text-xs text-muted">${escapeHtml(k)}: <b>${escapeHtml(String(v))}</b></div>`)
+    .join('');
+
+  const actions = (insight.actions || []).slice(0, 3)
+    .map((a) => `<button type="button" data-action-key="${escapeHtml(a.action_key)}" class="insight-action text-sm py-2 px-4 rounded-xl mr-2 mb-2" style="background:var(--cream);border:1px solid var(--peach-deep);color:var(--peach-deep)">${escapeHtml(a.label)}</button>`)
+    .join('');
+
+  sheet.innerHTML = `
+    <div class="insight-sheet" style="background:white;width:100%;max-width:520px;border-radius:24px 24px 0 0;padding:24px;max-height:90vh;overflow-y:auto">
+      <div class="flex items-center justify-between mb-3">
+        <button type="button" class="btn-insight-close text-sm">← 關閉</button>
+        <div class="text-xs text-muted">朵朵的觀察</div>
+        <div style="width:48px"></div>
+      </div>
+      <div class="text-lg font-bold mb-3">🌱 ${headline}</div>
+
+      ${isPaid ? `
+        <div class="text-sm leading-relaxed mb-4 p-3 rounded-xl" style="background:var(--cream)">
+          ${body.replace(/\n/g, '<br>')}
+        </div>
+      ` : `
+        <div class="mb-4 p-4 rounded-xl text-center" style="background:linear-gradient(135deg,#ffe4d6 0%,#ffd1bd 100%)">
+          <div class="text-sm font-bold mb-2">🌷 升級看完整解讀</div>
+          <div class="text-xs text-muted mb-3">朵朵會用 100-150 字解釋這個 insight 的意思 + 建議行動</div>
+          <button type="button" class="btn-insight-paywall px-6 py-2 rounded-xl text-sm font-bold" style="background:var(--peach-deep);color:white">看看訂閱方案</button>
+        </div>
+      `}
+
+      ${isPaid && detectionList ? `
+        <details class="mb-3" open>
+          <summary class="text-xs text-muted cursor-pointer">📊 觸發資料</summary>
+          <div class="mt-2 p-3 rounded-xl" style="background:#fafafa">${detectionList}</div>
+        </details>
+      ` : ''}
+
+      ${actions ? `
+        <div class="mt-4">
+          <div class="text-xs text-muted mb-2">朵朵建議</div>
+          ${actions}
+        </div>
+      ` : ''}
+    </div>
+  `;
+  document.body.appendChild(sheet);
+
+  const close = () => sheet.remove();
+  sheet.querySelector('.btn-insight-close').onclick = close;
+  sheet.onclick = (e) => { if (e.target === sheet) close(); };
+
+  const paywallBtn = sheet.querySelector('.btn-insight-paywall');
+  if (paywallBtn) {
+    paywallBtn.onclick = () => {
+      close();
+      if (typeof openPaywall === 'function') {
+        openPaywall('insight_detail_locked');
+      }
+    };
+  }
+
+  sheet.querySelectorAll('.insight-action').forEach((btn) => {
+    btn.onclick = () => {
+      const key = btn.dataset.actionKey;
+      close();
+      // Map action_key to existing app deep links
+      handleInsightAction(key);
+    };
+  });
+}
+
+function handleInsightAction(key) {
+  // Best-effort routing — falls back to a friendly toast if we don't have a
+  // matching deep link yet (user can still navigate manually).
+  switch (key) {
+    case 'fasting_start_168':
+      toast('打開斷食 tab 試試 16:8 ✨');
+      switchTab?.('fasting');
+      break;
+    case 'steps_add_2000':
+      toast('今天加 2000 步走走 🚶‍♀️');
+      switchTab?.('home');
+      break;
+    case 'goal_protein_up':
+      toast('飲食 tab 可以調整目標 🥩');
+      switchTab?.('scan');
+      break;
+    case 'tdee_recompute':
+      toast('我的 → 設定 → 重算 TDEE 🌱');
+      switchTab?.('me');
+      break;
+    case 'reminder_sleep':
+    case 'reminder_dinner':
+      toast('提醒已記在心上 🌷');
+      break;
+    case 'celebrate_letter':
+    case 'celebrate_open':
+      toast('恭喜妳 🎉 看看成就頁的小禮物');
+      switchTab?.('achievements');
+      break;
+    default:
+      toast('收到～朵朵會繼續觀察 🌱');
+  }
 }
 function renderSeesYou(sy) {
   if (!sy || !sy.facts) return;
