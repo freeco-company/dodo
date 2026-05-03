@@ -135,6 +135,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/progress/snapshot/{id}', [\App\Http\Controllers\Api\ProgressSnapshotController::class, 'destroy'])
         ->whereNumber('id');
 
+    // ----- SPEC-progress-ritual-v1 PR #1 — ritual events + share cards -----
+    Route::get('/rituals/unread', [\App\Http\Controllers\Api\RitualController::class, 'unread']);
+    Route::post('/rituals/{event}/seen', [\App\Http\Controllers\Api\RitualController::class, 'seen'])->whereNumber('event');
+    Route::post('/rituals/{event}/share', [\App\Http\Controllers\Api\RitualController::class, 'share'])->whereNumber('event');
+    Route::post('/progress/compare/share-card', [\App\Http\Controllers\Api\RitualController::class, 'compareShareCard']);
+
     // ----- SPEC-weekly-ai-report Phase 1 (rich version of weekly recap) -----
     Route::get('/reports/weekly/current', [\App\Http\Controllers\Api\ReportController::class, 'currentWeekly']);
     Route::get('/reports/weekly/history', [\App\Http\Controllers\Api\ReportController::class, 'weeklyHistory']);
