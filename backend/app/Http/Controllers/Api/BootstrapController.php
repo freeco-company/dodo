@@ -71,6 +71,15 @@ class BootstrapController extends Controller
             ]);
         }
 
+        // SPEC-progress-ritual-v1 PR #9 — first-open-of-day season reveal.
+        // Idempotent at RitualDispatcher level (season_reveal:user:release_id),
+        // so calling on every bootstrap is safe — fires once per release.
+        if ($user !== null) {
+            try {
+                app(\App\Services\Ritual\SeasonRevealService::class)->checkAndFireForUser($user);
+            } catch (\Throwable $e) { /* fail-soft */ }
+        }
+
         return response()->json([
             'app_config' => [
                 'paywall' => $this->config->get('paywall'),
