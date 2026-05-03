@@ -6682,6 +6682,84 @@ body:has(#tab-achievements:not(.hidden)) .dodo-mentor-bubble {
   margin-bottom: 8px;
   flex-wrap: nowrap;
 }
+
+/* SPEC-v2 — single colored stage chip (replaces 6-emoji string) */
+.fasting-stage-chip {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  background: #F5F1EA;
+  color: var(--ink);
+  margin-top: 8px;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+.fasting-stage-chip[data-phase="digesting"]      { background: #FFE6F0; color: #A04060; }
+.fasting-stage-chip[data-phase="settling"]       { background: #E5F0DA; color: #4A7028; }
+.fasting-stage-chip[data-phase="glycogen_switch"]{ background: #C9D3BE; color: #3D5A1A; }
+.fasting-stage-chip[data-phase="fat_burning"]    { background: #FFD4C0; color: #8A3010; }
+.fasting-stage-chip[data-phase="autophagy"]      { background: #F5D5E5; color: #6A2858; }
+.fasting-stage-chip[data-phase="deep_fast"]      { background: #E0C0B0; color: #5A2010; }
+
+/* Inner stage ring colors — set via JS by changing stroke attribute */
+#fasting-stage-fill { transition: stroke 0.6s ease; }
+
+/* Tap-to-edit start time button */
+.fasting-start-edit {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #FFF8F2;
+  border: 1px dashed #DCC9B0;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: background 0.15s ease;
+}
+.fasting-start-edit:hover { background: #FFE5D0; }
+.fasting-start-edit:active { transform: scale(0.98); }
+
+/* 7-day bar chart */
+.fasting-week-chart {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  height: 100px;
+  align-items: end;
+  padding: 0 4px;
+}
+.fwc-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: end;
+  position: relative;
+}
+.fwc-bar {
+  width: 100%;
+  max-width: 28px;
+  border-radius: 6px 6px 2px 2px;
+  background: linear-gradient(180deg, #C9D3BE, #7FB069);
+  min-height: 2px;
+  transition: height 0.4s cubic-bezier(.22,1,.36,1);
+}
+.fwc-bar.empty { background: #EDE3D0; }
+.fwc-bar.completed { background: linear-gradient(180deg, #FFD4C0, #E89F7A); }
+.fwc-day {
+  font-size: 10px;
+  color: var(--ink-soft);
+  margin-top: 4px;
+}
+.fwc-hours {
+  position: absolute;
+  top: -16px;
+  font-size: 10px;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
 .fasting-phase-dot {
   display: inline-flex;
   align-items: center;
