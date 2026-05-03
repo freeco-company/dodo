@@ -57,6 +57,11 @@ class WeeklyReportService
             ? $this->maybeUpgradeNarrative($user, $weekStart, $weekEnd, $meals, $fasting, $health, $growth, $deterministic)
             : $deterministic;
 
+        // SPEC-cross-metric-insight-v1 PR #5 — pull the past 7 days' fired
+        // insights for this user and inline them into the weekly payload.
+        // Free tier sees count + headline preview only; Paid sees full list.
+        $insights = $this->aggregateInsights($user, $weekStart, $weekEnd, $isPaid);
+
         $payload = [
             'window' => [
                 'start' => $weekStart->toDateString(),
@@ -72,11 +77,13 @@ class WeeklyReportService
                 'days_logged' => $growth['current']['days_logged'] ?? 0,
             ],
             'narrative' => $narrative,
+            'insights' => $insights,
             'features' => [
                 'image_card' => $isPaid,
                 'history_unlimited' => $isPaid,
                 'history_capped_weeks' => $isPaid ? null : 4,
                 'sleep_visible' => $isPaid,
+                'insights_visible' => $isPaid,
             ],
         ];
 
@@ -101,6 +108,52 @@ class WeeklyReportService
         $payload['generated_at'] = $row->updated_at?->toIso8601String();
 
         return $payload;
+    }
+
+    /**
+     * SPEC-cross-metric-insight-v1 PR #5 — collect insights fired this week.
+     *
+     * Returns either:
+     * - paid: ['count' => N, 'top_three' => [...full insight rows...], 'all' => [...]]
+     * - free: ['count' => N, 'preview_headline' => '...', 'paywall' => true]
+     *
+     * @return array<string,mixed>
+     */
+    private function aggregateInsights(User $user, CarbonImmutable $weekStart, CarbonImmutable $weekEnd, bool $isPaid): array
+    {
+        $rows = \App\Models\Insight::query()
+            ->where('user_id', $user->id)
+            ->whereBetween('fired_at', [$weekStart->startOfDay(), $weekEnd->endOfDay()])
+            ->orderByDesc('fired_at')
+            ->get();
+
+        if ($rows->isEmpty()) {
+            return ['count' => 0, 'top_three' => [], 'paywall' => false];
+        }
+
+        $count = $rows->count();
+        $shape = fn (\App\Models\Insight $i) => [
+            'id' => $i->id,
+            'insight_key' => $i->insight_key,
+            'headline' => $i->narrative_headline,
+            'body' => $i->narrative_body,
+            'fired_at' => $i->fired_at->toIso8601String(),
+        ];
+
+        if (! $isPaid) {
+            return [
+                'count' => $count,
+                'preview_headline' => $rows->first()->narrative_headline,
+                'paywall' => true,
+            ];
+        }
+
+        return [
+            'count' => $count,
+            'top_three' => $rows->take(3)->map($shape)->values()->all(),
+            'all' => $rows->map($shape)->values()->all(),
+            'paywall' => false,
+        ];
     }
 
     /**
