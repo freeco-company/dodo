@@ -23,11 +23,14 @@ from app.deps import (
 )
 from app.safety.scanner import append_disclaimer, scan_input, validate_kcal
 from app.vision.anthropic_client import AnthropicVisionClient
+from app.vision.refine_service import StubRefineService
 from app.vision.schemas import (
     VisionMealType,
     VisionRecognizeResponse,
     VisionRecognizeTextRequest,
     VisionRecognizeTextResponse,
+    VisionRefineRequest,
+    VisionRefineResponse,
 )
 from app.vision.text_service import AnthropicTextRecognizer
 
@@ -143,6 +146,44 @@ async def vision_recognize(
             claims.sub,
             exc,
         )
+
+    return response
+
+
+@router.post("/v1/vision/refine", response_model=VisionRefineResponse)
+async def vision_refine(
+    payload: VisionRefineRequest,
+    claims: VerifiedClaims = Depends(require_jwt_or_internal),
+    cost_tracker: CostTracker = Depends(get_cost_tracker),
+    settings: Settings = Depends(settings_dep),
+) -> VisionRefineResponse:
+    """SPEC-photo-ai-correction-v2 PR #3 — re-infer a single dish.
+
+    User has corrected food_key or portion_multiplier; we re-derive macros
+    using the original image as visual ground truth + their hint as override.
+
+    PR #3 ships a deterministic stub (linear scaling + lookup table). PR #3.5
+    will plug in the real Anthropic vision prompt path — the schema + Laravel
+    contract + cost-tracker wiring is finalized here so the swap is local.
+    """
+    if payload.user_hint.dish_index >= len(payload.original_dishes):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"dish_index {payload.user_hint.dish_index} out of range",
+        )
+
+    refiner = StubRefineService()
+    response = refiner.refine(payload)
+
+    record = UsageRecord(
+        user_uuid=claims.sub,
+        model=response.model,
+        input_tokens=0,
+        output_tokens=0,
+        endpoint="/v1/vision/refine",
+        flags=[],
+    )
+    cost_tracker.record(record)
 
     return response
 
