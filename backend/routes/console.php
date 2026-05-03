@@ -41,6 +41,22 @@ Schedule::command('sanctum:prune-expired --hours=24')
     ->withoutOverlapping()
     ->onOneServer();
 
+// SPEC-cross-metric-insight-v1 PR #6 — daily insight evaluation 08:00 Asia/Taipei.
+// Followed by push fanout (PR #4 frontend already pulls /insights/unread on chat tab).
+Schedule::command('insights:evaluate-daily')
+    ->dailyAt('08:00')
+    ->timezone('Asia/Taipei')
+    ->withoutOverlapping()
+    ->onOneServer();
+
+// SPEC-progress-ritual-v1 PR #2 — monthly collage on the 1st at 03:00 Asia/Taipei.
+// Targets the previous calendar month so it captures the full just-finished window.
+Schedule::command('progress:generate-monthly-collage')
+    ->monthlyOn(1, '03:00')
+    ->timezone('Asia/Taipei')
+    ->withoutOverlapping()
+    ->onOneServer();
+
 // SPEC-weekly-ai-report §3 — pre-generate current-week reports Sunday 19:00 (Asia/Taipei).
 Schedule::command('reports:generate-weekly')
     ->weeklyOn(\Illuminate\Console\Scheduling\Schedule::SUNDAY, '19:00')

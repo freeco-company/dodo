@@ -53,6 +53,11 @@ class ProgressSnapshotController extends Controller
             'photo_ref' => $data['photo_ref'] ?? null,
         ]);
 
+        // SPEC-progress-ritual-v1 PR #8 — fire ritual on photo streak milestones.
+        try {
+            app(\App\Services\Ritual\StreakRitualService::class)->checkPhotoStreak($user);
+        } catch (\Throwable $e) { /* fail-soft */ }
+
         return response()->json($this->serialize($snap), 201);
     }
 

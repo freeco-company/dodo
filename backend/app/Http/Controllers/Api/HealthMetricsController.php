@@ -35,6 +35,14 @@ class HealthMetricsController extends Controller
 
         $result = $this->service->sync($request->user(), $data['metrics']);
 
+        // SPEC-cross-metric-insight-v1 PR #6 — realtime evaluate after sync.
+        // Engine is idempotent, so per-batch dispatch is safe.
+        \App\Jobs\EvaluateInsightsForUserJob::dispatch($request->user()->id)->afterCommit()->onQueue('default');
+        // SPEC-progress-ritual-v1 PR #8 — fire ritual on weight log streak milestones.
+        try {
+            app(\App\Services\Ritual\StreakRitualService::class)->checkWeightLogStreak($request->user());
+        } catch (\Throwable $e) { /* fail-soft */ }
+
         return response()->json($result, 200);
     }
 

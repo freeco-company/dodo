@@ -206,6 +206,17 @@ class FastingService
                 $endedAt,
             );
         }
+
+        // SPEC-progress-ritual-v1 PR #6 — fullscreen celebration on round
+        // milestones (30/60/100/365). Idempotent via ritual idempotency_key.
+        if (in_array($streak, [30, 60, 100, 365], true)) {
+            app(\App\Services\Ritual\RitualDispatcher::class)->dispatch(
+                $user,
+                \App\Models\RitualEvent::KEY_STREAK_MILESTONE,
+                "fasting_streak:{$user->id}:{$streak}",
+                ['streak_kind' => 'fasting', 'streak_count' => $streak],
+            );
+        }
     }
 
     /**

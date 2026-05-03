@@ -23,7 +23,7 @@ from app.deps import (
 )
 from app.safety.scanner import append_disclaimer, scan_input, validate_kcal
 from app.vision.anthropic_client import AnthropicVisionClient
-from app.vision.refine_service import StubRefineService
+from app.vision.refine_service import AnthropicRefineService, StubRefineService
 from app.vision.schemas import (
     VisionMealType,
     VisionRecognizeResponse,
@@ -172,8 +172,10 @@ async def vision_refine(
             detail=f"dish_index {payload.user_hint.dish_index} out of range",
         )
 
-    refiner = StubRefineService()
-    response = refiner.refine(payload)
+    # PR #6 — auto-pick: Anthropic when STUB_MODE=false + key set, stub otherwise.
+    # Both paths return same VisionRefineResponse shape (Laravel side blind to which).
+    refiner = AnthropicRefineService(settings)
+    response = await refiner.refine(payload)
 
     record = UsageRecord(
         user_uuid=claims.sub,

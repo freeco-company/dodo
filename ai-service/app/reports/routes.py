@@ -19,6 +19,7 @@ from app.config import Settings
 from app.deps import settings_dep
 from app.reports.schemas import NarrativeRequest, NarrativeResponse
 from app.safety.insight_sanitizer import insight_text_violates
+from app.safety.ritual_sanitizer import ritual_text_violates
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -87,6 +88,46 @@ def _build_user_prompt(req: NarrativeRequest) -> str:
             "瘦身 / 塑身 / 暴瘦 / 變瘦」等詞，"
             "改用「習慣 / 節奏 / 平台期 / 規律 / 補充能量 / 身體適應 / 變化 / 堅持」。"
             "不下醫療因果結論（用「可能跟壓力有關」而非「皮質醇升高 → 失眠」）。"
+        )
+
+    if req.monthly_collage_letter is not None:
+        c = req.monthly_collage_letter
+        lines.append(f"\n月度集錦：{c.month}")
+        lines.append(f"- 規律記錄 {c.food_days_logged} 天")
+        lines.append(f"- 累積 {c.steps_total:,} 步")
+        lines.append(f"- 斷食達標 {c.fasting_days} 天")
+        lines.append(f"- 進度照拍了 {c.snapshot_count} 張")
+        lines.append(
+            "請寫一封朵朵手寫信，1 行 headline (≤30字) + 2-3 行 body，每行 ≤40字。"
+            "硬規則禁止：減重 / 減脂 / 燃脂 / 瘦身 / 塑身 / 變瘦 / 排毒 / 治療。"
+            "也不評論身材外觀（不寫『妳的腰』『身形比例』）。"
+            "可用：堅持 / 累積 / 規律 / 動了起來 / 變化 / 步伐。"
+        )
+
+    if req.streak_milestone_letter is not None:
+        sm = req.streak_milestone_letter
+        kind_label = {
+            "meal": "飲食記錄",
+            "fasting": "斷食達標",
+            "steps": "步數達標",
+            "weight_log": "體重打卡",
+            "photo": "進度照",
+        }.get(sm.streak_kind, sm.streak_kind)
+        lines.append(f"\nStreak milestone：{sm.streak_count} 天 {kind_label}連勝")
+        lines.append(
+            "寫一封 fullscreen celebration 朵朵手寫信。"
+            "1 行 headline (≤30字)『XX 天連勝 🌟』風格 + 2-3 行 body 每行 ≤40字。"
+            "重點是『妳真的做到了』『不是每個人都能堅持』式的肯定 + 提醒對自己說一聲『辛苦了』。"
+            "禁用：減重 / 變瘦 / 燃脂 / 瘦身。"
+        )
+
+    if req.progress_slider_caption is not None:
+        lines.append(f"\n進度照對比 caption：{req.progress_slider_caption.days_between} 天")
+        lines.append(
+            "回 1 行 ≤30 字短文：『妳堅持了 X 天 ✨』風格。"
+            "硬規則禁止：減重 / 減脂 / 燃脂 / 變瘦 / 瘦身 / 塑身 / 排毒。"
+            "也禁止評論身材外觀。可用：堅持 / 動了起來 / 累積 / 持續 / 變化。"
+            "輸出格式：只一行（沒有 body）。"
         )
 
     if req.fasting_stage_transition is not None:
@@ -158,6 +199,37 @@ def _stub_response(req: NarrativeRequest) -> NarrativeResponse:
         return NarrativeResponse(
             headline=ci.free_headline,
             lines=body_lines or [ci.free_body],
+            model="stub",
+            stub_mode=True,
+        )
+    if req.kind == "monthly_collage_letter" and req.monthly_collage_letter is not None:
+        c = req.monthly_collage_letter
+        return NarrativeResponse(
+            headline=f"{c.month} 朵朵的月度回顧 🌱",
+            lines=[
+                f"這個月妳堅持了 {c.food_days_logged} 天的記錄",
+                f"累積 {c.steps_total:,} 步、斷食 {c.fasting_days} 天",
+                "下個月繼續走下去吧 ✨",
+            ],
+            model="stub",
+            stub_mode=True,
+        )
+    if req.kind == "streak_milestone_letter" and req.streak_milestone_letter is not None:
+        sm = req.streak_milestone_letter
+        return NarrativeResponse(
+            headline=f"{sm.streak_count} 天連勝 🌟",
+            lines=[
+                "妳真的做到了。",
+                "不是每個人都能堅持這麼久。",
+                "要記得對自己說一聲「辛苦了」。",
+            ],
+            model="stub",
+            stub_mode=True,
+        )
+    if req.kind == "progress_slider_caption" and req.progress_slider_caption is not None:
+        return NarrativeResponse(
+            headline=f"妳堅持了 {req.progress_slider_caption.days_between} 天 ✨",
+            lines=[],
             model="stub",
             stub_mode=True,
         )
@@ -237,6 +309,22 @@ async def _call_anthropic(req: NarrativeRequest, settings: Settings) -> Narrativ
         if violations:
             logger.warning(
                 "[reports] insight narrative violated sanitizer (%s); falling back to template",
+                violations,
+            )
+            stub = _stub_response(req)
+            stub.model = f"stub_after_sanitize:{model}"
+            return stub
+
+    # SPEC-progress-ritual-v1 PR #3 — post-LLM sanitize for ritual kinds.
+    # Ritual narratives sit on top of progress photos / weight context — the
+    # 食安法 violation surface is the highest in the SPEC suite. Conservative:
+    # any forbidden term → fall back to deterministic stub (already vetted).
+    if req.kind in {"monthly_collage_letter", "streak_milestone_letter", "progress_slider_caption"}:
+        joined = headline + " " + " ".join(body)
+        violations = ritual_text_violates(joined)
+        if violations:
+            logger.warning(
+                "[reports] ritual narrative violated sanitizer (%s); falling back to template",
                 violations,
             )
             stub = _stub_response(req)
