@@ -110,9 +110,16 @@ it('does not fire when no streak (single isolated day)', function () {
         ->postJson('/api/checkin/water', ['ml' => 100])
         ->assertOk();
 
+    // Threshold streak fires (meal.streak_3 / 7 / 14 / 30) must NOT dispatch
+    // when streak<3. The milestone_unlocked event (SPEC-streak-milestone-rewards)
+    // DOES dispatch at streak=1 — it's a separate concern, exclude here.
     Bus::assertNotDispatched(
         PublishGamificationEventJob::class,
-        fn ($job) => str_starts_with($job->body['event_kind'] ?? '', 'meal.streak_'),
+        fn ($job) => in_array(
+            $job->body['event_kind'] ?? '',
+            ['meal.streak_3', 'meal.streak_7', 'meal.streak_14', 'meal.streak_30'],
+            true,
+        ),
     );
 });
 

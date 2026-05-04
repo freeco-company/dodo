@@ -69,6 +69,9 @@ class GamificationPublisher
         'meal.fasting_streak_7',
         // SPEC-healthkit-integration — publish on first daily steps goal hit.
         'meal.steps_goal_achieved',
+        // SPEC-streak-milestone-rewards — publish when streak hits 1/3/7/14/21/30/60/100.
+        // Catalog may not have this kind yet; py-service will 422 fail-soft until added.
+        'meal.streak_milestone_unlocked',
     ];
 
     /**

@@ -59,7 +59,13 @@ it('does NOT publish when ended below target', function () {
         ->assertOk()
         ->assertJsonPath('session.completed', false);
 
-    Bus::assertNotDispatched(PublishGamificationEventJob::class);
+    // Scope assertion to fasting_completed — the daily-login-streak middleware
+    // may legitimately dispatch streak / milestone-unlock jobs on the same
+    // request, which is unrelated to the fasting failure path under test.
+    Bus::assertNotDispatched(
+        PublishGamificationEventJob::class,
+        fn ($job) => ($job->body['event_kind'] ?? '') === 'meal.fasting_completed',
+    );
 });
 
 it('awards meal.fasting_first achievement on the very first completion', function () {

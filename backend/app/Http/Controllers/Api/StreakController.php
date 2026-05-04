@@ -36,6 +36,10 @@ class StreakController extends Controller
             'is_milestone' => $recorded['is_milestone'],
             'milestone_label' => $recorded['milestone_label'],
             'today_date' => $recorded['today_date'],
+            // SPEC-streak-milestone-rewards — only present on the streak-change
+            // call (is_first_today=true & is_milestone=true). The frontend uses
+            // it to drive the reveal animation + special overlay at 21 / 100.
+            'unlocks' => $recorded['unlocks'] ?? null,
         ]);
     }
 }
