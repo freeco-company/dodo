@@ -163,3 +163,13 @@ it('GET /api/streak/today is no-op on second call same day', function () {
 it('GET /api/streak/today requires auth', function () {
     $this->getJson('/api/streak/today')->assertStatus(401);
 });
+
+it('GET /api/streak/today exposes unlocks at milestone (SPEC-streak-milestone-rewards)', function () {
+    $user = User::factory()->create(['outfits_owned' => ['none']]);
+    Sanctum::actingAs($user);
+
+    $this->getJson('/api/streak/today')
+        ->assertOk()
+        ->assertJsonPath('is_milestone', true)
+        ->assertJsonPath('unlocks.cards_unlocked.0.code', 'streak_1');
+});

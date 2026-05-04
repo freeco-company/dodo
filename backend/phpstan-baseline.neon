@@ -3,7 +3,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
 			identifier: method.notFound
-			count: 4
+			count: 5
 			path: tests/Feature/Api/DailyLoginStreakTest.php
 
 		-

@@ -51,6 +51,7 @@ class DailyLoginStreakService
 
     public function __construct(
         private readonly GamificationPublisher $gamification,
+        private readonly StreakMilestoneRewardService $milestoneRewards,
     ) {}
 
     /**
@@ -61,6 +62,14 @@ class DailyLoginStreakService
      *     is_milestone: bool,
      *     milestone_label: ?string,
      *     today_date: string,
+     *     unlocks: ?array{
+     *         outfit_unlocked: ?string,
+     *         outfit_skipped: ?string,
+     *         cards_unlocked: list<array{code:string,label:string}>,
+     *         xp_bonus: int,
+     *         level_after: ?int,
+     *         leveled_up: bool,
+     *     },
      * }
      */
     public function recordLogin(User $user): array
@@ -114,6 +123,11 @@ class DailyLoginStreakService
             $this->safePublish($user, $result['streak'], $today);
         }
 
+        $unlocks = null;
+        if ($isMilestone) {
+            $unlocks = $this->milestoneRewards->unlockForMilestone($user, $result['streak']);
+        }
+
         return [
             'streak' => $result['streak'],
             'longest_streak' => $result['longest'],
@@ -121,6 +135,7 @@ class DailyLoginStreakService
             'is_milestone' => $isMilestone,
             'milestone_label' => $milestoneLabel,
             'today_date' => $today,
+            'unlocks' => $unlocks,
         ];
     }
 
