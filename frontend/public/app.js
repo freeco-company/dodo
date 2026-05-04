@@ -117,6 +117,28 @@ const UI = {
 // =========================================================
 async function playDialog(lines, opts = {}) {
   if (!Array.isArray(lines) || lines.length === 0) return;
+  // Defensive normalisation — older endpoints (e.g. /journey/milestone/{day}
+  // pre-2026-05-04) returned `lines: ['string', 'string']` rather than
+  // `[{speaker,text}, ...]`. Without this coercion playDialog renders an
+  // empty 旁白 box that looks frozen (the prod incident on 2026-05-04 that
+  // motivated this guard). We accept three shapes:
+  //   1) {speaker, text}        — canonical
+  //   2) raw string             — treat as narrator
+  //   3) {text} without speaker — treat as narrator
+  // and drop any line whose text is empty/whitespace.
+  lines = lines
+    .map((l) => {
+      if (typeof l === 'string') return { speaker: 'narrator', text: l };
+      if (l && typeof l === 'object') {
+        return {
+          speaker: l.speaker || 'narrator',
+          text: typeof l.text === 'string' ? l.text : '',
+        };
+      }
+      return { speaker: 'narrator', text: '' };
+    })
+    .filter((l) => l.text && l.text.trim().length > 0);
+  if (lines.length === 0) return; // nothing renderable → don't open overlay at all
   const overlay = $('#dialog-overlay');
   const text = $('#dialog-text');
   const nextArrow = $('#dialog-next');
@@ -264,15 +286,40 @@ function typeLine(el, fullText, msPerChar) {
   });
 }
 
+// Auto-advance after this many ms if the user never taps.
+// Prod incident 2026-05-04: narrative scenes froze waiting for tap that never
+// came (offscreen arrow, WKWebView pointer-events edge case, or the user just
+// not noticing the cue). 12s is long enough that engaged readers won't feel
+// rushed, short enough that a stuck scene self-recovers before users abandon.
+const DIALOG_TAP_TIMEOUT_MS = 12000;
+
 function waitForDialogTap() {
   return new Promise((resolve) => {
     const overlay = document.getElementById('dialog-overlay');
-    const handler = () => {
+    let resolved = false;
+    let timeoutId = null;
+    const cleanup = () => {
       overlay.removeEventListener('click', handler);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+    const handler = () => {
+      if (resolved) return;
+      resolved = true;
+      cleanup();
       resolve();
     };
     // Small delay so the "tap to skip" during typing doesn't also trigger next
-    setTimeout(() => overlay.addEventListener('click', handler, { once: true }), 60);
+    setTimeout(() => {
+      if (resolved) return;
+      overlay.addEventListener('click', handler, { once: true });
+      // Safety auto-advance — see DIALOG_TAP_TIMEOUT_MS comment above
+      timeoutId = setTimeout(() => {
+        if (resolved) return;
+        resolved = true;
+        cleanup();
+        resolve();
+      }, DIALOG_TAP_TIMEOUT_MS);
+    }, 60);
   });
 }
 
@@ -288,6 +335,17 @@ function _ensureModalRoot() {
 }
 function _escape(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;' }[c]));
+}
+
+// Wrap any promise in a hard timeout. Used to bound long-running fetches
+// (e.g. island store scenes) so the UI never hangs on a stuck network.
+// Rejection message is surfaced via toast(); keep it in dodo導師 tone.
+function withTimeout(promise, ms, message = '朵朵今天有點累，先跳過 →') {
+  let timeoutId;
+  const timeout = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(message)), ms);
+  });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId));
 }
 
 async function api(method, path, body) {
@@ -5938,7 +5996,14 @@ async function enterStore(scene) {
   islandState.currentStore = scene;
   let storeData;
   try {
-    storeData = await api('GET', `/island/store/${scene.key}`);
+    // 10s overall fetch budget — past prod incident (2026-05-04) saw
+    // enterStore hang indefinitely on slow / dropped networks (WKWebView,
+    // captive wifi) leaving the user on a blank store view with no way out.
+    storeData = await withTimeout(
+      api('GET', `/island/store/${scene.key}`),
+      10000,
+      '朵朵今天有點累，先跳過 →'
+    );
     islandState.currentStoreData = storeData;
   } catch (e) {
     const msg = String(e.message || '');
@@ -5946,7 +6011,11 @@ async function enterStore(scene) {
       openPaywall();
       return;
     }
-    toast(msg || '進入店家失敗');
+    // Either real API error or our 10s timeout — both should drop the user
+    // back to the map with a friendly cue rather than a stuck store view.
+    storeView.classList.add('hidden');
+    mapView.classList.remove('hidden');
+    toast(msg || '朵朵今天有點累，先跳過 →');
     return;
   }
   // Refresh entitlements (quota was consumed) for the badge
@@ -6018,7 +6087,13 @@ async function maybePlayMilestoneStory(journey) {
   const cur = journey.milestones.find((m) => m.day === journey.day && m.achieved_this_cycle);
   if (!cur) return;
   try {
-    const story = await api('GET', `/journey/milestone/${journey.day}`);
+    // 10s budget — milestone is a nice-to-have animation, never block the
+    // post-advance flow on a slow network.
+    const story = await withTimeout(
+      api('GET', `/journey/milestone/${journey.day}`),
+      10000,
+      'milestone-fetch-timeout'
+    );
     if (story && story.lines && story.lines.length > 0) {
       await playDialog(story.lines, { npc: { emoji: '🗺️', name: '旅程精靈' } });
     }

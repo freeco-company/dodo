@@ -117,6 +117,26 @@ class FrontendContractAuthTest extends TestCase
     }
 
     /**
+     * Prod regression guard (2026-05-04 incident): HTML-accept requests
+     * (prefetch, share preview, WKWebView edge cases) on /api/* used to
+     * trigger Laravel's default `redirect → route('login')`, which threw
+     * `RouteNotFoundException` because we never registered a `login`
+     * named route. Result: 500 spam in laravel.log.
+     *
+     * The fix in bootstrap/app.php (redirectGuestsTo + render closure)
+     * forces JSON 401 for any /api/* path regardless of Accept header.
+     * This pins that contract so a future refactor can't silently regress.
+     */
+    public function test_unauthenticated_api_with_html_accept_still_returns_json_401(): void
+    {
+        $response = $this->get('/api/me', ['Accept' => 'text/html']);
+
+        $response->assertStatus(401);
+        $response->assertHeader('content-type', 'application/json');
+        $response->assertJsonStructure(['message']);
+    }
+
+    /**
      * Tenant isolation regression guard for the cross-user write path.
      * If a future refactor drops the ownership check on the meal
      * correction endpoint, this test fails — preventing leak of one
