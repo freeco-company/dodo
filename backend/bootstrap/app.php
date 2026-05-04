@@ -25,6 +25,14 @@ return Application::configure(basePath: dirname(__DIR__))
         // Stamp every API request with request_id + structured log context
         $middleware->prependToGroup('api', RequestContextLogger::class);
 
+        // We have no `login` named route — this is a JSON API + Capacitor SPA.
+        // Without this, Laravel's default Authenticate middleware redirects
+        // guests to `route('login')` and throws RouteNotFoundException on any
+        // HTML-accept request to /api/* (prefetch, share preview, WKWebView
+        // edge cases), spamming 500s in laravel.log and freezing scenes that
+        // assume a JSON response shape (prod incident 2026-05-04).
+        $middleware->redirectGuestsTo(fn () => null);
+
         $middleware->alias([
             'admin.token' => AdminTokenAuth::class,
             // ADR-007 Phase 4 — Pandora Core JWT auth (與既有 sanctum 並行；Phase 5+ 才陸續切換)
@@ -44,6 +52,21 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // Force JSON 401 on /api/* unauth (companion to redirectGuestsTo above).
+        // Belt-and-braces: even if a future middleware throws AuthenticationException
+        // directly for an /api/* route, we still respond with the JSON envelope
+        // the frontend dialog/scene loaders expect. Fix for 旁白卡死 incident
+        // (2026-05-04).
+        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, \Illuminate\Http\Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Unauthenticated.',
+                    'error_code' => 'UNAUTHENTICATED',
+                ], 401);
+            }
+            return null;
+        });
+
         // Add structured fields to every reported exception so ops can grep
         // by request_id / user / route. Sentry plug-in picks this up via its
         // Laravel integration's ContextRepository (auto-discovered).
