@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AdminTokenAuth;
 use App\Http\Middleware\PandoraJwtAuth;
+use App\Http\Middleware\RecordDailyStreak;
 use App\Http\Middleware\RequestContextLogger;
 use App\Http\Middleware\SanctumOrPandoraJwt;
 use App\Http\Middleware\VerifyEcommerceWebhookSignature;
@@ -27,6 +28,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'admin.token' => AdminTokenAuth::class,
+            // SPEC-daily-login-streak — record per-App daily login streak after auth.
+            'daily.streak' => RecordDailyStreak::class,
             // ADR-007 Phase 4 — Pandora Core JWT auth (與既有 sanctum 並行；Phase 5+ 才陸續切換)
             'pandora.jwt' => PandoraJwtAuth::class,
             // ADR-007 Phase F prep — 接受 sanctum or platform JWT（route 不動，逐條切換用）

@@ -101,9 +101,12 @@ Route::middleware('admin.token')->prefix('admin')->group(function () {
 });
 
 // ----- Authenticated (sanctum) -----
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'daily.streak'])->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+
+    // SPEC-daily-login-streak — read + bump streak in one round-trip on app boot.
+    Route::get('/streak/today', [\App\Http\Controllers\Api\StreakController::class, 'today']);
 
     Route::get('/daily-logs', [DailyLogController::class, 'index']);
     Route::post('/daily-logs', [DailyLogController::class, 'store']);
