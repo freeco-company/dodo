@@ -70,6 +70,9 @@
       .streak-toast__dodo img { width: 100%; height: 100%; object-fit: contain; }
       .streak-toast__title { font-weight: 700; font-size: 15px; }
       .streak-toast__sub   { opacity: 0.92; font-size: 13px; margin-top: 2px; }
+      /* Phase 5B — cross-App master streak (FP 團隊). Quieter than the
+         主 sub line so it reads as supplementary; only shown on milestone toast. */
+      .streak-toast__group { opacity: 0.8; font-size: 12px; margin-top: 4px; letter-spacing: 0.3px; }
       .streak-toast__unlocks {
         display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap;
       }
@@ -218,8 +221,18 @@
     return '<div class="' + wrapClass + '">' + chips.join('') + '</div>';
   }
 
+  /**
+   * FP 團隊 sub-line shown only on milestone variant (主 toast 太小擠不下).
+   * Tone: 妳/朋友 — 不寫「您」「會員」.
+   */
+  function groupSubHtml(group) {
+    if (!group || typeof group.current_streak !== 'number' || group.current_streak < 1) return '';
+    return '<div class="streak-toast__group">FP 團隊連續第 '
+      + Number(group.current_streak) + ' 天</div>';
+  }
+
   /** Build the inline milestone toast DOM. */
-  function buildToastEl({ streak, isMilestone, milestoneLabel, unlocks }) {
+  function buildToastEl({ streak, isMilestone, milestoneLabel, unlocks, group }) {
     const el = document.createElement('div');
     el.className = 'streak-toast' + (isMilestone ? ' streak-toast--milestone' : '');
     el.setAttribute('role', 'status');
@@ -240,6 +253,7 @@
       text.innerHTML =
         '<div class="streak-toast__title">' + title + ' 🔥</div>'
         + '<div class="streak-toast__sub">妳已經連續 ' + streak + ' 天了，朋友！</div>'
+        + groupSubHtml(group)
         + unlocksChipsHtml(unlocks, false);
       inner.appendChild(text);
     } else {
@@ -288,7 +302,7 @@
     return el;
   }
 
-  function show({ streak, isMilestone, milestoneLabel, unlocks }) {
+  function show({ streak, isMilestone, milestoneLabel, unlocks, group }) {
     ensureStyles();
     const root = ensureRoot();
 
@@ -303,6 +317,7 @@
       isMilestone: isMilestone,
       milestoneLabel: milestoneLabel,
       unlocks: unlocks,
+      group: group,
     });
     root.appendChild(el);
 
@@ -337,6 +352,7 @@
       isMilestone: !!resp.is_milestone,
       milestoneLabel: resp.milestone_label || null,
       unlocks: resp.unlocks || null,
+      group: resp.group || null,
     });
   }
 

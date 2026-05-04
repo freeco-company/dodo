@@ -223,6 +223,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Pandora Core cross-App master streak (read API)
+    |--------------------------------------------------------------------------
+    | Phase 5B — meal frontend overlays group streak above its per-App toast.
+    | Same py-service host & shared secret as gamification publisher above
+    | (py-service uses a single INTERNAL_SHARED_SECRET); split-deploy override
+    | via GROUP_STREAK_API_URL / GROUP_STREAK_HMAC_SECRET if needed.
+    | See: GroupStreakClient + py-service `/api/v1/internal/group-streak/{uuid}`.
+    */
+    'group_streak' => [
+        'base_url' => env('GROUP_STREAK_API_URL', env('PANDORA_GAMIFICATION_BASE_URL', env('PANDORA_CONVERSION_BASE_URL'))),
+        'shared_secret' => env('GROUP_STREAK_HMAC_SECRET', env('PANDORA_GAMIFICATION_SHARED_SECRET', env('PANDORA_CONVERSION_SHARED_SECRET'))),
+        'timeout' => (int) env('GROUP_STREAK_TIMEOUT', 5),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Lifecycle cache-invalidate webhook (PG-93)
     |--------------------------------------------------------------------------
     | Inbound from py-service when a LifecycleTransition is persisted (e.g.

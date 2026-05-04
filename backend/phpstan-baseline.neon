@@ -1,12 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
-			identifier: method.notFound
-			count: 5
-			path: tests/Feature/Api/DailyLoginStreakTest.php
-
-		-
 			message: '#^Cannot call method toDateString\(\) on string\.$#'
 			identifier: method.nonObject
 			count: 2
@@ -481,6 +475,12 @@ parameters:
 			path: tests/Feature/Api/DailyLogTest.php
 
 		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 5
+			path: tests/Feature/Api/DailyLoginStreakTest.php
+
+		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -887,6 +887,24 @@ parameters:
 			identifier: method.notFound
 			count: 3
 			path: tests/Feature/Api/ShieldTest.php
+
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:getJson\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/Feature/Api/StreakGroupOverlayTest.php
+
+		-
+			message: '#^Method App\\Services\\Dodo\\Streak\\GroupStreakClient@anonymous/tests/Feature/Api/StreakGroupOverlayTest\.php\:20\:\:fetch\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: tests/Feature/Api/StreakGroupOverlayTest.php
+
+		-
+			message: '#^Method App\\Services\\Dodo\\Streak\\GroupStreakClient@anonymous/tests/Feature/Api/StreakGroupOverlayTest\.php\:66\:\:fetch\(\) never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: tests/Feature/Api/StreakGroupOverlayTest.php
 
 		-
 			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:actingAs\(\)\.$#'
