@@ -613,6 +613,9 @@ async function tryResume() {
     $('#screen-welcome').classList.add('hidden');
     $('#main').classList.remove('hidden');
     await runFirstRunGates();
+    // SPEC-daily-login-streak — flash toast on first login of the day (TPE).
+    // Backend same-day call is a no-op so this is safe to fire on every resume.
+    try { window.dodoStreakToast && window.dodoStreakToast.run(); } catch (_e) { /* never block resume */ }
     return true;
   } catch (err) {
     console.warn('[doudou] resume failed, clearing stale localStorage:', err);
